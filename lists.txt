@@ -1,0 +1,6 @@
+categ<-c("1A","1B","2A","2B","2C","2D","2E","2F","2G","4","4A","4B","4C","4C1","4C11","4C12","4C121","4C122","4C2","4C21","4C22","4C3","4C31","4C32","4C4","4D","4D1","4D11","4D12","4D13","4D14","4D15","4D16","4D2","4D3","4D31","4D32","4D4","4E","4E1","4F","4F1","4F11","4F12","4F13","4F14","4F15","4F16","4F17","4F2","4F21","4F22","4F23","4F24","4F3","4F31","4F32","4F4","4F5","4G","5A","5B","5C","5D","5E","5F","5G","6A","6B","6C","6D","TOTnoLULUCF","TOTwithLULUCF")
+sourc<-c("-999","ANLAG","BUFF","CATT","CMLL","DAIR","FUEL","GOAT","HORS","LIQSY","LVST","MDAIR","MLAS","MNDAI","NDAI","OAWMS","OLVST","POUL","SHEE","SOLID","SWIN","YCAT")
+measu<-c("AD","EM","IEF")
+gases<-c("-999","CH4","CO2","GHG","GHGa","N2O","NOx")
+units<-c("g/m2","Gg","GgCO2eq","kg/head/yr","kg/tdm","kgN/yr","kgN2O-N/ha","kgN2O-N/kgN")
+party<-c("AT","BE","BG","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IT","LT","LU","LV","MT","NL","PL","PT","RO","SE","SI","SK")

@@ -1,0 +1,22 @@
+#Note: give here a list of the categories which should be included in the plotting				
+#AD: if the AD data should be plotted 			
+#EM: if the EM data should be plotted (according to below)				
+#IEF if the IEF data should be plotted (according to below)	
+#any other parameter as it is given in the meta_data_dimensions.csv
+#for each 'measure' that should be plotted first give the measure-acronym (e.g. EMCH4) and
+#          then a value [0-7] that defines which plots should be done according to below.
+#Example: 4ACATT,AD,3,EMCH4,7,IEF,0 for
+#         Cat 4A (enteric fermenation) for cattle, plot of AD (livestock numbers)
+#         and emissions (EMCH4) both value and trend plot (1+2=3) but no IEF plot (0)
+#         and not other parameter plot (not given)
+# Note that each row must start with the category, source,gas (4A,CATT,CH4) followed by 
+#      AD and the desired plot-wish-number, the emissions and desired plotwishnumber. 
+#      All other item-pairs (measure,plotwishnumber) are not obligatory and do not need to follow any order.
+# Values: 				
+# 0: plot not needed				
+# 1: Include VALUE plot				
+# 2: Include TREND plot				
+# 4: Include COUNTRY plot				
+# 3 5 6 7: several plots according to the sum of the above		
+cat,AD,EM,IEF,Factor1,Factor2,Factor3,Factor4,....
+4A,CATT,CH4,AD,0,EM,0,IEF,4

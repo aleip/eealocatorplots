@@ -1,30 +1,36 @@
-cnt color	dens	coll ang1	ang2
-AT	grey10	20	grey50	45	-45	
-BE	grey10	20	grey80	45	-45	
-BG	grey10	10	grey50	45	-45	
-CY	grey10	10	grey80	45	-45	
-CZ	grey10	 5 	grey50	45	-45	
-DE	grey35	20	grey10	45	-45	
-DK	grey35	20	grey80	45	-45	
-EE	grey35	10	grey10	45	-45	
-ES	grey35	10	grey80	45	-45	
-FI	grey35	 5	grey10	45	-45	
-FR	grey20	20	grey50	45	-45	
-GB	grey20	20	grey80	45	-45	
-GR	grey20	10	grey50	45	-45	
-HR	grey20	10	grey80	45	-45	
-HU	grey20	 5	grey50	45	-45	
-IE	grey65	20	grey10	45	-45	
-IT	grey65	20	grey30	45	-45	
-LT	grey65	10	grey10	45	-45	
-LU	grey65	10	grey30	45	-45	
-LV	grey65	 5	grey10	45	-45	
-MT	grey80	20	grey10	45	-45	
-NL	grey80	20	grey20	45	-45	
-PL	grey80	10	grey10	45	-45	
-PT	grey80	10	grey20	45	-45	
-RO	grey80	 5	grey10	45	-45	
-SE	grey90	20	grey10	45	-45	
-SI	grey90	20	grey20	45	-45	
-SK	grey90	10	grey10	45	-45	
-Other white	 0	grey20	45	-45	
+#symbols: 
+#pch = 21: filled circle,
+#pch = 22: filled square,
+#pch = 23: filled diamond,
+#pch = 24: filled triangle point-up,
+#pch = 25: filled triangle point down.
+cnt color	dens	coll ang1	ang2    symbol    col1t   col2t	
+AT	grey10	20	grey50	45	-45 21  white   grey    
+BE	grey10	20	grey80	45	-45	21  white   black   
+BG	grey10	10	grey50	45	-45	21  white   white   
+CY	grey10	10	grey80	45	-45	21  grey    grey    
+CZ	grey10	 5 	grey50	45	-45	21  grey    white   
+DE	grey35	20	grey10	45	-45	21  grey    black   
+DK	grey35	20	grey80	45	-45	21  black   white   
+EE	grey35	10	grey10	45	-45	21  black   grey    
+ES	grey35	10	grey80	45	-45	21  black   black
+FI	grey35	 5	grey10	45	-45	22  white   grey 
+FR	grey20	20	grey50	45	-45	22  white   black
+GB	grey20	20	grey80	45	-45	22  white   white
+GR	grey20	10	grey50	45	-45	22  grey    grey 
+HR	grey20	10	grey80	45	-45	22  grey    white
+HU	grey20	 5	grey50	45	-45	22  grey    black
+IE	grey65	20	grey10	45	-45	22  black   white
+IT	grey65	20	grey30	45	-45	22  black   grey 
+LT	grey65	10	grey10	45	-45	22  black   black
+LU	grey65	10	grey30	45	-45	23  white   grey 
+LV	grey65	 5	grey10	45	-45	23  white   black
+MT	grey80	20	grey10	45	-45	23  white   white
+NL	grey80	20	grey20	45	-45	23  grey    grey 
+PL	grey80	10	grey10	45	-45	23  grey    white
+PT	grey80	10	grey20	45	-45	23  grey    black
+RO	grey80	 5	grey10	45	-45	23  black   white
+SE	grey90	20	grey10	45	-45	23  black   grey 
+SI	grey90	20	grey20	45	-45	23  black   black
+SK	grey90	10	grey10	45	-45	24  white   grey 
+Other white	 0	grey20	45	-45	24  white   black

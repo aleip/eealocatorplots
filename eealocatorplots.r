@@ -162,9 +162,6 @@ for (icurtasks in 1:length(curtasks)){
             par(xpd=F)
             schraffierung<-1
             
-            # Eliminate years before 1990
-            #eealocator1990<-subset(eealocator,year>=1990)
-            attributes<-as.matrix(read.table("attributes.txt",header=T,row.names=1,check.names=F))
             
             nyears<-ncol(eealocator)
             
@@ -218,8 +215,10 @@ for (icurtasks in 1:length(curtasks)){
                 relna<-lowerok+upperok
                 
                 #Use absolute relative deviation as sorting criterium
+                #Store the maximum absolute relative deviation
                 relabs<-abs(1-rel)
                 relav<-rowMeans(relabs)
+                relav<-apply(relabs,1,max)
                 
                 #Attention! this needs to be a weighted mean
                 eu28.trend<-colMeans(eeatrend,na.rm=T)
@@ -251,7 +250,7 @@ for (icurtasks in 1:length(curtasks)){
                 
                 if(curfocus=="trend"){
                     #Criterion for selecting country: largest internnual change in timeseries
-                    relav<-apply(relplot,1,max)
+                    #relav<-apply(relplot,1,max)
                     relplot[relplot==0]<-NA
                 }  
                 
@@ -285,14 +284,19 @@ for (icurtasks in 1:length(curtasks)){
             
             
             #mydens<-as.vector(as.numeric(attributes[rownames(eu28fin),"dens"]))
+            attributes<-as.matrix(read.table("attributes.txt",header=T,row.names=1,check.names=F))
             mydens<-(as.numeric(attributes[rownames(eu28fin),"dens"]))
             mycols<-(attributes[rownames(eu28fin),"color"])
             mycoll<-(attributes[rownames(eu28fin),"coll"])
             myang1<-(as.numeric(attributes[rownames(eu28fin),"ang1"]))
             myang2<-(as.numeric(attributes[rownames(eu28fin),"ang2"]))
             
-            myticks<-c(21,22,24,21,22,24,21,22,24,23)
-            mytcols<-c("white","white","white","grey","grey","grey","black","black","black","white")
+            myticks<-(as.numeric(attributes[rownames(eu28fin),"symbol"]))
+            mytcol1<-(attributes[rownames(eu28fin),"col1t"])
+            mytcol2<-(attributes[rownames(eu28fin),"col2t"])
+            mytcol3<-mytcol2
+            mytcol3[mytcol1=="black" & mytcol2=="black"]<-"white"
+            mytcol3[mytcol1!="black" | mytcol2!="black"]<-"black"
             
             # Plotting barplot, first the bars in shading, then the left-and righthand pattern
             #df.bar<-barplot(eu28fin,yaxp=c(0,8000,2000),col=mycols)
@@ -385,11 +389,11 @@ for (icurtasks in 1:length(curtasks)){
                             staplelty=0,
                             ylim=c(tmin,tmax),
                             xlab="")
-                    #axis(1,at=c(1990:2012),line=1,lwd=2,las=1,pos=c(0,0))
                     
-                    for (i in c(1:topn+1)){
-                        points(eu28fin[i,],pch=myticks[i],
-                               col="black",bg=mytcols[i],lwd=1,cex=1.5)
+                    for (i in c(1:(topn+1))){
+                        #print(paste(i,eu28fin[i,1],myticks[i],mytcol1[i],mytcol2[i],mytcol3[i]))
+                        points(eu28fin[i,],pch=myticks[i],col="black"   ,bg=mytcol1[i],lwd=1,cex=1.5)
+                        points(eu28fin[i,],pch=myticks[i],col=mytcol3[i],bg=mytcol2[i],lwd=1,cex=0.75)
                     }
                     points(eu28,pch=21,bg="black",col="red",cex=1.5,lwd=2)
                 }
@@ -468,14 +472,10 @@ for (icurtasks in 1:length(curtasks)){
                         rect(0,low,recside,hig,col=mycoll[i],dens=mydens[i],angle=myang2[i]) 
                         rect(0,low,recside,hig) 
                     }}else{
-                        #print(paste(i,low,mid,hig))
-                        #print(paste(i,low+(hig-low)/2))
-                        points(recside/2,low+(hig-low)/2,
-                               bg=mytcols[i], 
-                               pch=myticks[i],
-                               col="black",lwd=1,cex=1.5)
+                        #print(paste(i,low,mid,hig,mytcol1[i],mytcol2[i],mytcol3[i]))
+                        points(recside/2,low+(hig-low)/2,pch=myticks[i],bg=mytcol1[i],col="black",lwd=1,cex=1.5)
+                        points(recside/2,low+(hig-low)/2,pch=myticks[i],bg=mytcol2[i],col=mytcol3[i],lwd=1,cex=0.75)
                     }
-                
                 #chartr substitutes dots with space
                 #text(recside*1.2,mid,chartr("."," ",finnames[i]),cex=1.2,adj=0)
                 text(recside*1.2,mid,finnames[i],cex=legcex,adj=0)
@@ -493,11 +493,7 @@ for (icurtasks in 1:length(curtasks)){
             mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)
             #print(paste(i,low,mid,hig))
             
-            
-            points(
-                x=recside/2
-                ,y=mid
-                ,pch=21,bg="black",col="red",cex=1.5,lwd=2)
+            points(x=recside/2,y=mid,pch=21,bg="black",col="red",cex=1.5,lwd=2)
             text(recside*1.2,mid,"EU28+IS",cex=legcex,adj=0,font=2)
             #text(avshare,mid,"100%",cex=legcex,adj=1)
             if (curfocus=="trend") text(avshare+0.03,mid,mytextadef,cex=legcex-0.1,adj=0,font=2)

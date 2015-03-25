@@ -1,0 +1,169 @@
+measure,Activity Data,AD
+measure,Emissions,EM
+measure,Implied emission factor,IEF
+measure,Allocation by climate region,ALLOCCLIMA
+measure,Amount,AMOUNT
+measure,Amount applied,APPLIED
+measure,Amount captured,
+measure,Amount of CH4 flared,
+measure,Amount of CH4 for energy recovery,CHEENERGY
+measure,Amount of fuel produced,FUEL
+measure,Amount of wastes incinerated/open burned,
+measure,Annual change in stock,STOCKCHANGE
+measure,Annual waste amount treated,
+measure,Annual waste at the SWDS,
+measure,Apparent consumption,
+measure,Apparent energy consumption  (excluding non-energy use reductants and feedstocks),
+measure,Area,AREA
+measure,Area burned,AREA
+measure,Area of cultivated organic soils,AREA
+measure,Area of mineral soil,AREA
+measure,Area of organic soil,AREA
+measure,Area subject to natural disturbances in the inventory year,AREA
+measure,Area subject to natural disturbances in the year when it was first reported,AREA
+measure,Area subject to the activity,AREA
+measure,Atmospheric deposition,ATMDEP
+measure,Average CH4 conversion rate,YM
+measure,Average gross energy intake,GE
+measure,Background level,
+measure,Biomass available,
+measure,Bruto Emissions,
+measure,Calorific value,
+measure,Carbon content,C
+measure,Carbon stock changes,DELTAC
+measure,Carbon stored,
+measure,CH4 per area,CH4
+measure,CH4 producing potential (average),B0
+measure,Change in carbon pool reported,
+measure,CO2 per area,
+measure,CO2 transported or injected,
+measure,Combustion factor,
+measure,Conversion factor,
+measure,Converted to Forest land (unmanaged),
+measure,Converted to Grassland (managed),
+measure,Converted to Grassland (unmanaged),
+measure,Converted to Total unmanaged land,
+measure,Converted to Wetlands (managed),
+measure,Converted to Wetlands (unmanaged),
+measure,Crop  production,PROD
+measure,Degree of utilization of modern centralized WWT plants,
+measure,Difference,DIFF
+measure,Digestibility of feed,DIGEST
+measure,Direct emissions per MMS,EM
+measure,DOC,DOC
+measure,Documentation box,
+measure,Dry matter (dm) fraction of residue,
+measure,Emission factor,EF
+measure,Emission factor information,INFOEF
+measure,Emissions from natural disturbances,
+measure,Emissions in inventory year that can be excludin in the inventory year,
+measure,Energy consumption difference,
+measure,Excluded from reference approach,
+measure,Exports,
+measure,Factors used to convert from product units to carbon,
+measure,Feeding situation,FEEDING
+measure,Final area,
+measure,Final area (unmanaged),
+measure,Fraction burned in fields,
+measure,Fraction excluded from reference approach,
+measure,Fraction of carbon oxidized,
+measure,Fraction of industrial and commercial co-discharged protein into the sewer system,
+measure,Fraction of nitrogen in protein,NINPROT
+measure,Fraction of non-consumed protein added to the wastewater,
+measure,Fraction oxidized,
+measure,Fuel Consumption,
+measure,Fuel Consumption Distribution,
+measure,Fuel quantity,
+measure,Gains,
+measure,Greenhouse gas sources reported,SOURCE
+measure,Gross energy,GROSSENER
+measure,Half-life,HALFLIFE
+measure,Harvested area,AREA
+measure,Harvested area for Upland Rice,AREA
+measure,Implied emission factors,IEF
+measure,Imports,
+measure,Indirect emissions,EMIND
+measure,Initial area,AREA
+measure,Initial area (unmanaged),AREA
+measure,International bunkers,
+measure,Land area,AREA
+measure,Losses,
+measure,Margin,
+measure,MCF,MCF
+measure,Methane conversion factor,MCF
+measure,Method,
+measure,Milk yield,MILK
+measure,Minimum height (2-5 m),
+measure,Minimum land area (0.05-1 ha),
+measure,Minimum land cover (10-30 %),
+measure,N excretion on pasture range and paddock,NEXC
+measure,N from fertilizers and other agricultural inputs that is lost through leaching and run-off,AD
+measure,N from fertlizers and other that is lost through leaching and run-off from managed soils,AD
+measure,N in crop residues returned to soils,AD
+measure,N in effluent,AD
+measure,N in mineral soils that is mineralized in association with loss of soil C,AD
+measure,N input from application of inorganic fertilizers to cropland and grassland,AD
+measure,N input from application of other organic fertilizers,AD
+measure,N input from manure applied to soils,AD
+measure,N input from organic N fertilizers to cropland and grassland,AD
+measure,N input from sewage sludge applied to soils,AD
+measure,N lost through leaching and run-off,NLOST
+measure,N volatized from managed soils from inputs of N,NVOLA
+measure,N2O-N emissions per unit of fertilizer,N2OEFFERT
+measure,N2O-N per area,N2OEFAREA
+measure,Net carbon emissions,
+measure,Net carbon stock change in dead organic matter,
+measure,Net carbon stock change in dead organic matter per area,
+measure,Net carbon stock change in dead wood,
+measure,Net carbon stock change in dead wood per area,
+measure,Net carbon stock change in litter,
+measure,Net carbon stock change in litter per area,
+measure,Net carbon stock change in soils,
+measure,Net carbon stock change in soils per area,
+measure,Net change,
+measure,Nitrogen excretion per MMS,NEXC
+measure,Nitrogen excretion rate,NEXC
+measure,Nitrogen leaching and run-off,NLF
+measure,Population,AD
+measure,Pregnant,PREGNANT
+measure,Production,PROD
+measure,Protein consumption,
+measure,Recovery,
+measure,Recovery/Flaring,
+measure,Remaining Cropland,
+measure,Remaining Forest land (managed),
+measure,Remaining Forest land (unmanaged),
+measure,Remaining Grassland (managed),
+measure,Remaining Grassland (unmanaged),
+measure,Remaining Other land,
+measure,Remaining Settlements,
+measure,Remaining Wetlands (managed),
+measure,Remaining Wetlands (unmanaged),
+measure,Reported under,
+measure,Residue/ Crop ratio,RRESCROP
+measure,Salvage logging,
+measure,Sludge removed,
+measure,Source apparent consumption,
+measure,Stock change,
+measure,Subsequent removals in inventory year,
+measure,Technical correction,
+measure,Total amount of fertilizer applied,
+measure,Total area,
+measure,Total area at the end of the current year,
+measure,Total area at the end of the previous year,
+measure,Total area subject to conversion,
+measure,Total biomass burned,
+measure,Total N excreted,NEXC
+measure,Total N volatilised as NH3 and Nox,NVOLAT
+measure,Total organic product,
+measure,Trigger test,
+measure,Type,TYPE
+measure,Typical animal mass (average),MASS
+measure,Unit,UNIT
+measure,Value inscribed in the Appendix to the annex to decision 2/CMP.7,
+measure,Volatilized N from agricultural inputs of N,
+measure,VS daily excretion (average),VSEXC
+measure,Waste incineration with energy recovery included as biomass,
+measure,Waste incineration with energy recovery included as fossil fuels,
+measure,Weight,WEIGHT
+measure,Work,WORK

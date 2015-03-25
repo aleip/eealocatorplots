@@ -1,20 +1,6 @@
+timestamp=$(date "+%Y%m%d %H:%M:%s")
+
 i=0
-
-sed -e 's/"//g'  meta_data_dimensions.csv        > tmp0
-sed -e 's/#//g'                            tmp0  > tmp1
-sed -e 's/^[A-Z]*,/i=$((i+1));var[$i]="/g' tmp1  > tmp2
-sed -e 's/^\(.*\),/\1";brf[$i]="/g'        tmp2  > tmp3
-sed -e 's/$/"/g'                           tmp3  > tmp4
-sed -e 's/\//\\\//g'                       tmp4  > tmp5
-sed -e 's/^Dim/#Dim/g'                     tmp5  > meta_data_dimensions.bash
-sed -e 's/^[A-Z]*,/"/g'                    tmp1  > tmp2a
-sed -e 's/^\(.*\),/\1","/g'                tmp2a > tmp3a
-sed -e 's/$/"/g'                           tmp3a > tmp4a
-sed -e 's/Dimension type,Dimension instance name/"dimension/g' tmp4a > meta_data_dimensions.txt
-. meta_data_dimensions.bash
-numacronyms=$i
-
-
 fil=lulucftest
 fil=eealocatortest
 #input file
@@ -37,9 +23,55 @@ xx1=$(grep ^Method $fili)
 xx2=${xx1/Method Applied,/}
 method=${xx2//,/}
 
-
 #output file data
 filo=${fil}_${subyear}_${efused}${notation}${method}.csv
+
+cat > meta_data_dimensions.txt <<eof
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
+# File meta_data_dimensions.txt
+# Created from the script eealocator_csv.bash on $timestamp
+#         using the file meta_data_dimensions.csv
+# Using EEA locator result file: $fil
+#                   main script output: $filo
+# Adrian Leip <adrian.leip@jrc.ec.europa.eu>
+#
+# Content of file: 
+#   - dimensions extracted from the EEA-locator cube
+#   - corresponding acronyms
+#
+eof
+
+cat > lists.txt <<eof
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
+# File lists.txt
+# Created from the script eealocator_csv.bash on $timestamp
+#         using the file meta_data_dimensions.csv
+# Using EEA locator result file: $fil
+#                   main script output: $filo
+# Adrian Leip <adrian.leip@jrc.ec.europa.eu>
+#
+# Content of file: 
+#   - list of dimensions to be used in the EU-GIRP R script:
+#   - Categories, sources, measures, gases, units, parties
+#
+eof
+
+sed -e 's/"//g'  meta_data_dimensions.csv        > tmp0
+sed -e 's/#//g'                            tmp0  > tmp1
+sed -e 's/^[A-Z]*,/i=$((i+1));var[$i]="/g' tmp1  > tmp2
+sed -e 's/^\(.*\),/\1";brf[$i]="/g'        tmp2  > tmp3
+sed -e 's/$/"/g'                           tmp3  > tmp4
+sed -e 's/\//\\\//g'                       tmp4  > tmp5
+sed -e 's/^Dim/#Dim/g'                     tmp5  > meta_data_dimensions.bash
+sed -e 's/^[A-Z]*,/"/g'                    tmp1  > tmp2a
+sed -e 's/^\(.*\),/\1","/g'                tmp2a > tmp3a
+sed -e 's/$/"/g'                           tmp3a > tmp4a
+sed -e 's/Dimension type,Dimension instance name/"dimension/g' tmp4a >> meta_data_dimensions.txt
+. meta_data_dimensions.bash
+numacronyms=$i
+
+
+
 
 o=$i;i=0;cp $fili file$i
 
@@ -139,7 +171,7 @@ echo "party<-c(" $party ")" >> tmplist.txt
 
   sed -e 's/ /","/g' tmplist.txt | \
   sed -e 's/(","/("/g' | \
-  sed -e 's/",")/")/g' > lists.txt
+  sed -e 's/",")/")/g' >> lists.txt
 
 
 cp file$o $filo

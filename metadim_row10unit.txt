@@ -1,0 +1,59 @@
+unit,%,%
+unit,10^9m^2/yr,10^9m^2/yr
+unit,1000s,1000s
+unit,g/kg,g/kg
+unit,g/m^2,g/m^2
+unit,h/day,h/day
+unit,ha,ha
+unit,ha/yr,ha/yr
+unit,kg,kg
+unit,kg CH4/ha,kgCH4/ha
+unit,kg CO2/ha,kgCO2/ha
+unit,kg dm/head/day,kgdm/head/day
+unit,kg N/yr,kgN/yr
+unit,kg N/yr,kgN/yr
+unit,kg N2O/kg N,kgN2O/kgN
+unit,kg N2O/kg N handled,kgN2O/kgN handled
+unit,kg N2O-N/ha,kgN2O-N/ha
+unit,kg N2O-N/kg N,kgN2O-N/kgN
+unit,kg/day,kg/day
+unit,kg/head/yr,kg/head/yr
+unit,kg/kg DC,kg/kgDC
+unit,kg/kt,kg/kt
+unit,kg/person/yr,kg/person/yr
+unit,kg/t,kg/t
+unit,kg/t dm,kg/t dm
+unit,kg/TJ,kg/TJ
+unit,kg/unit,kg/unit
+unit,kg/yr,kg/yr
+unit,kha,kha
+unit,kha/yr,kha/yr
+unit,kt,kt
+unit,kt C,ktC
+unit,kt CO2 equivalent,ktCO2eq
+unit,kt CO2 equivalent/yr,ktCO2eq/yr
+unit,kt DC,ktDC
+unit,kt dm,ktdm
+unit,kt N/yr,ktN/yr
+unit,m^3,m^3
+unit,m^3/kg VS,m^3/kgVS
+unit,metric t,metric t
+unit,Mg,Mg
+unit,MJ/day,MJ/day
+unit,MJ/head/day,MJ/head/day
+unit,Mt,Mt
+unit,PJ,PJ
+unit,t,t
+unit,t C,t C
+unit,t C/ha,t C/ha
+unit,t CO2 equivalent,t CO2eq
+unit,t CO2-C/t,t CO2-C/t
+unit,t dm/ha,t dm/ha
+unit,t/ha,t/ha
+unit,t/t,t/t
+unit,t/TJ,t/TJ
+unit,t/unit,t/unit
+unit,t/yr,t/yr
+unit,TJ,TJ
+unit,TJ/unit,TJ/unit
+unit,yr,yr

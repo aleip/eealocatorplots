@@ -1,3 +1,14 @@
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
+# File attributes.txt
+# File required for the EU-GIRP R script eealocatorplots.r
+# Purpose: define colors, patterns and symbols for ADEM and IEF plots for each country
+#
+# Adrian Leip <adrian.leip@jrc.ec.europa.eu>
+# Version 20150117
+#
+# Content of file: 
+#   - definitions of plot-parameters
+#
 #symbols: 
 #pch = 21: filled circle,
 #pch = 22: filled square,

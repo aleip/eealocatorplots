@@ -1,0 +1,12 @@
+ROW4,Change in carbon stock,DELTAC
+ROW4,Natural disturbances,NATDIST
+ROW4,no method,
+ROW4,Carbon stock change in above-ground biomass,
+ROW4,Carbon stock change in above-ground biomass per area,
+ROW4,Carbon stock change in below-ground biomass,
+ROW4,Carbon stock change in below-ground biomass per area,
+ROW4,Implied carbon stock change factors,
+ROW4,Implied emission factor,IEF
+ROW4,Mineral soils,MINSOILS
+ROW4,Organic soils,ORGSOILS
+ROW4,Tier 2,T2

@@ -1,0 +1,40 @@
+type,Activity,ACT
+type,Activity A.1,
+type,Activity A.2,
+type,Afforestation and Reforestation,
+type,Biogenic,
+type,Cropland Management,
+type,Deforestation,
+type,Drained Organic Soils,
+type,Forest Management,
+type,Grazing Land Management,
+type,Information item,
+type,Inorganic N Fertilizers,INORGFERT
+type,Memo Item,
+type,Mineral soils,MINS
+type,no type,
+type,Non-biogenic,
+type,Organic N Fertilizers,ORGFERT
+type,Organic soils,HIST
+type,Other Mineral Soils,OMINS
+type,Other Organic Soils,OHIST
+type,Revegetation,
+type,Rewetted Mineral Soils,MINSRW
+type,Rewetted Organic Soils,HISTRW
+type,Soils,SOILS
+type,Total (with LULUCF),
+type,Total (without LULUCF),
+type,Wetland Drainage and Rewetting,WETLDRW
+type,Activity B.1,
+type,Activity data,AD
+type,Additional Information,INFOADD
+type,Article 3.3 Activities,
+type,Article 3.4 Activities,
+type,Carbon stock change in living biomass,
+type,Harvested and converted forest plantations,
+type,Land subject to natural disturbances,
+type,managed,
+type,Newly established forest,
+type,Organic amendments added,
+type,Other activity,
+type,unmanaged,

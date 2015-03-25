@@ -1,3 +1,14 @@
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
+# File curplot.csv
+# File required for the EU-GIRP R script eealocatorplots.r
+# Purpose: steers the R script defining which plots need to be generated
+#          see below for information how to use this file!!
+#
+# Adrian Leip <adrian.leip@jrc.ec.europa.eu>
+#
+# Content of file: 
+#   - definition of plot-requests for EU-GIRP
+#
 #Note: give here a list of the categories which should be included in the plotting				
 #AD: if the AD data should be plotted 			
 #EM: if the EM data should be plotted (according to below)				
@@ -19,4 +30,4 @@
 # 4: Include COUNTRY plot				
 # 3 5 6 7: several plots according to the sum of the above		
 cat,AD,EM,IEF,Factor1,Factor2,Factor3,Factor4,....
-4A,CATT,CH4,AD,0,EM,0,IEF,4
+3A,DAIR,CH4,AD,0,EM,0,IEF,2,GE,0

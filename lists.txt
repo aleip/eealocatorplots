@@ -1,6 +1,18 @@
-categ<-c("1A","1B","2A","2B","2C","2D","2E","2F","2G","4","4A","4B","4C","4C1","4C11","4C12","4C121","4C122","4C2","4C21","4C22","4C3","4C31","4C32","4C4","4D","4D1","4D11","4D12","4D13","4D14","4D15","4D16","4D2","4D3","4D31","4D32","4D4","4E","4E1","4F","4F1","4F11","4F12","4F13","4F14","4F15","4F16","4F17","4F2","4F21","4F22","4F23","4F24","4F3","4F31","4F32","4F4","4F5","4G","5A","5B","5C","5D","5E","5F","5G","6A","6B","6C","6D","TOTnoLULUCF","TOTwithLULUCF")
-sourc<-c("-999","ANLAG","BUFF","CATT","CMLL","DAIR","FUEL","GOAT","HORS","LIQSY","LVST","MDAIR","MLAS","MNDAI","NDAI","OAWMS","OLVST","POUL","SHEE","SOLID","SWIN","YCAT")
-measu<-c("AD","EM","IEF")
-gases<-c("-999","CH4","CO2","GHG","GHGa","N2O","NOx")
-units<-c("g/m2","Gg","GgCO2eq","kg/head/yr","kg/tdm","kgN/yr","kgN2O-N/ha","kgN2O-N/kgN")
-party<-c("AT","BE","BG","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IT","LT","LU","LV","MT","NL","PL","PT","RO","SE","SI","SK")
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
+# File lists.txt
+# Created from the script eealocator_csv.bash on 20150323 21:44:1427143491
+#         using the file meta_data_dimensions.csv
+# Using EEA locator result file: EEA_GHG_MMR_locator_20150323.cub
+#                   main script output: EEA_GHG_MMR_locator_20150323.cub_2015.csv
+# Adrian Leip <adrian.leip@jrc.ec.europa.eu>
+#
+# Content of file: 
+#   - list of dimensions to be used in the EU-GIRP R script:
+#   - Categories, sources, measures, gases, units, parties
+#
+categ<-c("3","3A","3B","3C","3C1","3C1a","3C1b","3C1b1","3C1b2","3C2","3C2a","3C2b","3C3","3C3a","3C3b","3F","3G","3H","3I","4D","CH4EM","CO2EM","TOTLULUCF","TOTnoLULUCF")
+sourc<-c("-999","AGRRES","CATT","CERE","CRES","DAIR","DAIRCOOL","DAIRINFOADD","DAIRTEMP","DAIRWARM","FARM","FARMATMD","FARMN2OIND","FARMNLR","HIST","INFOADD","MAIZ","MAIZINFOADD","MANFERT","MINERSOM","NDAI","NDAICOOL","NDAIINFOADD","NDAITEMP","NDAIWARM","NGRAZ","OANIM","OCER","OMANSOILS","OORGFERT","OPULS","OSHEP","OSWIN","Other","Other","OTURO","PULS","SEWAGE","SHEP","SOILS","SOILSINORGFERT","SOILSORGFERT","SUGC","SWIN","TURO","WHEA","WHEAINFOADD")
+measu<-c("-999","AD","ALLOCCLIMA","AMOUNT","APPLIED","AREA","B0","DIGEST","EM","FEEDING","GE","GROSSENER","IEF","INFOEF","MASS","MILK","NEXC","PREGNANT","PROD","RRESCROP","TYPE","VSEXC","WEIGHT","WORK","YM")
+gases<-c("-999","CH4","CO2","GHGs","N2O","NOx")
+units<-c("%","10^9m^2/year","1000s","-999","g/m^2","h/day","ha/year","kg","kg","N/year","kg/day","kg/head/year","kg/t","dm","kgdm/head/day","kgN2O-N/kgN","kha/year","kt","ktCO2eq","ktdm","m^3/kgVS","MJ/day","MJ/head/day","t","t","CO2-C/t","t","dm/ha","t/ha","t/t","t/year")
+party<-c("BE","DK")

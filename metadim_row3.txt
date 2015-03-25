@@ -1,0 +1,36 @@
+ROW3,Cropland,CROPL
+ROW3,Emissions from areas subject to natural disturbances,NATDIST
+ROW3,Fishing,FISH
+ROW3,Flooded Land,FLODL
+ROW3,Forest Land,FOREL
+ROW3,Grassland,GRASL
+ROW3,HWP from domestic harvest,HWPD
+ROW3,HWP in SWDS,HWPS
+ROW3,HWP in use,HWPU
+ROW3,Land,LAND
+ROW3,Mobile Combustion,MCOMB
+ROW3,no source,
+ROW3,Off-road vehicles and other machinery,OFFROAD
+ROW3,Other Land,OLAND
+ROW3,Other source,OSOURCE
+ROW3,Other Wetlands,OWETL
+ROW3,Peatland,PEATL
+ROW3,Settlements,SETTL
+ROW3,Stationary combustion,SCOMB
+ROW3,Wetlands,WETL
+ROW3,Anaerobic lagoon,
+ROW3,Burned for fuel or as waste,
+ROW3,Composting,
+ROW3,Daily spread,
+ROW3,Digesters,
+ROW3,For domestic storage,
+ROW3,For storage in other countries,
+ROW3,HWP,
+ROW3,HWP in solid waste disposal sites produced from domestic harvest,
+ROW3,HWP in use from domestic consumption,
+ROW3,HWP in use from domestic harvest,
+ROW3,Liquid system,LIQU
+ROW3,Other,OTHE
+ROW3,Pasture range and paddock,PRP
+ROW3,Solid storage and dry lot,SOLID
+ROW3,Total unmanaged land,

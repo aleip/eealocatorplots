@@ -1,4 +1,6 @@
 library(ggplot2)
+library(reshape2) #required for melt function - for outls
+# library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 rm(list=objects())
 #dev.off()
 
@@ -42,7 +44,9 @@ source("lists.txt")
 # Load the current tasks to do
 # See file curplot.csv for information on how to set it up
 curtasks <- readLines("curplot.csv")
+cursubm <- "201503"
 starttasks<-0
+dotrendoutl<-1
 for (icurtasks in 1:length(curtasks)){
     curtask<-curtasks[icurtasks]
     if(starttasks==1){
@@ -59,7 +63,7 @@ for (icurtasks in 1:length(curtasks)){
         
         ################################################################################
         #Clean up memory to avoid
-        torm1<-c("activityd","categorymatrix","eealocator")
+        torm1<-c("actcount","categorymatrix","eealocator")
         torm2<-torm1[torm1 %in% ls()]
         if(length(torm2)>0){rm(list=torm2)}
         
@@ -75,28 +79,28 @@ for (icurtasks in 1:length(curtasks)){
         tmp1<-subset(categorymatrix,measure=="AD",select=-measure)
         unitad<-as.vector(unique(subset(tmp1,select=unit))[,1])
         tmp2<-subset(tmp1,select=c(-gas,-unit,-party))
-        activityd<-unique(tmp2)
+        actcount<-unique(tmp2)
 
-        years<-as.numeric(gsub("X","",gsub("X","",colnames(activityd))))
+        years<-as.numeric(gsub("X","",gsub("X","",colnames(actcount))))
         nyears<-length(years)
         
-        rownames(activityd)<-curparts
-        colnames(activityd)<-years
+        rownames(actcount)<-curparts
+        colnames(actcount)<-years
         colnames(categorymatrix)[5:(4+nyears)]<-years
 
         tmp1<-subset(categorymatrix,measure=="EM",select=-measure)
         unitem<-as.vector(unique(subset(tmp1,select=unit))[,1])
         tmp2<-subset(tmp1,gas==curgases,select=c(-gas,-unit,-party))
-        emissions<-unique(tmp2)
-        rownames(emissions)<-curparts
-        colnames(emissions)<-years
+        emicount<-unique(tmp2)
+        rownames(emicount)<-curparts
+        colnames(emicount)<-years
         
         tmp1<-subset(categorymatrix,measure=="IEF",select=-measure)
         unitief<-as.vector(unique(subset(tmp1,select=unit))[,1])
         tmp2<-subset(tmp1,gas==curgases,select=c(-gas,-unit,-party))
-        impliedef<-unique(tmp2)
-        rownames(impliedef)<-curparts
-        colnames(impliedef)<-years
+        iefcount<-unique(tmp2)
+        rownames(iefcount)<-curparts
+        colnames(iefcount)<-years
 
         
                 
@@ -170,13 +174,13 @@ for (icurtasks in 1:length(curtasks)){
 
             
             if(curpar=="AD"){
-                eealocator<-activityd
+                eealocator<-actcount
                 curunit<-unitad
             } else if(curpar=="EM"){
-                eealocator<-emissions
+                eealocator<-emicount
                 curunit<-unitem
             } else if(curpar=="IEF"){                
-                eealocator<-impliedef
+                eealocator<-iefcount
                 curunit<-unitief
             } else {
                 
@@ -195,8 +199,8 @@ for (icurtasks in 1:length(curtasks)){
                 allcountries<-row.names(attributes)
                 allcountries<-allcountries[allcountries != "Other"]
                 restcountries<-allcountries[! allcountries %in% party]
-                #Add 7 countries
-                nnewc<-12
+                #Add countries
+                nnewc<-25
                 newcn<-restcountries[sample(1:length(restcountries),nnewc,replace=FALSE)]
                 #Multiplicate with random between 0.7 and 1.3 times values
                 randommulp<-matrix(runif(nyears*nnewc,min=0.9,max=1.2),ncol=nyears)
@@ -223,7 +227,7 @@ for (icurtasks in 1:length(curtasks)){
             
             textcat<-dimensions[dimensions[2]==curcateg][1]
             textpar<-dimensions[dimensions[2]==curpar][1]
-
+            
             #### GENERAL PLOT INFORMATION
             #source("c:/adrian/models/capri/dndc/results/20110722/nitrogen/figures/plotdefaults.r")
             xstt=0.15
@@ -239,10 +243,66 @@ for (icurtasks in 1:length(curtasks)){
             
             #Get emission matrix
             
-            #Calculate trend
-            acttrend<-activityd[,2:nyears]-activityd[,1:nyears-1]
-            emitrend<-emissions[,2:nyears]-emissions[,1:nyears-1]
-            ieftrend<-impliedef[,2:nyears]-impliedef[,1:nyears-1]
+            #Calculate trend in absolute values
+            acttrend<-actcount[,2:nyears]-actcount[,1:nyears-1]
+            emitrend<-emicount[,2:nyears]-emicount[,1:nyears-1]
+            ieftrend<-iefcount[,2:nyears]-iefcount[,1:nyears-1]
+            
+            #Groth rates calculated as Y_i/Y_(i-1) - 1
+            growth<-eealocator[,2:nyears]/actcount[,1:nyears-1]-1
+            
+            if(dotrendoutl==1){
+                trendoutlmethod<-2
+                
+                # Save quantiles for growth rate
+                growthquantiles<-t(apply(growth, 1, quantile, probs = c(0.25, 0.5, 0.75),  na.rm = TRUE))
+                eeaquantiles<-t(apply(eealocator, 1, quantile, probs = c(0.25, 0.5, 0.75),  na.rm = TRUE))
+                
+                # Median absolute deviation of the absolute deviations from the median
+                growthmad<-apply(growth, 1, mad,  na.rm = TRUE)
+                eealocatormad<-apply(eealocator, 1, mad,  na.rm = TRUE)
+                
+                # Mulitply with factor according to outl Tool
+                #growthmadn<-growthmad/0.6745
+                
+                if(trendoutlmethod==1){
+                    # Method 1 in outl tool: Deviation from median
+                    growthmeddevtest<-abs(growth-growthquantiles[2,])>2*growthmadn
+                    meddevtest<-abs(eealocator-eeaquantiles[2,])>2*eealocatormadn
+                    
+                } else if (trendoutlmethod==2){
+                    # Method 2 in outl tool
+                    bxplf <- 0.953
+                    #uwhisk = mdian + (1 + bxplf) * (uquart - mdian)
+                    #lwhisk = mdian + (1 + bxplf) * (lquart - mdian)
+                    growthuwhisk<-growthquantiles[,2]+(1 + bxplf)*(growthquantiles[,3]-growthquantiles[,2])
+                    growthlwhisk<-growthquantiles[,2]+(1 + bxplf)*(growthquantiles[,1]-growthquantiles[,2])
+                    growthmeddevtest<-(growth>growthuwhisk) | (growth<growthlwhisk)
+                    
+                    uwhisk<-eeaquantiles[,2]+(1 + bxplf)*(eeaquantiles[,3]-eeaquantiles[,2])
+                    lwhisk<-eeaquantiles[,2]+(1 + bxplf)*(eeaquantiles[,1]-eeaquantiles[,2])
+                    meddevtest<-(eealocator>uwhisk) | (eealocator<lwhisk)
+                }
+                growthoutl<-growthmeddevtest*growth
+                eealocatoroutl<-meddevtest*eealocator
+                ngrowthoutl<-sum(growthoutl!=0)
+                neealocatoroutl<-sum(eealocatoroutl!=0)
+                #unlist(growthoutl)
+                listofoutls<-which(unlist(growthoutl)!=0)
+                growthoutl$country<-row.names(growthoutl)
+                growthoutllist<-melt(growthoutl,na.rm=T)[listofoutls,]
+                #get country-ID
+                numcountries<-2
+                cuontryid<-numcountries-(listofoutls %% numcountries)
+                #get year-ID
+                yearid<-(listofoutls-(cuontryid))/2+1
+                growthoutllist<-cbind(cursubm,curcateg,cursourc,curpar,"growth",growthoutllist,growthquantiles[cuontryid,])
+                #paste0(curcateg,cursourc,curpar)
+            }
+            
+            
+            
+            
             if (curdata=="adem"){eeatrend<-eealocator[,2:nyears]-eealocator[,1:nyears-1]}
             if (curdata=="ief") {eeatrend<-eealocator[,2:nyears]/eealocator[,1:nyears-1]}
             
@@ -252,8 +312,8 @@ for (icurtasks in 1:length(curtasks)){
             if (curfocus=="value"){curmatrix<-eealocator}
             if (curfocus=="countries"){curmatrix<-eealocator}
             
-            if (curfocus=="trend"){curfoc<-"2TRD"}
             if (curfocus=="value"){curfoc<-"1VAL"}
+            if (curfocus=="trend"){curfoc<-"2TRD"}
             if (curfocus=="countries"){curfoc<-"3CNT"}
             
             figdate<-format(Sys.time(), "%Y%m%d")
@@ -279,7 +339,7 @@ for (icurtasks in 1:length(curtasks)){
             if(curdata=="ief"){
                 eu28mean<-colMeans(curmatrix,na.rm=T)
                 if(curfocus=="value"){
-                    eu28<-colSums(curmatrix*activityd)/colSums(activityd)
+                    eu28<-colSums(curmatrix*actcount)/colSums(actcount)
                 }else{
                     eu28<-eu28mean
                 }
@@ -485,30 +545,30 @@ for (icurtasks in 1:length(curtasks)){
                     cmt<-cbind(rownames(cmt),cmt)
                     #names(cmt)[1]<-"variable"
                     
-                    barplot(cmmax-cmmin,offset=cmmin,
-                            ylim=c(tmin,tmax),
-                            xaxt="n",
-                            xpd=TRUE,
-                            #labels=F,
-                            xlab="")
-                            
-#                     boxplot(countrymatrix,notch=F,
-#                             range=0,
-#                             whisklty=2,
-#                             staplelty=2,
-#                             #boxwex=0,
-#                             boxlty=0,
-#                             ylim=c(tmin,tmax),
-#                             xaxt="n",
-#                             xpd=TRUE,
-#                             labels=F,
-#                             xlab="")
+                    #positions need to be saved during plotting
+                    # see http://stackoverflow.com/questions/15331472/x-axis-does-not-match-barplot
+                    # and http://www.inside-r.org/packages/cran/TeachingDemos/docs/updateusr
+                    barpos<-barplot(cmmax-cmmin,offset=cmmin,
+                                    space=0.5,
+                                    col=mycols,
+                                    ylim=c(tmin,tmax),
+                                    xaxt="n",
+                                    xpd=TRUE,
+                                    xlab="x")
+                    barpos<-barplot(add=T,cmmax-cmmin,offset=cmmin,
+                                    space=0.5,
+                                    dens=mydens,col=mycoll,angle=45,
+                                    ylim=c(tmin,tmax),xaxt="n",xpd=TRUE,xlab="x")
+                    barpos<-barplot(add=T,cmmax-cmmin,offset=cmmin,
+                                    space=0.5,
+                                    dens=mydens,col=mycoll,angle=-45,
+                                    ylim=c(tmin,tmax),xaxt="n",xpd=TRUE,xlab="x")
                     
-                    axis(1,at=c(1:length(curcountries)),adj=1, tick=TRUE, 
+                    axis(1,at=barpos,adj=1, tick=TRUE, 
                          line=NA, lty=1, lwd=1,
                          labels=rep("",length(curcountries))
                     )
-                    text(x=c(1:length(curcountries)),
+                    text(x=barpos,
                          y=par()$usr[3]-0.04*(par()$usr[4]-par()$usr[3]),
                          labels=curcountries, 
                          srt=90, adj=1, 
@@ -574,8 +634,8 @@ for (icurtasks in 1:length(curtasks)){
                  axes=F, xlab="", ylab="", type="n")
             
             if(curdata=="ief" & curfocus=="trend"){
-                textpar<-paste0("Interannual change in the ",textpar)
-                textunit<-paste0(textunit,"/",textunit)
+                textpar<-paste0("Interannual change: ",curpar)
+                textunit<-paste0("Fraction: (value Year)/(value Year-1)")
             }            
 
             text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.5,textpar,las=3,srt=90,font=2)
@@ -604,7 +664,7 @@ for (icurtasks in 1:length(curtasks)){
             plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
             
             recside<-0.2
-            if(curdata=="ief"){recdist=0.9}else{recdist=1.2}
+            if(curdata=="ief" & curfocus!="countries"){recdist=0.9}else{recdist=1.2}
             avshare<-0.57
             legcex<-1.2
             minlow<-marbot*par("cxy")[2]
@@ -612,11 +672,12 @@ for (icurtasks in 1:length(curtasks)){
             
             for (i in c(1:ncountries)){
                 
-                mytextav <- paste(finshares[i],"%",sep="")
+                mytextav <- paste0(finnames[i]," ",finshares[i],"%",sep="")
+                
                 mytexteu<-"EU28+IS"
                 
                 mytexteua<-paste0("EU28+IS")
-                if(curpar=="IEF" & curfocus=="value"){
+                if(curdata=="ief" & (curfocus=="value" | curfocus=="countries")){
                     #Give average (min-max)
                     myround<-1
                     mytexteub<-paste0(round(mean(eu28),myround)," (",
@@ -633,7 +694,7 @@ for (icurtasks in 1:length(curtasks)){
                 hig=minlow+(i+0)*(maxhig-minlow)/(ncountries+1)
                 mid=minlow+(i-0.5)*(maxhig-minlow)/(ncountries+1)
                 low=minlow+(i-1)*(maxhig-minlow)/(ncountries+1)
-                if(curdata!="ief"){
+                if(curdata=="adem" | curfocus=="countries"){
                     #print(paste(i,low,mid,hig))
                     rect(0,low,recside,hig,col=mycols[i]) 
                     if (schraffierung == 1){
@@ -661,6 +722,7 @@ for (icurtasks in 1:length(curtasks)){
             if (curdata=="adem" && curfocus=="trend") text(0,0.95,"(contribution AD/EF)",cex=legcex,adj=0,font=2)
             if (curdata=="ief" && curfocus=="value") text(0,0.95,"% from EU28+IS average",cex=legcex,adj=0,font=2)
             if (curdata=="ief" && curfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
+            if (curdata=="ief" && curfocus=="countries") text(0,0.95,"Range of values over the period",cex=legcex,adj=0,font=2)
             
             mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)
             #print(paste(i,low,mid,hig))
@@ -668,7 +730,7 @@ for (icurtasks in 1:length(curtasks)){
             distance<-par()$cin[1]/par()$fin[1]*1
             points(x=recside/2,y=mid+distance,pch=21,bg="black",col="red",cex=1.5,lwd=2)
             text(recside*recdist,mid+distance,mytexteua,cex=legcex,adj=0,font=2)
-            if(curpar=="IEF" & curfocus=="value"){
+            if(curdata=="ief" & (curfocus=="value" | curfocus=="countries")){
                 text(recside*recdist,(mid),mytexteub,cex=legcex,adj=0,font=2)
             }
             #text(avshare,mid,"100%",cex=legcex,adj=1)

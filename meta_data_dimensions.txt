@@ -1,7 +1,7 @@
 dimension,acronym
 # EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
 # File meta_data_dimensions.txt
-# Created from the script eealocator_csv.bash on 20150323 21:44:1427143491
+# Created from the script eealocator_csv.bash on 20150330 14:37:1427719031
 #         using the file meta_data_dimensions.csv
 # Using EEA locator result file: EEA_GHG_MMR_locator_20150323.cub
 #                   main script output: EEA_GHG_MMR_locator_20150323.cub_2015.csv

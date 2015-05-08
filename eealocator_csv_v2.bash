@@ -123,13 +123,16 @@ if [ $makenewlists == 1 ] ; then
   sed -e 's/no gas/NO/g' gas3.txt > gas4.txt
   sed -e 's/-//g' gas4.txt > gas5.txt
   sed -e 's/ and /_/g' gas5.txt >  metadim_gas.txt
-  abort
+  stop
 fi
 
-cat metadim_row1.txt metadim_row2.txt metadim_row3.txt \
-    metadim_row4.txt metadim_row5.txt metadim_row6option.txt \
-    metadim_row7type.txt metadim_row8measure.txt \
-    metadim_row9gas.txt metadim_row10unit.txt \
+#cat metadim_row1.txt metadim_row2.txt metadim_row3.txt \
+#    metadim_row4.txt metadim_row5.txt metadim_row6option.txt \
+#    metadim_row7type.txt metadim_row8measure.txt \
+#    metadim_row9gas.txt metadim_row10unit.txt \
+#    > tmp0
+# Keep units and measures as long names
+cat metadim_row1.txt \
     > tmp0
 
 #sed -e 's/"//g'  meta_data_dimensions.csv        > tmp0
@@ -245,6 +248,16 @@ until [ $acronym == $((numacronyms+1)) ] ; do
   rm file$i
 
 done
+
+  i=$o;o=$((o+1));sed -e 's/no source//g' file$i > file$o
+  i=$o;o=$((o+1));sed -e 's/no gas//g' file$i > file$o
+  i=$o;o=$((o+1));sed -e 's/no type//g' file$i > file$o
+  i=$o;o=$((o+1));sed -e 's/no option//g' file$i > file$o
+  i=$o;o=$((o+1));sed -e 's/no target//g' file$i > file$o
+  i=$o;o=$((o+1));sed -e 's/no method//g' file$i > file$o
+  i=$o;o=$((o+1));sed -e 's/no classification//g' file$i > file$o
+
+#
 #
 i=$o;o=$((o+1));sed -e 's/Row Labels,Party code/category,source,row3,row4,row5,option,type,measure,gas,unit,party/g' file$i > file$o
 

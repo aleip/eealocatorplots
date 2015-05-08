@@ -1,5 +1,0 @@
-option,Approach B,
-option,Approach B2,
-option,Business-as-usual projection,
-option,no option,
-option,Option A,

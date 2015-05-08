@@ -30,4 +30,5 @@
 # 4: Include COUNTRY plot				
 # 3 5 6 7: several plots according to the sum of the above		
 cat,AD,EM,IEF,Factor1,Factor2,Factor3,Factor4,....
-3A,DAIR,CH4,AD,0,EM,2,IEF,0,GE,0
+3.A.1 Dairy Cattle,Dairy Cattle,CH4,all
+#3A,DAIR,CH4,AD,1,EM,0,IEF,0,GE,0

@@ -1,6 +1,6 @@
 
 
-#nirplots<-function(curmatrix,eu28fin,eu28,curdata,curfocus,curcateg,curpar,curfoc){
+#nirplots<-function(curmatrix,eu28fin,eu28,rundata,runfocus,runcateg,runpar,runfoc){
 
 # This function creates the various plots that can be used for the NIR,
 # in particular: value-plots, trend-plots, and country-plots.
@@ -10,7 +10,7 @@ graphics.off()
 #source("c:/adrian/models/capri/dndc/results/20110722/nitrogen/figures/plotdefaults.r")
 xstt=0.15
 xleg=0.7
-hasfootnote<-0
+hasfootnote<-1
 hastitle<-1
 if (hasfootnote==1){ystt=0.10}else{ystt=0.05}
 if (hastitle==1){yhea=0.90} else {yhea=1.0}
@@ -18,12 +18,49 @@ bspace=0.1
 par(xpd=F)
 schraffierung<-1
 
-if (curfocus=="value"){curfoc<-"1VAL"}
-if (curfocus=="trend"){curfoc<-"2TRD"}
-if (curfocus=="countries"){curfoc<-"3CNT"}
+if (runfocus=="value"){runfoc<-"1VAL"}
+if (runfocus=="trend"){runfoc<-"2TRD"}
+if (runfocus=="countries"){runfoc<-"3CNT"}
+
+runmethod<-gsub(" ","",runmethod)
+runmethod<-gsub("/","",runmethod)
+
+runcategmetgas<-paste0(gsub(" ","",runcateg),runmethod,".")
+if(rungas!="no gas"){
+    runcategmetgas<-paste0(runcategmetgas,gsub(" ","",rungas))
+}
+
+#print("Think about text-elements later")
+#print(curunit)
+# See text expressions 
+# http://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/plotmath.html
+if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"}
+if(curunit=="kg/head/year"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"}
+if(curunit=="MJ/head/day"){textunit<-"[ MJ " ~~ head^{-1}  ~~ day^{-1} ~"]"}
+#if(curunit=="kg N2O-N/kg N"){textunit<-"[ kg " ~~ N _[2] ~ "O (kg N" ~ ")"^{-1} ~"]"}
+if(curunit=="kg N2O-N/kg N"){textunit<-expression("[kg N"[2]*"O (kg N)"^'-1'*']')}
+if(curunit=="kg/t dm"){textunit<-expression("[kg (t dm)"^'-1'*']')}
+if(curunit=="Gg"){textunit<-"[Gg" ~"]"}
+if(curunit=="kg"){textunit<-"[kg" ~"]"}
+if(curunit=="kt"){textunit<-"[kt" ~"]"}
+if(curunit=="kt CO2 equivalent"){textunit<-"[kt" ~ CO_2 ~ "eq]"}
+if(curunit=="1000s"){textunit<-"[1000s" ~"]"}
+if(curunit=="%"){textunit<-"[%" ~"]"}
+textsou<-runmethod
+#   ---> If the category name includes the "source" (eg animal type) - remove
+textcat<-gsub(textsou,"",runcateg)
+textpar<-gsub(" ","_",measname[measname[,"variableUID"]==runuid,"measure"])
+textuid<-as.vector(unique(runmatrix[,"variableUID"]))
+if(length(textuid)>1){stop("More than one UID selected for graph!!")}
+#textsou<-gsub("Dairy CATT","Dairy Cattle",textsou)
 
 figdate<-format(Sys.time(), "%Y%m%d")
-figname<-paste0("ghgplot",curcateg,"_",curpar,"_",curfoc,"~",figdate,".pdf",collapse=NULL)
+
+if (! file.exists(figdate)){
+    dir.create(file.path(figdate))
+#    setwd(file.path(mainDir, figdate))
+}
+figname<-paste0(figdate,"/",runcategmetgas,"-",textpar,"-",runfoc,"~",figdate,".pdf",collapse=NULL)
 #postscript(figname)
 pdf(file=figname,width=11,height=6)
 
@@ -61,16 +98,22 @@ par(mar=c(marbot,marlef,martop,marrig)
 
 # Getting order of magnitude of ticks
 teval<-eu28
-if(curdata=="ief"){teval<-curmatrix}
+tevalpos<-eu28pos
+tevalneg<-eu28neg
+tevalsmall<-unlist(lapply(c(1:length(tevalneg)),function(x) min(tevalpos[x],tevalneg[x],na.rm=T)))
+tevallarge<-unlist(lapply(c(1:length(tevalneg)),function(x) max(tevalpos[x],tevalneg[x],na.rm=T)))
+if(rundata=="ief"){teval<-curmatrix}
 
 tpos<-c(20,10,5,2.5,2,1)
-tdif<-max(teval,na.rm=T)-min(teval,na.rm=T)
+tdifmax<-max(tevallarge,na.rm=T)
+tdifmin<-min(tevalsmall,na.rm=T)
+tdif<-tdifmax-tdifmin
 tmag<-10^floor(log10(tdif))/2
-if(curdata=="ief" && curfocus=="trend"){tmag=tmag/2.5}
-tmin<-tmag*floor((min(teval,na.rm=T))/tmag)
+if(rundata=="ief" && runfocus=="trend"){tmag=tmag/2.5}
+tmin<-tmag*floor(tdifmin/tmag)
 if(is.nan(tmin)){tmin<-0.5*min(teval,na.rm=T)}
-if(curdata!="ief"){tmin<-min(0,tmin)}
-tmax<-tmag*ceiling((max(teval,na.rm=T))/tmag)
+if(rundata!="ief"){tmin<-min(0,tmin)}
+tmax<-tmag*ceiling(tdifmax/tmag)
 if(is.nan(tmax)){tmax<-1.5*max(teval,na.rm=T)}
 if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
 
@@ -81,22 +124,22 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
     tnhig=10
     if(tmag==0){tdis=5}else{
     for (i in tpos){
-        tcur<-tmax/(i*tmag)
+        tcur<-(tmax-tmin)/(i*tmag)
         if(tcur<=tnhig){tdis<-tcur}
     }}
     
     
-    if(curdata!="ief"){
+    if(rundata!="ief"){
         eu28finpos<-(eu28fin>0)*eu28fin
         eu28finneg<-(eu28fin<0)*eu28fin
         df.bar<-barplot(eu28finpos,ylim=c(tmin,tmax),yaxp=c(tmin,tmax,tdis),col=mycols,xpd=F,axes=F,las=2)
         barplot(eu28finneg,add=T,col=mycols,axes=F,axisnames=F,las=2)
         abline(h=0)
         axis(1,at=years,line=1,lwd=2,las=1,pos=c(0,0))
-        axis(2,at=seq(tmin,tmax,tmax/tdis/5),tick=1,line=1,pos=c(0,0),lwd=1,
+        axis(2,at=seq(tmin,tmax,(tmax-tmin)/tdis/5),tick=1,line=1,pos=c(0,0),lwd=1,
              labels=F,
              col.ticks="grey")
-        axis(2,at=seq(tmin,tmax,tmax/tdis),tick=1,line=1,pos=c(0,0),
+        axis(2,at=seq(tmin,tmax,(tmax-tmin)/tdis),tick=1,line=1,pos=c(0,0),
              lwd=2,las=1)
         barplot(eu28finpos,add=T,dens=mydens,angle=45,col=mycoll,axes=F,axisnames=F,las=2)
         barplot(eu28finneg,add=T,dens=mydens,angle=45,col=mycoll,axes=F,axisnames=F,las=2)
@@ -109,7 +152,7 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
         points(x=df.bar,y=eu28,pch=21,bg="black",col="red",cex=1.5,lwd=2)
     }else{
         
-        if(curfocus=="countries"){
+        if(runfocus=="countries"){
             countrymatrix<-t(curmatrix)
             cmformin<-curmatrix
             cmformax<-curmatrix
@@ -205,7 +248,7 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
     #mytext1<-"CH"[4] ~~ "enteric fermentation"
     ##mytext2<-substitute(A ~ " - " ~ B ~ "Tg N" ~~ yr^{-1},list(A=colnames(b)[j],B=emis[j]))
     #mytext2<-"[ Tg CH"[4] ~~ yr^{-1} ~"]"
-    #if(curdata=="ief"){mytext2<-"[ Tg CH"[4] ~~ head^{-1} ~~ yr^{-1} ~"]"}
+    #if(rundata=="ief"){mytext2<-"[ Tg CH"[4] ~~ head^{-1} ~~ yr^{-1} ~"]"}
     #source("text_elements.txt")
     par(omd=c(0,xstt,ystt,yhea))
     par(mar=c(marbot,marlef,martop,marrig))
@@ -215,14 +258,14 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
          ylim=c(uabs+0.04*oabs,0.96*oabs), 
          axes=F, xlab="", ylab="", type="n")
     
-    if(curdata=="ief" & curfocus=="trend"){
-        #textpar<-paste0("Interannual change: ",curpar)
+    if(rundata=="ief" & runfocus=="trend"){
+        #textpar<-paste0("Interannual change: ",runpar)
         #textunit<-paste0("Interannual growth")
         textunit<-"Interannual" ~" growth"
         
     }            
     
-    text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.5,textpar,las=3,srt=90,font=2)
+    text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=min(1.5,1.5*30/nchar(textpar)),textpar,las=3,srt=90,font=2)
     text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,textunit,las=3,srt=90,font=2)
     #print(paste(curunit,textunit))
     #text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,curunit,las=3,srt=90,font=2)
@@ -247,9 +290,9 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
     plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
     
     recside<-0.2
-    if(curdata=="ief" & curfocus!="countries"){recdist=0.9}else{recdist=1.2}
+    if(rundata=="ief" & runfocus!="countries"){recdist=0.9}else{recdist=1.2}
     avshare<-0.57
-    legcex<-1.2
+    legcex<-1.1
     minlow<-marbot*par("cxy")[2]
     maxhig<-0.9
     
@@ -260,9 +303,10 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
         mytexteu<-"EU28+IS"
         
         mytexteua<-paste0("EU28+IS")
-        if(curdata=="ief" & (curfocus=="value" | curfocus=="countries")){
+        if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
             #Give average (min-max)
-            myround<-1
+            
+            myround<-max(1,-floor(log10(max(eu28fin)))+2)
             mytexteub<-paste0(round(mean(eu28),myround)," (",
                               round(min(eu28),myround),"-",
                               round(max(eu28),myround),")")
@@ -272,15 +316,16 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
                              round(max(eu28fin[i,]),myround),")")
             
         }
-        if (curfocus=="trend" && curpar=="EM"){
-            shareAD <- paste0("(",round(act_pctcountry[i],0),"%/",round(act_pcteu[i],0),"%/",round(ief_pcteu[i],0),"%)")
+        if (runfocus=="trend" && runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)){
+            shareAD1 <- paste0(round(act_pctcountry[i],0),"%")
+            shareAD2 <- paste0(round(act_pcteu[i],0),"%/",round(ief_pcteu[i],0),"%")
             shareADeu <- paste0("(",round(act_pctcouneu,0),"%)")
         }
         
         hig=minlow+(i+0)*(maxhig-minlow)/(ncountries+1)
         mid=minlow+(i-0.5)*(maxhig-minlow)/(ncountries+1)
         low=minlow+(i-1)*(maxhig-minlow)/(ncountries+1)
-        if(curdata=="adem" | curfocus=="countries"){
+        if(rundata=="adem" | runfocus=="countries"){
             #print(paste(i,low,mid,hig))
             rect(0,low,recside,hig,col=mycols[i]) 
             if (schraffierung == 1){
@@ -297,29 +342,30 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
         #text(recside*recdist,mid,finnames[i],cex=legcex,adj=0)
         text(recside*recdist,mid,mytextav,cex=legcex,adj=0)
         #text(avshare,mid,mytextav,cex=legcex,adj=1)
-        if (curfocus=="trend" & curpar=="EM") text(avshare+0.02,mid,shareAD,cex=legcex-0.35,adj=0)
+        if (runfocus=="trend" & runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)) text(avshare+0.01,mid+0.025,shareAD1,cex=legcex-0.25,adj=0)
+        if (runfocus=="trend" & runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)) text(avshare+0.01,mid-0.025,shareAD2,cex=legcex-0.25,adj=0)
     }
     
-    if (curdata!="ief" ) text(0,1.00,"Average share of country",cex=legcex,adj=0,font=2)
-    if (curdata=="ief" && curfocus=="value") text(0,1.00,"Average IEF of country",cex=legcex,adj=0,font=2)
-    if (curdata=="ief" && curfocus=="trend") text(0,1.00,"Average trend of country",cex=legcex,adj=0,font=2)
-    if (curpar=="EM" && curfocus=="trend") text(0,0.95,"- Contribution AD to country trend",cex=legcex-0.2,adj=0,font=2)
-    if (curpar=="EM" && curfocus=="trend") text(0,0.90,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
-    if (curdata=="ief" && curfocus=="value") text(0,0.95,"% from EU28+IS average",cex=legcex,adj=0,font=3)
-    if (curdata=="ief" && curfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
-    if (curdata=="ief" && curfocus=="countries") text(0,0.95,"Range of values over the period",cex=legcex,adj=0,font=2)
+    if (rundata!="ief" ) text(0,1.00,"Average share of country",cex=legcex,adj=0,font=2)
+    if (rundata=="ief" && runfocus=="value") text(0,1.00,"Average IEF of country",cex=legcex,adj=0,font=2)
+    if (rundata=="ief" && runfocus=="countries") text(0,1.00,"Range of values over the period",cex=legcex,adj=0,font=2)
+    if (rundata=="ief" && runfocus=="trend") text(0,1.00,"Average trend of country",cex=legcex,adj=0,font=2)
+    if (runpar=="EM" && runfocus=="trend") text(0,0.95,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
+    if (runpar=="EM" && runfocus=="trend") text(0,0.92,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
+    if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+IS average",cex=legcex,adj=0,font=3)
+    if (rundata=="ief" && runfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
     
     mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)
     #print(paste(i,low,mid,hig))
     
-    distance<-par()$cin[1]/par()$fin[1]*1
+    distance<-par()$cin[1]/par()$fin[1]*0.8
     points(x=recside/2,y=mid+distance,pch=21,bg="black",col="red",cex=1.5,lwd=2)
     text(recside*recdist,mid+distance,mytexteua,cex=legcex,adj=0,font=2)
-    if(curdata=="ief" & (curfocus=="value" | curfocus=="countries")){
-        text(recside*recdist,(mid),mytexteub,cex=legcex,adj=0,font=2)
+    if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
+        text(recside*recdist,mid,mytexteub,cex=legcex,adj=0,font=2)
     }
     #text(avshare,mid,"100%",cex=legcex,adj=1)
-    if (curfocus=="trend" && curpar=="EM") text(avshare+0.03,mid,shareADeu,cex=legcex-0.1,adj=0,font=2)
+    if (runfocus=="trend" && runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)) text(avshare+0.03,mid+distance,shareADeu,cex=legcex-0.1,adj=0,font=2)
     
     
     #   box("figure",col="red",lwd=5)
@@ -335,15 +381,22 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
     #                         TITLE
     #####################################################################
     
-    if (curdata=="adem" && curfocus=="value") {mtexttitle<-"Trend in EU28+IS"}
-    if (curdata=="adem" && curfocus=="trend") {mtexttitle<-"Annual changes in EU28+IS"}
-    if (curdata=="ief" && curfocus=="value") {mtexttitle<-"Range of values in EU28+IS"}
-    if (curdata=="ief" && curfocus=="trend") {mtexttitle<-"Range in annual changes across EU28+IS"}
-    if (curdata=="ief" && curfocus=="countries") {mtexttitle<-"Range values over time"}
+    if (rundata=="adem" && runfocus=="value") {mtexttitle<-"Trend in EU28+IS"}
+    if (rundata=="adem" && runfocus=="trend") {mtexttitle<-"Annual changes in EU28+IS"}
+    if (rundata=="ief" && runfocus=="value") {mtexttitle<-"Range of values in EU28+IS"}
+    if (rundata=="ief" && runfocus=="trend") {mtexttitle<-"Range in annual changes across EU28+IS"}
+    if (rundata=="ief" && runfocus=="countries") {mtexttitle<-"Range values over time"}
     maxnchar<-50
     # First word which is beyond the max number of characters to be displayed
-    mtexttitle0<-paste0(textcat," - ",textsou," (",curgases,"): ")
-    mvect<-strsplit(mtexttitle0," ")[[1]]
+    mtexttitle0<-paste0(textcat," - ",textsou)
+    if(rungas!="no gas"){
+            mtexttitle0<-paste0(mtexttitle0,gsub(" ","",rungas))
+        }else{
+            mtexttitle0<-mtexttitle0
+        }
+    mtexttitle0<-gsub("_","-",mtexttitle0)    
+
+    mvect<-strsplit(mtexttitle0," - ")[[1]]
     maxwords<-max(length(mvect),
                   match(TRUE,lapply(1:length(mvect),function(x) sum(nchar(mvect[1:x]))>maxnchar))-1,
                   na.rm=TRUE)
@@ -374,7 +427,11 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
     par(fig=c(0,1,0,1),new=T)
     plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
     text(0.5,1-1.1*par("cin")[2],adj=0.5,mtextxaxis,cex=1.2,font=2)
-    
+ 
+
+  
+
+
     
     par(omd=c(0,xleg,0,ystt))
     par(mar=c(0,0,0,0)) #bot,lef,top,rig
@@ -390,7 +447,21 @@ if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
     #  box("plot",col="blue",lwd=4)
     #  box("inner",col="green",lty="dotted",lwd=3)
     #  box("outer",col="black",lwd=2)
-    dev.off()
+#####################################################################
+#                        FOOTNOTE
+#####################################################################
+    par(omd=c(0,1,0,ystt))
+    par(mar=c(0,0,0,0)) #bot,lef,top,rig
+    par(fig=c(0,1,0,1),new=T)
+    
+    foottextleft<-paste0("EU-GIRP.v2 (EU-Greenhouse gas Inventory Reporting Plots) (c) EC-JRC/AL https://github.com/aleip/eealocatorplots.git")
+    foottextrigt<-paste0(figdate," - UID: ",textuid)    
+
+    plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+    text(0.005,0.1,adj=0,foottextleft,cex=0.5,font=1)
+    text(0.995,0.1,adj=1,foottextrigt,cex=0.5,font=1)
+
+dev.off()
     #dev.off(dev.cur())
 #}
 #}

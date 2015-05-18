@@ -122,7 +122,7 @@ measure,Net carbon stock change in litter per area
 measure,Net carbon stock change in soils
 measure,Net carbon stock change in soils per area
 measure,Net change
-measure,Nitrogen excretion per MMS,AD
+measure,Nitrogen excretion per MMS,EM
 measure,Nitrogen excretion rate,NEXC
 measure,Nitrogen leaching and run-off,AD
 measure,Population,AD
@@ -154,7 +154,7 @@ measure,Total area at the end of the current year
 measure,Total area at the end of the previous year
 measure,Total area subject to conversion
 measure,Total biomass burned,AD
-measure,Total N excreted,AD
+measure,Total N excreted,EM
 measure,Total N volatilised as NH3 and Nox,AD
 measure,Total organic product
 measure,Trigger test

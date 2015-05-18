@@ -29,6 +29,10 @@
 # 2: Include TREND plot				
 # 4: Include COUNTRY plot				
 # 3 5 6 7: several plots according to the sum of the above		
-cat,AD,EM,IEF,Factor1,Factor2,Factor3,Factor4,....
-3.A.1 Dairy Cattle,Dairy Cattle,CH4,all
-#3A,DAIR,CH4,AD,1,EM,0,IEF,0,GE,0
+#cat,AD,EM,IEF,Factor1,Factor2,Factor3,Factor4,....
+#cat,source,gas,AD,EM,IEF,Factor1,Factor2,Factor3,Factor4,....
+#curtask <- "3.*,all,all,EM"
+curtask <- "all,all,all,EM"
+#curtask <- "3*,all,all,all"
+#curtask <- "3.A.1 Dairy Cattle,Dairy Cattle,CH4,AD,1,EM,3,IEF,0,GE,7"
+#curtask <- "3.A.1*,all,CH4,AD,1,EM,3,IEF,0,GE,7"

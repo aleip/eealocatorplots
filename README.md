@@ -1,4 +1,4 @@
-# 	; eealocatorplots)
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots
 ## R program to generate plots from EEA-locator CRF data
 
 This program has been conceptualized and programmed by Adrian Leip

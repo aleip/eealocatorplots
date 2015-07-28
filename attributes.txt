@@ -16,8 +16,8 @@
 #pch = 24: filled triangle point-up,
 #pch = 25: filled triangle point down.
 cnt color	dens	coll ang1	ang2    symbol    col1t   col2t	
-AT	grey10	20	grey50	45	-45 21  white   grey    
-BE	grey10	20	grey80	45	-45	21  white   black   
+AT	grey10	40	grey50	45	-45 21  white   grey    
+BE	grey10	40	grey80	45	-45	21  white   black   
 BG	grey10	10	grey50	45	-45	21  white   white   
 CY	grey10	10	grey80	45	-45	21  grey    grey    
 CZ	grey10	 5 	grey50	45	-45	21  grey    white   
@@ -38,7 +38,7 @@ LU	grey65	10	grey30	45	-45	23  white   grey
 LV	grey65	 5	grey10	45	-45	23  white   black
 MT	grey80	20	grey10	45	-45	23  white   white
 NL	grey80	20	grey20	45	-45	23  grey    grey 
-PL	grey80	10	grey10	45	-45	23  grey    white
+PL	grey80	40	grey10	45	-45	23  grey    white
 PT	grey80	10	grey20	45	-45	23  grey    black
 RO	grey80	 5	grey10	45	-45	23  black   white
 SE	grey90	20	grey10	45	-45	23  black   grey 

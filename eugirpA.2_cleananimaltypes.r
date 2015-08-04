@@ -30,13 +30,6 @@ cleanlivestock<-function(S,M,type){
     if(type=="sector_number"){if(j!=0){paste0(S," ",div[j])}else{S}
     }else if(type=="allmethods"){if(j!=0){gsub(div[j],"",M)}else{M}}
 }
-div<-c("Cattle","Sheep","Swine","Livestock")
-climateZones<-c("_Cool.*","_Temperate.*","_Warm.*")
-manureSystems<-c("Anaerobic lagoon","Composting","Daily spread","Digesters","Liquid system","Solid storage and dry lot","Pasture  range and paddock","Other","Burned for fuel or as waste")
-manureSysshrt<-c("anaer","compost","daily","digest","liquid","solid","pasture","other","burned")
-cat3names<-c("sector_number","allmethods","climate","gas","meastype","unit","party",years,"variableUID")
-
-
 
 # Remove duplicates if 'other' contains just on e element
 # ---> use 'sub' instead of 'gsub' so that only the first occurrence is replaced
@@ -104,10 +97,8 @@ cat3allnomethods<-unique(cat3allnomethods)
 cat3allnomethods$variableUID<-cat3allclean$variableUID[row.names(cat3allclean)%in%row.names(cat3allnomethods)]
 
 cat3all<-cat3allnomethods[,cat3names]
-cat3alltab<-unique(subset(cat3all,select=names(cat3all[!names(cat3all)%in%c("party","unique",years)])))
 cat3emp<-as.data.frame(matrix(rep(0,ncol(cat3all)),nrow=1,ncol=ncol(cat3all)))
 names(cat3emp)<-names(cat3all)
-#rm(cat3allclean)
 
 
 # Identify the animal types available
@@ -127,4 +118,4 @@ cat3B2animals<-subset(cat3all,grepl("^3.B.2",sector_number),select=c(sector_numb
 cat3B2animals<-unique(cat3B2animals)
 cat3B2animals$sector_number<-gsub("3.B.2","",cat3B2animals$sector_number)
 
-
+rm(cat3allclean,cat3allnomethods)

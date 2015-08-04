@@ -1,3 +1,7 @@
+# see http://stackoverflow.com/questions/18142117/how-to-replace-nan-value-with-zero-in-a-huge-data-frame
+is.nan.data.frame <- function(x) do.call(cbind, lapply(x, is.nan))
+is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
+
 viewlast<-function(n){View(cat3all[(nrow(cat3all)-n):nrow(cat3all),])}
 newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%y%m%d%H%M%S"),"-",MHmakeRandomString(1,4),sep="")}
 getuid<-function(mode=1,myobject=NULL,ok=1,sec=NULL,met="",cli="",mymeastype="AD",gas="no gas",x=1){
@@ -212,3 +216,21 @@ MHmakeRandomString <- function(n=1, lenght=12)
 #  [1] "XM2xjggXX19r"
 
 ###############################################################
+
+
+
+###############################################################
+# FUNCTIONS REQUIRED FOR PLOTTING
+###############################################################
+
+multilines<-function(text2split,maxWidth=30){
+    #text2split: text
+    vtext<-strwrap(text2split,1)
+    nchartext<-lapply(c(1:length(vtext)), function(x) 1+ nchar(vtext[x]))
+    nchartext<-ceiling(cumsum(nchartext) / maxWidth)
+    restext<-c(1:max(nchartext))
+    for(i in c(1:max(nchartext))){
+        restext[i]<-paste(vtext[nchartext==i],collapse=" ")
+    }
+    return(restext)
+}

@@ -110,7 +110,6 @@ textuid<-as.vector(unique(runmatrix[,"variableUID"]))
 if(length(textuid)>1){stop("More than one UID selected for graph!!")}
 #textsou<-gsub("Dairy CATT","Dairy Cattle",textsou)
 
-figdate<-format(Sys.time(), "%Y%m%d")
 
 if (! file.exists(figdate)){
     dir.create(file.path(figdate))

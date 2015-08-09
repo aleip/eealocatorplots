@@ -10,310 +10,131 @@
 # Adrian Leip <adrian.leip@jrc.ec.europa.eu>
 # version 3 - 28.07.2015
 # 
+# Initialisation ####
+
 library(ggplot2)
 library(reshape2) #required for melt function - for outls
 library(data.table)
+library(knitr)
+library(compare)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 
 rm(list=objects())
 searchline<-FALSE
-#dev.off()
+locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
+source("curplot.r")
 
 # PART A: Link with EEA locator tool ----
 
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
-invyear<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
-cursubm <- "20150703"
-curextr <- "20150722"
-years2keep<-c(1990:2013)
-csvfil <-"eealocatortest_2014_AllAllAll.csv"
-csvfil <- "EEA_GHG_MMR_locator_20150323.cub_2015.csv"
-csvfil <- "../2015/eealocator/eealocator_20150115_20150509"
-csvfil <- paste0("../2015/eealocator/eealocator_",cursubm,"_",curextr)
-setwd(invyear)
+
+setwd(locplots)
+
+# A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
+# Return:
+# - alldata: data frame containing (almost) all EEA-locator data. Years are transposed to columns.
+#            Some cleaning on uids has been done, data rows with irrelevant gases, UK removed (GB
+#            kept), sector_numbers "-" removed. 
+#            Infos (e.g. documentation boxes) and notation keys stored in separate files
+# - allnotations: Notations used
+# - allinfos: Information given, e.g. in documentation boxes
+# - alldatanovalues
+# - measname
+generatealldata <- 1
+if(file.exists(rdatallem)){
+    if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
+        print(paste0("Load existing file ",rdatallem))
+        load(rdatallem)    
+        generatealldata <- 0
+    }
+}
+# Load functions
+source("eugirp_functions.r")
+# Load general definitions
+source("eugirp_definitions.r")
+source("eugirpA.1_eealocator.r")
+years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
+allcountries<-unique(as.vector(alldata$party))
+
+
+# A.2 Clean animal type names ####
+# Some animal types are given under 'allmethods', the options either 'sector_number' and/or 'allmethods'
+# ---> put them all to 'sector-number': sector option animal
+# Approach:
+# - First separate cat3 from other data to speed up processing
+# - Clean animal types in source file "eugirp_Acleananimaltypes.r"
+# - Recombine with the other sectors
+if(stepsdone==1){
+    print("Clean animal types and generate list of measures")
+    source("eugirpA.2_cleananimaltypes.r")
+    stepsdone<-2
+    save(stepsdone,alldata,allnotations,allinfos,allnotations,measures,file=rdatallem)
+}else if(stepsdone>1){
+    print("Clean animal types and generate list of measures ... already done")
+}
+
+# B.1 Calculate EU sums and weighted averages ####
+# 
+if(stepsdone==2){
+    print("Calculate EU sums and weighted averages")
+    #calcmeas<-allmeas
+    source("eugirpB.1_euvalues.r")
+
+    alldata<-rbind(alldata,eu28sum)
+    alldata<-rbind(alldata,eu28wei)
+    stepsdone<-3
+    save(assignad2par,listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    save(stepsdone,alldata,allmethods,allnotations,allinfos,measname,file=rdatallem)
+}else if(stepsdone>2){
+    print("EU sums and weighted averages already calculated")
+}
+
+# B.2 Calculate trend and growth rates ####
+nyears<-length(years)
+period1<-as.character(years[1]:years[nyears-1])
+period2<-as.character(years[2]:years[nyears])
+
+if(stepsdone==3){
+    print("Calculating trends and growth rates")
+    alltrend<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
+    alltrend<-alldata[alldata$meastype %in% meas2sum,]
+    alltrend[,period2]<-alldata[alldata$meastype %in% meas2sum,period2]-alldata[alldata$meastype %in% meas2sum,period1]
+    alltrend[,years[1]]<-NA
+    
+    mgrowth<-c(meas2popweight,meas2clima,meas2mcf)
+    allgrowth<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
+    allgrowth<-alldata[alldata$meastype %in% mgrowth,]
+    allgrowth[,period2]<-alldata[alldata$meastype %in% mgrowth,period2]/alldata[alldata$meastype %in% mgrowth,period1]
+    allgrowth[is.nan(allgrowth)] <- 0
+    allgrowth[is.infinite(allgrowth)] <- 1
+    allgrowth[,years]<-round(allgrowth[,years],3)
+    allgrowth[,years[1]]<-NA
+    stepsdone<-4
+    save(stepsdone,alldata,alltrend,allgrowth,allmethods,allnotations,allinfos,measname,file=rdatallem)
+}else if(stepsdone>3){
+    print("Trends and growth rates already calculated")
+}
+
+if(stepsdone==4) {
+    load(rdatmeasu)
+}
 
 
 # Load the current task to do
 # See file curplot.csv for information on how to set it up
-source("curplot.csv")
 dotaskdetails<-unlist(strsplit(curtask,","))
-if(grepl("3*,all,all,all",curtask)){docat3<-TRUE}else{docat3<-FALSE}
+if(grepl("^3",curtask)){docat3<-TRUE}else{docat3<-FALSE}
 
-multilines<-function(text2split,maxWidth=30){
-    #text2split: text
-    vtext<-strwrap(text2split,1)
-    nchartext<-lapply(c(1:length(vtext)), function(x) 1+ nchar(vtext[x]))
-    nchartext<-ceiling(cumsum(nchartext) / maxWidth)
-    restext<-c(1:max(nchartext))
-    for(i in c(1:max(nchartext))){
-        restext[i]<-paste(vtext[nchartext==i],collapse=" ")
-    }
-    return(restext)
-}
 
 print("# Basic selection: source cagegory and gas")
 docateg<-dotaskdetails[1]
-#dosourc<-dotaskdetails[2]
-dogases<-dotaskdetails[2]
-domeasu<-dotaskdetails[seq(3,length(dotaskdetails),2)]
-#if(length(dotaskdetails)>3) {
-#    selmeasu<-as.numeric(dotaskdetails[seq(4,length(dotaskdetails),2)])
-#}
+doplots<-dotaskdetails[2]
+domeasu<-dotaskdetails[3]
 
-if (dogases=="all"){dogases<-7}
-dogases<-as.numeric(dogases)
-doplots<-2**((which((as.integer(intToBits(dogases))[1:3]) %in% 1)-1))
-print(paste(docateg,dogases,domeasu))
-
-# Jump over the generation of 'alldata' in case this has already been done
-generatealldata <- 1
-
-rdatallem <- paste0(csvfil,"_clean.RData")
-#if(docateg=="all" & dogases=="all" & domeasu=="EM"){
-    if(file.exists(rdatallem)){
-        if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
-            print(paste0("Load existing file ",rdatallem))
-            load(rdatallem)    
-            generatealldata <- 0
-        }
-    }
-#}
-
-if(generatealldata==1){
-    # ---> Read text-file if no RData file exists of if the text file is more recent
-    rdatfile<-paste0(csvfil,".RData")
-    if(!file.exists(rdatfile)){
-        print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
-        alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
-        save(alldata,file=rdatfile)
-    }else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
-        print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
-        alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
-        save(alldata,file=rdatfile)
-    }else{
-        print(paste0("Retrieve ",rdatfile))
-        load(rdatfile)
-    }
-    
-    # measureacronyms --------------------------------------------------------------
-    # Keep long text with the exception of 'measure' which is needed to identify
-    # if it is an activity data, emissions, emission factor or parameter or other
-    # alldata$measurelong<-alldata$measure
-    measureacronyms<-read.csv("metadim_row8measure.txt",stringsAsFactors=FALSE)
-    temp1<-merge(alldata,measureacronyms,by.x="measure",by.y="measname")
-    alldata<-subset(temp1,select=-dummy)
-    
-    # Correction of meastypes for specific emission sources ####
-    
-    # table 3B(b) ------------------------------------------------------------------
-    #
-    #  ---> Table 3.B(b) is rather complex...
-    #
-    # sector_number is read as factor, which does not allow to define new elements 
-    #               therefore transformation to 'character' required
-    alldata$sector_number<-as.character(alldata$sector_number)
-    alldata[alldata$sector_number=="3.B.2.5" & alldata$classification=="Indirect N2O Emissions" & alldata$unit=="kt","meastype"]<-"EM"
-    alldata[alldata$sector_number=="3.B.2.5" & alldata$classification=="Indirect N2O Emissions" & alldata$unit=="kg N2O/kg N","meastype"]<-"IEF"
-    
-    alldata[alldata$sector_number=="3.B.2.5" & alldata$measure=="Total N volatilised as NH3 and Nox","sector_number"]<-"3.B.2.5 indirect volatilisation"
-    alldata[alldata$sector_number=="3.B.2.5" & alldata$measure=="N lost through leaching and run-off","sector_number"]<-"3.B.2.5 indirect leaching"
-    alldata[alldata$sector_number=="3.B.2.5" & grepl("Atmospheric deposition",alldata$measure),"sector_number"]<-"3.B.2.5 indirect volatilisation"
-    alldata[alldata$sector_number=="3.B.2.5" & grepl("Nitrogen leaching",alldata$measure),"sector_number"]<-"3.B.2.5 indirect leaching"
-    #View(alldata[grepl("3.B.2.5",alldata$sector_number),]) 
-    
-    # Biomass burning ------------------------------------------------------------------------
-    # Biomass burningd ---
-    alldata[grepl("3.F.1.",alldata$sector_number) & alldata$measure=="Crop  production","meastype"]<-"PROD"
-    alldata[grepl("3.F.1.",alldata$sector_number) & alldata$measure=="Biomass available","meastype"]<-"PROD"
-    alldata[grepl("4*Biomass Burning",alldata$sector_number),"meastype"]<-"PROD"
-    remove<-as.vector(unlist(unique(read.csv("aduids_to_remove.txt",header=TRUE))))
-    alldata[alldata$variableUID %in% remove,"meastype"]<-"PROD"
-    
-    
-    # Select gases
-    gases2keep<-c("Aggregate GHGs","CH4","no gas","CO2","N2O")
-    allgases<-sort(unique(alldata$gas))
-    selectGas<-alldata$gas %in% gases2keep
-    alldata<-alldata[selectGas,]
-    
-    # Remove UK (use GB) ####
-    selectParty<-! alldata$party == "UK"
-    alldata<-alldata[selectParty,]
-    
-    # Remove category substrings -----------------------------------------------------------------------------
-    #  ---> Category contains sometimes substring of sector_name (e.g. Dairy Cattle)
-    # takes too long
-    alldata<-alldata
-    alldata$category<-as.character(alldata$category)
-    alldata$category<-unlist(lapply(c(1:nrow(alldata)),function(x) 
-        if(!is.null(alldata$category[x])){
-            if(grepl(alldata$category[x],alldata$sector_number[x])){
-                ""
-            }else{
-                alldata$category[x]
-            }
-        }else{""}
-    ))
-    
-    # Remove duplicate UIDs -----------------------------------------------------------------------------
-    # ---> there are duplicate UIDs...
-    alldata$variableUID<-as.character(alldata$variableUID)
-    duplicateuids<-read.csv("duplicateUIDs.csv",header=FALSE)
-    names(duplicateuids)<-c("UID","SEC")
-    for(changeuid in c(1:nrow(duplicateuids))){
-        duplicateUID<-as.vector(duplicateuids[changeuid,"UID"])
-        duplicateSEC<-as.vector(duplicateuids[changeuid,"SEC"])
-        duplicateNEW<-gsub(substr(duplicateUID,1+nchar(duplicateUID)-nchar(duplicateSEC),nchar(duplicateUID)),duplicateSEC,duplicateUID)
-        alldata$variableUID[alldata$variableUID==duplicateUID & alldata$sector_number==duplicateSEC]<-duplicateNEW
-    }
-    
-
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Remove sector_number "-"  ----
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    alldata<-alldata[alldata$sector_number!="-",]
-    
-    
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Create vectors for categories, years, and unique rows (not considering years) ----
-    # allcategories is created as 'factor'
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    allcategories<-sort(unique(alldata$sector_number))
-    # allyears is created as 'integer'
-    allyears<-sort(unique(alldata$year))
-    allsources<-sort(unique(alldata$source))
-    allmethods<-sort(unique(alldata$method))
-    alltargets<-sort(unique(alldata$target))
-    alloptions<-sort(unique(alldata$option))
-    allnotations<-sort(unique(alldata$notation))
-    alltypes<-sort(unique(alldata$type))
-    allmeasures<-sort(unique(alldata$measure))
-    alluids<-sort(unique(alldata$variableUID))
-    
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Store keys into separate data file =======================================
-    # Keep 'alldatanovalues' for reference in case of problems
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    alldatanovalues<-as.data.frame(unique(subset(alldata,select=-c(value,year,party,country_name))))
-    notationkeys<-c("NO","NE","IE","NA")
-    alldatanotations<-alldata[alldata$notation %in% notationkeys,]
-    alldata<-alldata[!(alldata$notation %in% notationkeys),]
-    
-    # Fields giving additional info on the 'method' ----
-    fields2merge<-sort(c("category","source","method","target","option","type"))
-    fields2keep<-c("sector_number","gas","unit","allmethods","party","meastype")
-    
-    # ---> Fields that will be needed for information but they are not needed 
-    #      to identify the cells
-    fields4info<-sort(c("notation","classification","country_name"))
-    # ---> Fields that are identical per country 
-    fields4coun<-c("submission_version","submission_year")
-    listofuniquefields<-sort(c(fields2keep,fields2merge))
-    
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Replace all 'method' fields which will not be needed individually with ----
-    # a field where the content is concantenated and simplified
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    alldatauniq<-lapply(fields2merge,function(x) as.vector(alldata[,x]))
-    alldatauniq<-lapply(alldatauniq,function(x) paste0(x,"_"))
-    
-    # ---> Concetenate
-    alldatauniq<-as.vector(Reduce(paste0,alldatauniq))
-    # ---> Eleminate the 'no' texts .... they do not add information
-    no<-"no method_|no option_|no source_|no target_|no type_|Additional Information_|Option A_"
-    t<-gsub(no,"",alldatauniq)
-    alldatauniq<-as.data.frame(gsub("_$","",t))
-    listofoptions<-unique(alldatauniq)
-    names(alldatauniq)<-"allmethods"
-    if(nrow(alldata)==0){stop("Stop! alldata contains no data!")}
-    alldata<-cbind(alldata,alldatauniq)
-    alldata<-subset(alldata,select=names(alldata)[! names(alldata) %in% fields2merge])
-    #View(alldatauniq)
-    #View(t)
-    
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Replace all fields which are needed to identify the rows (except year) ----
-    # a field where the content is concantenated and simplified
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    alldatauniq<-lapply(fields2keep,function(x) as.vector(alldata[,x]))
-    alldatauniq<-lapply(alldatauniq,function(x) paste0(x,"_"))
-    alldatauniq<-as.vector(Reduce(paste0,alldatauniq))
-    alldatauniq<-gsub("__","_",alldatauniq)
-    alldatauniq<-as.data.frame(gsub("_$","",alldatauniq))
-    names(alldatauniq)<-"unique"
-    listofuniq<-unique(alldatauniq)
-    alldata<-cbind(alldata,alldatauniq)
-    
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Store away columns not needed immediately together with unique fields -----
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    allnotations<-alldata[alldata[,"meastype"]=="METHOD",]
-    alldata<-alldata[alldata[,"meastype"]!="METHOD",]
-    subfields<-c(fields4info[! fields4info %in% "notation"],"value")
-    allnotations<-subset(allnotations,select=names(allnotations)[! names(allnotations) %in% subfields])
-    allnotations<-subset(allnotations,select=names(allnotations)[! names(allnotations) %in% fields4coun])
-    allnotations<-subset(allnotations,select=names(allnotations)[! names(allnotations) %in% fields2keep])
-    
-    #allinfos<-alldata[alldata[,"meastype"]=="INFO" | alldata[,"allmethods"]=="Additional Information",]
-    #alldata <-alldata[alldata[,"meastype"]!="INFO" & alldata[,"allmethods"]!="Additional Information",]
-    allinfos<-alldata[alldata[,"meastype"]=="INFO",]
-    alldata <-alldata[alldata[,"meastype"]!="INFO",]
-    allinfos<-subset(allinfos,select=names(allinfos)[! names(allinfos) %in% fields4info])
-    allinfos<-subset(allinfos,select=names(allinfos)[! names(allinfos) %in% fields4coun])
-    allinfos<-subset(allinfos,select=names(allinfos)[! names(allinfos) %in% fields2keep])
-    
-    alldata4info<-subset(alldata,select=c(fields4info,"unique"))
-    alldata<-subset(alldata,select=names(alldata)[! names(alldata) %in% fields4info])
-    
-    alldata4coun<-subset(alldata,select=c(fields4coun,"unique"))
-    alldata<-subset(alldata,select=names(alldata)[! names(alldata) %in% fields4coun])
-    
-    measname<-as.matrix(unique(subset(alldata,select=c("meastype","measnameshort","sector_number","measure","variableUID"))))
-    #alldata<-subset(alldata,select=-measname)
-    
-    alldata4uniq<-subset(alldata,select=c(fields2keep,"unique","variableUID"))
-    alldata4uniq<-unique(alldata4uniq)
-    alldata<-subset(alldata,select=names(alldata)[! names(alldata) %in% fields2keep])
-    
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    # Generate data frame with one columns per year ----
-    # and the value in the corresponding column ---
-    # zeros in all other columns
-    # http://stackoverflow.com/questions/11350537/convert-a-factor-column-to-multiple-boolean-columns
-    # Alternative method could be: #http://stackoverflow.com/questions/9084439/r-colsums-by-group
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    temp1<-as.data.frame(model.matrix(~factor(year)-1,data=alldata)*alldata$value)
-    temp2<-cbind(alldata,temp1)
-    names(temp2)<-gsub("factor\\(year\\)","",as.vector(names(temp2)))
-    temp2<-subset(temp2,select=c("unique",allyears[allyears %in% names(temp2)]))
-    
-    # seems to work better: https://stat.ethz.ch/pipermail/r-help/2008-March/157414.html
-    #temp3<-lapply(split(temp1,temp1$category),function(x) colSums(x[,-1]))
-    alldatanames<-as.vector(sort(unique(temp2$unique)))
-    temp3<-lapply(split(temp2,temp2$unique,drop=TRUE),function(x) colSums(x[,-1],na.rm=TRUE))
-    temp4<-as.data.frame(Reduce(cbind,temp3))
-    names(temp4)<-alldatanames
-    temp4<-as.data.frame(t(temp4))
-    
-    alldata<-merge(alldata4uniq,temp4,by.x="unique",by.y=0)
-    
-    #Restrict the years
-    years2delete<-as.vector(as.character(allyears[!(allyears %in% years2keep)]))
-    allcolumns<-names(alldata)
-    alldata<-subset(alldata,select=allcolumns[! allcolumns %in% years2delete])
-    
-    # Save alldata for later re-use incase of allem or all3 ####
-    toremove<-c("temp1","temp2","temp3","temp4")
-    rm(toremove)
-
-    #    if(docateg=="all" & dogases=="all" & domeasu=="EM"){
-    
-    save(alldata,alldatanovalues,measname,file=rdatallem)
-    write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_cat3.csv"),sep=",")
-    write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_cat4.csv"),sep=",")
-    
-}
+if (doplots=="all"){doplots<-7}
+doplots<-as.numeric(doplots)
+doplotsv<-2**((which((as.integer(intToBits(doplots))[1:3]) %in% 1)-1))
 
     # Delete rows with no meastype defined
     alldata<-alldata[alldata$meastype!="",]
@@ -345,7 +166,6 @@ if(domeasu[1]!="all"){
     domeasuall<-TRUE
 }
 
-alldata$sector_number<-gsub(" \\(please specify\\)","",alldata$sector_number)
 
 # Lists of all categorysources, measuregases, units, partys 
 # - In the following partys are rows, units are not required (now)
@@ -375,7 +195,8 @@ if(length(torm2)>0){rm(list=torm2)}
 # categorymatrix: Copy alldata into new matrix for further processing ####
 #          alldata remains stable from this point onwards
 #          alldata is already filtered for category and measures
-categorymatrix<-subset(alldata,select=-c(unique));
+#categorymatrix<-subset(alldata,select=-c(unique));
+categorymatrix<-alldata;
 
 
 #Remove rows which are zero for all parties
@@ -485,10 +306,10 @@ if(docategall){
 }else{ 
     focusmatrix$allfoci<-unlist(lapply(focusmatrix$par,function(x) 
         (!sum(adempars %in% x))*7 + (sum(adempars %in% x)*3) ))
-        #(!sum(adempars %in% x))*(dogases) + (sum(adempars %in% x)*3) ))
+        #(!sum(adempars %in% x))*(doplots) + (sum(adempars %in% x)*3) ))
     focusmatrix$nrep<-unlist(lapply(focusmatrix$par,function(x) 
         (!sum(adempars %in% x))*3 + (sum(adempars %in% x)*2) ))
-        #(!sum(adempars %in% x))*(dogases%%4) + (sum(adempars %in% x)*2) ))
+        #(!sum(adempars %in% x))*(doplots%%4) + (sum(adempars %in% x)*2) ))
 }    
 
 if(searchline)print(481)
@@ -514,13 +335,15 @@ focus[,9]<-unlist(lapply(focusrows, function(x) rep(focusmatrix$aduid[x],focusma
 focus[,3]<-unlist(lapply(focusmeas, function(x) rep(if(x %in% adempars){"adem"}else{"ief"},focusmatrix$nrep[focusmatrix$par==x][1])))
 focus[,4]<-unlist(lapply(focusfoc,  function(x) 2**((which((as.integer(intToBits(x))[1:3]) %in% 1)-1))))
 
-focus<-focus[focus$focus %in% doplots,]
+focus<-focus[focus$focus %in% doplotsv,]
 focuscols<-nrow(focus)
-zzz
+
+
+
 # PART B loop over focuscols ####
 #Select focus        
-for (numrun in 1:(focuscols)){
-#for (numrun in 177:184){
+#for (numrun in 1:(focuscols)){
+for (numrun in 800:902){
     #        for (numrun in 5:5){
     #B1.Copy run-parameter #### 
     # numrun<-1            
@@ -608,7 +431,7 @@ for (numrun in 1:(focuscols)){
         iefcount<-subset(tmp1,select=c(-gas,-unit,-party,-allmethods,-variableUID,-sector_number))
         # In case there are less IEFs identified then ADs select those ADs for 
         # which also the IEF exist for weighted EU-IEF
-        iefeu28<-colSums(iefcount*actcount[row.names(actcount)%in%tmpcountries,])/acteu28
+        iefeu28<-colSums(iefcount[tmpcountries%in%row.names(actcount),]*actcount[row.names(actcount)%in%tmpcountries,])/acteu28
         rownames(iefcount)<-as.vector(tmp1$party)
         colnames(iefcount)<-years
     }
@@ -697,20 +520,26 @@ for (numrun in 1:(focuscols)){
             # DeltaE* + DeltaE& = DeltaE
             # Share AD: DeltaE*/DeltaE
             
-            deltaEM_EU28<-sum(eealocator[,nyears])-sum(eealocator[,1])
-            deltaEM<-eealocator[,nyears]-eealocator[,1]
-            deltaAD<-actcount[,nyears]-actcount[,1]
-            deltaIF<-iefcount[,nyears]-iefcount[,1]
-            pct_act2<-100*((actcount[,nyears]-actcount[,1])
-                           *iefcount[,1])/
-                (sum(eealocator[,nyears])-sum(eealocator[,1]))/1000
+            countriesavailable<-row.names(eealocator[row.names(eealocator)%in%row.names(iefcount),])
+            countriesavailable<-countriesavailable[countriesavailable%in%actcountries]
+            emcountries<-row.names(eealocator)%in%countriesavailable
+            ifcountries<-row.names(iefcount)%in%countriesavailable
+            adcountries<-row.names(actcount)%in%countriesavailable
+            
+            deltaEM_EU28<-sum(eealocator[emcountries,nyears])-sum(eealocator[emcountries,1])
+            deltaEM<-eealocator[emcountries,nyears]-eealocator[emcountries,1]
+            deltaAD<-actcount[adcountries,nyears]-actcount[adcountries,1]
+            deltaIF<-iefcount[ifcountries,nyears]-iefcount[ifcountries,1]
+            pct_act2<-100*((actcount[adcountries,nyears]-actcount[adcountries,1])
+                           *iefcount[ifcountries,1])/
+                (sum(eealocator[emcountries,nyears])-sum(eealocator[emcountries,1]))/1000
             
             # Share of AD and IEF on EU absolute trend
-            act_pcteu<-100*(deltaAD*iefcount[,1]/1000)/deltaEM_EU28
-            ief_pcteu<-100*(deltaIF*actcount[,nyears]/1000)/deltaEM_EU28
+            act_pcteu<-100*(deltaAD*iefcount[ifcountries,1]/1000)/deltaEM_EU28
+            ief_pcteu<-100*(deltaIF*actcount[adcountries,nyears]/1000)/deltaEM_EU28
             # Share of AD and IEF on country absolute trend
-            act_pctcountry<-100*(deltaAD*iefcount[,1]/1000)/deltaEM
-            ief_pctcountry<-100*(deltaIF*actcount[,nyears]/1000)/deltaEM
+            act_pctcountry<-100*(deltaAD*iefcount[ifcountries,1]/1000)/deltaEM
+            ief_pctcountry<-100*(deltaIF*actcount[adcountries,nyears]/1000)/deltaEM
             act_pctcouneu<-100*((acteu28[nyears]-acteu28[1])*iefeu28[1]/1000)/(emieu28[nyears]-emieu28[1])
             ief_pctcouneu<-100*((iefeu28[nyears]-iefeu28[1])*acteu28[nyears]/1000)/(emieu28[nyears]-emieu28[1])
             

@@ -124,17 +124,20 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
 reportyears<-function(checky,compare){
     maxn<-length(compare)
     curn<-length(unlist(checky))
+    #print(paste0("checky=",checky))
+    #print(paste0("years",maxn,"-",compare))
     if(maxn==curn){
-        "all"
+        ret<-"all"
     }else if(maxn==0){
-        ""
+        ret<-""
     }else if(curn<maxn/2){
-        paste0(unlist(checky),collapse=" ")
+        ret<-paste0(unlist(checky),collapse=" ")
     }else{
         misy<-paste0(compare[! compare %in% unlist(checky)],collapse=" ")
-        paste0("all except: ",misy,collapse=" ")
+        ret<-paste0("all except: ",misy,collapse=" ")
     }
-    
+    #print(paste("return=",ret))
+    return(ret)
 }
 
 simplifytestmatrix<-function(check,group,compare){
@@ -144,9 +147,12 @@ simplifytestmatrix<-function(check,group,compare){
     testheaders<-names(check)
     compare<-compare
     check3<-subset(check,select=names(check)[! names(check) %in% group])
-    checky<-check[,group]
+    #checky<-check[,group]
+    checky<-as.data.frame(check[,group])
     checky<-aggregate(checky, by = as.list(check3), function(x) paste0(x,collapse=NULL))
-    checky[,group]<-unlist(lapply(c(1:nrow(checky)),function(x) reportyears(checky$x[x],compare)))
+    checkn<-ncol(checky)
+    #checky[,group]<-unlist(lapply(c(1:nrow(checky)),function(x) reportyears(checky$x[x],compare)))
+    checky[,group]<-unlist(lapply(c(1:nrow(checky)),function(x) reportyears(checky[x,checkn],compare)))
     check<-checky[,names(checky)%in%testheaders]
     
     return(check)

@@ -38,9 +38,8 @@ rdatallem <- paste0(csvfil,"_clean.RData")
             generatealldata <- 0
         }
     }
-allcountries<-as.data.frame(unique(as.vector(alldata$party)))
-names(allcountries)<-"party"
-allcountries$party<-as.character(allcountries$party)
+#allcountries$party<-as.character(allcountries$party)
+
 checkhead<-c("test","val1","val2","ms","sec","yr","val","obs")
 nheaders<-length(checkhead)
 checktemp<-as.data.frame(matrix(rep(0,nheaders),nrow=1,ncol=nheaders))
@@ -48,14 +47,6 @@ names(checktemp)<-checkhead
 
 ```
 
-```{r extractCat3, echo=FALSE}
-cat3all<-alldata[grepl("^3",alldata$sector_number),]
-cat3all<-subset(cat3all,select=-unique)
-years<-names(cat3all)
-years<-years[grepl("^[12]",years,perl=TRUE)]
-source("checkcat3_functions.r")
-source("checkcat3_0animals.r")
-```
 
 ### Check1: Activitydata are identic between 4A and 4B
 ```{r prepareAnimaltypes}

@@ -1,53 +1,29 @@
-# # Correction now - not needed later OR do all meastype-adjustment here and NOT elsewhere.
-calcmeas[(calcmeas$meastype=="" & grepl("3.F.1.",calcmeas$sector_number)),"meastype"]<-"RatioResCrop"
-calceu[(calceu$meastype=="" & grepl("3.F.1.",calceu$sector_number)),"meastype"]<-"RatioResCrop"
-
-### Adjust measures
-calceu[grepl("^4",calceu$sector_number) & calceu$unit=="ha","meastype"]<-"AREA"
-calceu[grepl("^4",calceu$sector_number) & calceu$unit=="kg N/yr","meastype"]<-"AD"
-calceu[grepl("^4",calceu$sector_number) & calceu$unit=="kt","meastype"]<-"EM"
-calceu[grepl("^4",calceu$sector_number) & calceu$unit=="t/unit","meastype"]<-"IEF"
-
-
-### Remove duplicates ####
-duplicates<-c("Animal Manure Applied to Soils",
-              "Organic Fertilizers Applied to Soils",
-              "Sewage Sludge Applied to Soils")
-calceu<-calceu[!(calceu$sector_number=="3.D.1.2" & calceu$allmethods%in%duplicates),]
-
-duplicates<-c("Direct N2O Emissions from N inputs_Land_Forest Land")
-calceu<-calceu[!(calceu$sector_number=="4.A" & calceu$allmethods%in%duplicates),]
-
-duplicates<-c("Direct N2O Emissions from N inputs_Wetlands_Wetlands")
-calceu<-calceu[!(calceu$sector_number=="4.D" & calceu$allmethods%in%duplicates),]
-
-duplicates<-c("Direct N2O Emissions from N inputs_Settlements_Settlements",
-              "Direct N2O Emissions from N inputs_Land_Settlements",
-              "Direct N2O Emissions from N inputs_Settlements")
-calceu<-calceu[!(calceu$sector_number=="4.E" & calceu$allmethods%in%duplicates),]
-
-
-calceunouid<-unique(subset(calceu,select=-variableUID))
-calceunouid$variableUID<-calceu$variableUID[row.names(calceu)%in%row.names(calceunouid)]
-calceu<-calceunouid
-rm(calceunouid)
-
-calcmeas<-unique(subset(calceu,select=cat3names[!cat3names %in% c("party",years)]))
-measname<-as.data.frame(measname)
-measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
-listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
-
-
-selectadmeasures<-function(request,M,meas2sum,sec,mea){
+selectadmeasures<-function(request,M,A,meas2sum,x){
     avail<-meas2sum[!meas2sum%in%"EM"]
+    sec<-A$sector_number[x]
+    cat<-A$category[x]
+    cla<-A$classification[x]
+    sou<-A$source[x]
+    tar<-A$target[x]
+    mea<-A$meastype[x]
+    uid<-A$variableUID[x]
+    uni<-A$unit[x]
+    
+
+    #print(paste0("x<-",x,";sec<-",sec,";mea",mea,";cat<-",cat))
     # Use "Total Biomass burned [kt dm]" for IEF CH4 and N2O in Table 3.F
     if(grepl("^3.F",sec) & mea=="IEF") avail<-"AD"
     # Use "Area burned [k ha/yr]" for YIELD "Biomass available [t dm/ha] in Table 3.F
     if(grepl("^3.F",sec) & mea=="YIELD") avail<-"AREA"
     # Use "Crop production [t]" for parameters in 'Additional information' in Table 3.F
     if(grepl("^3.F",sec) & mea%in%c("DM","FracBURN","FracOXIDIZED","Combustion","RatioResCrop")) avail<-"PROD"
+    # Indirect emissions in Table 3.B.2
+    if(grepl("^3.B.2.5",sec) & uid=="47100CA3-9371-4944-B302-BD76A154B0F4") avail<-"Nvol"
+    if(grepl("^3.B.2.5",sec) & uid=="C548A926-2825-4F66-A6FE-DA55F429CB29") avail<-"Nleach"
 
-    measOK<-as.vector(unique(M[,request][M$meastype %in% avail & M$sector_number==sec]))
+    measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+            & M$sector_number==sec & M$category==cat & M$classification==cla 
+            & M$source==sou & M$target==tar]))
 
     # For cat 3.B.2 ADs might not be give ... use those for 3.A instead
     if(length(measOK)==0){
@@ -71,20 +47,39 @@ selectadmeasures<-function(request,M,meas2sum,sec,mea){
         }
     }else if(length(measOK)>1){
         measOK<-c(length(measOK),measOK)
+        if(uni=="t/unit"){
+            measOK<-c(measOK,"variable type")
+        }else{
+            View(A[x,])
+            print(x)
+            print(measOK)
+            print(paste0("meastype=",mea))
+            tms<-paste0("x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+            
+            print(tms)
+            stop()
+        }
     }
     
     return(paste0(measOK,collapse=" "))
 }
 
+calceu<-alldata
+calcmeas<-unique(subset(calceu,select=allfields[!allfields %in% c("party",years)]))
+#measname<-as.data.frame(measname)
+measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
 # Set up table with infor AD to link with parameter
-assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("allmethods","climat"))])
+assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","type","notation","measure"))])
 assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("meastype",calcmeas,meas2sum,assignad2par$sector_number[x],assignad2par$meastype[x])))
+    selectadmeasures("meastype",calcmeas,assignad2par,meas2sum,x)))
 assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("unit",calcmeas,meas2sum,assignad2par$sector_number[x],assignad2par$meastype[x])))
+    selectadmeasures("unit",calcmeas,assignad2par,meas2sum,x)))
 assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("variableUID",calcmeas,meas2sum,assignad2par$sector_number[x],assignad2par$meastype[x])))
-
+    selectadmeasures("variableUID",calcmeas,assignad2par,meas2sum,x)))
+namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
+                     "category","classification","source","target","option","variableUID","aduids")
+assignad2par<-assignad2par[,namesassignad2par]
 measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
 parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 
@@ -104,9 +99,9 @@ sumovercountries<-function(D,uid,y,c){
     return(s)
 }
 weightovercountries<-function(D,Auid,Puid,ok,y,c){
-    #print(paste0("Auid<-",Auid))
-    #print(paste0("Puid<-",Puid))
-    #print(paste0("ok<-",ok))
+    print(paste0("Auid<-",Auid))
+    print(paste0("Puid<-",Puid))
+    print(paste0("ok<-",ok))
     
     if(ok=="-" | ok==""){
         s<-rep(NA,length(y))

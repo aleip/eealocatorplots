@@ -1,13 +1,13 @@
 ifil=$1
 ofil=eealocator_$(date +%Y%m%d).txt
 
-ifil=CRF_MMR_20150703.txt
+ifil=CRF_MMR_20150804.txt
 direct=../2015/eealocator/
-submission=20150703
+submission=20150804
 
 ifil=${direct}/${ifil}
 
-ofilsub=eealocator_${submission}_$(date +%Y%m%d).txt
+ofilsub=eealocator_${submission}.txt
 
 cut -d$'\t' -f1,2,5-12 $ifil | \
   sed -e 's/,/ /g' | \

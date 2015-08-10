@@ -4,54 +4,53 @@ is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 
 viewlast<-function(n){View(cat3all[(nrow(cat3all)-n):nrow(cat3all),])}
 newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%y%m%d%H%M%S"),"-",MHmakeRandomString(1,4),sep="")}
-getuid<-function(mode=1,myobject=NULL,ok=1,sec=NULL,met="",cli="",mymeastype="AD",gas="no gas",x=1){
+
+getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*",opt="*",msr="*",mea="*",gas="*"){
     
     # mode=1: returns number of UIDs available
     # mode=2: returns UIDs if #ist 1
     
-    # Note that cli (climate zone) and met (method: e.g. manure management system) are set
-    #      to default "" and need to be given only if different
-    #      gas is set to "no gas" default and needs to be given for EM and IEF
-    if(mode==1){
-        getuidr<-nrow(cat3alltab[cat3alltab$sector_number==paste0(sec,myobject$sector_number[x]) &
-                            cat3alltab$allmethods==met &
-                            cat3alltab$clim==cli &
-                            cat3alltab$meastype==mymeastype &
-                            cat3alltab$gas==gas,])
-        if(getuidr>1){
-            curuids<-as.vector(cat3alltab[cat3alltab$sector_number==paste0(sec,myobject$sector_number[x]) &
-                                              cat3alltab$allmethods==met &
-                                              cat3alltab$clim==cli &
-                                              cat3alltab$meastype==mymeastype &
-                                              cat3alltab$gas==gas,"variableUID"])
-            View(cat3all[cat3all$sector_number==paste0(sec,myobject$sector_number[x]) &
-                             cat3all$allmethods==met &
-                             cat3all$clim==cli &
-                             cat3all$meastype==mymeastype &
-                             cat3all$gas==gas &
-                         cat3all$variableUID%in%curuids,])
-        }
-    }else{
-        
-        if(ok==1){
-            getuidr<-cat3alltab[cat3alltab$sector_number==paste0(sec,myobject$sector_number[x]) &
-                           cat3alltab$allmethods==met &
-                           cat3alltab$clim==cli &
-                           cat3alltab$meastype==mymeastype &
-                           cat3alltab$gas==gas,"variableUID"]
-        }else{getuidr<-ok}
-    }
-    return(getuidr)
+    # Note all info a re set to default "*" which means that all are selected
+    #      only those which are of interest need to be given and only if different
+    selc<-c("sec","cat","met","cla","sou","tar","opt","msr","mea","gas")
+    selv<-c(sec,cat,met,cla,sou,tar,opt,msr,mea,gas)
+    sel<-"";for(i in c(1:length(selv))) {g<-paste0(selc[i],"<-'",selv[i],"'");sel<-paste(sel,g,sep=";")}
+    
+    #sel<-paste(mode=1,myobject=NULL,ok=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*",opt="*",msr="*",mea="*",gas="*",x=1,sep=";")
+    #print(sel)
+    #         getuidr<-nrow(cat3alltab[cat3alltab$sector_number==paste0(sec,myobject$sector_number[x]) &
+    #                             cat3alltab$allmethods==met &
+    #                             cat3alltab$clim==cli &
+    #                             cat3alltab$meastype==mymeastype &
+    #                             cat3alltab$gas==gas,])
+    getuidr<-cat3alltab[grepl(sec,cat3alltab$sector_number) &
+                            grepl(cat,cat3alltab$category) &
+                            grepl(met,cat3alltab$method) &
+                            grepl(cla,cat3alltab$classification) &
+                            grepl(sou,cat3alltab$source) &
+                            grepl(tar,cat3alltab$target) &
+                            grepl(opt,cat3alltab$option) &
+                            grepl(msr,cat3alltab$measure) &
+                            grepl(mea,cat3alltab$meastype) &
+                            grepl(gas,cat3alltab$gas),]
+    ngetuidr<-nrow(getuidr)
+    curuids<-getuidr$variableUID
+    
+    if(ngetuidr>1){View(cat3all[cat3all$variableUID%in%curuids,]);stop()}
+    if(ngetuidr==1){ngetuidr<-unlist(as.vector(curuids))}
+    return(ngetuidr)
 }
 
-checkuid<-function(myobject=NULL,sec=NULL,met="",cli="",mea=NULL,gas="no gas"){
+checkuid<-function(myobject=NULL,sec=NULL,met="",sou="",cat="",mea=NULL,gas="no gas"){
     
     pargas<-paste0(mea,gas)
     
     myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x)
-        getuid(1,myobject,ok=1,sec,met,cli,mea,gas,x)))
-    myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x) 
-        getuid(2,myobject,ok=myobject[x,pargas],sec,met,cli,mea,gas,x)))
+        getuid(1,ok=1,mea=mea,gas=gas,x=x,cat=cat,
+               sec=paste0("^",sec,checkuids$sector_number[x],"$"))))
+#         getuid(1,myobject,ok=1,sec,met,cli,mea,gas,x)))
+#     myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x) 
+#         getuid(2,myobject,ok=myobject[x,pargas],sec,met,cli,mea,gas,x)))
     
     return(myobject)
 }
@@ -59,11 +58,14 @@ checkuid<-function(myobject=NULL,sec=NULL,met="",cli="",mea=NULL,gas="no gas"){
 extractuiddata<-function(DF=NULL,uid=NULL,c){
     c<-as.data.frame(c)
     names(c)<-"party"
-    tmp1<-DF[DF[,"variableUID"]==uid,c("party",years)]
+    tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years)])
+    
+    ntmp<-nrow(tmp1)
     tmp1<-merge(c,tmp1,by="party",all=TRUE)
     tmp1<-tmp1[,years]
-    tmp1[is.na(tmp1)]<-0
+    #tmp1[is.na(tmp1)]<-0
     tmp1<-as.matrix(tmp1)
+    return(tmp1)
 }
 
 nodiff<-function(checks=NULL,ncheck=1,test=NULL,val1=NULL,val2=NULL,sec=NULL,reas=""){
@@ -81,6 +83,8 @@ nodiff<-function(checks=NULL,ncheck=1,test=NULL,val1=NULL,val2=NULL,sec=NULL,rea
 
 diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2=NULL,sec=NULL,roundn=3){
     diff=NULL
+    ol<-ls()
+    save(ol,file="test.RData")
     diff<-which(round(A,roundn)!=round(B,roundn))
     if(length(diff)>0){
         for(d in c(1:length(diff))){
@@ -90,7 +94,7 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
             checks[ncheck,"test"]<-test
             checks[ncheck,"val1"]<-val1
             checks[ncheck,"val2"]<-val2
-            checks[ncheck,"ms"]<-allcountries$party[rn]
+            checks[ncheck,"ms"]<-allcountries[rn]
             checks[ncheck,"yr"]<-years[cn]
             checks[ncheck,"sec"]<-sec
             
@@ -103,11 +107,12 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
                 val<-""
             }else 
                 if(round(round(A[rn,cn],roundn)/10**quotient,roundn)==round(B[rn,cn],roundn)){
-                obs<-paste0(val1," is ",10**quotient," x ",val2)
+                obs<-paste0(val1," is 10",quotient," x ",val2)
                 val<-""
             }else{
-                quotient<-round(round(A[rn,cn],roundn)/round(B[rn,cn],roundn),roundn)
-                obs<-paste0(val1," is ",quotient," x ",val2)
+                quotient<-round(round(A[rn,cn],roundn)/round(B[rn,cn],roundn),3)
+                if(quotient==0) quotient<-round(round(A[rn,cn],roundn)/round(B[rn,cn],roundn),3+3)
+                obs<-paste0("val1 is ",quotient," x val2")
             }
             checks[ncheck,"val"]<-val
             checks[ncheck,"obs"]<-obs
@@ -123,15 +128,18 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
 #  - Returns the selected years if less then half are selectd
 reportyears<-function(checky,compare){
     maxn<-length(compare)
+    if(is.null(compare)) maxn<-NULL
     curn<-length(unlist(checky))
     #print(paste0("checky=",checky))
     #print(paste0("years",maxn,"-",compare))
-    if(maxn==curn){
+    if(is.null(maxn)){
+        ret<-paste0(unlist(checky),collapse=" ")
+    }else if(maxn==curn){
         ret<-"all"
     }else if(maxn==0){
         ret<-""
     }else if(curn<maxn/2){
-        ret<-paste0(unlist(checky),collapse=" ")
+        ret<-paste0(unlist(checky),collapse=" - ")
     }else{
         misy<-paste0(compare[! compare %in% unlist(checky)],collapse=" ")
         ret<-paste0("all except: ",misy,collapse=" ")

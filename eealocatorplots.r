@@ -43,11 +43,11 @@ setwd(locplots)
 # - measname
 generatealldata <- 1
 if(file.exists(rdatallem)){
-    if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
+    #if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
         print(paste0("Load existing file ",rdatallem))
         load(rdatallem)    
         generatealldata <- 0
-    }
+    #}
 }
 # Load functions
 source("eugirp_functions.r")
@@ -56,6 +56,8 @@ source("eugirp_definitions.r")
 source("eugirpA.1_eealocator.r")
 years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
 allcountries<-unique(as.vector(alldata$party))
+countries<-as.data.frame(allcountries)
+names(countries)<-"party"
 
 
 # A.2 Clean animal type names ####
@@ -67,7 +69,7 @@ allcountries<-unique(as.vector(alldata$party))
 # - Recombine with the other sectors
 if(stepsdone==1){
     print("Clean animal types and generate list of measures")
-    source("eugirpA.2_cleananimaltypes.r")
+    source("eugirpA.2_meastype.r")
     stepsdone<-2
     save(stepsdone,alldata,allnotations,allinfos,allnotations,measures,file=rdatallem)
 }else if(stepsdone>1){
@@ -81,11 +83,9 @@ if(stepsdone==2){
     #calcmeas<-allmeas
     source("eugirpB.1_euvalues.r")
 
-    alldata<-rbind(alldata,eu28sum)
-    alldata<-rbind(alldata,eu28wei)
     stepsdone<-3
     save(assignad2par,listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    save(stepsdone,alldata,allmethods,allnotations,allinfos,measname,file=rdatallem)
+    save(stepsdone,alldata,allnotations,allinfos,file=rdatallem)
 }else if(stepsdone>2){
     print("EU sums and weighted averages already calculated")
 }
@@ -94,9 +94,11 @@ if(stepsdone==2){
 nyears<-length(years)
 period1<-as.character(years[1]:years[nyears-1])
 period2<-as.character(years[2]:years[nyears])
+o<-order(alldata$sector_number,alldata$category)
 
 if(stepsdone==3){
     print("Calculating trends and growth rates")
+    alldata<-alldata[o,]
     alltrend<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
     alltrend<-alldata[alldata$meastype %in% meas2sum,]
     alltrend[,period2]<-alldata[alldata$meastype %in% meas2sum,period2]-alldata[alldata$meastype %in% meas2sum,period1]
@@ -111,13 +113,30 @@ if(stepsdone==3){
     allgrowth[,years]<-round(allgrowth[,years],3)
     allgrowth[,years[1]]<-NA
     stepsdone<-4
-    save(stepsdone,alldata,alltrend,allgrowth,allmethods,allnotations,allinfos,measname,file=rdatallem)
+    save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,file=rdatallem)
 }else if(stepsdone>3){
     print("Trends and growth rates already calculated")
 }
 
 if(stepsdone==4) {
     load(rdatmeasu)
+    allother<-alldata[alldata$category%in%otherlivestock,]
+    nother<-nrow(allother)
+    allother$sector_number<-unlist(lapply(c(1:nother),function(x)
+        otherlive$code[otherlive$otherlivestock==allother$category[x]]))
+    allother$sector_number<-unlist(lapply(c(1:nother),function(x)
+        if(allother$measure[x]%in% tables4measures){
+            paste0(tables4sect$sector_number[tables4sect$measure==allother$measure[x]],allother$sector_number[x])
+        }else
+        {
+            if(allother$classification[x]=="Enteric Fermentation"){paste0("3.A.",allother$sector_number[x])}else
+                if(allother$classification[x]=="CH4 Emissions"){paste0("3.B.1.",allother$sector_number[x])}else
+                    if(grepl("N2O",allother$classification[x])){paste0("3.B.2.",allother$sector_number[x])}else
+                    {allother$sector_number[x]}
+        }
+    ))
+    alldata$sector_number[alldata$category%in%otherlivestock]<-allother$sector_number
+    source("checkcat3_1ADs.r")
 }
 
 

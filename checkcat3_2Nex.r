@@ -1,25 +1,30 @@
+
 #checkuids<-allanimals
 tmp0<-extractuiddata("")
 checkpar<-"NEXC"
 checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-    getuid(1,myobject=checkuids,ok=1,sec="3.B.2",met="",cli="",mymeastype=checkpar,x=x)))
-checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x) 
-    getuid(2,myobject=checkuids,ok=checkuids[x,checkpar],sec="3.B.2",met="",cli="",mymeastype=checkpar,x=x)))
-
+    getuid(1,ok=1,,mea=checkpar,gas="no gas",x=x,
+           sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+           cat=paste0("^",checkuids$category[x],"$"),
+           msr="Nitrogen excretion rate")))
+    
 
 checkpar<-"TNEXC"
 checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-    getuid(1,myobject=checkuids,ok=1,sec="3.B.2",mymeastype="EM",x=x)))
-checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x) 
-    getuid(2,myobject=checkuids,ok=checkuids[x,checkpar],sec="3.B.2",mymeastype="EM",x=x)))
+    getuid(1,ok=1,,mea="EM",gas="no gas",x=x,
+           sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+           cat=paste0("^",checkuids$category[x],"$"))
+    ))
+
 
 for(i in c(1:length(manureSystems))){
     cursystem<-manureSystems[i]
     curshort<-manureSysshrt[i]
     checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-        getuid(1,myobject=checkuids,ok=1,sec="3.B.2",met=cursystem,mymeastype="EM",x=x)))
-    checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x) 
-        getuid(2,myobject=checkuids,ok=checkuids[x,curshort],sec="3.B.2",met=cursystem,mymeastype="EM",x=x)))
+        getuid(1,ok=1,,mea="NEXC",gas="no gas",x=x,
+               sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+               cat=paste0("^",checkuids$category[x],"$"),sou=cursystem)
+    ))
 }
 
 # N2O emissions

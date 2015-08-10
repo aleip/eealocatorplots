@@ -8,10 +8,10 @@ if(generatealldata==1){
         print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
         alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
         save(alldata,file=rdatfile)
-    }else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
-        print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
-        alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
-        save(alldata,file=rdatfile)
+    #}else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
+    #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
+    #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
+    #    save(alldata,file=rdatfile)
     }else{
         print(paste0("Retrieve ",rdatfile))
         load(rdatfile)

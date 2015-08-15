@@ -1,9 +1,9 @@
 
 #checkuids<-allanimals
-tmp0<-extractuiddata("")
+tmp0<-extractuiddata(cat3all,"",allcountries)
 checkpar<-"NEXC"
 checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-    getuid(1,ok=1,,mea=checkpar,gas="no gas",x=x,
+    getuid(1,ok=1,mea=checkpar,gas="no gas",x=x,
            sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
            cat=paste0("^",checkuids$category[x],"$"),
            msr="Nitrogen excretion rate")))
@@ -11,49 +11,64 @@ checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
 
 checkpar<-"TNEXC"
 checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-    getuid(1,ok=1,,mea="EM",gas="no gas",x=x,
+    getuid(1,ok=1,mea="EM",gas="no gas",x=x,
            sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
            cat=paste0("^",checkuids$category[x],"$"))
     ))
 
+# N2O emissions
+mea<-"EM";gas<-"N2O";pargas<-paste0(mea,gas)
+checkuids[,pargas]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
+    getuid(1,ok=1,mea=mea,gas=gas,x=x,msr="Emissions",
+           sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+           cat=paste0("^",checkuids$category[x],"$"))))
+mea<-"IEF";gas<-"N2O";pargas<-paste0(mea,gas)
+checkuids[,pargas]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
+    getuid(1,ok=1,,mea=mea,gas=gas,x=x,msr="Implied",
+           sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+           cat=paste0("^",checkuids$category[x],"$"))))
 
 for(i in c(1:length(manureSystems))){
+    
     cursystem<-manureSystems[i]
     curshort<-manureSysshrt[i]
     checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-        getuid(1,ok=1,,mea="NEXC",gas="no gas",x=x,
+        getuid(1,ok=1,mea="NEXC",gas="no gas",x=x,
                sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
-               cat=paste0("^",checkuids$category[x],"$"),sou=cursystem)
-    ))
-}
+               cat=paste0("^",checkuids$category[x],"$"),sou=cursystem)))
 
-# N2O emissions
-checkuids<-checkuid(checkuids,sec="3.B.2",mea="EM",gas="N2O")
-checkuids<-checkuid(checkuids,sec="3.B.2",mea="IEF",gas="N2O")
-
-for(i in c(1:length(manureSystems))){
+    mea<-"EM";gas<-"N2O"
     cursystem<-manureSystems[i]
-    curshort<-paste0(manureSysshrt[i],"EMN2O")
+    curshort<-paste0(manureSysshrt[i],mea,gas)
+    #save.image("getuid.RData")
     checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-        getuid(1,myobject=checkuids,ok=1,sec="3.B.2",met=cursystem,mymeastype="EM",gas="N2O",x=x)))
-    checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x) 
-        getuid(2,myobject=checkuids,ok=checkuids[x,curshort],sec="3.B.2",met=cursystem,mymeastype="EM",gas="N2O",x=x)))
-
-    curshort<-paste0(manureSysshrt[i],"IEFN2O")
+        getuid(1,ok=1,mea=mea,gas="N2O",x=x,sou=cursystem,
+               sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+               cat=paste0("^",checkuids$category[x],"$"))))
+    
+    mea<-"IEF";gas<-"N2O"
+    cursystem<-manureSystems[i]
+    curshort<-paste0(manureSysshrt[i],mea,gas)
     checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-        getuid(1,myobject=checkuids,ok=1,sec="3.B.2",met=cursystem,mymeastype="IEF",gas="N2O",x=x)))
-    checkuids[,curshort]<-unlist(lapply(c(1:nrow(checkuids)), function(x) 
-        getuid(2,myobject=checkuids,ok=checkuids[x,curshort],sec="3.B.2",met=cursystem,mymeastype="IEF",gas="N2O",x=x)))
+        getuid(1,ok=1,mea=mea,gas="no gas",x=x,sou=cursystem,
+               sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
+               cat=paste0("^",checkuids$category[x],"$"))))
 }
 
 # Check sum of manureSystems against total excretion
 # Testresults
+tmp0<-extractuiddata(cat3all,"",allcountries)
+#tmp0[is.na(tmp0)]<-0
 check1<-checktemp
+names(check1)<-checkname
 ncheck1<-1
 
 check2<-checktemp
 ncheck2<-1
+names(check2)<-checkname
 
+print("Check1: Difference between sum(NEXC,mms) and TNEXC")
+print("Check2: Population number and N-excretion rates")
 for(i in c(1:nrow(checkuids))){
     tmp1<-tmp0
     for(j in manureSysshrt){
@@ -80,17 +95,17 @@ for(i in c(1:nrow(checkuids))){
     test<-"Nex"
     val1<-"sum(mms)"
     val2<-"AD x Nrate"
-    if(checkuids[i,"AAD"]!=0){
-        if(checkuids[i,"B2AD"]==0){
-            tmp3<-extractuiddata(cat3all,checkuids[i,"AAD"],allcountries)
+    if(checkuids[i,"APOP"]!=0){
+        if(checkuids[i,"B2POP"]==0){
+            tmp3<-extractuiddata(cat3all,checkuids[i,"APOP"],allcountries)
         }else{
-            tmp3<-extractuiddata(cat3all,checkuids[i,"B2AD"],allcountries)
+            tmp3<-extractuiddata(cat3all,checkuids[i,"B2POP"],allcountries)
         }
         if(checkuids[i,"NEXC"]!=0){
             tmp4<-extractuiddata(cat3all,checkuids[i,"NEXC"],allcountries)
             tmp5<-1000 * tmp3 * tmp4
             
-            # Difference between sum(NEXC,mms) and AD*Nrate 
+            # Difference between sum(NEXC,mms) and POP*Nrate 
             testsec<-paste0("3.B.2",checkuids$sector_number[i]," ",checkuids$allmethods[i])
             diffmatout<-diffmatrix(check2,ncheck2,tmp1,tmp5,test,val1,val2,testsec,roundn=0)
             ncheck2<-diffmatout[[1]]
@@ -113,20 +128,24 @@ for(i in c(1:nrow(checkuids))){
 #Simplifytestmatrix
 nullv<-NULL
 check1<-simplifytestmatrix(check1,"yr",years)
+#check1<-simplifytestmatrix(check1,"ms",as.vector(unlist(allcountries)))
 check1<-check1[order(check1$ms,check1$sec,check1$yr),names(check1)]
 
 check2<-simplifytestmatrix(check2,"yr",years)
+#check2<-simplifytestmatrix(check2,"ms",as.vector(unlist(allcountries)))
 check2<-check2[order(check2$ms,check2$sec,check2$yr),names(check2)]
 
 
-# Check sum of N handles in MMS over animal type vs. total N handled
+print("Check3; Sum of N handled in MMS over animal type vs. total N handled")
+checkuids$sector_number[checkuids$sector_number==".4."]<-".4"
 check3<-checktemp
 ncheck3<-1
-mainanimals<-c(".1 Cattle",".3 Swine",".2 Sheep",".4 Livestock")
+names(check3)<-checkname
+mainanimals<-c("Cattle","Swine","Sheep","Other Livestock")
 for(j in manureSysshrt[!manureSysshrt %in% "pasture"]){
     tmp1<-tmp0
     for(i in mainanimals){
-        k<-which(checkuids$sector_number==i)
+        k<-which(checkuids$sector_number%in%c(".1",".2",".3",".4") & checkuids$category==i)
         if(checkuids[k,j]!=0){
             tmp1<-tmp1+extractuiddata(cat3all,checkuids[k,j],allcountries)
         }
@@ -144,9 +163,11 @@ for(j in manureSysshrt[!manureSysshrt %in% "pasture"]){
 }
 check3<-simplifytestmatrix(check3,"yr",years)
 check3<-check3[order(check3$ms,check3$sec,check3$yr),names(check3)]
+#stop("test")
 
-# Check IEF per MMS
+print("Check 4: IEF per MMS")
 check4<-checktemp
+names(check4)<-checkname
 ncheck4<-1
 for(j in c(1:length(manureSystems))){
     
@@ -163,14 +184,18 @@ for(j in c(1:length(manureSystems))){
     
     # N2O IEF
     tmp4<-extractuiddata(cat3all,checkuids[icheck,curief],allcountries)
+    tmp6<-tmp4
+    tmp6[is.na(tmp6)]<-0
+    
     
     # Calculate IEF from N available and N2O emissions
     # Convert N in MMS from kg to Gg
     # Convert N2O emissions into N2O-N emissions
     tmp5<-(tmp3*28/44)/(tmp2/1000000)
     
-    if(sum(tmp4)!=0){
-        seccheck<-paste0("3.B.2",checkuids$sector_number[icheck])
+    
+    seccheck<-paste0("3.B.2",checkuids$sector_number[icheck])
+    if(sum(tmp6)!=0){
         diffmatout<-diffmatrix(check4,ncheck4,tmp5,tmp4,paste0("N2O-IEF in ",cursystem),"N2OEm/TOTNEXC (converted)","IEF",seccheck,roundn=0)
         ncheck4<-diffmatout[[1]]
         check4<-diffmatout[[2]]
@@ -188,9 +213,9 @@ for(j in c(1:length(manureSystems))){
 check4<-simplifytestmatrix(check4,"yr",years)
 check4<-check4[order(check4$ms,check4$sec,check4$yr),names(check4)]
 
-
-# Calculate IEFs per animal type and related to N excreted
+print("Check 5: Calculate IEFs per animal type and related to N excreted")
 check5<-checktemp
+names(check5)<-checkname
 ncheck5<-1
 for(i in c(1:nrow(checkuids))){
     
@@ -229,10 +254,3 @@ for(i in c(1:nrow(checkuids))){
 }
 check5<-simplifytestmatrix(check5,"yr",years)
 check5<-check5[order(check5$ms,check5$sec,check5$yr),names(check5)]
-
-
-
-
-
-cat3all<-cat3allclean
-

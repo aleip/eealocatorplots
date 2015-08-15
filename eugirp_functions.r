@@ -3,7 +3,7 @@ is.nan.data.frame <- function(x) do.call(cbind, lapply(x, is.nan))
 is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 
 viewlast<-function(n){View(cat3all[(nrow(cat3all)-n):nrow(cat3all),])}
-newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%y%m%d%H%M%S"),"-",MHmakeRandomString(1,4),sep="")}
+newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")}
 
 getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*",opt="*",msr="*",mea="*",gas="*"){
     
@@ -16,7 +16,6 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     selv<-c(sec,cat,met,cla,sou,tar,opt,msr,mea,gas)
     sel<-"";for(i in c(1:length(selv))) {g<-paste0(selc[i],"<-'",selv[i],"'");sel<-paste(sel,g,sep=";")}
     
-    #sel<-paste(mode=1,myobject=NULL,ok=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*",opt="*",msr="*",mea="*",gas="*",x=1,sep=";")
     #print(sel)
     #         getuidr<-nrow(cat3alltab[cat3alltab$sector_number==paste0(sec,myobject$sector_number[x]) &
     #                             cat3alltab$allmethods==met &
@@ -41,29 +40,36 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     return(ngetuidr)
 }
 
-checkuid<-function(myobject=NULL,sec=NULL,met="",sou="",cat="",mea=NULL,gas="no gas"){
-    
-    pargas<-paste0(mea,gas)
-    
-    myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x)
-        getuid(1,ok=1,mea=mea,gas=gas,x=x,cat=cat,
-               sec=paste0("^",sec,checkuids$sector_number[x],"$"))))
-#         getuid(1,myobject,ok=1,sec,met,cli,mea,gas,x)))
-#     myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x) 
-#         getuid(2,myobject,ok=myobject[x,pargas],sec,met,cli,mea,gas,x)))
-    
-    return(myobject)
-}
+# checkuid<-function(myobject=NULL,sec=NULL,met="",sou="",cat="",mea=NULL,gas="no gas"){
+#     
+#     pargas<-paste0(mea,gas)
+#     
+#     myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x)
+#         getuid(1,ok=1,mea=mea,gas=gas,x=x,cat=cat,
+#                sec=paste0("^",sec,checkuids$sector_number[x],"$"))))
+# #         getuid(1,myobject,ok=1,sec,met,cli,mea,gas,x)))
+# #     myobject[,pargas]<-unlist(lapply(c(1:nrow(myobject)), function(x) 
+# #         getuid(2,myobject,ok=myobject[x,pargas],sec,met,cli,mea,gas,x)))
+#     
+#     return(myobject)
+# }
 
-extractuiddata<-function(DF=NULL,uid=NULL,c){
+extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE){
     c<-as.data.frame(c)
     names(c)<-"party"
     tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years)])
+    tmp1<-tmp1[! is.na(tmp1$party),]
     
     ntmp<-nrow(tmp1)
-    tmp1<-merge(c,tmp1,by="party",all=TRUE)
+    tmp1<-merge(c,tmp1,by="party",all=TRUE,sort=TRUE)
+    tmp1<-tmp1[tmp1$party %in% c$party,]
+    
+    eucountries<-c("EU28","EU29")
+    x<-tmp1[order(tmp1$party),]
+    tmp1<-rbind(x[!(x$party %in% eucountries),],x[ (x$party %in% eucountries),])
+
     tmp1<-tmp1[,years]
-    #tmp1[is.na(tmp1)]<-0
+    if(narm) tmp1[is.na(tmp1)]<-0
     tmp1<-as.matrix(tmp1)
     return(tmp1)
 }
@@ -83,8 +89,6 @@ nodiff<-function(checks=NULL,ncheck=1,test=NULL,val1=NULL,val2=NULL,sec=NULL,rea
 
 diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2=NULL,sec=NULL,roundn=3){
     diff=NULL
-    ol<-ls()
-    save(ol,file="test.RData")
     diff<-which(round(A,roundn)!=round(B,roundn))
     if(length(diff)>0){
         for(d in c(1:length(diff))){
@@ -167,19 +171,24 @@ simplifytestmatrix<-function(check,group,compare){
     
 }
 
-add2cat3all<-function(matrix,sec="",gas="",unit="",met="",cli="",mea="",uid=""){
+add2cat3all<-function(matrix,sec="",gas="",unit="",sou="",tar="",mea="",uid=""){
     # Note this adds a new row only if it does not exist 
     # Existing rows will not be overwritten.
     
+    cat3emp<-as.data.frame(matrix(rep("",ncol(cat3all)),nrow=1,ncol=ncol(cat3all)),stringsAsFactors = FALSE)
+    names(cat3emp)<-names(cat3all)
+    cat3emp[,years]<-rep(0,length(years))
+    
     exists<-nrow(cat3all[cat3all$sector_number==sec & cat3all$gas==gas & cat3all$unit==unit &
-                             cat3all$allmethods==met & cat3all$meastype==mea,])
+                             cat3all$source==sou & cat3all$meastype==mea,])
     addr<-1
     if(exists==0){
         addrow<-cat3emp
         addrow$sector_number[1]<-sec
         addrow$gas[1]<-gas
         addrow$unit[1]<-unit
-        addrow$allmethods[1]<-met
+        addrow$source[1]<-sou
+        addrow$target[1]<-tar
         addrow$meastype[1]<-mea
         addrow$variableUID[1]<-uid
         
@@ -188,7 +197,9 @@ add2cat3all<-function(matrix,sec="",gas="",unit="",met="",cli="",mea="",uid=""){
         for(i in c(1:nrow(matrix))){
             if(sum(matrix[i,],na.rm=TRUE)!=0){
                 addnewrow[addr,]<-addrow
-                addnewrow$party[addr]<-allcountries$party[i]
+                #print(i)
+                #View(addnewrow)
+                addnewrow$party[addr]<-allcountries[i]
                 for (j in c(1:length(years))){
                     if(is.nan(matrix[i,j])){
                         addnewrow[addr,years[j]]<-0
@@ -200,14 +211,20 @@ add2cat3all<-function(matrix,sec="",gas="",unit="",met="",cli="",mea="",uid=""){
             }
         }
         addr<-addr-1
-        if(addr>0) levels(cat3all$unit)<-c(levels(cat3all$unit),unit)
+        #addnewrow[addnewrow[addr,uniquefields]==0,uniquefields]<-""
+        if(addr>0) {
+            levels(cat3all$unit)<-c(levels(cat3all$unit),unit)
+            #levels(cat3all$variableUID)<-c(levels(cat3all$variableUID),uid)
+            #levels(cat3all$source)<-c(levels(cat3all$source),sou)
+        }
         if(addr>0) cat3all<-rbind(cat3all,addnewrow)
     }
     return(list(cat3all,addr))
 }
 
 
-###############################################################
+
+# MHmakeRandomString(n, length) ##############################################################
 #
 # MHmakeRandomString(n, length)
 # function generates a random string random string of the
@@ -229,8 +246,6 @@ MHmakeRandomString <- function(n=1, lenght=12)
 #  > MHmakeRandomString()
 #  [1] "XM2xjggXX19r"
 
-###############################################################
-
 
 
 ###############################################################
@@ -247,4 +262,10 @@ multilines<-function(text2split,maxWidth=30){
         restext[i]<-paste(vtext[nchartext==i],collapse=" ")
     }
     return(restext)
+}
+
+
+gcCount <-  function(line, char){
+    chars = strsplit(as.character(line),"")[[1]]
+    length(which(tolower(chars) == char))
 }

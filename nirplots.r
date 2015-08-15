@@ -22,22 +22,37 @@ if (runfocus=="value"){runfoc<-"1VAL"}
 if (runfocus=="trend"){runfoc<-"2TRD"}
 if (runfocus=="countries"){runfoc<-"3CNT"}
 
-if(grepl("1 Dairy Cattle",runcateg)){runcateg<-gsub("1 ","1 Option A - ",runcateg);runmethod=""}
-if(grepl("1 Non-Dairy Cattle",runcateg)){runcateg<-gsub("1 ","1 Option A - ",runcateg);runmethod=""}
-if(grepl("Mature Dairy Cattle",runcateg)){runcateg<-gsub("Mature","Option B - Mature",runcateg);runmethod=""}
-if(grepl("Other Mature Cattle",runcateg)){runcateg<-gsub("Other","Option B - Other",runcateg);runmethod=""}
-if(grepl("Growing Cattle",runcateg)){runcateg<-gsub("Growing","Option B - Growing",runcateg);runmethod=""}
-if(grepl("Option",runcateg)){runcateg<-paste0(runcateg," - ",runmethod);runmethod=""}
-if(runmethod=="Other Cattle_Option C"){runcateg<-paste0(runcateg," Option C - Other Cattle");runmethod=""}
+# if(grepl("1 Dairy Cattle",runcateg)){runcateg<-gsub("1 ","1 Option A - ",runcateg);runmethod=""}
+# if(grepl("1 Non-Dairy Cattle",runcateg)){runcateg<-gsub("1 ","1 Option A - ",runcateg);runmethod=""}
+# if(grepl("Mature Dairy Cattle",runcateg)){runcateg<-gsub("Mature","Option B - Mature",runcateg);runmethod=""}
+# if(grepl("Other Mature Cattle",runcateg)){runcateg<-gsub("Other","Option B - Other",runcateg);runmethod=""}
+# if(grepl("Growing Cattle",runcateg)){runcateg<-gsub("Growing","Option B - Growing",runcateg);runmethod=""}
+# if(grepl("Option",runcateg)){runcateg<-paste0(runcateg," - ",runmethod);runmethod=""}
+# if(runmethod=="Other Cattle_Option C"){runcateg<-paste0(runcateg," Option C - Other Cattle");runmethod=""}
 
 fnammethod<-gsub(" ","",runmethod)
 fnammethod<-gsub("/","",fnammethod)
-runcategmetgas<-paste0(gsub(" ","",runcateg),fnammethod,".")
+runcateg<-gsub("/","-",runcateg)
+fnampar<-runmeasure
+fnampar<-gsub(" ","",runmeasure)
+fnampar<-gsub("/","-",fnampar)
+fnampar<-gsub("Indirectemissions","EMind",fnampar)
+fnampar<-gsub("Emissions","EM",fnampar)
+fnampar<-gsub("Implied_emission_factor","IEF",fnampar)
+runcategmetgas<-paste0(gsub(" ","",runcateg),"-",fnammethod,".")
 if(rungas!="no gas"){
-    runcategmetgas<-paste0(runcategmetgas,gsub(" ","",rungas))
+    runcategmetgas<-paste0(runcategmetgas,fnampar,gsub(" ","",rungas))
 }else{
-    runcategmetgas<-paste0(runcategmetgas,runpar)
+    runcategmetgas<-paste0(runcategmetgas,fnampar,runpar)
 }
+if (! file.exists(figdate)){
+    dir.create(file.path(figdate))
+    #    setwd(file.path(mainDir, figdate))
+}
+figname<-paste0(figdate,"/",runcategmetgas,"-",runfoc,formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0"),"~",figdate,".pdf",collapse=NULL)
+print(paste0(imeas,"/",nrow(plotmeas),": ",figname))
+#postscript(figname)
+pdf(file=figname,width=11,height=6)
 
 #print("Think about text-elements later")
 #print(curunit)
@@ -73,9 +88,11 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/year"){textunit<-"[ kg " ~~ yr^{-1} ~"]"} else
  if(curunit=="t/year"){textunit<-"[ t " ~~ yr^{-1} ~"]"} else
  if(curunit=="kt/year"){textunit<-"[ kt " ~~ yr^{-1} ~"]"} else
+ if(curunit=="Mt/year"){textunit<-"[ Mt " ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/animal"){textunit<-"[ kg " ~~ animal^{-1} ~"]"} else
  if(curunit=="kg N/yr"){textunit<-"[ kg N " ~~ yr^{-1} ~"]"} else
  if(curunit=="t N/yr"){textunit<-"[ t N " ~~ yr^{-1} ~"]"} else
+ if(curunit=="t N/year"){textunit<-"[ t N " ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/head/year"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg N/head/year"){textunit<-"[ kg N " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="MJ/head/day"){textunit<-"[ MJ " ~~ head^{-1}  ~~ day^{-1} ~"]"} else
@@ -88,10 +105,13 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg"){textunit<-"[kg" ~"]"} else
  if(curunit=="t"){textunit<-"[t" ~"]"} else
  if(curunit=="kt"){textunit<-"[kt" ~"]"} else
+ if(curunit=="kna"){textunit<-"[kha" ~"]"} else
  if(curunit=="Mt"){textunit<-"[Mt" ~"]"} else
  if(curunit=="kt CO2 equivalent"){textunit<-"[kt" ~ CO_2 ~ "eq]"} else
  if(curunit=="Mt CO2 equivalent"){textunit<-"[Mt" ~ CO_2 ~ "eq]"} else
  if(curunit=="1000s"){textunit<-"[1000s" ~"]"} else
+ if(curunit=="TJ"){textunit<-"[TJ" ~"]"} else
+ if(curunit=="kMt"){textunit<-"[kMt" ~"]"} else
  if(curunit=="Mio"){textunit<-"[Mio" ~"]"} else
  if(curunit=="%"){textunit<-"[%" ~"]"} else
  if(curunit==""){textunit<-""} else
@@ -101,24 +121,15 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
 textsou<-runmethod
 #   ---> If the category name includes the "source" (eg animal type) - remove
 textcat<-gsub(textsou,"",runcateg)
-textpar<-measname[measname[,"variableUID"]==runuid,"measure"]
-fnampar<-gsub(" ","_",measname[measname[,"variableUID"]==runuid,"measure"])
-fnampar<-gsub("Emissions","EM",fnampar)
-fnampar<-gsub("Implied_emission_factor","IEF",fnampar)
+#textpar<-measname[measname[,"variableUID"]==runuid,"measure"]
+textpar<-runmeasure
 
-textuid<-as.vector(unique(runmatrix[,"variableUID"]))
+#textuid<-as.vector(unique(runmatrix[,"variableUID"]))
+textuid<-curuid
 if(length(textuid)>1){stop("More than one UID selected for graph!!")}
 #textsou<-gsub("Dairy CATT","Dairy Cattle",textsou)
 
 
-if (! file.exists(figdate)){
-    dir.create(file.path(figdate))
-    #    setwd(file.path(mainDir, figdate))
-}
-figname<-paste0(figdate,"/",runcategmetgas,"-",fnampar,"-",runfoc,"~",figdate,".pdf",collapse=NULL)
-print(figname)
-#postscript(figname)
-pdf(file=figname,width=11,height=6)
 
 #mydens<-as.vector(as.numeric(attributes[rownames(eu28fin),"dens"]))
 attributes<-as.matrix(read.table("attributes.txt",header=T,row.names=1,check.names=F))
@@ -140,17 +151,16 @@ mytcol3[mytcol1!="black" | mytcol2!="black"]<-"black"
 
 
 #For ief plots
-formatall<-row.names(curmatrix)
 
-mydensall<-(as.numeric(attributes[formatall,"dens"]))
-mycolsall<-(attributes[formatall,"color"])
-mycollall<-(attributes[formatall,"coll"])
-myang1all<-(as.numeric(attributes[formatall,"ang1"]))
-myang2all<-(as.numeric(attributes[formatall,"ang2"]))
+mydensall<-(as.numeric(attributes[finnames,"dens"]))
+mycolsall<-(attributes[finnames,"color"])
+mycollall<-(attributes[finnames,"coll"])
+myang1all<-(as.numeric(attributes[finnames,"ang1"]))
+myang2all<-(as.numeric(attributes[finnames,"ang2"]))
 
-myticksall<-(as.numeric(attributes[formatall,"symbol"]))
-mytcol1all<-(attributes[formatall,"col1t"])
-mytcol2all<-(attributes[formatall,"col2t"])
+myticksall<-(as.numeric(attributes[finnames,"symbol"]))
+mytcol1all<-(attributes[finnames,"col1t"])
+mytcol2all<-(attributes[finnames,"col2t"])
 mytcol3all<-mytcol2
 mytcol3all[mytcol1=="black" & mytcol2=="black"]<-"white"
 mytcol3all[mytcol1!="black" | mytcol2!="black"]<-"black"
@@ -348,9 +358,9 @@ if(rundata=="ief" & runfocus=="trend"){
 }            
 
 #text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=min(1.5,1.5*30/nchar(textpar)),textpar,las=3,srt=90,font=2)
-writetext<-multilines(textpar,60)
+writetext<-multilines(textpar,50)
 
-if(length(writetext)>1){newcex<-0.9}else{newcex<-min(1.5,1.5*30/nchar(writetext[1]))}
+if(length(writetext)>1){newcex<-0.9}else{newcex<-min(1.5,1.0*40/nchar(writetext[1]))}
 text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[1],las=3,srt=90,font=2)
 if(length(writetext)>1){
     text(0.22,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=2)
@@ -394,7 +404,8 @@ if(ncountries>0){
         
         if(finshares[i]!=0){
             #print(paste(i,ncountries,finnames[i],finshares[i],sep="-"))
-            mytextav <- paste0(finnames[i]," ",round(finshares[i],1),"%",sep="")
+            mytextavc <- finnames[i]
+            mytextavv <- paste0(round(finshares[i],1),"%",sep="")
             
             mytexteu<-"EU28+IS"
             
@@ -406,14 +417,16 @@ if(ncountries>0){
                 mytexteub<-paste0(round(mean(eu28,na.rm=T),myround)," (",
                                   round(min(eu28,na.rm=T),myround),"-",
                                   round(max(eu28,na.rm=T),myround),")")
-                mytextav<-paste0(finnames[i]," ",
-                                 round(mean(eu28fin[i,],na.rm=T),myround)," (",
-                                 round(min(eu28fin[i,],na.rm=T),myround),"-",
-                                 round(max(eu28fin[i,],na.rm=T),myround),")")
+                mytextavc<-finnames[i]
+                mytextavv<-paste0(round(mean(eu28fin[i,],na.rm=T),myround)," (",
+                                  round(min(eu28fin[i,],na.rm=T),myround),"-",
+                                  round(max(eu28fin[i,],na.rm=T),myround),")")
                 
             }
-            if (runfocus=="trend" && runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)){
+            if (sharesexist){
+                #if(!is.na(act_pctcountry)) 
                 shareAD1 <- paste0(round(act_pctcountry[i],0),"%")
+                #if(!is.na(act_pcteu)) 
                 shareAD2 <- paste0("(",round(act_pcteu[i],0),"%/",round(ief_pcteu[i],0),"%)")
                 shareADeu <- paste0("(",round(act_pctcouneu,0),"%)")
             }
@@ -439,13 +452,15 @@ if(ncountries>0){
             #text(recside*1.2,mid,chartr("."," ",finnames[i]),cex=1.2,adj=0)
             #text(recside*recdist,mid,finnames[i],cex=legcex,adj=0)
             #text(avshare,mid,mytextav,cex=legcex,adj=1)
-            if (runfocus=="trend" & runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)) {
+            if (sharesexist) {
                 text(avshare+0.03,eu28ispos,shareADeu,cex=legcex-0.1,adj=0,font=2)
-                text(recside*recdist,mid,mytextav,cex=legcex-0.25,adj=0)
-                text(avshare-0.01,mid+0.000,shareAD1,cex=legcex-0.25,adj=0)
+                text(recside*recdist,mid,mytextavc,cex=legcex-0.25,adj=0)
+                text(2.2*recside*recdist,mid,mytextavv,cex=legcex-0.25,adj=1)
+                text(avshare+0.11,mid+0.000,shareAD1,cex=legcex-0.25,adj=1)
                 text(avshare+0.12,mid-0.000,shareAD2,cex=legcex-0.25,adj=0)
             }else{
-                text(recside*recdist,mid,mytextav,cex=legcex,adj=0)
+                text(recside*recdist,mid,mytextavc,cex=legcex,adj=0)
+                text(2.6*recside*recdist,mid,mytextavv,cex=legcex,adj=1)
             }
         }
         else{
@@ -491,10 +506,10 @@ plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
 rect(0.0,0.0,1,1)
 
 if(length(textorder)>0){
-    curmax=46
+    curmax=50
     curcex=0.7
     text2write<-multilines(textorder,curmax)
-    if(length(text2write>7)){
+    if(length(text2write)>7){
         curmax=59
         curcex<-0.6
         text2write<-multilines(textorder,curmax)
@@ -534,13 +549,15 @@ if(rungas!="no gas"){
 }
 mtexttitle0<-gsub("_","-",mtexttitle0)    
 
-mvect<-strsplit(mtexttitle0," - ")[[1]]
+#mvect<-strsplit(mtexttitle0," - ")[[1]]
+mvect<-strsplit(mtexttitle0," ")[[1]]
 maxwords<-max(length(mvect),
               match(TRUE,lapply(1:length(mvect),function(x) sum(nchar(mvect[1:x]))>maxnchar))-1,
               na.rm=TRUE)
 mtexttitle1<-gsub(",","",toString(mvect[1:maxwords]))
 if(maxwords>length(mvect)){
-    mtexttitle2<-paste(gsub(",","",toString(mvect[(maxwords+1):length(mvect)])),mtexttitle)
+#    mtexttitle2<-paste(gsub(",","",toString(mvect[(maxwords+1):length(mvect)])),mtexttitle)
+    mtexttitle2<-paste(gsub(","," ",toString(mvect[(maxwords+1):length(mvect)])),mtexttitle)
 }else{
     mtexttitle2<-mtexttitle
 }
@@ -604,3 +621,4 @@ dev.off()
 #if (runpar=="AD"){zzzz}
 #if (runpar=="DIGEST" & runfoc=="2TRD"){zzzz}
 #if (runfoc=="2TRD"){zzzz}
+#}

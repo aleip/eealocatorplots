@@ -1,0 +1,115 @@
+if(exists("allinfos")) rm(allinfos)
+if(exists("allnotations")) rm(allnotations)
+# Clean up memory ####
+torm1<-c("actcount","categorymatrix","eealocator")
+torm2<-torm1[torm1 %in% ls()]
+if(length(torm2)>0){rm(list=torm2)}
+
+doplots<-2
+doplotsv<-2
+docateg<-"all"
+sharesexist<-0
+
+plotdata<-alldata
+plotmeas<-unique(subset(plotdata,select=allfields[!allfields %in% c("notation","party",years)]))
+plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
+
+# Criterion 1: Do not plot without sector_number
+plotselect <- plotmeas$sector_number!=""
+plotmeas<-plotmeas[plotselect,]
+
+# Criterion 2: Do not plot sector_numbers 
+#      Exceptions: do all plots in Sector 3
+plotselect<-unlist(lapply(c(1:nrow(plotmeas)),function(x) 
+    if(grepl("^3",plotmeas$sector_number[x])){TRUE}else{
+    gcCount(plotmeas$sector_number[x],".")<3}))
+plotmeas<-plotmeas[plotselect,]
+
+if(restrictsector!=""){
+    select <- grepl(restrictsector,plotmeas$sector_number)
+    plotmeas<-plotmeas[select,]
+}
+if(restrictcategory!=""){
+    select <- grepl(restrictcategory,plotmeas$category)
+    plotmeas<-plotmeas[select,]
+}
+
+plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
+plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
+plotmeas<-plotmeas[order(plotmeas$sector_number,plotmeas$category),]
+
+#for(imeas in c(1438:nrow(plotmeas))){
+for(imeas in c(1:nrow(plotmeas))){
+    
+    #    plotmatr<-unique(plotdata[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries),c("party",years)])
+    #    eu28<-unique(plotdata[plotdata[,"variableUID"]==curuid & (plotdata$party %in% eucountries),c("party",years)])
+    
+    curuid<-plotmeas$variableUID[imeas]
+    plotcoun<-as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries)])))
+    plotmatr<-as.data.frame(extractuiddata(DF = plotdata[!plotdata$party %in% eucountries,],uid = curuid,c = countries,narm = FALSE))
+    eu28<-colSums(extractuiddata(DF = plotdata[plotdata$party=="EU28",],uid = curuid,c = countries,narm = FALSE),na.rm=TRUE)
+    
+    temp<-plotmatr
+    temp[temp<=0]<-NA
+    eu28pos<-colSums(temp,na.rm=T)
+    eu28pos[eu28pos==0]<-NA
+    
+    temp<-plotmatr
+    temp[temp>=0]<-NA
+    eu28neg<-colSums(temp,na.rm=T)
+    eu28neg[eu28neg==0]<-NA
+    
+    # Relative value in country compared to EU value for all years
+    # This is different from trend-plots!!!
+    rel<-t(t(plotmatr)/eu28)
+    # Relative value in country compared to EU value averaged over all years
+    relav<-rowMeans(rel,na.rm=TRUE)
+    relav<-relav[!is.na(relav)]
+    
+    plotmatr$party<-allcountries
+    topno<-max(0,length(relav)-topn)
+    
+    # Select the top countries with highest mean value over all years
+    topneu28<-row.names(as.matrix(head(relav[order(relav,decreasing=T,na.last=T)],topn)))
+    topother<-row.names(as.matrix(tail(relav[order(relav,decreasing=T,na.last=T)],topno)))
+    
+    eu28main<-plotmatr[row.names(plotmatr) %in% topneu28,]
+    eu28main<-eu28main[order(rowSums(eu28main[,years],na.rm=TRUE),decreasing=FALSE),]
+    Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years],na.rm=TRUE)))
+    Other$party<-"Other"
+    topnnames<-eu28main$party
+    
+    if(length(relav)>length(topneu28)){eu28fin<-rbind(eu28main,Other)}else{eu28fin<-eu28main}
+    ncountries<-nrow(eu28fin)
+    finnames<-eu28fin$party
+    eu28fin<-as.matrix(eu28fin[,years])
+    
+    finshares<-rowMeans(eu28fin,na.rm=T)/mean(eu28)*100
+    finshares[is.na(finshares)]<-0
+    
+    textorderadem1<-"Countries are sorted by the average contribution to the sum of EU28 value over the the whole time period. "
+    textorderadem2<-paste0("The top ",topn," countries are displayed. ")
+    textorderadem3<-paste0("The other ",topno," countries with data are lumped to 'other'.")
+    textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
+    
+    rundata<-"adem"
+    runfocus<-"value"
+    
+    # runcateg to be used for the plot title
+    rungas<-plotmeas$gas[imeas]
+    curunit<-plotmeas$unit[imeas]
+    curuid<-plotmeas$variableUID[imeas]
+    runcateg<-paste(plotmeas$sector_number[imeas],plotmeas$category[imeas],sep=" ")
+    runmethod<-paste(sapply(metafields,function(x) if(plotmeas[imeas,x]==""){""}else{paste(plotmeas[imeas,x],sep=" ")}),collapse="")
+    runpar<-plotmeas$meastype[imeas]
+    runmeasure<-plotmeas$measure[imeas]
+    runmatrix<-eu28fin
+    curmatrix<-eu28fin
+    
+    if(!(sum(eu28fin,na.rm=TRUE)==0)) {
+        source("nirplots.r")
+        #nirplotsdone<-nirplots(eu28fin,eu28fin,eu28,rundata,runfocus,runcateg,runpar,curfoc)
+    }
+}
+plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
+write.csv(plotmeas,file=paste0(figdate,"/emissionplots~",figdate,".csv",collapse=NULL))

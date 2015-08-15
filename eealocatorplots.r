@@ -19,18 +19,13 @@ library(knitr)
 library(compare)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 
-rm(list=objects())
-searchline<-FALSE
+#       current inventory year
 locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
+setwd(locplots)
 source("curplot.r")
 
+
 # PART A: Link with EEA locator tool ----
-
-# Define the folder all the process should run, usually the folder of the 
-#       current inventory year
-
-setwd(locplots)
-
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
 # Return:
 # - alldata: data frame containing (almost) all EEA-locator data. Years are transposed to columns.
@@ -41,18 +36,6 @@ setwd(locplots)
 # - allinfos: Information given, e.g. in documentation boxes
 # - alldatanovalues
 # - measname
-generatealldata <- 1
-if(file.exists(rdatallem)){
-    #if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
-        print(paste0("Load existing file ",rdatallem))
-        load(rdatallem)    
-        generatealldata <- 0
-    #}
-}
-# Load functions
-source("eugirp_functions.r")
-# Load general definitions
-source("eugirp_definitions.r")
 source("eugirpA.1_eealocator.r")
 years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
 allcountries<-unique(as.vector(alldata$party))
@@ -72,6 +55,7 @@ if(stepsdone==1){
     source("eugirpA.2_meastype.r")
     stepsdone<-2
     save(stepsdone,alldata,allnotations,allinfos,allnotations,measures,file=rdatallem)
+    source("curplot.r")
 }else if(stepsdone>1){
     print("Clean animal types and generate list of measures ... already done")
 }
@@ -86,9 +70,15 @@ if(stepsdone==2){
     stepsdone<-3
     save(assignad2par,listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
     save(stepsdone,alldata,allnotations,allinfos,file=rdatallem)
+    source("curplot.r")
 }else if(stepsdone>2){
     print("EU sums and weighted averages already calculated")
 }
+#Update countries
+allcountries<-unique(as.vector(alldata$party))
+allcountries<-allcountries[order(allcountries)]
+countries<-as.data.frame(allcountries)
+names(countries)<-"party"
 
 # B.2 Calculate trend and growth rates ####
 nyears<-length(years)
@@ -112,133 +102,55 @@ if(stepsdone==3){
     allgrowth[is.infinite(allgrowth)] <- 1
     allgrowth[,years]<-round(allgrowth[,years],3)
     allgrowth[,years[1]]<-NA
+    
+    # Add other livestock sector_numbers
+    source("eugirpB.2_otherlivestock.r")
     stepsdone<-4
     save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,file=rdatallem)
+    source("curplot.r")
 }else if(stepsdone>3){
     print("Trends and growth rates already calculated")
 }
 
+
+# C - Make checks for sector 3
 if(stepsdone==4) {
     load(rdatmeasu)
-    allother<-alldata[alldata$category%in%otherlivestock,]
-    nother<-nrow(allother)
-    allother$sector_number<-unlist(lapply(c(1:nother),function(x)
-        otherlive$code[otherlive$otherlivestock==allother$category[x]]))
-    allother$sector_number<-unlist(lapply(c(1:nother),function(x)
-        if(allother$measure[x]%in% tables4measures){
-            paste0(tables4sect$sector_number[tables4sect$measure==allother$measure[x]],allother$sector_number[x])
-        }else
-        {
-            if(allother$classification[x]=="Enteric Fermentation"){paste0("3.A.",allother$sector_number[x])}else
-                if(allother$classification[x]=="CH4 Emissions"){paste0("3.B.1.",allother$sector_number[x])}else
-                    if(grepl("N2O",allother$classification[x])){paste0("3.B.2.",allother$sector_number[x])}else
-                    {allother$sector_number[x]}
-        }
-    ))
-    alldata$sector_number[alldata$category%in%otherlivestock]<-allother$sector_number
+
     source("checkcat3_1ADs.r")
+    source("checkcat3_2Nex.r")
+    
+    cat3checks<-rbind(checks,check1,check2,check3,check4,check5)
+    stepsdone<-5
+    save(stepsdone,cat3all,cat3alltab,checkuids,cat3checks,file=rdatcat3)
+    save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,file=rdatallem)
+    source("curplot.r")
 }
 
-
-# Load the current task to do
-# See file curplot.csv for information on how to set it up
-dotaskdetails<-unlist(strsplit(curtask,","))
-if(grepl("^3",curtask)){docat3<-TRUE}else{docat3<-FALSE}
-
-
-print("# Basic selection: source cagegory and gas")
-docateg<-dotaskdetails[1]
-doplots<-dotaskdetails[2]
-domeasu<-dotaskdetails[3]
-
-if (doplots=="all"){doplots<-7}
-doplots<-as.numeric(doplots)
-doplotsv<-2**((which((as.integer(intToBits(doplots))[1:3]) %in% 1)-1))
-
-    # Delete rows with no meastype defined
-    alldata<-alldata[alldata$meastype!="",]
-# Filter docateg and domeasu ####
-# If selection is done by category (docateg) then filter by sector_number
-if(docateg!="all"){
-    # --> If wildcard is used: select also under-categories
-    if(substr(docateg,nchar(docateg),nchar(docateg))=="*"){
-        docateg<-substr(docateg,1,nchar(docateg)-1)
-        select <- substr(alldata$sector_number,0,nchar(docateg))==docateg
-        alldata<-alldata[select,]
-        docategmulti<-TRUE
-    }else{
-        select <- alldata$sector_number==docateg
-        alldata<-alldata[select,]
-        docategmulti<-FALSE
+# D - Plots 1. Prepare the plots to be done
+if(stepsdone==5){
+    load(rdatmeasu)
+    #source("eugirpD.1_preparetask.r")
+    
+    adempars<-c("AD","EM")
+    if(doemissionplots==TRUE){
+        
     }
-    docategall<-FALSE
-}else{
-    docategmulti<-TRUE
-    docategall<-TRUE
-}
-# If selection is done by all emissions, then filter by meastype
-if(domeasu[1]!="all"){
-    select <- (alldata$meastype %in% unique(c(domeasu,"AD")))
-    alldata<-alldata[select,]
-    domeasuall<-FALSE
-}else{
-    domeasuall<-TRUE
+    
 }
 
+stop("Not further developed")
 
 # Lists of all categorysources, measuregases, units, partys 
 # - In the following partys are rows, units are not required (now)
 #   and categorysources and measuregases are distributed over individual tables
 #source("lists.txt")
 
-# Load the current tasks to do ####
-# See file curplot.csv for information on how to set it up
-#curtasks <- readLines("curplot.csv")
-starttasks<-0
-dotrendoutl<-1
-adempars<-c("AD","EM")
 
-
-# ---> Create empyt matrix with individual plots to do
-if(searchline)print(355)
-focus<-as.data.frame(matrix(NA, nrow=10, ncol=4))
-names(focus)<-c("ad","parameter","datatype","focus")
-nfocus<-1
-
-# Clean up memory ####
-torm1<-c("actcount","categorymatrix","eealocator")
-torm2<-torm1[torm1 %in% ls()]
-if(length(torm2)>0){rm(list=torm2)}
-
-# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-# categorymatrix: Copy alldata into new matrix for further processing ####
-#          alldata remains stable from this point onwards
-#          alldata is already filtered for category and measures
-#categorymatrix<-subset(alldata,select=-c(unique));
-categorymatrix<-alldata;
-
-
-#Remove rows which are zero for all parties
-categorymatrix<-categorymatrix[categorymatrix[,"meastype"]!="",]
-categorymatrix<-categorymatrix[categorymatrix[,"meastype"]!="INFO",]
-
-
-#First create data frame with AD
-curunits<-as.vector(unique(subset(categorymatrix,select=unit))[,1])
-curparts<-as.vector(unique(subset(categorymatrix,select=party))[,1])
-# Analyse available measures
-# List of measures which are not numerical
-curmeasu<-as.vector(unique(subset(categorymatrix,select=meastype))[,1])
-listnomeasures<-c("INFO","METHOD",NA)
-curmeasu<-curmeasu[! curmeasu %in% listnomeasures]
-
-curuids<-as.vector(unique(subset(categorymatrix,select=variableUID))[,1])
-curmeasuid<-as.vector(unique(subset(categorymatrix,select=c(variableUID,meastype))))
-
-tmp1<-subset(categorymatrix,select=-c(gas,unit,party,meastype,allmethods,variableUID,sector_number))
-years<-as.numeric(gsub("X","",gsub("X","",colnames(tmp1))))
-nyears<-length(years)
+#listnomeasures<-c("INFO","METHOD",NA)
+#curmeasu<-curmeasu[! curmeasu %in% listnomeasures]
 #colnames(categorymatrix)[7:(6+nyears)]<-years
+
 
 print("#Generate matrix 'focus' of tasks from curplot.csv indicating: ")
 # - Activity data (are required for AD plots and IEF plots for weighting)
@@ -396,65 +308,7 @@ for (numrun in 800:902){
     print(paste("Current task ",numrun,". AD=",runad,". Par=",runpar,". cudat=",focus[numrun,3],". curplot=",focus[numrun,4],sep=""))
 
     
-    # B2. Retrieve Activity Data #####
-    #             if(numrun==1){rundata="adem";runfocus="value"}
-    #             if(numrun==2){rundata="adem";runfocus="trend"}
-    #             if(numrun==3){rundata="ief";runfocus="value"}
-    #             if(numrun==4){rundata="ief";runfocus="trend"}
-    #             if(numrun==5){rundata="ief";runfocus="countries"}
-    noactivitydata<-FALSE
-    if(searchline)print(550)
-    if("AD" %in% curmeasu & runtotal!=0 & adtotal!=0){
-        tmp1<-subset(admatrix,meastype=="AD",select=-meastype)
-        tmp1<-tmp1[!is.na(tmp1$party),]
-        unitad<-as.vector(unique(subset(tmp1,select=unit))[,1])
-        uidad<-as.vector(unique(subset(tmp1,select=variableUID))[,1])
-        actcount<-subset(tmp1,sector_number==runcateg,select=c(-gas,-unit,-party,-allmethods,-variableUID,-sector_number))
-        acteu28<-colSums(actcount)
-        if(nrow(actcount)==0){
-            noactivitydata<-TRUE
-            #stop("No activity data defined!")
-        }
-        if(length(as.vector(tmp1$party))>nrow(actcount)){
-            View(admatrix)
-            #stop("STOP - there are likely duplicate UIDs for AD")
-            #could also be that not all AD are given, e.g. in Sector 1 ... get on
-        }
-        rownames(actcount)<-as.vector(unique(subset(tmp1,select=-sector_number))$party)
-        colnames(actcount)<-years
-    }
-    if(searchline)print(570)
-    if(runpar=="EM"){
-        tmp1<-subset(categorymatrix,meastype=="EM",select=-meastype)
-        tmp1<-subset(runmatrix,meastype=="EM",select=-meastype)
-        unitem<-as.vector(unique(subset(tmp1,select=unit))[,1])
-        uidem<-as.vector(unique(subset(tmp1,select=variableUID))[,1])
-        emicount<-subset(tmp1,select=c(-gas,-unit,-party,-allmethods,-variableUID,-sector_number))
-        emieu28<-colSums(emicount)
-        rownames(emicount)<-as.vector(tmp1$party)
-        colnames(emicount)<-years
-    }
-    if(searchline)print(580)
-    
-    if(runpar=="IEF" | runpar=="EM"){
-        if(runpar=="EM"){
-            tmp1<-subset(categorymatrix,sector_number==runcateg & gas==rungas 
-                              & allmethods==runmethod & meastype=="IEF",select=-meastype)
-        }else{
-            tmp1<-subset(runmatrix,meastype=="IEF",select=-meastype)
-        }
-        tmpcountries<-as.vector(tmp1$party)
-        actcountries<-row.names(actcount)
-        unitief<-as.vector(unique(subset(tmp1,select=unit))[,1])
-        uidief<-as.vector(unique(subset(tmp1,select=variableUID))[,1])
-        iefcount<-subset(tmp1,select=c(-gas,-unit,-party,-allmethods,-variableUID,-sector_number))
-        # In case there are less IEFs identified then ADs select those ADs for 
-        # which also the IEF exist for weighted EU-IEF
-        iefeu28<-colSums(iefcount[tmpcountries%in%row.names(actcount),]*actcount[row.names(actcount)%in%tmpcountries,])/acteu28
-        rownames(iefcount)<-as.vector(tmp1$party)
-        colnames(iefcount)<-years
-    }
-    
+
     # B3. eealocator: Copy data of relevance to the eealocator data frame ####
     # Get unit for parameter
     if(searchline)print(597)
@@ -508,60 +362,10 @@ for (numrun in 800:902){
         }
         
         #B.2: Growth rates ####
-        #print("#Groth rates calculated as Y_i/Y_(i-1) - 1")
-        if(searchline)print(649)
-        growth<-eealocator[,2:nyears]/eealocator[,1:nyears-1]-1
-        
-        # see http://stackoverflow.com/questions/18142117/how-to-replace-nan-value-with-zero-in-a-huge-data-frame
-        is.nan.data.frame <- function(x)
-            do.call(cbind, lapply(x, is.nan))
-        growth[is.nan(growth)] <- 0
-        
-        is.infinite.data.frame <- function(x)
-            do.call(cbind, lapply(x, is.infinite))
-        growth[is.infinite(growth)] <- 1
-        growth<-round(growth,3)
-        
-        abstrend<-eealocator[,2:nyears]-eealocator[,1:nyears-1]
         
         if (rundata=="adem"){eeatrend<-abstrend}
         if (rundata=="ief") {eeatrend<-growth}
         if (runfocus=="trend" && runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)){
-            # From run_emi_EU15_data.sh
-            # c:\adrian\data\inventories\ghg\unfccc\inventorysystem\eea_locator_tool\plots\scripts\run_emi_EU15_data.sh
-            #  pct_act = sprintf("%.0f",100 * ( ACT[country,endy] * ( vstarty / ACT[country,starty] ) - vstarty ) / ( vendy - vstarty ) )
-            pct_act1<-100*(actcount[,nyears]*(sum(eealocator[,1])/actcount[,1])-sum(eealocator[,1]))/(sum(eealocator[,nyears])-sum(eealocator[,1]))
-            
-            # Alternative:
-            # DeltaE = En - Ea = ADn * IEFn - ADa * IEFa
-            # DeltaE* = (ADn - ADa) * IEFa
-            # DeltaE& = (IEFn - IEFa) * ADn
-            # DeltaE* + DeltaE& = DeltaE
-            # Share AD: DeltaE*/DeltaE
-            
-            countriesavailable<-row.names(eealocator[row.names(eealocator)%in%row.names(iefcount),])
-            countriesavailable<-countriesavailable[countriesavailable%in%actcountries]
-            emcountries<-row.names(eealocator)%in%countriesavailable
-            ifcountries<-row.names(iefcount)%in%countriesavailable
-            adcountries<-row.names(actcount)%in%countriesavailable
-            
-            deltaEM_EU28<-sum(eealocator[emcountries,nyears])-sum(eealocator[emcountries,1])
-            deltaEM<-eealocator[emcountries,nyears]-eealocator[emcountries,1]
-            deltaAD<-actcount[adcountries,nyears]-actcount[adcountries,1]
-            deltaIF<-iefcount[ifcountries,nyears]-iefcount[ifcountries,1]
-            pct_act2<-100*((actcount[adcountries,nyears]-actcount[adcountries,1])
-                           *iefcount[ifcountries,1])/
-                (sum(eealocator[emcountries,nyears])-sum(eealocator[emcountries,1]))/1000
-            
-            # Share of AD and IEF on EU absolute trend
-            act_pcteu<-100*(deltaAD*iefcount[ifcountries,1]/1000)/deltaEM_EU28
-            ief_pcteu<-100*(deltaIF*actcount[adcountries,nyears]/1000)/deltaEM_EU28
-            # Share of AD and IEF on country absolute trend
-            act_pctcountry<-100*(deltaAD*iefcount[ifcountries,1]/1000)/deltaEM
-            ief_pctcountry<-100*(deltaIF*actcount[adcountries,nyears]/1000)/deltaEM
-            act_pctcouneu<-100*((acteu28[nyears]-acteu28[1])*iefeu28[1]/1000)/(emieu28[nyears]-emieu28[1])
-            ief_pctcouneu<-100*((iefeu28[nyears]-iefeu28[1])*acteu28[nyears]/1000)/(emieu28[nyears]-emieu28[1])
-            
         }
         
         if(searchline)print(698)
@@ -626,7 +430,6 @@ for (numrun in 800:902){
         
         # B.3-selectcountries ####    
         if(searchline)print(759)
-        topn<-10
         
         #print("#Define trend data frame")
         if (runfocus=="trend"){curmatrix<-eeatrend}

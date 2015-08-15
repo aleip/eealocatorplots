@@ -1,4 +1,5 @@
 today=$(date +%Y%m%d)
+today=20150728
 tomin=$(date +%Y%m%d-%H%M)
 echo $today
 echo $tomin

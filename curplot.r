@@ -11,6 +11,15 @@
 #   - definition of plot-requests for EU-GIRP
 #
 
+rm(list=objects())
+# Define the folder all the process should run, usually the folder of the 
+#       current inventory year
+locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
+setwd(locplots)
+#source("curplot.r")
+
+searchline<-FALSE
+
 
 ##############################################################################
 #
@@ -28,9 +37,41 @@ csvfil <- paste0(invloc,"/eealocator/eealocator_",cursubm)
 rdatallem <- paste0(csvfil,"_clean.RData")
 rdatmeasu <- paste0(csvfil,"_measures.RData")
 rdatmeta <- paste0(csvfil,"_metadata.RData")
+rdatcat3 <- paste0(csvfil,"_cat3.RData")
 checkloc<-paste0(invloc,"/checks/")
 figdate<-format(Sys.time(), "%Y%m%d")
 
+# Settings for plots
+# --> number of countries which are listed in the legend
+topn<-10
+
+
+# Load functions
+source("eugirp_functions.r")
+# Load general definitions
+source("eugirp_definitions.r")
+generatealldata <- 1
+if(file.exists(rdatallem)){
+    #if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
+    print(paste0("Load existing file ",rdatallem))
+    load(rdatallem)    
+    generatealldata <- 0
+    #}
+}
+
+if(exists("alldata")){
+    years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
+    countries<-unique(subset(alldata,select=party))
+    allcountries<-as.character(countries$party)
+    eucountries<-c("EU28","EU29")
+    x<-allcountries[order(allcountries)]
+    allcountries<-c(x[!(x %in% eucountries)],x[ (x %in% eucountries)])
+
+    countries<-as.data.frame(allcountries)
+    names(countries)<-"party"
+    
+    
+}
 
 ##############################################################################
 #
@@ -40,8 +81,11 @@ figdate<-format(Sys.time(), "%Y%m%d")
 #Note: give here a list of the categories which should be included in the plotting				
 #A. Category:
 #   - either 'all', then each sector_number x method combination will be evaluated
-#   - selection, e.g. 3* or 3.A.1. or 3.A.1 Dairy*
+#   - selection, e.g. 3* or 3.A.1.
 #     It can end with an asterix as wildcard 
+restrictsector<-""
+restrictcategory<-""
+
 
 #B. Plotvalues:     			
 #    0: plot not needed				

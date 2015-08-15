@@ -1,12 +1,11 @@
+
 # See for which animal types ADs are given in the various tables
 #allanimals<-merge(cat3Aanimals,cat3B1animals,by=c("sector_number","allmethods","climate"),all=TRUE)
 cat3all<-alldata[grepl("^3",alldata$sector_number),allfields]
-cat3alltab<-unique(subset(cat3all,select=allfields[!allfields %in% c("notation","party",years)]))
+cat3alltab<-unique(subset(cat3all,select=uniquefields))
 cat3all<-cat3all[order(cat3all$sector_number,cat3all$category),]
 cat3alltab<-cat3alltab[order(cat3alltab$sector_number,cat3alltab$category),]
 
-cat3emp<-as.data.frame(matrix(rep(0,ncol(cat3all)),nrow=1,ncol=ncol(cat3all)))
-names(cat3emp)<-names(cat3all)
 # Identify the animal types available
 #cat3Aanimals<-subset(cat3all,grepl("^3.A",sector_number),select=c(sector_number,allmethods,climate))
 cat3Aanimals<-subset(cat3all,grepl("^3.A",sector_number),select=c(sector_number,category))
@@ -49,27 +48,35 @@ for (x in c(1:nrow(checkuids))){
     if(exists("tmpA")) rm(tmpA)
     if(exists("tmpB1")) rm(tmpB1)
     if(exists("tmpB2")) rm(tmpB2)
+    
     checkA<-F;checkB1<-F;checkB2<-F
-    if(nchar(checkuids$APOP[x])!=0) checkA<-T
-    if(nchar(checkuids$B1POP[x])!=0) checkB1<-T
-    if(nchar(checkuids$B2POP[x])!=0) checkB2<-T
+    if(checkuids$APOP[x]!=0) checkA<-T
+    if(checkuids$B1POP[x]!=0) checkB1<-T
+    if(checkuids$B2POP[x]!=0) checkB2<-T
     if(checkA)   {tmpA <-extractuiddata(cat3all,checkuids$APOP[x],countries)}
     if(checkB1)  {tmpB1<-extractuiddata(cat3all,checkuids$B1POP[x],countries)}
     if(checkB2)  {tmpB2<-extractuiddata(cat3all,checkuids$B2POP[x],countries)}
     
+    sec<-checkuids$sector_number[x]
     if(checkA & checkB1) {
         #print(paste(checks,ncheck,tmpB1,tmpB2,"POPcheck tables","3A","3B1",checkuids$sector_number[x],sep="-"))
-        diffmatout<-diffmatrix(checks,ncheck,tmpA,tmpB1,"POPcheck tables","3A","3B1",checkuids$sector_number[x],roundn=0)
+        A<-tmpA;B<-tmpB1
+        #save.image(file="A-B1.RData")
+        diffmatout<-diffmatrix(checks,ncheck,A,B,"POPcheck tables","3A","3B1",sec,roundn=0)
         ncheck<-diffmatout[[1]]
         checks<-diffmatout[[2]]}
     if(checkA & checkB2) {
+        A<-tmpA;B<-tmpB2
+        #save.image(file="A-B2.RData")
         #print(paste(checks,ncheck,tmpB1,tmpB2,"POPcheck tables","3A","3B2",checkuids$sector_number[x],sep="-"))
-        diffmatout<-diffmatrix(checks,ncheck,tmpA,tmpB2,"POPcheck tables","3A","3B2",checkuids$sector_number[x],roundn=0)
+        diffmatout<-diffmatrix(checks,ncheck,A,B,"POPcheck tables","3A","3B2",sec,roundn=0)
         ncheck<-diffmatout[[1]]
         checks<-diffmatout[[2]]}
     if(checkB1 & checkB2) {
+        A<-tmpB1;B<-tmpB2
+        #save.image(file="B1-B2.RData")
         #print(paste(checks,ncheck,tmpB1,tmpB2,"POPcheck tables","3B1","3B2",checkuids$sector_number[x],sep="-"))
-        diffmatout<-diffmatrix(checks,ncheck,tmpB1,tmpB2,"POPcheck tables","3B1","3B2",checkuids$sector_number[x],roundn=0)
+        diffmatout<-diffmatrix(checks,ncheck,A,B,"POPcheck tables","3B1","3B2",sec,roundn=0)
         ncheck<-diffmatout[[1]]
         checks<-diffmatout[[2]]}
 }

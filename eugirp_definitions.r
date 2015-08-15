@@ -1,11 +1,12 @@
 
+#metafields: all fields that describe 'composite variable'
+sectfields<-c("sector_number","category")
+metafields<-c("method","classification","source","target","type","option")
 #uniquefields: all fields without party and years - determines unique variables
 #              none of them can completely be ignored, as they are important for at 
 #              least one variable
-uniquefields<-c("measure","meastype","gas","unit","sector_number","category","method","classification","source","target","type","notation","option","variableUID")
+uniquefields<-c("measure","meastype","gas","unit",sectfields,metafields,"notation","variableUID")
 
-#metafields: all fields that are unique without uid
-#
 
 #allfields: all fields including year and party, 
 #           brought to an order 
@@ -24,6 +25,8 @@ meas2popweight<-c("IEF","DIGEST","PREGNANT","YM","FEEDING","MILK","Milk","WORK",
                   "Combustion","DM","ORGAMENDMENT","YIELD")
 meas2clima<-c("CLIMA")
 meas2mcf<-c("MCF")
+
+
 otherlivestock<-c("Other Livestock","Buffalo","Camels","Deer","Goats","Horses",
                   "Mules and Asses","Poultry","Other Other Livestock","Rabbit",
                   "Reindeer","Ostrich","Fur-bearing Animals","Other Other Other Livestock")
@@ -41,17 +44,8 @@ tables4measures<-c("Allocation by climate region","Feeding situation",
                    "VS daily excretion (average)","Weight",
                    "Digestibility of feed")
 tables4classifi<-c("Nitrogen excretion per MMS","Emissions","Implied Emission Factor","Population")
-tables4sect<-unique(alldata[alldata$measure%in%tables4measures & 
-                                grepl("^3",alldata$sector_number) &
-                                !grepl("Option",alldata$sector_number),c("sector_number","measure")])
-tables4sect$sector_number<-gsub("[1-9] *$","",tables4sect$sector_number)
-tables4sect<-unique(tables4sect)
-
-tables4clas<-unique(alldata[alldata$measure%in%tables4classifi & 
-                                grepl("^3.[AB]",alldata$sector_number) &
-                                !grepl("Option",alldata$sector_number),c("sector_number","classification")])
-tables4clas$sector_number<-gsub("[1-9] *$","",tables4clas$sector_number)
-tables4clas<-unique(tables4clas)
 
 checktemp<-as.data.frame(matrix(rep(0,8),nrow=1,ncol=8))
 checkname<-c("test","val1","val2","ms","yr","sec","val","obs")
+
+gases<-c("CH4","CO2","N2O","Aggregate GHGs")

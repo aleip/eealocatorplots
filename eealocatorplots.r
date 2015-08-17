@@ -37,11 +37,6 @@ source("curplot.r")
 # - alldatanovalues
 # - measname
 source("eugirpA.1_eealocator.r")
-years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
-allcountries<-unique(as.vector(alldata$party))
-countries<-as.data.frame(allcountries)
-names(countries)<-"party"
-
 
 # A.2 Clean animal type names ####
 # Some animal types are given under 'allmethods', the options either 'sector_number' and/or 'allmethods'
@@ -54,31 +49,12 @@ if(stepsdone==1){
     print("Clean animal types and generate list of measures")
     source("eugirpA.2_meastype.r")
     stepsdone<-2
-    save(stepsdone,alldata,allnotations,allinfos,allnotations,measures,file=rdatallem)
+    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allnotations")
+    save(list=savelist,file=rdatallem)
     source("curplot.r")
 }else if(stepsdone>1){
     print("Clean animal types and generate list of measures ... already done")
 }
-
-# B.1 Calculate EU sums and weighted averages ####
-# 
-if(stepsdone==2){
-    print("Calculate EU sums and weighted averages")
-    #calcmeas<-allmeas
-    source("eugirpB.1_euvalues.r")
-
-    stepsdone<-3
-    save(assignad2par,listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    save(stepsdone,alldata,allnotations,allinfos,file=rdatallem)
-    source("curplot.r")
-}else if(stepsdone>2){
-    print("EU sums and weighted averages already calculated")
-}
-#Update countries
-allcountries<-unique(as.vector(alldata$party))
-allcountries<-allcountries[order(allcountries)]
-countries<-as.data.frame(allcountries)
-names(countries)<-"party"
 
 # B.2 Calculate trend and growth rates ####
 nyears<-length(years)
@@ -86,7 +62,7 @@ period1<-as.character(years[1]:years[nyears-1])
 period2<-as.character(years[2]:years[nyears])
 o<-order(alldata$sector_number,alldata$category)
 
-if(stepsdone==3){
+if(stepsdone==2){
     print("Calculating trends and growth rates")
     alldata<-alldata[o,]
     alltrend<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
@@ -96,8 +72,10 @@ if(stepsdone==3){
     
     mgrowth<-c(meas2popweight,meas2clima,meas2mcf)
     allgrowth<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
-    allgrowth<-alldata[alldata$meastype %in% mgrowth,]
-    allgrowth[,period2]<-alldata[alldata$meastype %in% mgrowth,period2]/alldata[alldata$meastype %in% mgrowth,period1]
+    #allgrowth<-alldata[alldata$meastype %in% mgrowth,]
+    #allgrowth[,period2]<-alldata[alldata$meastype %in% mgrowth,period2]/alldata[alldata$meastype %in% mgrowth,period1]
+    allgrowth<-alldata
+    allgrowth[,period2]<-alldata[,period2]/alldata[,period1]
     allgrowth[is.nan(allgrowth)] <- 0
     allgrowth[is.infinite(allgrowth)] <- 1
     allgrowth[,years]<-round(allgrowth[,years],3)
@@ -105,41 +83,81 @@ if(stepsdone==3){
     
     # Add other livestock sector_numbers
     source("eugirpB.2_otherlivestock.r")
-    stepsdone<-4
-    save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,file=rdatallem)
+    stepsdone<-3
+    savelist<-c(savelist,"alltrend","allgrowth")
+    save(list=savelist,file=rdatallem)
     source("curplot.r")
-}else if(stepsdone>3){
+}else if(stepsdone>2){
     print("Trends and growth rates already calculated")
 }
 
+# A.3 Check for outlier errors ####
+if(stepsdone==3){
+    print("Check for outlier errors")
+    #calcmeas<-allmeas
+    source("eugirpA.3_outlier.r")
+    
+    #     stepsdone<-4
+    #     save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    #     savelist<-c(savelist,"growthcheck","paramcheck")
+    #     save(list=savelist,file=rdatallem)
+    #     source("curplot.r")
+}else if(stepsdone>3){
+    print("Check for outlier errors already done")
+}
 
-# C - Make checks for sector 3
-if(stepsdone==4) {
+stop("Not further developed")
+
+# B.1 Calculate EU sums and weighted averages ####
+# 
+if(stepsdone==4){
+    print("Calculate EU sums and weighted averages")
+    #calcmeas<-allmeas
+    source("eugirpB.1_euvalues.r")
+
+    stepsdone<-5
+    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    save(stepsdone,alldata,allnotations,allinfos,assignad2par,file=rdatallem)
+    source("curplot.r")
+}else if(stepsdone>4){
+    print("EU sums and weighted averages already calculated")
+}
+
+#Update countries
+allcountries<-unique(as.vector(alldata$party))
+allcountries<-allcountries[order(allcountries)]
+countries<-as.data.frame(allcountries)
+names(countries)<-"party"
+
+
+
+# C - Make checks for sector 3 ####
+if(stepsdone==5) {
     load(rdatmeasu)
 
     source("checkcat3_1ADs.r")
     source("checkcat3_2Nex.r")
     
     cat3checks<-rbind(checks,check1,check2,check3,check4,check5)
-    stepsdone<-5
+    stepsdone<-6
     save(stepsdone,cat3all,cat3alltab,checkuids,cat3checks,file=rdatcat3)
-    save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,file=rdatallem)
+    save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,assignad2par,file=rdatallem)
     source("curplot.r")
+}else if(stepsdone>5){
+    print("Sector 3 checks already done")
 }
 
-# D - Plots 1. Prepare the plots to be done
-if(stepsdone==5){
-    load(rdatmeasu)
+# D - Plots 1. Prepare the plots to be done ####
+if(stepsdone==6){
+    #load(rdatmeasu)
     #source("eugirpD.1_preparetask.r")
     
     adempars<-c("AD","EM")
     if(doemissionplots==TRUE){
         
     }
-    
 }
 
-stop("Not further developed")
 
 # Lists of all categorysources, measuregases, units, partys 
 # - In the following partys are rows, units are not required (now)

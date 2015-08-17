@@ -152,7 +152,7 @@ reportyears<-function(checky,compare){
     return(ret)
 }
 
-simplifytestmatrix<-function(check,group,compare){
+simplifytestmatrix<-function(check,group,compare=NULL){
     # group: column which will be grouped
     # sorting: order of columns in return 
     

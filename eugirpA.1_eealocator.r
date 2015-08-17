@@ -123,13 +123,13 @@ if(generatealldata==1){
     names(alldata)[grepl("[12]",names(alldata))]<-gsub("factor\\(year\\)","",names(alldata)[grepl("[12]",names(alldata))])
     
     
-#     temp3<-lapply(split(temp2,temp2$unique,drop=TRUE),function(x) colSums(x[,-1],na.rm=TRUE))
-# 
-#     # Forth: the resulting list is converted back to a data frame and binded to the meta data
-#     temp4<-as.vector(unlist(temp3))
-#     temp5<-as.data.frame(matrix(temp4,nrow=rok,ncol=nok,byrow=TRUE))
-#     names(temp5)<-years2keep
-#     alldata<-cbind(newmatrix,temp5)
+    #     temp3<-lapply(split(temp2,temp2$unique,drop=TRUE),function(x) colSums(x[,-1],na.rm=TRUE))
+    # 
+    #     # Forth: the resulting list is converted back to a data frame and binded to the meta data
+    #     temp4<-as.vector(unlist(temp3))
+    #     temp5<-as.data.frame(matrix(temp4,nrow=rok,ncol=nok,byrow=TRUE))
+    #     names(temp5)<-years2keep
+    #     alldata<-cbind(newmatrix,temp5)
     
     rm(list=c("temp1","temp2","temp3","temp4","newmatrix","nok","rok","rts","alldatauniq"))
     
@@ -158,5 +158,7 @@ if(generatealldata==1){
          targets,options,types,gases,units,sectors,uids,file=rdatmeta)
     write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_cat3.csv"),sep=",")
     write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_cat4.csv"),sep=",")
+
+    source("curplot.r")
     
 }

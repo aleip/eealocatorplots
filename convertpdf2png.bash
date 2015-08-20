@@ -5,10 +5,17 @@
 #     http://askubuntu.com/questions/50170/how-to-convert-pdf-to-image
 #     ... but not (yet) installed in cygwin
 # 
+inputf=$1
+qualitys=$2
+
 density=300
 quality=100
-
-inputf=$1
+qual=h
+if [ "x${qualitys}" == "x" ] ; then 
+  density=150
+  quality=100
+  qual=l
+fi
 outputf=${inputf/.pdf/${density}.png}
 
 echo $inputf

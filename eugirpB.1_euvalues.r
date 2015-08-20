@@ -120,96 +120,17 @@ parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 #if(nrow(remarks1)>0) View(remarks1)
 #if(nrow(remarks2)>0) View (remarks2)
 
-countriesnoic<-allcountries[!allcountries %in% "IC"]
-countriesic<-allcountries 
 
-
-sumovercountries<-function(D,uid,y,c){
-    y<-as.character(y)
-    s<-matrix(0,ncol=length(y))
-    m<-matrix(0,ncol=length(y),nrow=length(c))
-    m<-D[D$variableUID==uid,y]
-    s<-apply(m,2,sum)
-    return(s)
-}
-weightovercountries<-function(D,Auid,Puid,ok,y,c){
-    
-    # Returns the weighted average over all countries
-    # for which both AD and a Value for the variable exist.
-    # In case a country as a value (e.g. IEF) but does not 
-    # report Ad, then this is excluded from the EU weighted average!
-    
-    #print(paste0("Auid<-",Auid))
-    #print(paste0("Puid<-",Puid))
-    #print(paste0("ok<-",ok))
-    
-    if(ok=="-" | ok=="" | grepl("^[1-9]",ok)){
-        s<-rep(NA,length(y))
-    }else{
-        y<-as.character(y)
-        s<-matrix(0,ncol=length(y))
-        ad<-matrix(0,ncol=length(y),nrow=length(c))
-        pa<-ad
-        ad<-extractuiddata(D,Auid,c)
-        pa<-extractuiddata(D,Puid,c)
-        
-        ad<-ad[!is.na(apply(pa,1,sum,rm.na=TRUE)),]
-        pa<-pa[!is.na(apply(pa,1,sum,rm.na=TRUE)),]
-
-        if(length(pa)<length(c)){
-            ad<-t(ad)
-            pa<-t(pa)
-        }
-        pa<-pa[!is.na(apply(ad,1,sum,rm.na=TRUE)),]
-        ad<-ad[!is.na(apply(ad,1,sum,rm.na=TRUE)),]
-        if(length(pa)<length(c)){
-            ad<-t(ad)
-            pa<-t(pa)
-        }
-        
-        if(nrow(ad)>0 & sum(apply(ad,2,sum))!=0 ){
-            m<-ad*pa
-            s<-apply(m,2,sum)/apply(ad,2,sum)
-        }else if(nrow(ad)>0 & sum(apply(ad,2,sum))==0){
-            #Calculate average
-            s<-apply(pa,2,mean)   
-        }else{
-            s<-0
-        }
-    }
-    #if(is.nan(s)) s<-0
-    #if(is.na(s)) s<-0
-    return(s)
-}
-euvalue<-function(todo,E,D,y,c){
-    if(todo=="sum")l<-lapply(c(1:nrow(E)),function(x) sumovercountries(D,E$variableUID[x],y,c))
-    if(todo=="weight"){
-        
-        l<-lapply(c(1:nrow(E)),function(x) weightovercountries(D,E$aduids[x],E$variableUID[x],E$adpars[x],y,c))
-    }
-    #m<-matrix(unlist(l),ncol=length(y),byrow=T)
-    m<-t(Reduce(cbind,l))
-}
-
-eu28sum<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(measures2sum)),ncol=ncol(calceu),nrow=nrow(measures2sum)))
-names(eu28sum)<-names(calceu)
-eu28sum[,names(measures2sum)]<-measures2sum[,names(measures2sum)]
-
-eu28sum[,years]<-euvalue("sum",eu28sum,calceu,years,countriesic)
-eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
 
 eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
 names(eu28wei)<-names(calceu)
 eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]
-
 eu28wei[,years]<-euvalue("weight",assignad2par,calceu,years,countriesic)
 eu28wei[,"party"]<-rep("EU28",nrow(eu28wei))
-
-eu28sum$notation[eu28sum$notation==0]<-""
 eu28wei$notation[eu28wei$notation==0]<-""
 
-alldata<-rbind(alldata,eu28sum)
 alldata<-rbind(alldata,eu28wei)
+
 write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_cat3step2.csv"),sep=",")
 
 

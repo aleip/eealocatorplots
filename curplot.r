@@ -11,6 +11,13 @@
 #   - definition of plot-requests for EU-GIRP
 #
 
+library(ggplot2)
+library(reshape2) #required for melt function - for outls
+library(data.table)
+library(knitr)
+library(compare)
+# library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
+
 rm(list=objects())
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
@@ -30,19 +37,22 @@ cursubm <- "20150807"
 years2keep<-c(1990:2013)
 invyear<-2015
 invloc<-paste0("../",invyear)
+figdate<-format(Sys.time(), "%Y%m%d")
 csvfil <-"eealocatortest_2014_AllAllAll.csv"
 csvfil <- "EEA_GHG_MMR_locator_20150323.cub_2015.csv"
 csvfil <- "../2015/eealocator/eealocator_20150115_20150509"
 csvfil <- paste0(invloc,"/eealocator/eealocator_",cursubm)
+issuedir<-paste0(invloc,"/eealocator/",figdate,"/")
+if (! file.exists(issuedir)){dir.create(file.path(issuedir),showWarnings=FALSE)}
 rdatallem <- paste0(csvfil,"_clean.RData")
 rdatmeasu <- paste0(csvfil,"_measures.RData")
 rdatmeta <- paste0(csvfil,"_metadata.RData")
 rdatcat3 <- paste0(csvfil,"_cat3.RData")
 checkloc<-paste0(invloc,"/checks/")
-figdate<-format(Sys.time(), "%Y%m%d")
 
 # Settings for plots
 # --> number of countries which are listed in the legend
+doemissionplots<-TRUE
 topn<-10
 
 
@@ -64,11 +74,14 @@ if(exists("alldata")){
     countries<-unique(subset(alldata,select=party))
     allcountries<-as.character(countries$party)
     eucountries<-c("EU28","EU29")
+    countriesnoeu<-allcountries[!allcountries %in% eucountries]
     x<-allcountries[order(allcountries)]
     allcountries<-c(x[!(x %in% eucountries)],x[ (x %in% eucountries)])
 
     countries<-as.data.frame(allcountries)
     names(countries)<-"party"
+    countriesnoic<-allcountries[!allcountries %in% "IC"]
+    countriesic<-allcountries 
     
     
 }

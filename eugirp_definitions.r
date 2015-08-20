@@ -2,10 +2,11 @@
 #metafields: all fields that describe 'composite variable'
 sectfields<-c("sector_number","category")
 metafields<-c("method","classification","source","target","type","option")
+measfields<-c("meastype","gas","unit","measure")
 #uniquefields: all fields without party and years - determines unique variables
 #              none of them can completely be ignored, as they are important for at 
 #              least one variable
-uniquefields<-c("measure","meastype","gas","unit",sectfields,metafields,"notation","variableUID")
+uniquefields<-c(measfields,sectfields,metafields,"notation","variableUID")
 
 
 #allfields: all fields including year and party, 

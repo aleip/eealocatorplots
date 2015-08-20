@@ -5,6 +5,11 @@ is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 viewlast<-function(n){View(cat3all[(nrow(cat3all)-n):nrow(cat3all),])}
 newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")}
 
+matbyind<-function(D,v){
+    if(nrow(v)>0){M<-unlist(lapply(c(1:nrow(v)),function(y) D[v[y,1],v[y,2]]))}else{M<-0}
+    return(M)
+}
+
 getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*",opt="*",msr="*",mea="*",gas="*"){
     
     # mode=1: returns number of UIDs available
@@ -38,6 +43,73 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     if(ngetuidr>1){View(cat3all[cat3all$variableUID%in%curuids,]);stop()}
     if(ngetuidr==1){ngetuidr<-unlist(as.vector(curuids))}
     return(ngetuidr)
+}
+
+sumovercountries<-function(D,uid,y,c){
+    y<-as.character(y)
+    s<-matrix(0,ncol=length(y))
+    m<-matrix(0,ncol=length(y),nrow=length(c))
+    m<-D[D$variableUID==uid,y]
+    s<-apply(m,2,sum)
+    return(s)
+}
+weightovercountries<-function(D,Auid,Puid,ok,y,c){
+    
+    # Returns the weighted average over all countries
+    # for which both AD and a Value for the variable exist.
+    # In case a country as a value (e.g. IEF) but does not 
+    # report Ad, then this is excluded from the EU weighted average!
+    
+    #print(paste0("Auid<-",Auid))
+    #print(paste0("Puid<-",Puid))
+    #print(paste0("ok<-",ok))
+    
+    if(ok=="-" | ok=="" | grepl("^[1-9]",ok)){
+        s<-rep(NA,length(y))
+    }else{
+        y<-as.character(y)
+        s<-matrix(0,ncol=length(y))
+        ad<-matrix(0,ncol=length(y),nrow=length(c))
+        pa<-ad
+        ad<-extractuiddata(D,Auid,c)
+        pa<-extractuiddata(D,Puid,c)
+        
+        ad<-ad[!is.na(apply(pa,1,sum,rm.na=TRUE)),]
+        pa<-pa[!is.na(apply(pa,1,sum,rm.na=TRUE)),]
+        
+        if(length(pa)<length(c)){
+            ad<-t(ad)
+            pa<-t(pa)
+        }
+        pa<-pa[!is.na(apply(ad,1,sum,rm.na=TRUE)),]
+        ad<-ad[!is.na(apply(ad,1,sum,rm.na=TRUE)),]
+        if(length(pa)<length(c)){
+            ad<-t(ad)
+            pa<-t(pa)
+        }
+        
+        if(nrow(ad)>0 & sum(apply(ad,2,sum))!=0 ){
+            m<-ad*pa
+            s<-apply(m,2,sum)/apply(ad,2,sum)
+        }else if(nrow(ad)>0 & sum(apply(ad,2,sum))==0){
+            #Calculate average
+            s<-apply(pa,2,mean)   
+        }else{
+            s<-0
+        }
+    }
+    #if(is.nan(s)) s<-0
+    #if(is.na(s)) s<-0
+    return(s)
+}
+euvalue<-function(todo,E,D,y,c){
+    if(todo=="sum")l<-lapply(c(1:nrow(E)),function(x) sumovercountries(D,E$variableUID[x],y,c))
+    if(todo=="weight"){
+        
+        l<-lapply(c(1:nrow(E)),function(x) weightovercountries(D,E$aduids[x],E$variableUID[x],E$adpars[x],y,c))
+    }
+    #m<-matrix(unlist(l),ncol=length(y),byrow=T)
+    m<-t(Reduce(cbind,l))
 }
 
 # checkuid<-function(myobject=NULL,sec=NULL,met="",sou="",cat="",mea=NULL,gas="no gas"){

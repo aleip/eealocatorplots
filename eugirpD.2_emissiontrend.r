@@ -1,10 +1,3 @@
-if(exists("allinfos")) rm(allinfos)
-if(exists("allnotations")) rm(allnotations)
-# Clean up memory ####
-torm1<-c("actcount","categorymatrix","eealocator")
-torm2<-torm1[torm1 %in% ls()]
-if(length(torm2)>0){rm(list=torm2)}
-
 doplots<-2
 doplotsv<-2
 docateg<-"all"
@@ -78,8 +71,8 @@ for(imeas in c(1:nrow(plotmeas))){
     #    plotmatr<-unique(plotdata[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries),c("party",years)])
     #    eu28<-unique(plotdata[plotdata[,"variableUID"]==curuid & (plotdata$party %in% eucountries),c("party",years)])
     
-    curuid<-plotmeas$variableUID[imeas]
     sharesexist<-0
+    curuid<-plotmeas$variableUID[imeas]
     plotcoun<-as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries)])))
     plotmatr<-as.data.frame(extractuiddata(DF = plotdata[!plotdata$party %in% eucountries,],uid = curuid,c = countries,narm = FALSE))
     eu28<-colSums(extractuiddata(DF = plotdata[plotdata$party=="EU28",],uid = curuid,c = countries,narm = FALSE),na.rm=TRUE)
@@ -106,7 +99,7 @@ for(imeas in c(1:nrow(plotmeas))){
     relav<-relav[!relav==0]
     
     plotmatr$party<-allcountries
-    topn<-length(relav)
+    topn<-min(10,length(relav))
     topno<-max(0,length(relav)-topn)
     
     # Select the top countries with highest mean value over all years
@@ -158,8 +151,13 @@ for(imeas in c(1:nrow(plotmeas))){
     
     
     textorderadem1<-paste0("Countries are selected by the magnitude of their (absolute) inter-annual changes over the year ",min(years),"-",max(years),". ")
-    textorderadem2<-paste0("The top ",topn," countries are displayed. ")
-    textorderadem3<-paste0("The other ",topno," countries with data are lumped to 'other'. ")
+    if(topno>0) {
+        textorderadem2<-paste0("The top ",topn," countries are displayed. ")
+        textorderadem3<-paste0("The other ",topno," reporting countries with data are lumped to 'other'.")
+    }else{
+        textorderadem2<-paste0("The ",topn," reporting countries are displayed. ")
+        textorderadem3<-paste0("")
+    }
     textorderadem4<-paste0("Countries are sorted by their contribution to total changes over ",min(years),"-",max(years),". ")
     textorder<-paste0(textorderadem1,textorderadem2,textorderadem3,textorderadem4)
     

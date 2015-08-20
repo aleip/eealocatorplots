@@ -1,10 +1,3 @@
-if(exists("allinfos")) rm(allinfos)
-if(exists("allnotations")) rm(allnotations)
-# Clean up memory ####
-torm1<-c("actcount","categorymatrix","eealocator")
-torm2<-torm1[torm1 %in% ls()]
-if(length(torm2)>0){rm(list=torm2)}
-
 doplots<-2
 doplotsv<-2
 docateg<-"all"
@@ -38,8 +31,9 @@ plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
 plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
 plotmeas<-plotmeas[order(plotmeas$sector_number,plotmeas$category),]
 
-#for(imeas in c(1438:nrow(plotmeas))){
-for(imeas in c(1:nrow(plotmeas))){
+for(imeas in c(896)){
+#for(imeas in c(1449:nrow(plotmeas))){
+#for(imeas in c(1:nrow(plotmeas))){
     
     #    plotmatr<-unique(plotdata[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries),c("party",years)])
     #    eu28<-unique(plotdata[plotdata[,"variableUID"]==curuid & (plotdata$party %in% eucountries),c("party",years)])
@@ -61,12 +55,14 @@ for(imeas in c(1:nrow(plotmeas))){
     
     # Relative value in country compared to EU value for all years
     # This is different from trend-plots!!!
-    rel<-t(t(plotmatr)/eu28)
+    rel<-abs(plotmatr[,years])
     # Relative value in country compared to EU value averaged over all years
     relav<-rowMeans(rel,na.rm=TRUE)
     relav<-relav[!is.na(relav)]
+    relav<-relav[!relav==0]
     
     plotmatr$party<-allcountries
+    topn<-min(10,length(relav))
     topno<-max(0,length(relav)-topn)
     
     # Select the top countries with highest mean value over all years
@@ -88,8 +84,13 @@ for(imeas in c(1:nrow(plotmeas))){
     finshares[is.na(finshares)]<-0
     
     textorderadem1<-"Countries are sorted by the average contribution to the sum of EU28 value over the the whole time period. "
-    textorderadem2<-paste0("The top ",topn," countries are displayed. ")
-    textorderadem3<-paste0("The other ",topno," countries with data are lumped to 'other'.")
+    if(topno>0) {
+        textorderadem2<-paste0("The top ",topn," countries are displayed. ")
+        textorderadem3<-paste0("The other ",topno," reporting countries with data are lumped to 'other'.")
+    }else{
+        textorderadem2<-paste0("The ",topn," reporting countries are displayed. ")
+        textorderadem3<-paste0("")
+    }
     textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
     
     rundata<-"adem"
@@ -99,10 +100,11 @@ for(imeas in c(1:nrow(plotmeas))){
     rungas<-plotmeas$gas[imeas]
     curunit<-plotmeas$unit[imeas]
     curuid<-plotmeas$variableUID[imeas]
-    runcateg<-paste(plotmeas$sector_number[imeas],plotmeas$category[imeas],sep=" ")
-    runmethod<-paste(sapply(metafields,function(x) if(plotmeas[imeas,x]==""){""}else{paste(plotmeas[imeas,x],sep=" ")}),collapse="")
-    runpar<-plotmeas$meastype[imeas]
-    runmeasure<-plotmeas$measure[imeas]
+    
+    runsect<-data.frame(lapply(plotmeas[imeas,sectfields],as.character))
+    runmeta<-data.frame(lapply(plotmeas[imeas,metafields],as.character))
+    runmeas<-data.frame(lapply(plotmeas[imeas,measfields],as.character))
+    
     runmatrix<-eu28fin
     curmatrix<-eu28fin
     

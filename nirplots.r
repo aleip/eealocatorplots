@@ -1,12 +1,10 @@
-
-
-#nirplots<-function(curmatrix,eu28fin,eu28,rundata,runfocus,runcateg,runpar,runfoc){
-
 # This function creates the various plots that can be used for the NIR,
 # in particular: value-plots, trend-plots, and country-plots.
 graphics.off()
 
-#### GENERAL PLOT INFORMATION
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+#### GENERAL PLOT INFORMATION #################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #source("c:/adrian/models/capri/dndc/results/20110722/nitrogen/figures/plotdefaults.r")
 xstt=0.15
 xleg=0.7
@@ -22,28 +20,37 @@ if (runfocus=="value"){runfoc<-"1VAL"}
 if (runfocus=="trend"){runfoc<-"2TRD"}
 if (runfocus=="countries"){runfoc<-"3CNT"}
 
-# if(grepl("1 Dairy Cattle",runcateg)){runcateg<-gsub("1 ","1 Option A - ",runcateg);runmethod=""}
-# if(grepl("1 Non-Dairy Cattle",runcateg)){runcateg<-gsub("1 ","1 Option A - ",runcateg);runmethod=""}
-# if(grepl("Mature Dairy Cattle",runcateg)){runcateg<-gsub("Mature","Option B - Mature",runcateg);runmethod=""}
-# if(grepl("Other Mature Cattle",runcateg)){runcateg<-gsub("Other","Option B - Other",runcateg);runmethod=""}
-# if(grepl("Growing Cattle",runcateg)){runcateg<-gsub("Growing","Option B - Growing",runcateg);runmethod=""}
-# if(grepl("Option",runcateg)){runcateg<-paste0(runcateg," - ",runmethod);runmethod=""}
-# if(runmethod=="Other Cattle_Option C"){runcateg<-paste0(runcateg," Option C - Other Cattle");runmethod=""}
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# DETERMINE FIGURE NAME #######################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+# Cleaning up
+runcategory<-gsub("Farming","",runsect[2])
+runsect[1]<-gsub(paste0(" ",unlist(runmeta[2])),"",unlist(runsect[1]))
+
+
+#runmethod<-paste(runmethod,runclassification,runsource,runtarget,runtype,runoption,collapse="")
+
+runcateg<-paste(runsect,collapse=" ")
+runcateg<-gsub("/","-",runcateg)
+runmethod<-paste(as.vector(unlist(runmeta[metafields[runmeta[metafields]!=""]])),collapse=". ")
 
 fnammethod<-gsub(" ","",runmethod)
 fnammethod<-gsub("/","",fnammethod)
-runcateg<-gsub("/","-",runcateg)
-fnampar<-runmeasure
-fnampar<-gsub(" ","",runmeasure)
+
+
+fnampar<-runmeas[4]
+fnampar<-gsub(" ","",fnampar)
 fnampar<-gsub("/","-",fnampar)
 fnampar<-gsub("Indirectemissions","EMind",fnampar)
 fnampar<-gsub("Emissions","EM",fnampar)
 fnampar<-gsub("Implied_emission_factor","IEF",fnampar)
 runcategmetgas<-paste0(gsub(" ","",runcateg),"-",fnammethod,".")
-if(rungas!="no gas"){
-    runcategmetgas<-paste0(runcategmetgas,fnampar,gsub(" ","",rungas))
+runcategmetgas<-substr(runcategmetgas,0,50)
+if(runmeas[2]!="no gas"){
+    runcategmetgas<-paste0(runcategmetgas,fnampar,gsub(" ","",runmeas[2]))
 }else{
-    runcategmetgas<-paste0(runcategmetgas,fnampar,runpar)
+    runcategmetgas<-paste0(runcategmetgas,fnampar,runmeastype)
 }
 if (! file.exists(figdate)){
     dir.create(file.path(figdate))
@@ -54,34 +61,9 @@ print(paste0(imeas,"/",nrow(plotmeas),": ",figname))
 #postscript(figname)
 pdf(file=figname,width=11,height=6)
 
-#print("Think about text-elements later")
-#print(curunit)
-# See text expressions 
-# http://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/plotmath.html
-if(max(eu28fin,na.rm=TRUE)>100000000){
-    curunit<-gsub("t","Mt",curunit)
-    curunit<-gsub("kt","Gt",curunit)
-    curunit<-gsub("kg","kt",curunit)
-    curunit<-gsub("1000s","Bio",curunit)
-    eu28fin<-eu28fin/1000000
-    eu28pos<-eu28pos/1000000
-    eu28neg<-eu28neg/1000000
-    eu28<-eu28/1000000
-    curmatrix<-curmatrix/1000000
-}
-if(max(eu28fin,na.rm=TRUE)>100000){
-    curunit<-gsub("t","kt",curunit)
-    curunit<-gsub("kt","Mt",curunit)
-    curunit<-gsub("kg","t",curunit)
-    curunit<-gsub("1000s","Mio",curunit)
-    eu28fin<-eu28fin/1000
-    eu28pos<-eu28pos/1000
-    eu28neg<-eu28neg/1000
-    eu28<-eu28/1000
-    curmatrix<-curmatrix/1000
-}
-
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# FORMATTING OF THE UNIT ######################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/yr"){textunit<-"[ kg " ~~ yr^{-1} ~"]"} else
  if(curunit=="t/yr"){textunit<-"[ t " ~~ yr^{-1} ~"]"} else
@@ -93,29 +75,47 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg N/yr"){textunit<-"[ kg N " ~~ yr^{-1} ~"]"} else
  if(curunit=="t N/yr"){textunit<-"[ t N " ~~ yr^{-1} ~"]"} else
  if(curunit=="t N/year"){textunit<-"[ t N " ~~ yr^{-1} ~"]"} else
+ if(curunit=="kt N/year"){textunit<-"[ kt N " ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/head/year"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg N/head/year"){textunit<-"[ kg N " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="MJ/head/day"){textunit<-"[ MJ " ~~ head^{-1}  ~~ day^{-1} ~"]"} else
-# if(curunit=="kg N2O-N/kg N"){textunit<-"[ kg " ~~ N _[2] ~ "O (kg N" ~ ")"^{-1} ~"]"} else
- if(curunit=="kg N2O-N/kg N"){textunit<-expression("[kg N"[2]*"O (kg N)"^'-1'*']')} else
- if(curunit=="kg N2O/head/year"){textunit<-expression("[kg N"[2]*"O head"^'-1'*"year"^'-1'*']')} else
- if(curunit=="kg/t dm"){textunit<-expression("[kg (t dm)"^'-1'*']')} else
- if(curunit=="t/t dm"){textunit<-expression("[t (t dm)"^'-1'*']')} else
- if(curunit=="Gg"){textunit<-"[Gg" ~"]"} else
- if(curunit=="kg"){textunit<-"[kg" ~"]"} else
- if(curunit=="t"){textunit<-"[t" ~"]"} else
- if(curunit=="kt"){textunit<-"[kt" ~"]"} else
- if(curunit=="kna"){textunit<-"[kha" ~"]"} else
- if(curunit=="Mt"){textunit<-"[Mt" ~"]"} else
- if(curunit=="kt CO2 equivalent"){textunit<-"[kt" ~ CO_2 ~ "eq]"} else
- if(curunit=="Mt CO2 equivalent"){textunit<-"[Mt" ~ CO_2 ~ "eq]"} else
- if(curunit=="1000s"){textunit<-"[1000s" ~"]"} else
- if(curunit=="TJ"){textunit<-"[TJ" ~"]"} else
- if(curunit=="kMt"){textunit<-"[kMt" ~"]"} else
- if(curunit=="Mio"){textunit<-"[Mio" ~"]"} else
- if(curunit=="%"){textunit<-"[%" ~"]"} else
+ if(curunit=="kg N2O-N/kg N"){textunit<-expression(" [kg N"[2]*"O (kg N)"^'-1'*']')} else
+ if(curunit=="kg N2O/head/year"){textunit<-expression("[ kg N"[2]*"O head"^'-1'*"year"^'-1'*']')} else
+ if(curunit=="kt C"){textunit<-"[ kt C ]"} else
+ if(curunit=="Mt C"){textunit<-"[ Mt C ]"} else
+ if(curunit=="kt DC"){textunit<-"[ kt DC ]"} else
+ if(curunit=="Mt DC"){textunit<-"[ Mt DC ]"} else
+ if(curunit=="kg/t dm"){textunit<-expression("[ kg (t dm)"^'-1'*']')} else
+ if(curunit=="t/t dm"){textunit<-expression("[ t (t dm)"^'-1'*']')} else
+ if(curunit=="kg dm"){textunit<-expression("[ kg dm ]")} else
+ if(curunit=="t dm"){textunit<-expression("[ t dm ]")} else
+ if(curunit=="kt dm"){textunit<-expression("[ kt dm ]")} else
+ if(curunit=="Gg"){textunit<-"[ Gg ]"} else
+ if(curunit=="kg"){textunit<-"[ kg ]"} else
+ if(curunit=="t"){textunit<-"[ t ]"} else
+ if(curunit=="1000 metric t"){textunit<-"[ 1000 metric t ]"} else
+ if(curunit=="kt"){textunit<-"[ kt ]"} else
+ if(curunit=="ha"){textunit<-"[ ha ]"} else
+ if(curunit=="kha"){textunit<-"[ kha ]"} else
+ if(curunit=="Mio ha"){textunit<-"[ Mio ha ]"} else
+ if(curunit=="kha/year"){textunit<-"[ kha " ~~ yr^{-1} ~"]"} else
+ if(curunit=="Mha/year"){textunit<-"[ Mha " ~~ yr^{-1} ~"]"} else
+ if(curunit=="1000 m^3"){textunit<-"[ 1000 m"^{3} ~~ "]"} else
+ if(curunit=="10^6 m^3"){textunit<-"[ 10"^{6} ~ "m"^{3} ~~ "]"} else
+ if(curunit=="10^9m^2/year"){textunit<-"[ 10"^{9} ~ "m"^{2} ~ "yr"^{-1} ~ "]"} else
+ if(curunit=="Mt"){textunit<-"[ Mt ]"} else
+ if(curunit=="Mg"){textunit<-"[ Mg ]"} else
+ if(curunit=="kt CO2 equivalent"){textunit<-"[ kt" ~ CO[2] ~ "eq ]"} else
+ if(curunit=="Mt CO2 equivalent"){textunit<-"[ Mt" ~ CO[2] ~ "eq ]"} else
+ if(curunit=="1000s"){textunit<-"[ 1000s" ~"]"} else
+ if(curunit=="TJ"){textunit<-"[ TJ" ~"]"} else
+ if(curunit=="1000 TJ"){textunit<-"[ 1000 TJ" ~"]"} else
+ if(curunit=="kMt"){textunit<-"[ kMt" ~"]"} else
+ if(curunit=="Mio"){textunit<-"[ Mio" ~"]"} else
+ if(curunit=="%"){textunit<-"[ %" ~"]"} else
  if(curunit==""){textunit<-""} else
- {textunit<-curunit} 
+ stop(curunit)
+     #{textunit<-curunit} 
 
 
 textsou<-runmethod
@@ -132,6 +132,9 @@ if(length(textuid)>1){stop("More than one UID selected for graph!!")}
 
 
 #mydens<-as.vector(as.numeric(attributes[rownames(eu28fin),"dens"]))
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# IDENTIFYING ATTRIBUTES ######################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 attributes<-as.matrix(read.table("attributes.txt",header=T,row.names=1,check.names=F))
 
 formatfinnames<-finnames
@@ -182,8 +185,9 @@ par(mar=c(marbot,marlef,martop,marrig)
     #    ,lab=c(10,1,10)
 )
 
-# Ticks
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# TICKS #######################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("# Getting order of magnitude of ticks")
 teval<-eu28
 tevalpos<-eu28pos
@@ -203,7 +207,7 @@ if(rundata=="ief" && runfocus=="trend"){tmag=tmag/2.5}
 tmin<-tmag*floor(tdifmin/tmag)
 if(is.nan(tmin)){tmin<-0.5*min(teval,na.rm=T)}
 if(rundata!="ief"){tmin<-min(0,tmin)}
-tmax<-tmag*ceiling(tdifmax/tmag)
+tmax<-tmag*ceiling(tdifmax*1.05/tmag)
 if(is.nan(tmax)){tmax<-1.5*max(teval,na.rm=T)}
 if(tmin==0 & tmax==0){tmin<--0.5;tmax<-0.5}
 
@@ -218,6 +222,8 @@ if(tmag==0){tdis=5}else{
         if(tcur<=tnhig){tdis<-tcur}
     }}
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("Start plotting")
 if(rundata!="ief"){
     eu28finpos<-(eu28fin>0)*eu28fin
@@ -230,7 +236,7 @@ if(rundata!="ief"){
           labels=F,
           col.ticks="grey")
     tnum<-(tmax-tmin)/tdis
-    if(tnum<1){ndig<-1}else{ndig<-0}
+    if(tnum<1){ndig<-abs(floor(log10(abs(tmax))))}else{ndig<-0}
     tseq<-round(seq(tmin,tmax,tnum),ndig)
     axis(2,at=tseq,tick=1,line=1,pos=c(0,0),lwd=2,las=1)
     barplot(eu28finpos,add=T,dens=mydens,angle=45,col=mycoll,axes=F,axisnames=F,las=2)
@@ -333,9 +339,9 @@ oabs<-par("usr")[4]
 # box("inner",col="green",lty="dotted",lwd=3)
 # box("outer",col="black",lwd=2)
 
-#####################################################################
-#                 LABLES Y-AXIS
-#####################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# LABLES Y-AXIS #####################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("Plot Labels y-axis")
 #mytext1<-"CH"[4] ~~ "enteric fermentation"
 ##mytext2<-substitute(A ~ " - " ~ B ~ "Tg N" ~~ yr^{-1},list(A=colnames(b)[j],B=emis[j]))
@@ -351,7 +357,7 @@ plot(0, xlim=c(0, 1),
      axes=F, xlab="", ylab="", type="n")
 
 if(rundata=="ief" & runfocus=="trend"){
-    #textpar<-paste0("Interannual change: ",runpar)
+    #textpar<-paste0("Interannual change: ",runmeastype)
     #textunit<-paste0("Interannual growth")
     textunit<-"Interannual" ~" growth"
     
@@ -361,11 +367,11 @@ if(rundata=="ief" & runfocus=="trend"){
 writetext<-multilines(textpar,50)
 
 if(length(writetext)>1){newcex<-0.9}else{newcex<-min(1.5,1.0*40/nchar(writetext[1]))}
-text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[1],las=3,srt=90,font=2)
+text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[1],las=3,srt=90,font=1)
 if(length(writetext)>1){
-    text(0.22,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=2)
+    text(0.22,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=1)
 }
-text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,textunit,las=3,srt=90,font=2)
+text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,textunit,las=3,srt=90,font=1)
 #print(paste(curunit,textunit))
 #text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,curunit,las=3,srt=90,font=2)
 
@@ -375,9 +381,9 @@ text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,textunit,las=3,srt=90,font=2)
 # box("inner",col="green",lty="dotted",lwd=3)
 # box("outer",col="black",lwd=2)
 
-#####################################################################
-#                         LEGEND
-#####################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# LEGEND ###########################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("Plot legend")
 # Define plotting region for legend
 #vomd<-c(omdx2,1-omdx1,omdy1,omdy2)  # horizontal min,max - vertical min,max
@@ -393,6 +399,11 @@ recside<-0.2
 if(rundata=="ief" & runfocus!="countries"){recdist=0.9}else{recdist=1.2}
 avshare<-0.57
 legcex<-1.1
+maxfins<-max(abs(finshares))
+minfins<-min(abs(finshares))
+if(maxfins>1000) legcex<-1.0
+nzeros<-max(0,3-ceiling(log10(maxfins)))
+addzeros<-paste(rep("0",nzeros),collapse="")
 minlow<-marbot*par("cxy")[2]
 maxhig<-0.9
 eu28ispos<-0.87
@@ -405,7 +416,9 @@ if(ncountries>0){
         if(finshares[i]!=0){
             #print(paste(i,ncountries,finnames[i],finshares[i],sep="-"))
             mytextavc <- finnames[i]
-            mytextavv <- paste0(round(finshares[i],1),"%",sep="")
+            checkdig<-round(finshares[i],nzeros)
+            if(round(checkdig,0)==checkdig){checkdig<-paste0(checkdig,".",addzeros)}
+            mytextavv <- paste0(checkdig,"%",sep="")
             
             mytexteu<-"EU28+IS"
             
@@ -473,8 +486,8 @@ if (rundata=="ief" && runfocus=="value") text(0,1.00,"Average IEF of country",ce
 if (rundata=="ief" && runfocus=="countries") text(0,1.00,"Range of values over the period",cex=legcex,adj=0,font=2)
 
 if (rundata=="ief" && runfocus=="trend") text(0,1.00,"Average trend of country",cex=legcex,adj=0,font=2)
-if (runpar=="EM" && runfocus=="trend") text(0,0.96,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
-if (runpar=="EM" && runfocus=="trend") text(0,0.93,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
+if (runmeastype=="EM" && runfocus=="trend") text(0,0.96,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
+if (runmeastype=="EM" && runfocus=="trend") text(0,0.93,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
 
 #if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+IS average",cex=legcex,adj=0,font=3)
 #if (rundata=="ief" && runfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
@@ -495,7 +508,9 @@ text(recside*recdist,eu28ispos,mytexteua,cex=legcex,adj=0,font=2)
 #text(avshare,mid,"100%",cex=legcex,adj=1)
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # Box with explanation country-selection ####
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 par(omd=c(xleg,1,ystt/2,ystt+0.1))
 #par(mar=c(1.0,1.0,5.0,1.)) #bot,lef,top,rig
 par(mar=c(0,marlef,0,marrig))
@@ -529,9 +544,9 @@ if(length(textorder)>0){
 #mtext(myunit,1,line=0,outer=F,adj=1,cex=1.6)
 #stop("Stop after legend")
 
-#####################################################################
-#                         TITLE
-#####################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+#  TITLE ############################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("Plot title")
 if (rundata=="adem" && runfocus=="value") {mtexttitle<-"Trend in EU28+IS"}
 if (rundata=="adem" && runfocus=="trend") {mtexttitle<-"Annual changes in EU28+IS"}
@@ -541,9 +556,9 @@ if (rundata=="ief" && runfocus=="countries") {mtexttitle<-"Range values over tim
 maxnchar<-50
 # First word which is beyond the max number of characters to be displayed
 mtexttitle0<-paste0(textcat," - ",textsou)
-if(rungas!="no gas"){
-    #mtexttitle0<-paste0(mtexttitle0,gsub(" ","",rungas))
-    mtexttitle0<-paste0(mtexttitle0,": ",gsub(" ","",rungas))
+if(runmeas[2]!="no gas"){
+    
+    mtexttitle0<-paste0(mtexttitle0,": ",gsub(" ","",as.character(unlist(runmeas[2]))))
 }else{
     mtexttitle0<-mtexttitle0
 }
@@ -551,13 +566,13 @@ mtexttitle0<-gsub("_","-",mtexttitle0)
 
 #mvect<-strsplit(mtexttitle0," - ")[[1]]
 mvect<-strsplit(mtexttitle0," ")[[1]]
-maxwords<-max(length(mvect),
+maxwords<-min(length(mvect),
               match(TRUE,lapply(1:length(mvect),function(x) sum(nchar(mvect[1:x]))>maxnchar))-1,
               na.rm=TRUE)
 mtexttitle1<-gsub(",","",toString(mvect[1:maxwords]))
-if(maxwords>length(mvect)){
+if(maxwords<length(mvect)){
 #    mtexttitle2<-paste(gsub(",","",toString(mvect[(maxwords+1):length(mvect)])),mtexttitle)
-    mtexttitle2<-paste(gsub(","," ",toString(mvect[(maxwords+1):length(mvect)])),mtexttitle)
+    mtexttitle2<-paste(gsub(",","",toString(mvect[(maxwords+1):length(mvect)])),"- ",mtexttitle)
 }else{
     mtexttitle2<-mtexttitle
 }
@@ -571,9 +586,9 @@ text(0.5,0.15,adj=0.5,mtexttitle2,cex=1.2)
 
 #stop("Stop after title")
 # 
-#####################################################################
-#                        X-AXIS TITLE
-#####################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# X-AXIS TITLE #####################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("Plot x-axis title")
 
 mtextxaxis<-"Year"
@@ -583,7 +598,7 @@ par(mar=c(0,0,0,0)) #bot,lef,top,rig
 par(fig=c(0,1,0,1),new=T)
 plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
 
-text(0.5,1-1.1*par("cin")[2],adj=0.5,mtextxaxis,cex=1.2,font=2)
+text(0.5,1-1.1*par("cin")[2],adj=0.5,mtextxaxis,cex=1.2,font=1)
 
 
 par(omd=c(0,xleg,0,ystt))
@@ -600,9 +615,9 @@ plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
 #  box("plot",col="blue",lwd=4)
 #  box("inner",col="green",lty="dotted",lwd=3)
 #  box("outer",col="black",lwd=2)
-#####################################################################
-#                        FOOTNOTE
-#####################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+#  FOOTNOTE #########################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #print("Plot footnote")
 par(omd=c(0,1,0,ystt))
 par(mar=c(0,0,0,0)) #bot,lef,top,rig
@@ -616,9 +631,3 @@ text(0.005,0.1,adj=0,foottextleft,cex=0.5,font=1)
 text(0.995,0.1,adj=1,foottextrigt,cex=0.5,font=1)
 
 dev.off()
-
-#if (rungas=="CH4" & runfocus=="trend"){zzzz}
-#if (runpar=="AD"){zzzz}
-#if (runpar=="DIGEST" & runfoc=="2TRD"){zzzz}
-#if (runfoc=="2TRD"){zzzz}
-#}

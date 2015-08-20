@@ -12,12 +12,6 @@
 # 
 # Initialisation ####
 
-library(ggplot2)
-library(reshape2) #required for melt function - for outls
-library(data.table)
-library(knitr)
-library(compare)
-# library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 
 #       current inventory year
 locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
@@ -49,14 +43,14 @@ if(stepsdone==1){
     print("Clean animal types and generate list of measures")
     source("eugirpA.2_meastype.r")
     stepsdone<-2
-    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allnotations")
+    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods")
     save(list=savelist,file=rdatallem)
     source("curplot.r")
 }else if(stepsdone>1){
     print("Clean animal types and generate list of measures ... already done")
 }
 
-# B.2 Calculate trend and growth rates ####
+# A.3 Calculate trend and growth rates ####
 nyears<-length(years)
 period1<-as.character(years[1]:years[nyears-1])
 period2<-as.character(years[2]:years[nyears])
@@ -91,18 +85,156 @@ if(stepsdone==2){
     print("Trends and growth rates already calculated")
 }
 
-# A.3 Check for outlier errors ####
+# B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
 if(stepsdone==3){
+    print("Calculating EU-sums only for summable variables")
+    #load(rdatmeasu)
+    #source("eugirpD.1_preparetask.r")
+    
+    calceu<-alldata
+    calcmeas<-unique(subset(calceu,select=allfields[!allfields %in% c("notation","party",years)]))
+    measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+    
+    eu28sum<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(measures2sum)),ncol=ncol(calceu),nrow=nrow(measures2sum)))
+    names(eu28sum)<-names(calceu)
+    eu28sum[,names(measures2sum)]<-measures2sum[,names(measures2sum)]
+    eu28sum[,years]<-euvalue("sum",eu28sum,calceu,years,countriesic)
+    eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
+    eu28sum$notation[eu28sum$notation==0]<-""
+
+    
+    simplifyunit<-function(u,fac){
+        if(fac==1){nu=as.character(u)}else
+            if(u==""){nu<-""}else
+            if(u=="kg N/year"){if(fac==1E-6){nu<-"kt N/year"}else if(fac==1E-3){nu<-"t N/year"}}else
+            if(u=="kg N/yr"){if(fac==1E-6){nu<-"kt N/yr"}else if(fac==1E-3){nu<-"t N/yr"}}else
+            if(u=="kg/year"){if(fac==1E-6){nu<-"kt/year"}else if(fac==1E-3){nu<-"t/year"}}else
+            if(u=="kg/t"){if(fac==1E-6){nu<-"kt/t"}else if(fac==1E-3){nu<-"t/t"}}else
+            if(u=="kg dm"){if(fac==1E-6){nu<-"kt dm"}else if(fac==1E-3){nu<-"t dm"}}else
+            if(u=="ha/year"){if(fac==1E-6){nu<-"Mha/year"}else if(fac==1E-3){nu<-"kha/year"}}else
+            if(u=="Mg"){if(fac==1E-6){nu<-"Mt"}else if(fac==1E-3){nu<-"kt"}}else
+            if(u=="ha"){if(fac==1E-6){nu<-"Mio ha"}else if(fac==1E-3){nu<-"kha"}}else
+            if(u=="kha"){if(fac==1E-6){nu<-"Mio kha"}else if(fac==1E-3){nu<-"Mio ha"}}else
+            if(u=="m^3"){if(fac==1E-6){nu<-"Mio m^3"}else if(fac==1E-3){nu<-"1000 m^3"}}else
+            if(u=="metric t"){if(fac==1E-6){nu<-"Mio metric t"}else if(fac==1E-3){nu<-"1000 metric t"}}else
+            if(u=="t"){if(fac==1E-6){nu<-"Mt"}else if(fac==1E-3){nu<-"kt"}}else
+            if(u=="t/year"){if(fac==1E-6){nu<-"Mt/year"}else if(fac==1E-3){nu<-"kt/year"}}else
+            if(u=="kt"){if(fac==1E-6){nu<-"1000 Mt"}else if(fac==1E-3){nu<-"Mt"}}else
+            if(u=="kt C"){if(fac==1E-6){nu<-"1000 Mt C"}else if(fac==1E-3){nu<-"Mt C"}}else
+            if(u=="kt DC"){if(fac==1E-6){nu<-"1000 Mt DC"}else if(fac==1E-3){nu<-"Mt DC"}}else
+            if(u=="kt CO2 equivalent"){if(fac==1E-6){nu<-"1000 Mt CO2 equivalent"}else if(fac==1E-3){nu<-"Mt CO2 equivalent"}}else 
+            if(u=="TJ"){if(fac==1E-6){nu<-"1Mio TJ"}else if(fac==1E-3){nu<-"1000 TJ"}}else
+            if(u=="1000s"){if(fac==1E-6){nu<-"Mio 1000s"}else if(fac==1E-3){nu<-"Mio"}}else
+            {nu="not defined"}
+    }
+    getmax<-function(DF,y,uid){maxuid<-max(DF[DF$variableUID==uid,years],na.rm=TRUE)}
+    l<-unlist(lapply(measures2sum$variableUID,function(x) getmax(eu28sum, years,as.vector(x))))
+    
+    changemio<-100000000
+    changeths<-100000
+    selection<-l>changemio
+    units2change<-as.data.frame(measures2sum$variableUID[selection])
+    names(units2change)<-"variableUID"
+    units2change$unit<-measures2sum$unit[selection]
+    units2change$fact<-as.numeric(1/1000000)
+    units2change$fact[units2change$unit==""]<-1
+    
+    selection<-l>changeths & l <= changemio
+    units2changet<-as.data.frame(measures2sum$variableUID[selection])
+    names(units2changet)<-"variableUID"
+    units2changet$unit<-measures2sum$unit[selection]
+    units2changet$fact<-as.numeric(1/1000)
+    units2changet$fact[units2changet$unit==""]<-1
+    rm(units2changet)
+    
+    units2change<-rbind(units2change,units2changet)
+    units2change$newunit<-unlist(lapply(c(1:nrow(units2change)),function(x) 
+        simplifyunit(units2change$unit[x],units2change$fact[x])))
+    missing<-length(unique(units2change$unit[units2change$newunit=="not defined"]))
+    if(missing>0) View(unique(units2change$unit[units2change$newunit=="not defined"]),"unitsmiss")
+    
+    calceu<-rbind(alldata,eu28sum)
+
+    calceu<-merge(calceu,units2change,by=c("variableUID","unit"),all=TRUE)
+    selection<-!is.na(calceu$newunit)
+    levels(calceu$unit)<-c(levels(calceu$unit),unique(calceu$newunit))
+    calceu$unit[selection]<-calceu$newunit[selection]
+    selection<-!is.na(calceu$fact)
+    calceu[selection,years]<-calceu[selection,years]*calceu[selection,"fact"]
+    
+    o<-order(calceu$sector_number,calceu$category,calceu$meastype,calceu$classification,calceu$party)
+    alldata<-calceu[o,allfields]
+    
+    stepsdone<-4
+    emplotsdone<-0
+    savelist<-c(savelist,"emplotsdone","units2change","eu28sum")
+    save(list=savelist,file=rdatallem)
+    source("curplot.r")
+}else{
+    print("EU sums already calculated")
+}
+
+# B.2 - Plots 1. Do emission plots ####
+if(stepsdone>3){
+    if(doemissionplots==TRUE){
+        if(emplotsdone==0){
+            print("Calculating EU-sums only for summable variables")
+            adempars<-c("AD","EM")
+            source("eugirpD.2_emissionplots.r")
+            emplotsdone<-1
+            #XXX do PLOTS FOR SECTOR 4 - COUNTRY PLOTS FOR EMISSIONS AND AD
+            save(list=savelist,file=rdatallem)
+        }else{
+            print("Emission plots already done")
+        }
+    }else{
+        if(emplotsdone==0) print("Emission plots not yet done but not requested")
+        if(emplotsdone==1) print("Emission plots already done")
+    }
+}
+#++++ END OF GENERAL PART 
+#++++ BELOW SECTOR-3 SPECIFIC PART
+
+# A.3 Check for outlier errors ####
+if(stepsdone==4){
     print("Check for outlier errors")
     #calcmeas<-allmeas
     source("eugirpA.3_outlier.r")
     
-    #     stepsdone<-4
-    #     save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    #     savelist<-c(savelist,"growthcheck","paramcheck")
-    #     save(list=savelist,file=rdatallem)
-    #     source("curplot.r")
-}else if(stepsdone>3){
+    #Note: set correctionsdone to 1 if the file has been checked and update file name below
+    #      if the issues are written into file, correctionsdone is set to 2 and the 
+    if(exists("correctionsdone")){
+        if(correctionsdone==1){
+            corrections<-read.csv(file=paste0(csvfil,"_countryoutliers~20150819.csv"),comment.char = "#",header=TRUE)
+            donotusepar<-subset(corrections,corrections==0,select=c("party","variableUID"))
+            
+            writeissue<-function(D,line){
+                con <- file(paste0(issuedir,line$party,line$sector_number,line$meastype,".csv"), open="wt")
+                writeLines(coutlexp, con)
+                writeLines(colexpl, con)
+                writeLines("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. 1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified",con)
+                write.csv(line,con)
+                writeLines(paste0("# For comparison: other MS values for sector",line$sector_number,
+                                  "- category ",line$category,
+                                  "- measure ",line$meastype,"#\n#\n"),con)
+                m<-subset(D,meastype==line$meastype & sector_number==line$sector_number & category==line$category)
+                write.csv(m,con)
+                close(con)
+                return(1)
+            }
+            issues<-sum(unlist(lapply(c(1:nrow(corrections[corrections$correction!=1,])),function(x) writeissue(alldata,corrections[x,]))))
+            stepsdone<-5
+            correctionsdone<-2
+            savelist<-c(savelist,"growthcheck","paramcheck","corrections","correctionsdone")
+            save(list=savelist,file=rdatallem)
+            source("curplot.r")
+        }else if(correctionsdone==2){
+            print("Corrections done and outlier issues written to files")
+        }
+    }else{
+        print("Corrections need to be done and 'correctionsdone' set MANUALLY to 1")
+    }
+}else if(stepsdone>4){
     print("Check for outlier errors already done")
 }
 
@@ -111,7 +243,7 @@ stop("Not further developed")
 # B.1 Calculate EU sums and weighted averages ####
 # 
 if(stepsdone==4){
-    print("Calculate EU sums and weighted averages")
+    print("Calculate EU weighted averages")
     #calcmeas<-allmeas
     source("eugirpB.1_euvalues.r")
 
@@ -147,16 +279,6 @@ if(stepsdone==5) {
     print("Sector 3 checks already done")
 }
 
-# D - Plots 1. Prepare the plots to be done ####
-if(stepsdone==6){
-    #load(rdatmeasu)
-    #source("eugirpD.1_preparetask.r")
-    
-    adempars<-c("AD","EM")
-    if(doemissionplots==TRUE){
-        
-    }
-}
 
 
 # Lists of all categorysources, measuregases, units, partys 

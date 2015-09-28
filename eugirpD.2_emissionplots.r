@@ -11,12 +11,12 @@ plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
 plotselect <- plotmeas$sector_number!=""
 plotmeas<-plotmeas[plotselect,]
 
-# Criterion 2: Do not plot sector_numbers 
+# Criterion 2: Do not plot sector_numbers below  three levels
 #      Exceptions: do all plots in Sector 3
-plotselect<-unlist(lapply(c(1:nrow(plotmeas)),function(x) 
-    if(grepl("^3",plotmeas$sector_number[x])){TRUE}else{
-    gcCount(plotmeas$sector_number[x],".")<3}))
-plotmeas<-plotmeas[plotselect,]
+#plotselect<-unlist(lapply(c(1:nrow(plotmeas)),function(x) 
+#    if(grepl("^3",plotmeas$sector_number[x])){TRUE}else{
+#    gcCount(plotmeas$sector_number[x],".")<3}))
+#plotmeas<-plotmeas[plotselect,]
 
 if(restrictsector!=""){
     select <- grepl(restrictsector,plotmeas$sector_number)
@@ -27,13 +27,40 @@ if(restrictcategory!=""){
     plotmeas<-plotmeas[select,]
 }
 
+sectorplots<-read.table("plots_sec1.txt")
+sectorplots<-as.vector(sectorplots$V1)
+select<-!grepl("^1",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
+plotmeas<-plotmeas[select,]
+
+sectorplots<-read.table("plots_sec2.txt")
+sectorplots<-as.vector(sectorplots$V1)
+select<-!grepl("^2",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
+plotmeas<-plotmeas[select,]
+
+sectorplots<-read.table("plots_sec4.txt")
+sectorplots<-as.vector(sectorplots$V1)
+select<-!grepl("^4",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
+plotmeas<-plotmeas[select,]
+
+sectorplots<-read.table("plots_sec5.txt")
+sectorplots<-as.vector(sectorplots$V1)
+select<-!grepl("^5",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
+plotmeas<-plotmeas[select,]
+
+
 plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
 plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
-plotmeas<-plotmeas[order(plotmeas$sector_number,plotmeas$category),]
 
-for(imeas in c(896)){
+#Eliminate IS
+plotdata<-plotdata[plotdata$party!="IS",]
+
+plotmeas<-plotmeas[order(plotmeas$sector_number,plotmeas$category),]
+#for(imeas in c(13)){
 #for(imeas in c(1449:nrow(plotmeas))){
-#for(imeas in c(1:nrow(plotmeas))){
+
+#for(imeas in c(41:100)){
+#for(imeas in c(580:nrow(plotmeas))){
+for(imeas in c(1:nrow(plotmeas))){
     
     #    plotmatr<-unique(plotdata[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries),c("party",years)])
     #    eu28<-unique(plotdata[plotdata[,"variableUID"]==curuid & (plotdata$party %in% eucountries),c("party",years)])
@@ -81,9 +108,10 @@ for(imeas in c(896)){
     eu28fin<-as.matrix(eu28fin[,years])
     
     finshares<-rowMeans(eu28fin,na.rm=T)/mean(eu28)*100
+    finshares<-eu28fin[,years[length(years)]]/eu28[years[length(years)]]*100
     finshares[is.na(finshares)]<-0
     
-    textorderadem1<-"Countries are sorted by the average contribution to the sum of EU28 value over the the whole time period. "
+    textorderadem1<-"Countries are sorted by the average contribution to the sum of EU-KP value over the the whole time period. "
     if(topno>0) {
         textorderadem2<-paste0("The top ",topn," countries are displayed. ")
         textorderadem3<-paste0("The other ",topno," reporting countries with data are lumped to 'other'.")
@@ -109,7 +137,7 @@ for(imeas in c(896)){
     curmatrix<-eu28fin
     
     if(!(sum(eu28fin,na.rm=TRUE)==0)) {
-        source("nirplots.r")
+        source("eugirp_nirplots.r")
         #nirplotsdone<-nirplots(eu28fin,eu28fin,eu28,rundata,runfocus,runcateg,runpar,curfoc)
     }
 }

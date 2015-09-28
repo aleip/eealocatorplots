@@ -154,10 +154,11 @@ if(generatealldata==1){
     # Save alldata for later re-use incase of allem or all3 ####
     stepsdone<-1
     save(stepsdone,alldata,allnotations,allinfos,allmethods,file=rdatallem)
+    save(stepsdone,alldata,allnotations,allinfos,allmethods,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
     save(measures,parties,years,notations,classifications,categories,sources,methods,
          targets,options,types,gases,units,sectors,uids,file=rdatmeta)
-    write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_cat3.csv"),sep=",")
-    write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_cat4.csv"),sep=",")
+    write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_agri.csv"),sep=",")
+    write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_lulucs.csv"),sep=",")
 
     source("curplot.r")
     

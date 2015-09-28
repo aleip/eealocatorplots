@@ -30,6 +30,7 @@ alldata$meastype[alldata$type == "Biogenic"]<-"ADbio"
 alldata$meastype[alldata$type == "Non-biogenic"]<-"ADnbio"
 alldata$meastype[alldata$measure == "Crop  production"]<-"PROD"
 alldata$meastype[alldata$measure == "Nitrogen excretion per MMS"]<-"NEXC"
+alldata$meastype[alldata$measure == "Nitrogen excretion rate"]<-"NRATE"
 alldata$meastype[alldata$measure == "Residue/ Crop ratio"]<-"RatioResCrop"
 alldata$meastype[alldata$measure == "Fraction oxidized"]<-"FracOXIDIZED"
 alldata$meastype[alldata$measure == "Fraction burned in fields"]<-"FracBURN"
@@ -85,13 +86,13 @@ if(nrow(measures)==length(measures$variableUID)){print("No duplicate UIDs")}else
 
 
 #al20150809 - cleanCattle not really needed any more .... it is contained in Option
-#cat3all<-alldata[grepl("^3",alldata$sector_number),allfields]
-#cat3all$sector_number<-unlist(lapply(c(1:nrow(cat3all)),function(x)
-#    cleanCattle(cat3all$sector_number[x],cat3all$category[x])))
-#cat3all$option[grepl("Option",cat3all$option)]<-""
+#allagri<-alldata[grepl("^3",alldata$sector_number),allfields]
+#allagri$sector_number<-unlist(lapply(c(1:nrow(allagri)),function(x)
+#    cleanCattle(allagri$sector_number[x],allagri$category[x])))
+#allagri$option[grepl("Option",allagri$option)]<-""
 
 
 # catothe<-alldata[!grepl("^3",alldata$sector_number),]
-# cat3all<-rbind(catothe,cat3all)
-# alldata<-cat3all[order(as.numeric(row.names(cat3all))),allfields]
-# rm(cat3all,catothe)
+# allagri<-rbind(catothe,allagri)
+# alldata<-allagri[order(as.numeric(row.names(allagri))),allfields]
+# rm(allagri,catothe)

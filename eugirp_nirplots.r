@@ -84,11 +84,14 @@ fnammethod<-paste0(fnammethod,runmeastype)
 # }else{
 #     runcategmetgas<-paste0(runcategmetgas,fnampar,runmeastype)
 # }
-if (! file.exists(figdate)){
-    dir.create(file.path(figdate))
+figdir<-figdate
+if(plotparamcheck==1) figdir<-paste0(issuedir,"countryoutliers")
+if (! file.exists(figdir)){
+    dir.create(file.path(figdir))
     #    setwd(file.path(mainDir, figdate))
 }
-figname<-paste0(figdate,"/",fnammethod,"-",runfoc,formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0"),"~",figdate,".pdf",collapse=NULL)
+if(plotparamcheck!=1) runfoc<-paste0(runfoc,formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0"))
+figname<-paste0(figdir,"/",fnammethod,"-",runfoc,"~",figdate,".",plotformat,collapse=NULL)
 print(paste0(imeas,"/",nrow(plotmeas),": ",figname))
 #postscript(figname)
 if(plotformat=="pdf") pdf(file=figname,width=11,height=6)
@@ -102,6 +105,9 @@ if(length(curuid)>1){stop("More than one UID selected for graph!!")}
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/yr"){textunit<-"[ kg " ~~ yr^{-1} ~"]"} else
+ if(curunit=="kg/day"){textunit<-"[ kg " ~~ day^{-1} ~"]"} else
+ if(curunit=="h/day"){textunit<-"[ h " ~~ day^{-1} ~"]"} else
+ if(curunit=="MJ/day"){textunit<-"[ MJ " ~~ day^{-1} ~"]"} else
  if(curunit=="t/yr"){textunit<-"[ t " ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/year"){textunit<-"[ kg " ~~ yr^{-1} ~"]"} else
  if(curunit=="t/year"){textunit<-"[ t " ~~ yr^{-1} ~"]"} else
@@ -115,8 +121,12 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kt N/year"){textunit<-"[ kt N " ~~ yr^{-1} ~"]"} else
  if(curunit=="kg/head/year"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="kg N/head/year"){textunit<-"[ kg N " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
+ if(curunit=="kg dm/head/day"){textunit<-"[ kg dm " ~~ head^{-1}  ~~ day^{-1} ~"]"} else
+ if(curunit=="t dm/ha"){textunit<-"[ t dm " ~~ ha^{-1} ~"]"} else
+ if(curunit=="t CO2-C/t"){textunit<-"[ t CO"[2]*"-C" ~~ t^{-1} ~"]"} else
  if(curunit=="MJ/head/day"){textunit<-"[ MJ " ~~ head^{-1}  ~~ day^{-1} ~"]"} else
  if(curunit=="kg N2O-N/kg N"){textunit<-expression(" [kg N"[2]*"O (kg N)"^'-1'*']')} else
+ if(curunit=="kg N2O/kg N handled"){textunit<-expression(" [kg N"[2]*"O (kg N handled)"^'-1'*']')} else
  if(curunit=="kg N2O/head/year"){textunit<-expression("[ kg N"[2]*"O head"^'-1'*"year"^'-1'*']')} else
  if(curunit=="kt C"){textunit<-"[ kt C ]"} else
  if(curunit=="Mt C"){textunit<-"[ Mt C ]"} else
@@ -124,6 +134,7 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="Mt DC"){textunit<-"[ Mt DC ]"} else
  if(curunit=="kg/t dm"){textunit<-expression("[ kg (t dm)"^'-1'*']')} else
  if(curunit=="t/t dm"){textunit<-expression("[ t (t dm)"^'-1'*']')} else
+ if(curunit=="t/ha"){textunit<-expression("[ t (ha)"^'-1'*']')} else
  if(curunit=="kg dm"){textunit<-expression("[ kg dm ]")} else
  if(curunit=="t dm"){textunit<-expression("[ t dm ]")} else
  if(curunit=="kt dm"){textunit<-expression("[ kt dm ]")} else
@@ -141,6 +152,7 @@ if(curunit=="kg/head/yr"){textunit<-"[ kg " ~~ head^{-1}  ~~ yr^{-1} ~"]"} else
  if(curunit=="1000 m^3"){textunit<-"[ 1000 m"^{3} ~~ "]"} else
  if(curunit=="10^6 m^3"){textunit<-"[ 10"^{6} ~ "m"^{3} ~~ "]"} else
  if(curunit=="10^9m^2/year"){textunit<-"[ 10"^{9} ~ "m"^{2} ~ "yr"^{-1} ~ "]"} else
+ if(curunit=="m^3/kg VS"){textunit<-"[ m"^{3} ~ "(kg VS)"^{-1} ~ "]"} else
  if(curunit=="Mt"){textunit<-"[ Mt ]"} else
  if(curunit=="Mg"){textunit<-"[ Mg ]"} else
  if(curunit=="kt CO2 equivalent"){textunit<-"[ kt" ~ CO[2] ~ "eq ]"} else
@@ -342,11 +354,11 @@ if(rundata!="ief"){
                 labels=F,
                 xlab="")
         
-        axis(1,at=1+years-years[1],adj=1, tick=TRUE, 
+        axis(1,at=1+yearsnum-yearsnum[1],adj=1, tick=TRUE, 
              line=NA, lty=1, lwd=1,
              labels=rep("",length(years))
         )
-        text(x=1+years-years[1],
+        text(x=1+yearsnum-yearsnum[1],
              y=par()$usr[3]-0.04*(par()$usr[4]-par()$usr[3]),
              labels=years, 
              srt=90, adj=1, 
@@ -358,7 +370,8 @@ if(rundata!="ief"){
             points(eu28fin[i,],pch=myticks[i],col=mytcol3[i],bg=mytcol2[i],lwd=1,cex=0.75)
         }
         
-        points(eu28,pch=21,bg="black",col="red",cex=1.5,lwd=2)
+        points(matrix(eu28),pch=21,bg="black",col="red",cex=1.5,lwd=2)
+        #points(matrix(eu28),pch=21,bg="black",col="red",cex=5.5,lwd=5)
     }
 }
 
@@ -431,6 +444,7 @@ legcex<-1.1
 maxfins<-max(abs(finshares))
 minfins<-min(abs(finshares))
 if(maxfins>1000) legcex<-1.0
+if(rundata=="ief") legcex<-0.9
 nzeros<-max(0,3-ceiling(log10(maxfins)))
 if(is.infinite(nzeros))nzeros<-1
 addzeros<-paste(rep("0",nzeros),collapse="")
@@ -450,19 +464,20 @@ if(ncountries>0){
             if(round(checkdig,0)==checkdig){checkdig<-paste0(checkdig,".",addzeros)}
             mytextavv <- paste0(checkdig,"%",sep="")
             
-            mytexteu<-"EU-KP"
+            mytexteu<-eukp
             
-            mytexteua<-paste0("EU-KP")
+            mytexteua<-paste0(eukp)
             if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
                 #Give average (min-max)
                 
                 myround<-max(1,-floor(log10(max(eu28fin)))+2)
-                mytexteub<-paste0(round(mean(eu28,na.rm=T),myround)," (",
+                mytexteub<-paste0(round(mean(t(eu28),na.rm=T),myround))
+                mytexteuc<-paste0("(",
                                   round(min(eu28,na.rm=T),myround),"-",
                                   round(max(eu28,na.rm=T),myround),")")
                 mytextavc<-finnames[i]
-                mytextavv<-paste0(round(mean(eu28fin[i,],na.rm=T),myround)," (",
-                                  round(min(eu28fin[i,],na.rm=T),myround),"-",
+                mytextavv<-paste0(round(mean(eu28fin[i,],na.rm=T),myround))
+                mytextran<-paste0("(",round(min(eu28fin[i,],na.rm=T),myround),"-",
                                   round(max(eu28fin[i,],na.rm=T),myround),")")
                 
             }
@@ -503,7 +518,13 @@ if(ncountries>0){
                 text(avshare+0.12,mid-0.000,shareAD2,cex=legcex-0.25,adj=0)
             }else{
                 text(recside*recdist,mid,mytextavc,cex=legcex,adj=0)
-                text(2.6*recside*recdist,mid,mytextavv,cex=legcex,adj=1)
+                if(rundata=="ief"){
+                    text(avshare+0.00,mid,mytextavv,cex=legcex,adj=1)
+                    text(avshare+0.40,mid,mytextran,cex=legcex,adj=1)
+                }else{
+                    text(2.6*recside*recdist,mid,mytextavv,cex=legcex,adj=1)
+                    text(2.6*recside*recdist,mid,mytextran,cex=legcex,adj=1)
+                }
             }
         }
         else{
@@ -513,7 +534,7 @@ if(ncountries>0){
 
 #if (rundata!="ief" ) text(0,1.00,"Average share of country",cex=legcex,adj=0,font=2)
 if (rundata!="ief" ) text(0,1.00,paste0("Share in year t-2 (",years[length(years)],")"),cex=legcex,adj=0,font=2)
-if (rundata=="ief" && runfocus=="value") text(0,1.00,"Average IEF of country",cex=legcex,adj=0,font=2)
+if (rundata=="ief" && runfocus=="value") text(0,1.00,"Average IEF of country (min-max)",cex=legcex,adj=0,font=2)
 if (rundata=="ief" && runfocus=="countries") text(0,1.00,"Range of values over the period",cex=legcex,adj=0,font=2)
 
 if (rundata=="ief" && runfocus=="trend") text(0,1.00,"Average trend of country",cex=legcex,adj=0,font=2)
@@ -530,7 +551,10 @@ distance<-par()$cin[1]/par()$fin[1]*0.8
 
 if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
     eu28ispos<-0.91
-    text(recside*recdist,mid,mytexteub,cex=legcex,adj=0,font=2)
+    #text(recside*recdist,mid,mytexteub,cex=legcex,adj=1,font=2)
+    #text(recside*recdist,mid,mytexteuc,cex=legcex,adj=1,font=2)
+    text(avshare+0.00,eu28ispos,mytexteub,cex=legcex,adj=1,font=2)
+    text(avshare+0.40,eu28ispos,mytexteuc,cex=legcex,adj=1,font=2)
 }
 points(x=recside/2,y=eu28ispos,pch=21,bg="black",col="red",cex=1.5,lwd=2)
 #text(recside*recdist,mid+distance,mytexteua,cex=legcex,adj=0,font=2)

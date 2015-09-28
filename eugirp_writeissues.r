@@ -1,4 +1,6 @@
 writeissue<-function(D,line){
+    print(line)
+    
     observation<-paste0("#Observation: ",line$party,": ", 
                         line$measure," in sector",
                         line$sector_number," has been identified as an outlier ")
@@ -7,7 +9,7 @@ writeissue<-function(D,line){
     question<-paste0("#Question: The value of the outlier is with ", line$value," (mean of outlier years) ",
                      round(line$value/line$media,1), " times the median value, calculated on the basis of values reported from all countries, and ")
     if(line$value>line$ulim)question<-paste0(question,round(line$value/line$ulim,1)," times the calculated upper limit.")
-    if(line$value<line$llim)question<-paste0(question,round(line$value/line$ulim,1)," times the calculated lower limit.")
+    if(line$value<line$llim)question<-paste0(question,round(line$value/line$llim,1)," times the calculated lower limit.")
     if(line$correction==0){
         question<-paste0(question,"\n# We judge the value a serious outlier which is likely to be a mistake!")
     }else{
@@ -15,7 +17,7 @@ writeissue<-function(D,line){
     }
     question<-paste0(question,"\n# Further information and explanations and comparison with other countries' submissions see in the attached file.")
     
-    con <- file(paste0(issuedir,"countryoutlier",line$party,line$sector_number,line$meastype,".csv"), open="wt")
+    con <- file(paste0(issuedir,"countryoutliers/countryoutlier",line$party,line$sector_number,line$meastype,".csv"), open="wt")
     writeLines(observation,con)
     writeLines(question,con)
     writeLines("#",con)
@@ -30,7 +32,7 @@ writeissue<-function(D,line){
     writeLines(colexpl2, con)
     writeLines(paste0("\n#Note for column: correction: ",
                "\n#0: value assumed to be a mistake - it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification.",
-               "\n# 1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified"),con)
+               "\n# 1: value is assumed to be intended and requires justification"),con)
     write.csv(line,con)
     writeLines(paste0("\n\n# For comparison: other MS values for sector",line$sector_number,
                       "- category ",line$category,
@@ -85,8 +87,9 @@ writecorrection<-function(v,P,mult,name){
         observation<-paste0(observation," Values for ",meas," seem to be inconsistent with the unit (",unit,") requested.")
         observation<-paste0(observation," Question: please provide justification for the values used or otherwise correct the values used.")
         observation<-paste0(observation," Suggested corrected values and concerned source categories are found below.")
-        filnam<-paste0(issuedir,"corrections_",name,"_",c,".csv")
-        con <- file(filnam, open="wt")
+        filnam<-paste0("corrections_",name,"_",c,".csv")
+        filnamt<-paste0(issuedir,"/autocorrections/",filnam)
+        con <- file(filnamt, open="wt")
         writeLines(paste0("# Observation: ",observation),con)
         writeLines("# Data before correction\n#",con)
         write.csv(before,con)
@@ -96,10 +99,11 @@ writecorrection<-function(v,P,mult,name){
     }
     return(P)
 }
-writeautoc<-function(v,A,P,mult){
+writeautoc<-function(v,A,P,mult,fn){
     if(nrow(v)>0) {
         newA<-subset(paramdata[v[,1],],select=c("variableUID","party"),row.names=F)
         newA$autocorr<-mult
+        newA[,"file"]<-paste0("=HYPERLINK(\"",fn,"\")")
         A<-rbind(A,unique(newA))
     }
     return(A)

@@ -1,5 +1,5 @@
 selectadmeasures<-function(request,M,A,meas2sum,x){
-    avail<-meas2sum[!meas2sum%in%"EM"]
+    avail<-meas2sum[!meas2sum%in%c("EM","NEXC")]
     sec<-A$sector_number[x]
     cat<-A$category[x]
     cla<-A$classification[x]
@@ -98,11 +98,12 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
     return(paste0(measOK,collapse=" "))
 }
 
-calceu<-alldata
-calcmeas<-unique(subset(calceu,select=allfields[!allfields %in% c("notation","party",years)]))
+#allagri<-alldata[grepl("^3",alldata$sector_number),]
+calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
 #measname<-as.data.frame(measname)
 measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
 listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
+
 # Set up table with infor AD to link with parameter
 assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
 assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
@@ -117,20 +118,38 @@ assignad2par<-assignad2par[,namesassignad2par]
 measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
 parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 
-#if(nrow(remarks1)>0) View(remarks1)
-#if(nrow(remarks2)>0) View (remarks2)
+# CORRECTIONS
 
+# 1. Autocorrections have an identified reason - update the data table
+calceu<-allagri
+selection1<-autocorrections[,c("party","variableUID","autocorr")]
+calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
+selection1<-!is.na(calceu$autocorr)
+correctcorrection<-function(autocorrections,party,uid){
+    year<-autocorrections[autocorrections$party==party & autocorrections$variableUID==uid,years]
+    return(year)
+}
+selc<-calceu[selection1,]
+t<-Reduce(rbind,lapply(c(1:sum(selection1)),function(x) 
+    unlist(correctcorrection(autocorrections,selc$party[x],selc$variableUID[x]))))
+calceu[selection1,years]<-t
 
+# 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
+corcalceu<-subset(corrections,select=c("party","variableUID","correction"))
+calceucor<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
+calceucor$correction[is.na(calceucor$correction)]<-1
+selection2<-calceucor$correction==0
+calceucor[selection2,years]<-NA
 
 eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
 names(eu28wei)<-names(calceu)
 eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]
-eu28wei[,years]<-euvalue("weight",assignad2par,calceu,years,countriesic)
+eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,countriesic)
 eu28wei[,"party"]<-rep("EU28",nrow(eu28wei))
 eu28wei$notation[eu28wei$notation==0]<-""
 
-alldata<-rbind(alldata,eu28wei)
+allagri<-rbind(allagri[,allfields],eu28wei[,allfields])
+write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
 
-write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_cat3step2.csv"),sep=",")
 
 

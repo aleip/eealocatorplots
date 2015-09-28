@@ -5,19 +5,18 @@
 #             and generate focus
 #          B: loop over focus and prepare for current plot 
 #             (selection of parameter, trend/value/country-plot, etc.)
-#          C. run nirplots.r for current plot
+#          C. run eugirp_nirplots.r for current plot
 #
 # Adrian Leip <adrian.leip@jrc.ec.europa.eu>
-# version 3 - 28.07.2015
+# Version 1.5 - 07.09.2015
 # 
 # Initialisation ####
 
 
-#       current inventory year
+# current inventory year
 locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
 setwd(locplots)
 source("curplot.r")
-
 
 # PART A: Link with EEA locator tool ----
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
@@ -31,69 +30,36 @@ source("curplot.r")
 # - alldatanovalues
 # - measname
 source("eugirpA.1_eealocator.r")
-
 # A.2 Clean animal type names ####
 # Some animal types are given under 'allmethods', the options either 'sector_number' and/or 'allmethods'
 # ---> put them all to 'sector-number': sector option animal
 # Approach:
-# - First separate cat3 from other data to speed up processing
+# - First separate agri from other data to speed up processing
 # - Clean animal types in source file "eugirp_Acleananimaltypes.r"
 # - Recombine with the other sectors
 if(stepsdone==1){
-    print("Clean animal types and generate list of measures")
+    print("Step 2: Generate list of measures")
     source("eugirpA.2_meastype.r")
     stepsdone<-2
     savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods")
     save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem))
     source("curplot.r")
 }else if(stepsdone>1){
-    print("Clean animal types and generate list of measures ... already done")
-}
-
-# A.3 Calculate trend and growth rates ####
-nyears<-length(years)
-period1<-as.character(years[1]:years[nyears-1])
-period2<-as.character(years[2]:years[nyears])
-o<-order(alldata$sector_number,alldata$category)
-
-if(stepsdone==2){
-    print("Calculating trends and growth rates")
-    alldata<-alldata[o,]
-    alltrend<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
-    alltrend<-alldata[alldata$meastype %in% meas2sum,]
-    alltrend[,period2]<-alldata[alldata$meastype %in% meas2sum,period2]-alldata[alldata$meastype %in% meas2sum,period1]
-    alltrend[,years[1]]<-NA
-    
-    mgrowth<-c(meas2popweight,meas2clima,meas2mcf)
-    allgrowth<-as.data.frame(matrix(0,rep(0,ncol(alldata)),ncol=ncol(alldata)))
-    #allgrowth<-alldata[alldata$meastype %in% mgrowth,]
-    #allgrowth[,period2]<-alldata[alldata$meastype %in% mgrowth,period2]/alldata[alldata$meastype %in% mgrowth,period1]
-    allgrowth<-alldata
-    allgrowth[,period2]<-alldata[,period2]/alldata[,period1]
-    allgrowth[is.nan(allgrowth)] <- 0
-    allgrowth[is.infinite(allgrowth)] <- 1
-    allgrowth[,years]<-round(allgrowth[,years],3)
-    allgrowth[,years[1]]<-NA
-    
-    # Add other livestock sector_numbers
-    source("eugirpB.2_otherlivestock.r")
-    stepsdone<-3
-    savelist<-c(savelist,"alltrend","allgrowth")
-    save(list=savelist,file=rdatallem)
-    source("curplot.r")
-}else if(stepsdone>2){
-    print("Trends and growth rates already calculated")
+    print("Step 2: List of measures ... already done")
 }
 
 # B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
-if(stepsdone==3){
-    print("Calculating EU-sums only for summable variables")
+if(stepsdone==2){
+    print("Step 3a: Calculating EU-sums only for summable variables")
     #load(rdatmeasu)
     #source("eugirpD.1_preparetask.r")
     
     calceu<-alldata
+
     calcmeas<-unique(subset(calceu,select=allfields[!allfields %in% c("notation","party",years)]))
     measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+    lc<-measures2sum[grepl("^3",measures2sum$sector_number),]
     
     eu28sum<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(measures2sum)),ncol=ncol(calceu),nrow=nrow(measures2sum)))
     names(eu28sum)<-names(calceu)
@@ -101,697 +67,288 @@ if(stepsdone==3){
     eu28sum[,years]<-euvalue("sum",eu28sum,calceu,years,countriesic)
     eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
     eu28sum$notation[eu28sum$notation==0]<-""
-
     
-    simplifyunit<-function(u,fac){
-        if(fac==1){nu=as.character(u)}else
-            if(u==""){nu<-""}else
-            if(u=="kg N/year"){if(fac==1E-6){nu<-"kt N/year"}else if(fac==1E-3){nu<-"t N/year"}}else
-            if(u=="kg N/yr"){if(fac==1E-6){nu<-"kt N/yr"}else if(fac==1E-3){nu<-"t N/yr"}}else
-            if(u=="kg/year"){if(fac==1E-6){nu<-"kt/year"}else if(fac==1E-3){nu<-"t/year"}}else
-            if(u=="kg/t"){if(fac==1E-6){nu<-"kt/t"}else if(fac==1E-3){nu<-"t/t"}}else
-            if(u=="kg dm"){if(fac==1E-6){nu<-"kt dm"}else if(fac==1E-3){nu<-"t dm"}}else
-            if(u=="ha/year"){if(fac==1E-6){nu<-"Mha/year"}else if(fac==1E-3){nu<-"kha/year"}}else
-            if(u=="Mg"){if(fac==1E-6){nu<-"Mt"}else if(fac==1E-3){nu<-"kt"}}else
-            if(u=="ha"){if(fac==1E-6){nu<-"Mio ha"}else if(fac==1E-3){nu<-"kha"}}else
-            if(u=="kha"){if(fac==1E-6){nu<-"Mio kha"}else if(fac==1E-3){nu<-"Mio ha"}}else
-            if(u=="m^3"){if(fac==1E-6){nu<-"Mio m^3"}else if(fac==1E-3){nu<-"1000 m^3"}}else
-            if(u=="metric t"){if(fac==1E-6){nu<-"Mio metric t"}else if(fac==1E-3){nu<-"1000 metric t"}}else
-            if(u=="t"){if(fac==1E-6){nu<-"Mt"}else if(fac==1E-3){nu<-"kt"}}else
-            if(u=="t/year"){if(fac==1E-6){nu<-"Mt/year"}else if(fac==1E-3){nu<-"kt/year"}}else
-            if(u=="kt"){if(fac==1E-6){nu<-"1000 Mt"}else if(fac==1E-3){nu<-"Mt"}}else
-            if(u=="kt C"){if(fac==1E-6){nu<-"1000 Mt C"}else if(fac==1E-3){nu<-"Mt C"}}else
-            if(u=="kt DC"){if(fac==1E-6){nu<-"1000 Mt DC"}else if(fac==1E-3){nu<-"Mt DC"}}else
-            if(u=="kt CO2 equivalent"){if(fac==1E-6){nu<-"1000 Mt CO2 equivalent"}else if(fac==1E-3){nu<-"Mt CO2 equivalent"}}else 
-            if(u=="TJ"){if(fac==1E-6){nu<-"1Mio TJ"}else if(fac==1E-3){nu<-"1000 TJ"}}else
-            if(u=="1000s"){if(fac==1E-6){nu<-"Mio 1000s"}else if(fac==1E-3){nu<-"Mio"}}else
-            {nu="not defined"}
+    # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting
+    sharecalc<-function(uid,D,E,x){
+        uid<-as.vector(unlist(uid))
+        alc<-c(1:length(countriesnoeu))
+        coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu,narm = FALSE)
+        ncoval<-coval[apply(coval,1,sum,na.rm=TRUE)!=0,]
+        if(is.matrix(ncoval)){ncoval<-nrow(ncoval)}else{ncoval<-0}
+        
+        euval<-as.numeric(matrix(E[E$variableUID==uid,years]))
+        if(ncoval>3) {
+            share<-t(apply(coval, 1, "/", euval))
+            v<-which(share>0.95,arr.ind=TRUE)
+            if(nrow(v)>0){
+                nc<-rep(ncoval,nrow(v))
+                uids<-rep(uid,nrow(v))
+                pa<-countriesnoeu[v[,1]]
+                averagepa<-unlist(lapply(c(1:nrow(v)),function(x) mean(coval[v[x,1]],na.rm=TRUE)))
+                averagepa<-round(averagepa,3)
+                averageot<-mean(coval[alc[!alc%in%pa]],na.rm=TRUE)
+                averageot<-rep(round(averageot,3),nrow(v))
+                yr<-years[v[,2]]
+                v1<-v[,1]
+                shares<-as.vector(t(Reduce(rbind,lapply(c(1:nrow(v)),function(x) share[v[x,1],v[x,2]]))))
+                shares<-round(shares,3)
+                return(list(nc,pa,yr,shares,uids,averagepa,averageot))
+            }else{return(NULL)}
+        }else{return(NULL)}
     }
-    getmax<-function(DF,y,uid){maxuid<-max(DF[DF$variableUID==uid,years],na.rm=TRUE)}
-    l<-unlist(lapply(measures2sum$variableUID,function(x) getmax(eu28sum, years,as.vector(x))))
+    agrisummeas<-measures2sum[grepl("^3",measures2sum$sector_number),]
+    calcshare<-as.data.frame(t(Reduce(cbind,lapply(c(1:nrow(agrisummeas)),function(x) 
+        Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x))))))
+    names(calcshare)<-c("ncountries","party","year","share","variableUID","mean","meanother")
+    ademoutl<-merge(calcshare,agrisummeas,by="variableUID")
+    ademoutl<-simplifytestmatrix(check = ademoutl,group = c("year","share"),compare = list(years,"range"))
+    ok1<-ademoutl$party=="IT"&ademoutl$category=="Buffalo"
+    ok2<-ademoutl$party=="DK"&ademoutl$source=="Digesters"
+    ok3<-ademoutl$party=="NL"&ademoutl$option=="Option B"
+    ok4<-ademoutl$party=="RO"&grepl("^3.F.",ademoutl$sector_number)
+    ok5<-ademoutl$party=="SE"&grepl("^3.*8$",ademoutl$sector_number)
+    ademoutl<-ademoutl[!(ok1 | ok2 | ok3 | ok4 | ok5),]
+    ademoutl$correction<-0
+    ademoutl<-ademoutl[order(ademoutl$party,ademoutl$sector_number),]
     
-    changemio<-100000000
-    changeths<-100000
-    selection<-l>changemio
-    units2change<-as.data.frame(measures2sum$variableUID[selection])
-    names(units2change)<-"variableUID"
-    units2change$unit<-measures2sum$unit[selection]
-    units2change$fact<-as.numeric(1/1000000)
-    units2change$fact[units2change$unit==""]<-1
-    
-    selection<-l>changeths & l <= changemio
-    units2changet<-as.data.frame(measures2sum$variableUID[selection])
-    names(units2changet)<-"variableUID"
-    units2changet$unit<-measures2sum$unit[selection]
-    units2changet$fact<-as.numeric(1/1000)
-    units2changet$fact[units2changet$unit==""]<-1
-    rm(units2changet)
-    
-    units2change<-rbind(units2change,units2changet)
-    units2change$newunit<-unlist(lapply(c(1:nrow(units2change)),function(x) 
-        simplifyunit(units2change$unit[x],units2change$fact[x])))
-    missing<-length(unique(units2change$unit[units2change$newunit=="not defined"]))
-    if(missing>0) View(unique(units2change$unit[units2change$newunit=="not defined"]),"unitsmiss")
-    
+    #source("eugirp_simplifyunit.r")
     calceu<-rbind(alldata,eu28sum)
-
-    calceu<-merge(calceu,units2change,by=c("variableUID","unit"),all=TRUE)
-    selection<-!is.na(calceu$newunit)
-    levels(calceu$unit)<-c(levels(calceu$unit),unique(calceu$newunit))
-    calceu$unit[selection]<-calceu$newunit[selection]
-    selection<-!is.na(calceu$fact)
-    calceu[selection,years]<-calceu[selection,years]*calceu[selection,"fact"]
     
+    # NEXC must be all changed, even if for one MMS the values are small
+    selection<- (grepl("^3",calceu$sector_number) & calceu$unit=="kg N/year")
+    calceu$unit[selection]<-"kt N/year"
+    calceu[selection,years]<-calceu[selection,years]/1000000
+    
+    #     selection<- (calceu$unit=="t N/year")
+    #     calceu$unit[selection]<-"kt N/year"
+    #     calceu[selection,years]<-calceu[selection,years]/1000
+    
+    #Remove end-blank in sector_number
+    selection<-grepl(" $",calceu$sector_number)
+    calceu$sector_number[selection]<-gsub(" $","",calceu$sector_number[selection])
+    
+    #save alldata before unit conversion as backup
+    save(alldata,eu28sum,file=gsub("_clean","_nounitconv",rdatallem))
     o<-order(calceu$sector_number,calceu$category,calceu$meastype,calceu$classification,calceu$party)
     alldata<-calceu[o,allfields]
     
-    stepsdone<-4
+    stepsdone<-3
     emplotsdone<-0
-    savelist<-c(savelist,"emplotsdone","units2change","eu28sum")
+    savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl")
     save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     source("curplot.r")
-}else{
-    print("EU sums already calculated")
+}else if(stepsdone>2){
+    print("Step 3a: EU sums already calculated")
 }
 
 # B.2 - Plots 1. Do emission plots ####
-if(stepsdone>3){
+#emplotsdone<-1
+if(stepsdone>2){
     if(doemissionplots==TRUE){
         if(emplotsdone==0){
-            print("Calculating EU-sums only for summable variables")
+            print("Step 4b: Emission plots")
             adempars<-c("AD","EM")
             source("eugirpD.2_emissionplots.r")
             emplotsdone<-1
-            #XXX do PLOTS FOR SECTOR 4 - COUNTRY PLOTS FOR EMISSIONS AND AD
             save(list=savelist,file=rdatallem)
+            stop("End of general part (Emission plots done!)")
         }else{
-            print("Emission plots already done")
+            print("Step 3b: Emission plots already done")
         }
     }else{
         if(emplotsdone==0) print("Emission plots not yet done but not requested")
         if(emplotsdone==1) print("Emission plots already done")
     }
 }
+
 #++++ END OF GENERAL PART 
 #++++ BELOW SECTOR-3 SPECIFIC PART
+# A.3 Calculate trend and growth rates ####
+if(stepsdone==3){
+    print("Step 4: Calculating trends and growth rates")
+
+    nyears<-length(years)
+    period1<-as.character(years[1]:years[nyears-1])
+    period2<-as.character(years[2]:years[nyears])
+    
+    #Select only agri-data and remove EU28
+    agriselect<-grepl("^3",alldata$sector_number) 
+    agriselect<-agriselect | alldata$sector_number=="" & alldata$classification%in%mslivestockclass
+    agriselect<-agriselect & alldata$party != "EU28"
+    allagri<-alldata[agriselect,]
+    o<-order(allagri$sector_number,allagri$category)
+    allagri<-allagri[o,]
+
+    # Add other livestock sector_numbers
+    source("eugirpB.2_otherlivestock.r")
+
+    print("# Calculate EU28 sum")
+    agrimeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
+    agri2sum<-agrimeas[agrimeas$meastype %in% meas2sum,]
+    eu28sum<-as.data.frame(matrix(rep(0,ncol(allagri)*nrow(agri2sum)),
+                                  ncol=ncol(allagri),nrow=nrow(agri2sum)))
+    names(eu28sum)<-names(allagri)
+    eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
+    eu28sum[,years]<-euvalue("sum",eu28sum,allagri,years,countriesic)
+    eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
+    eu28sum$notation[eu28sum$notation==0]<-""
+    allagri<-rbind(allagri,eu28sum)
+    
+    alltrend<-as.data.frame(matrix(0,rep(0,ncol(allagri)),ncol=ncol(allagri)))
+    alltrend<-allagri[allagri$meastype %in% meas2sum,]
+    alltrend[,period2]<-allagri[allagri$meastype %in% meas2sum,period2]-allagri[allagri$meastype %in% meas2sum,period1]
+    alltrend[,years[1]]<-NA
+    
+    mgrowth<-c(meas2popweight,meas2clima,meas2mcf)
+    allgrowth<-as.data.frame(matrix(0,rep(0,ncol(allagri)),ncol=ncol(allagri)))
+    #allgrowth<-allagri[allagri$meastype %in% mgrowth,]
+    #allgrowth[,period2]<-allagri[allagri$meastype %in% mgrowth,period2]/allagri[allagri$meastype %in% mgrowth,period1]
+    allgrowth<-allagri
+    allgrowth[,period2]<-allagri[,period2]/allagri[,period1]
+    allgrowth[is.nan(allgrowth)] <- 0
+    allgrowth[is.infinite(allgrowth)] <- 1
+    allgrowth[,years]<-round(allgrowth[,years],3)
+    allgrowth[,years[1]]<-NA
+
+    stepsdone<-4
+    savelist<-c(savelist,"allagri","alltrend","allgrowth")
+    save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    source("curplot.r")
+}else if(stepsdone>3){
+    print("Step 4: Trends and growth rates already calculated")
+}
 
 # A.3 Check for outlier errors ####
+correctionsdone<-1
+if(!exists("growthcheck")) if(exists("correctionsdone")) rm(correctionsdone)
 if(stepsdone==4){
-    print("Check for outlier errors")
-    #calcmeas<-allmeas
-    source("eugirpA.3_outlier.r")
+    
+    #Remove EU28 data as they have to be re-calculated
+    
     
     #Note: set correctionsdone to 1 if the file has been checked and update file name below
     #      if the issues are written into file, correctionsdone is set to 2 and the 
     if(exists("correctionsdone")){
         if(correctionsdone==1){
-            corrections<-read.csv(file=paste0(csvfil,"_countryoutliers~20150819.csv"),comment.char = "#",header=TRUE)
+            print("Step 5: Write out country issues and list corrections needed for IEF calculation ")
+            corrections<-read.csv(file=gsub(".csv","_checked.csv",filoutliers),comment.char = "#",header=TRUE)
+            corrections<-corrections[!is.na(corrections$cursubm),]
             donotusepar<-subset(corrections,corrections==0,select=c("party","variableUID"))
             
-            writeissue<-function(D,line){
-                con <- file(paste0(issuedir,line$party,line$sector_number,line$meastype,".csv"), open="wt")
-                writeLines(coutlexp, con)
-                writeLines(colexpl, con)
-                writeLines("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. 1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified",con)
-                write.csv(line,con)
-                writeLines(paste0("# For comparison: other MS values for sector",line$sector_number,
-                                  "- category ",line$category,
-                                  "- measure ",line$meastype,"#\n#\n"),con)
-                m<-subset(D,meastype==line$meastype & sector_number==line$sector_number & category==line$category)
-                write.csv(m,con)
-                close(con)
-                return(1)
-            }
-            issues<-sum(unlist(lapply(c(1:nrow(corrections[corrections$correction!=1,])),function(x) writeissue(alldata,corrections[x,]))))
+            source("eugirp_writeissues.r")
+            firstissue<-7
+            lastissue<-nrow(corrections[corrections$correction!=1,])
+            lastissue<-7
+            writenames<-names(corrections[!names(corrections)%in%c(docfields,resolved)])
+            issues<-sum(unlist(lapply(c(firstissue:lastissue),function(x) writeissue(allagri,corrections[x,writenames]))))
             stepsdone<-5
             correctionsdone<-2
-            savelist<-c(savelist,"growthcheck","paramcheck","corrections","correctionsdone")
+            savelist<-c(savelist,"corrections","correctionsdone")
             save(list=savelist,file=rdatallem)
+            save(list=savelist,file=gsub(".RData",paste0("_s5~",figdate,".RData"),rdatallem))
             source("curplot.r")
+            print("Comment 'correctionsdone<-1'!")
         }else if(correctionsdone==2){
-            print("Corrections done and outlier issues written to files")
+            print("Required corrections identified and outlier issues written to files")
         }
     }else{
-        print("Corrections need to be done and 'correctionsdone' set MANUALLY to 1")
+        print("Check for outlier errors")
+        source("eugirp_obligatoryemissions.r")
+        source("eugirpA.3_outlier.r")
+
+        
+        # Key source categories ####
+        keycats<-read.table("keycategories.txt")
+        keycats<-as.vector(keycats$V1)
+        
+        select<-alldata$variableUID%in%keycats
+        keycategories<-alldata[select,]
+
+        select<-allmethods$variableUID%in%keycats
+        keymethods<-allmethods[select,]
+        agrimethods<-allmethods[grepl("^3",allmethods$sector_number),]
+        agrimethods<-agrimethods[agrimethods$notation!="NA",]
+        
+        select<-keycategories$gas=="CH4"
+        keycategories[select,years]<-keycategories[select,years]*gwps[1]
+        select<-keycategories$gas=="N2O"
+        keycategories[select,years]<-keycategories[select,years]*gwps[3]
+        
+        select<-alldata$gas=="Aggregate GHGs" & grepl("^[1-6].$",alldata$sector_number)
+        select<-select | alldata$gas=="Aggregate GHGs" & grepl("Total",alldata$sector_number)
+        totem<-alldata[select,]
+        
+        View(totem)
+        
+        if(nrow(ademoutl)>0){write.csv(ademoutl,file=paste0(invloc,"/checks/checks",cursubm,"ADEMoutliers.csv"))}
+        savelist<-c(savelist,"growthcheck","paramcheck","autocorrections")
+        save(list=savelist,file=rdatallem)
+        save(list=savelist,file=gsub(".RData",paste0("_s5~",figdate,".RData"),rdatallem))
+        stop("Outliers need to be checked and 'correctionsdone' set MANUALLY to 1")
     }
 }else if(stepsdone>4){
-    print("Check for outlier errors already done")
+    print("Step 5: Check for outlier errors already done")
 }
-
-stop("Not further developed")
 
 # B.1 Calculate EU sums and weighted averages ####
 # 
-if(stepsdone==4){
-    print("Calculate EU weighted averages")
-    #calcmeas<-allmeas
+#stepsdone<-5
+if(stepsdone==5){
+    print("Step 6: Calculate EU weighted averages")
+    
     source("eugirpB.1_euvalues.r")
-
-    stepsdone<-5
+    
+    stepsdone<-6
     save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    save(stepsdone,alldata,allnotations,allinfos,assignad2par,file=rdatallem)
+    savelist<-c(savelist,"allagri","assignad2par")
+    save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s6~",figdate,".RData"),rdatallem))
     source("curplot.r")
-}else if(stepsdone>4){
-    print("EU sums and weighted averages already calculated")
+}else if(stepsdone>5){
+    print("Step 6: EU weighted averages already calculated")
 }
-
-#Update countries
-allcountries<-unique(as.vector(alldata$party))
-allcountries<-allcountries[order(allcountries)]
-countries<-as.data.frame(allcountries)
-names(countries)<-"party"
-
 
 
 # C - Make checks for sector 3 ####
-if(stepsdone==5) {
-    load(rdatmeasu)
+if(stepsdone==6) {
+    print("Step 7: Make specific checks for Sector 3")
+    #load(rdatmeasu)
 
-    source("checkcat3_1ADs.r")
-    source("checkcat3_2Nex.r")
     
-    cat3checks<-rbind(checks,check1,check2,check3,check4,check5)
-    stepsdone<-6
-    save(stepsdone,cat3all,cat3alltab,checkuids,cat3checks,file=rdatcat3)
-    save(stepsdone,alldata,alltrend,allgrowth,allnotations,allinfos,assignad2par,file=rdatallem)
+    source("agrichecks1ADs.r")
+    source("agrichecks2Nex.r")
+    
+    agrichecks<-rbind(checks,check1,check2,check3,check4,check5)
+    #stepsdone<-7
+#     savelist<-c(savelist,"checkuids","agrichecks","climchecks")
+#     save(stepsdone,allagri,allagritab,assignad2par,checkuids,agrichecks,climchecks,file=rdatagri)
+#     save(list=savelist,file=gsub(".RData",paste0("_s7~",figdate,".RData"),rdatallem))
+#     save(list=savelist,file=rdatallem)
+#     source("curplot.r")
+}else if(stepsdone>6){
+    print("Step 7: Sector 3 checks already done")
+}
+
+# C - Make checks for sector 3 ####
+if(stepsdone==7) {
+    print("Step 7: Make additional plots for sector 3")
+
+    #Attentions: for plots the identified issues need to be corrected again
+    #(the data base has not been changed, it was just corrected for EU-weighted parameters)
+    # Trend plots for AD-EM
+    
+    # IEF plots
+    source("eugirpD.2_iefplots.r")
+    
+    # Trend plots for IEF
+    
+    # Country-plots for IEF
+ 
+    #stepsdone<-8
     source("curplot.r")
-}else if(stepsdone>5){
-    print("Sector 3 checks already done")
-}
-
-
-
-# Lists of all categorysources, measuregases, units, partys 
-# - In the following partys are rows, units are not required (now)
-#   and categorysources and measuregases are distributed over individual tables
-#source("lists.txt")
-
-
-#listnomeasures<-c("INFO","METHOD",NA)
-#curmeasu<-curmeasu[! curmeasu %in% listnomeasures]
-#colnames(categorymatrix)[7:(6+nyears)]<-years
-
-
-print("#Generate matrix 'focus' of tasks from curplot.csv indicating: ")
-# - Activity data (are required for AD plots and IEF plots for weighting)
-# - Parameter to plot (AD, EM, IEF, or other factor)
-# - Data type (determined automatically: summable (AD) or averageable (IEF))
-# - Focus: value plot (as trend), 
-#          trend plot (as inter-annual changes), 
-#          country plot (range as values from trend)
-#if(dotaskdetails[4]=="all"){
-#domeasu<-as.vector(curcatmeas$meastype)
-#docateg<-as.vector(curcatmeas$sector_number)
-
-# focusmatrix ####
-#nfocus<-length(domeasu)
-focusmatrix<-as.data.frame(unique(subset(categorymatrix,select=c(sector_number,allmethods,gas,meastype,variableUID)))[,1:5])
-if(domeasu[1]=="all") domeasu<-as.vector(unique(focusmatrix$meastype))
-
-nfocus<-nrow(focusmatrix)
-names(focusmatrix)<-c("cat","met","gas","par","uid")
-
-# AD-uid is required to calculate weighted IEFs 
-#   Problem: sometimes the 'category' contains the level with the AD
-#            sometimes AD is differentiated by 'allmethods'
-#            if no AD-uid is found (mainly aggregated levels) - delete the row
-#            if there is multiple AD (e.g. population, N excretion per MMS) - this must be corrected (i.e. N exc per MMS ==> EM)
-
-focusmatrix$met<-as.character(focusmatrix$met)
-focusmatrixlength<-subset(focusmatrix,select=c(cat,met,par))
-focusmatrixlength$ncat<-unlist(lapply(c(1:nfocus),function(x) 
-    length(unlist(focusmatrix$uid[focusmatrix[,"cat"]==focusmatrix$cat[x] & 
-                                      focusmatrix[,"met"]==focusmatrix$met[x] & 
-                                      focusmatrix[,"par"]=="AD"]))))
-focusmatrixlength$nsec<-unlist(lapply(c(1:nfocus),function(x) 
-    length(unlist(focusmatrix$uid[focusmatrix[,"cat"]==focusmatrix$cat[x] & 
-                                      focusmatrix[,"par"]=="AD"]))))
-
-focusmatrix$aduid<-unlist(lapply(c(1:nfocus),function(x) 
-    if(focusmatrixlength$ncat[x]==1){
-        as.vector(focusmatrix$uid[focusmatrix[,"cat"]==focusmatrix$cat[x] & focusmatrix[,"met"]==focusmatrix$met[x] & focusmatrix[,"par"]=="AD"])
-    }else if(focusmatrixlength$nsec[x]==1){
-        as.vector(focusmatrix$uid[focusmatrix[,"cat"]==focusmatrix$cat[x] & focusmatrix[,"par"]=="AD"])
-    } else {focusmatrixlength$ncat[x]}
-))
-focusmatrix<-focusmatrix[focusmatrix$aduid!=0,]
-
-# Check for multiple ADs ####
-# Multiple ADs for a measure detected: generate data frame to investigate the problem
-if(searchline)print(436)
-multipleads<-focusmatrix[nchar(focusmatrix[,"aduid"])<=30,]
-datamultipleaduids<-alldatanovalues[alldatanovalues$variableUID %in% focusmatrix$uid,]
-if(nrow(multipleads)>0){
-    totads<-sum(as.numeric(multipleads$aduid))
-    totmad<-nrow(multipleads)
-    multipleaduids<-multipleads$uid
-    
-    datamultipleadsuid<-as.data.frame(unlist(lapply(c(1:totmad),function(x) rep(multipleads$uid[x],multipleads$aduid[x]))))
-    for(tmpnames in c("cat","met","gas","par")){
-        print(tmpnames)
-        datamultipleadsuid[,tmpnames]<-unlist(lapply(c(1:totmad),function(x) 
-            rep(multipleads[x,tmpnames],multipleads$aduid[x])))
-    }
-    
-    datamultipleadsuid$aduid<-unlist(lapply(c(1:totmad),function(x) 
-        multipleads$uid[multipleads[,"cat"]==multipleads$cat[x] & multipleads[,"met"]==multipleads$met[x] & multipleads[,"par"]=="AD"]))
-    
-    datamultipleaduids<-alldatanovalues[alldatanovalues$variableUID %in% datamultipleadsuid$aduid,]
-    
-    View(datamultipleadsuid)
-    View(datamultipleaduids)
-    View(multipleads)
-    
-    stop("Multiple ADs found for the measures",.call=FALSE)
-    #Check with: 
-    #View(alldatanovalues[grepl("3.B.1.1 Non-Dairy Cattle",alldatanovalues$sector_number),])
-    
-}
-if(nrow(focusmatrix)==0){stop("Nothing to do!")}
-
-if(docategall){
-    focusmatrix$allfoci<-unlist(lapply(focusmatrix$par,function(x) 
-        (!sum(adempars %in% x))*1 + (sum(adempars %in% x)*1) ))
-    focusmatrix$nrep<-unlist(lapply(focusmatrix$par,function(x) 
-        (!sum(adempars %in% x))*1 + (sum(adempars %in% x)*1) ))
-}else{ 
-    focusmatrix$allfoci<-unlist(lapply(focusmatrix$par,function(x) 
-        (!sum(adempars %in% x))*7 + (sum(adempars %in% x)*3) ))
-        #(!sum(adempars %in% x))*(doplots) + (sum(adempars %in% x)*3) ))
-    focusmatrix$nrep<-unlist(lapply(focusmatrix$par,function(x) 
-        (!sum(adempars %in% x))*3 + (sum(adempars %in% x)*2) ))
-        #(!sum(adempars %in% x))*(doplots%%4) + (sum(adempars %in% x)*2) ))
-}    
-
-if(searchline)print(481)
-focuscols<-sum(focusmatrix$nrep)
-focusmeas<-focusmatrix$par
-focuscats<-focusmatrix$cat
-focusmets<-focusmatrix$met
-focusgass<-focusmatrix$gas
-
-focusrows<-c(1:nrow(focusmatrix))
-
-focusfoc<-focusmatrix$allfoci
-print("Generate focus-data frame")
-focus<-as.data.frame(matrix(NA,nrow=focuscols,ncol=9))
-names(focus)<-c("ad","parameter","datatype","focus","category","method","gas","uid","aduid")
-focus[,1]<-"AD"
-focus[,2]<-unlist(lapply(focusmeas, function(x) rep(x,focusmatrix$nrep[focusmatrix$par==x][1])))
-focus[,5]<-unlist(lapply(focusrows, function(x) rep(focusmatrix$cat[x],focusmatrix$nrep[x])))
-focus[,6]<-unlist(lapply(focusrows, function(x) rep(focusmatrix$met[x],focusmatrix$nrep[x])))
-focus[,7]<-unlist(lapply(focusrows, function(x) rep(focusmatrix$gas[x],focusmatrix$nrep[x])))
-focus[,8]<-unlist(lapply(focusrows, function(x) rep(focusmatrix$uid[x],focusmatrix$nrep[x])))
-focus[,9]<-unlist(lapply(focusrows, function(x) rep(focusmatrix$aduid[x],focusmatrix$nrep[x])))
-focus[,3]<-unlist(lapply(focusmeas, function(x) rep(if(x %in% adempars){"adem"}else{"ief"},focusmatrix$nrep[focusmatrix$par==x][1])))
-focus[,4]<-unlist(lapply(focusfoc,  function(x) 2**((which((as.integer(intToBits(x))[1:3]) %in% 1)-1))))
-
-focus<-focus[focus$focus %in% doplotsv,]
-focuscols<-nrow(focus)
-
-
-
-# PART B loop over focuscols ####
-#Select focus        
-#for (numrun in 1:(focuscols)){
-for (numrun in 800:902){
-    #        for (numrun in 5:5){
-    #B1.Copy run-parameter #### 
-    # numrun<-1            
-    print(paste0("#Copy plot-requests to current plot for numrun=",numrun))
-    stophere<-FALSE
-    runad   <-as.vector(focus[numrun,1])
-    runpar  <-as.vector(focus[numrun,2])
-    rundata <-as.vector(focus[numrun,3])
-    runfocus<-as.vector(focus[numrun,4])
-    runcateg<-as.vector(focus[numrun,5])
-    runmethod<-as.vector(focus[numrun,6])
-    rungas<-as.vector(focus[numrun,7])
-    runuid<-as.vector(focus[numrun,8])
-    runaduid<-as.vector(focus[numrun,9])
-    runmatrix<-subset(categorymatrix,variableUID==runuid & sector_number==runcateg)
-    #selectcountries<-curparts[curparts %in% as.vector(runmatrix$party)]
-    runparts<-curparts[curparts %in% runmatrix$party]
-    admatrix<-subset(categorymatrix,variableUID==runaduid & party %in% curparts)
-    
-    
-    #if(docat3==TRUE & (runpar=="AD" | runpar=="EM")){stophere<-TRUE}
-
-    runtotal<-sum(runmatrix[,as.character(years)])
-    adtotal<-nrow(admatrix)
-    if(adtotal>0){adtotal<-sum(admatrix[,as.character(years)])}
-    
-    if(runfocus==1){runfocus<-"value"}
-    if(runfocus==2){runfocus<-"trend"}
-    if(runfocus==4){runfocus<-"countries"}
-    
-    print(paste("Current task ",numrun,". AD=",runad,". Par=",runpar,". cudat=",focus[numrun,3],". curplot=",focus[numrun,4],sep=""))
-
-    
-
-    # B3. eealocator: Copy data of relevance to the eealocator data frame ####
-    # Get unit for parameter
-    if(searchline)print(597)
-    if((runpar=="AD") & (runpar %in% curmeasu)){
-        eealocator<-actcount
-        curunit<-unitad
-    } else if((runpar=="EM") & (runpar %in% curmeasu)){
-        eealocator<-emicount
-        curunit<-unitem
-    } else if((runpar=="IEF") & (runpar %in% curmeasu)){
-        eealocator<-iefcount
-        curunit<-unitief
-    } else {
-        
-        tmp1<-subset(runmatrix,meastype==runpar,select=-meastype)
-        curunit<-as.vector(unique(subset(tmp1,select=unit))[,1])
-        parparties<-t(as.vector(subset(tmp1,select=party)))
-        eealocator<-subset(tmp1,select=c(-gas,-unit,-party,-allmethods,-variableUID,-sector_number))
-        row.names(eealocator)<-parparties                
-    }
-    
-    # PART C: processing and plotting ####
-    if(nrow(eealocator)==0){stophere<-TRUE}else if(sum(eealocator)==0){stophere<-TRUE}
-
-    if(stophere==FALSE){
-        #rm(list=c("tmp0","tmp1","tmp2","tmp3"))
-        
-        #print("# FOR TEST PURPOSE: ADD RANDOM NUMBER TO INCREASE NUMBER OF COUNTRIES")
-        # addrandomcountries in case there is none ####
-        addrandomcountries<-0
-        if(searchline)print(625)
-        if(addrandomcountries==1){
-            attributes<-as.matrix(read.table("attributes.txt",header=T,row.names=1,check.names=F))
-            allcountries<-row.names(attributes)
-            allcountries<-allcountries[allcountries != "Other"]
-            restcountries<-allcountries[! allcountries %in% curparts]
-            #Add countries
-            nnewc<-25
-            newcn<-restcountries[sample(1:length(restcountries),nnewc,replace=FALSE)]
-            #Multiplicate with random between 0.7 and 1.3 times values
-            randommulp<-matrix(runif(nyears*nnewc,min=0.9,max=1.2),ncol=nyears)
-            
-            pick<-matrix(sample(0:1,nyears*length(curparts),replace=T),ncol=nyears)
-            pick[2,]<-1-pick[1,]
-            pick<-as.vector(t(colSums(eealocator*pick)))
-            newcv<-randommulp*pick
-            rownames(newcv)<-newcn
-            colnames(newcv)<-years
-            eealocator2<-rbind(eealocator,newcv)
-            eealocator<-eealocator2
-        }
-        
-        #B.2: Growth rates ####
-        
-        if (rundata=="adem"){eeatrend<-abstrend}
-        if (rundata=="ief") {eeatrend<-growth}
-        if (runfocus=="trend" && runpar=="EM" && "AD" %in% curmeasu && ("IEF" %in% curmeasu)){
-        }
-        
-        if(searchline)print(698)
-        if(dotrendoutl==1){
-            trendoutlmethod<-2
-            
-            # Save quantiles for growth rate
-            growthquantiles<-t(apply(growth, 1, quantile, probs = c(0.25, 0.5, 0.75),  na.rm = TRUE))
-            eeaquantiles<-t(apply(eealocator, 1, quantile, probs = c(0.25, 0.5, 0.75),  na.rm = TRUE))
-            
-            # Median absolute deviation of the absolute deviations from the median
-            growthmad<-apply(growth, 1, mad,  na.rm = TRUE)
-            eealocatormad<-apply(eealocator, 1, mad,  na.rm = TRUE)
-            
-            #print("# Mulitply with factor according to outl Tool")
-            #growthmadn<-growthmad/0.6745
-            
-            if(trendoutlmethod==1){
-                # Method 1 in outl tool: Deviation from median
-                growthmeddevtest<-abs(growth-growthquantiles[2,])>2*growthmadn
-                meddevtest<-abs(eealocator-eeaquantiles[2,])>2*eealocatormadn
-                
-            } else if (trendoutlmethod==2){
-                # Method 2 in outl tool
-                bxplf <- 0.953
-                #uwhisk = mdian + (1 + bxplf) * (uquart - mdian)
-                #lwhisk = mdian + (1 + bxplf) * (lquart - mdian)
-                growthuwhisk<-growthquantiles[,2]+(1 + bxplf)*(growthquantiles[,3]-growthquantiles[,2])
-                growthlwhisk<-growthquantiles[,2]+(1 + bxplf)*(growthquantiles[,1]-growthquantiles[,2])
-                growthmeddevtest<-(growth>growthuwhisk) | (growth<growthlwhisk)
-                
-                uwhisk<-eeaquantiles[,2]+(1 + bxplf)*(eeaquantiles[,3]-eeaquantiles[,2])
-                lwhisk<-eeaquantiles[,2]+(1 + bxplf)*(eeaquantiles[,1]-eeaquantiles[,2])
-                meddevtest<-(eealocator>uwhisk) | (eealocator<lwhisk)
-            }
-            
-            growthoutl<-growthmeddevtest*growth
-            eealocatoroutl<-meddevtest*eealocator
-            ngrowthoutl<-sum(growthoutl!=0,na.rm=TRUE)
-            neealocatoroutl<-sum(eealocatoroutl!=0)
-            #print("#unlist(growthoutl)")
-            
-            if(ngrowthoutl>0){
-                #listofoutls<-which(unlist(subset(growthoutl,select=-country))!=0)
-                listofoutls<-which(unlist(growthoutl)!=0)
-                growthoutl$country<-row.names(growthoutl)
-                growthoutllist<-melt(growthoutl,id.vars="country",na.rm=T)[listofoutls,]
-                #al20150727 - why originally 'nrow(growth)-...'?? 
-                #cntyid<-nrow(growth)-(listofoutls %% nrow(growth))
-                cntyid<-(listofoutls %% nrow(growth))
-                cntyid[cntyid==0]<-nrow(growth)
-                #get year-ID
-                yearid<-ceiling(listofoutls/nrow(growth))
-                growthoutllist<-cbind(cursubm,runcateg,runpar,"growth",
-                                      growthoutllist,growthquantiles[cntyid,],
-                                      row.names=NULL)
-            }
-            #paste0(runcateg,runpar)
-        }
-        
-        
-        
-        # B.3-selectcountries ####    
-        if(searchline)print(759)
-        
-        #print("#Define trend data frame")
-        if (runfocus=="trend"){curmatrix<-eeatrend}
-        if (runfocus=="value"){curmatrix<-eealocator}
-        if (runfocus=="countries"){curmatrix<-eealocator}
-        
-        # B.3a-selectcountries-adem ####    
-        if(rundata=="adem"){
-            #print("Calculate EU data")
-            # Value-plot
-            eu28<-colSums(curmatrix,na.rm=T)
-            
-            temp<-curmatrix
-            temp[temp<=0]<-NA
-            eu28pos<-colSums(temp,na.rm=T)
-            eu28pos[eu28pos==0]<-NA
-            
-            temp<-curmatrix
-            temp[temp>=0]<-NA
-            eu28neg<-colSums(temp,na.rm=T)
-            eu28neg[eu28neg==0]<-NA
-            
-            rel<-t(t(curmatrix)/eu28)
-            relav<-rowMeans(rel)
-            
-            # Trend-plot 
-            eu28.trend<-colSums(eeatrend)
-            rel.trend<-abs(eeatrend)
-            relav.trend<-rowSums(rel.trend)/sum(abs(eu28.trend))
-            
-
-            if(runfocus=="value"){
-                topneu28<-head(relav[order(relav,decreasing=T,na.last=T)],topn)
-                topother<-tail(relav[order(relav,decreasing=T,na.last=T)],max(0,nrow(curmatrix)-topn))
-                topn<-length(topneu28)
-                topno<-max(0,nrow(curmatrix)-topn)
-    
-                textorderadem1<-"Countries are sorted by the average contribution to the sum of EU28 value over the the whole time period. "
-                textorderadem2<-paste0("The top ",topn," countries are displayed. ")
-                textorderadem3<-paste0("The other ",topno," countries with data are lumped to 'other'.")
-                textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
-            }
-            
-            if(runfocus=="trend"){
-                topneu28<-head(relav.trend[order(relav.trend,decreasing=T,na.last=T)],topn)
-                topother<-tail(relav.trend[order(relav.trend,decreasing=T,na.last=T)],max(0,nrow(curmatrix)-topn))
-                topn<-length(topneu28)
-                topno<-max(0,nrow(curmatrix)-topn)
-                
-                textorderadem1<-paste0("Countries are sorted by the magnitude of their (absolute) inter-annual changes over the year ",min(years),"-",max(years),". ")
-                textorderadem2<-paste0("The top ",topn," countries are displayed. ")
-                textorderadem3<-paste0("The other ",topno," countries with data are lumped to 'other'.")
-                textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
-            }
-        }
-        
-        # B.3a-selectcountries-ief ####    
-        if(searchline)print(818)
-        if(rundata=="ief"){
-
-            eu28pos<-max(curmatrix,na.rm=T)
-            eu28neg<-min(curmatrix,na.rm=T)
-                
-            eu28mean<-colMeans(curmatrix,na.rm=T)
-            #if((runfocus=="value") & ("AD" %in% curmeasu)){
-            if((runfocus=="value") & sum(acteu28>0)){
-                #Some parameter are not reported from all countries
-                eu28<-colSums(curmatrix[rownames(curmatrix) %in% rownames(actcount),]
-                             *actcount[rownames(actcount) %in% rownames(curmatrix),])/
-                      colSums(actcount[rownames(actcount) %in% rownames(curmatrix),])
-            }else{
-                eu28<-eu28mean
-            }
-            
-            #Calculate relative value
-            if(runfocus=="value"){
-                rel<-t(t(curmatrix)/eu28)
-                #Use absolute relative deviation as sorting criterium
-                #Store the maximum absolute relative deviation
-                relabs<-abs(1-rel)
-                relav<-rowMeans(relabs,na.rm=T)
-                relav<-apply(relabs,1,max,na.rm=T)
-
-            }
-            if(runfocus=="countries"){
-                #Relative value against the mean value used by MS over the years
-                rel<-curmatrix/apply(curmatrix,1,mean,na.rm=T)
-                #Largest range of values; in case of negative values rel calculate distance vs max value
-                relabs<-((apply(curmatrix,1,max,na.rm=T)-apply(curmatrix,1,min,na.rm=T))
-                         /apply(curmatrix,1,max,na.rm=T)
-                         )
-                relav<-relabs
-            
-            }
-            if(runfocus=="trend"){
-                rel<-eeatrend
-                #Use absolute relative deviation as sorting criterium
-                #Store the maximum absolute relative deviation
-                relabs<-(abs(rel))
-                relav<-rowMeans(relabs,na.rm=T)
-                relav<-apply(relabs,1,max,na.rm=T)
-                relav<-relav[!is.na(relav)]
-            }
-            
-            #Keep only those values to plot which are not overlaying the boxplot
-            #Attention: the endrange might make 'disappear' points that would be expected...
-            endrange<-0.1
-            
-            lowerend<-apply(curmatrix,2,function(x) quantile(x,probs=(0.5-endrange),na.rm=T)) 
-            upperend<-apply(curmatrix,2,function(x) quantile(x,probs=(0.5+endrange),na.rm=T)) 
-            lowerok<-(curmatrix<lowerend)
-            upperok<-(curmatrix>upperend)
-            relna<-lowerok+upperok
-            
-            
-            #20150726 - commented keep for a while...
-            #Trend from time series (do not use the mean trend)
-            #eu28.trendmean<-colMeans(eeatrend,na.rm=T)
-            #eu28.trend<-eu28[2:nyears]/eu28[1:(nyears-1)]
-            #rel.trend<-t(t(eeatrend)/eu28.trend)
-            #relav.trend<-rowMeans(rel.trend,na.rm=T)
-            
-            relplot=curmatrix*relna
-            
-            if(runfocus=="value"){
-                relplot[relplot==0]<-NA
-                #Criterion for selecting country: largest average deviation from EU average
-                # --nr.rm=F keeps only those countries which have large deviations for the whole time series
-                #relav<-rowMeans(relplot,na.rm=F)
-            }
-            
-            if(runfocus=="trend"){
-                #Criterion for selecting country: largest internnual change in timeseries
-                #relav<-apply(relplot,1,max)
-                relplot[relplot==0]<-NA
-            }  
-            
-            #---> first determine number of non-NA elements
-            topn<-min(10,length(sort(relav,decreasing=F)))
-            topneu28<-head(relav[order(relav,decreasing=T,na.last=T)],topn)
-            topneu28<-sort(topneu28,decreasing=F)
-            topother<-tail(relav[order(relav,decreasing=T,na.last=T)],max(0,nrow(curmatrix)-topn))
-            
-            topn<-length(topneu28)
-            topno<-max(0,nrow(curmatrix)-topn)
-
-            if(runfocus=="value"){
-                textiefval1<-"EU28+IC value is obtained from a weighted average of country-values. "
-                textiefval2<-"The relative distance from MS/EU28 value is calculated for each year (e.g. 10% smaller). "
-                textiefval3<-"Countries are sorted by average relative distance calculated over the whole time period. "
-                textiefval4<-paste0("The top ",topn," countries are displayed. ")
-                textiefval5<-paste0("The other ",topno," countries with data are lumped to 'other'.")
-                textorder<-paste0(textiefval1,textiefval2,textiefval3,textiefval4,textiefval5)
-            }
-            if(runfocus=="countries"){
-                textiefcnt3<-"Countries are sorted by their relative range of IEFs over the whole time period. "
-                textiefcnt4<-paste0("The top ",topn," countries are displayed. ")
-                textiefcnt5<-paste0("The other ",topno," countries with data are lumped to 'other'.")
-                textorder<-paste0(textiefcnt3,textiefcnt4,textiefcnt5)
-            }
-            if(runfocus=="trend"){
-                textorderadem1<-"Countries are sorted by the average growth rate over the whole time period. "
-                textorderadem2<-paste0("The top ",topn," countries are displayed. ")
-                textorderadem3<-paste0("The other ",topno," countries with data are lumped to 'other'.")
-                textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
-            }
-            
-        }
-        
-        #print("Determine the the top n countries contributing on average most to EU28 values")
-        if(searchline)print(931)
-        topnnames<-names(topneu28)
-        toponames<-names(topother)
-        ncountries<-min(topn,length(topnnames))+min(1,length(toponames))
-        
-        #print("Extract top n countries from dataset and group other together for plotting")
-        eu28main<-curmatrix[topnnames,]
-        eu28rest<-curmatrix[toponames,]
-        if(rundata=="ief" && runfocus=="trend"){
-            eu28main<-relplot[topnnames,]
-            eu28rest<-relplot[toponames,]
-        }
-        if(rundata=="adem"){
-            Other<-colSums(eu28rest,na.rm=T)
-        }else{
-            Other<-colMeans(eu28rest,na.rm=T)
-            if((runfocus=="value") & sum(acteu28>0)){
-                #Some parameter are not reported from all countries
-                Other<-colSums(eu28rest*actcount[rownames(eu28rest),])/
-                       colSums(actcount[rownames(eu28rest),])
-            }
-        }
-        
-        #print("# ---> combine Main countries with the 'other' countries")
-        if(length(toponames)>0){
-            eu28fin<-rbind(eu28main,Other)
-        }else{
-            eu28fin<-eu28main
-            #20150727 commented because the '1' for 'other' is already excluded (line 915)
-            #ncountries<-ncountries-1
-        }
-        if(length(toponames)>0){
-            finnames<-c(row.names(eu28fin)[1:(ncountries-1)],"Other")
-        }else{
-            finnames<-row.names(eu28fin)
-        }
-        eu28fin<-as.matrix(eu28fin)
-        
-        #rownames(eu28fin)<-finnames
-        finshares<-rowMeans(eu28fin,na.rm=T)/mean(eu28)*100
-        finshares[is.na(finshares)]<-0
-        
-        if(runfocus=="trend"){
-            # Calculate the finshares from trend over total time period
-            
-        }
-        if(searchline)print(977)
-        if(!(sum(eu28fin,na.rm=TRUE)==0)) {source("nirplots.r")}
-        
-        #nirplotsdone<-nirplots(curmatrix,eu28fin,eu28,rundata,runfocus,runcateg,runpar,curfoc)
-    }else{
-        print("sum(eealocator)==0")
-    }
+}else if(stepsdone>7){
+    print("Step 7: All Sector-3 plots already done")
 }
 

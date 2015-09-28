@@ -1,34 +1,5 @@
 library(reshape2) #required for melt function - for outls
-trendoutlmethod<-2
-maxr<-5
-colexpl<-paste0("# Explanation of column names (different from CRF-dimensions)\n",
-                "# min-max: minimum (ignoring reported zeroes) and maximum values\n",
-                "# lwhisk-uwhisk: lower and upper 'whisker'. Values below the lower whisker",
-                " or above the upper whisker are considered as outliers.",
-                " The whiskers are determined to cover 95% of values when they were normally distributed.",
-                "# p25-p50-p75: 25percentile-50percentile (median)-75percentile ",
-                "of the distribution of growth rates for the variable in the ",
-                "country over time period",years[1],"-",years[length(years)],"\n",
-                "# range: max:min ratio - zeros excluded\n",
-                "# value: list of outlier values identified-space separated\n",
-                "# variable: list of years for which outlier values were identified\n",
-                "# years: Values reported")
-coutlexp<-paste0("# File created by EU-GIRP v.4 on ",figdate,"\n",
-                 "# List of country outliers. Outliers were identified with the following criteria",
-                 "# (1) Country value outside of the '95% confidence interval'.",
-                 "I.e. the value was outside the range of median +/- 1.953 x (median-75percentile/25percentile)",
-                 " - (see whiskers)",
-                 "of the values reported for the variable during the time period and ",
-                 "by all countries by which this variable is reported",
-                 "# (2) To exclude minimim deviations though the country values ",
-                 "which are not more different that 10% from the median ",
-                 "are NOT considered as outliers",
-                 "# (3) A wide distribution indicates systematic errors ",
-                 "(e.g. wrong unit used by MS(s)); therefore values with a ratio ",
-                 "of 75perc/50perc or 50perc/25perc of more than ",maxr,
-                 " are considered as outliers")
-
-
+source("eugirp_writeissues.r")
 restrictdata<-function(growthdata,measures){
     growthmeas<-unique(subset(growthdata,select=allfields[!allfields %in% c("notation","party",years)]))
     growthmeas<-growthmeas[growthmeas$meastype %in% measures,]
@@ -59,7 +30,6 @@ restrictdata<-function(growthdata,measures){
     }
     return(growthmeas)
 }
-
 selquantiles<-function(D){
     #View(D)
     quantls<-c(0.25, 0.5, 0.75)
@@ -70,7 +40,20 @@ selquantiles<-function(D){
     z<-c(mi,q,mx)
     return(z)
 }
+selmeansd<-function(D){
+    #View(D)
+    quantls<-c(0.5)
+    Dnozero<-matbyind(D = D,v = which(D!=0,arr.ind = TRUE))
+    mi<-min(Dnozero)
+    mx<-max(Dnozero)
+    mean<-mean(Dnozero)
+    std<-sd(Dnozero)
+    q<-(as.vector(quantile(Dnozero,probs=quantls,na.rm=TRUE)))
+    z<-c(mean,std)
+    return(z)
+}
 
+# Growthdata and paramdata initialization ####
 noemissions<-c(meas2popweight,meas2clima,meas2mcf,meas2sum[!meas2sum%in%"EM"])
 growthdata<-allgrowth
 growthmeas<-restrictdata(growthdata,noemissions)
@@ -79,8 +62,8 @@ growthdata<-growthdata[growthdata$party!="EU28",]
 growthdata<-growthdata[order(growthdata$sector_number,growthdata$category),]
 growthmeas<-growthmeas[order(growthmeas$sector_number,growthmeas$category),]
 
-parammeasures<-c(meas2popweight,meas2mcf)
-paramdata<-alldata
+parammeasures<-c(meas2popweight,meas2mcf,"POP")
+paramdata<-allagri
 parammeas<-restrictdata(paramdata,parammeasures)
 parammeas<-parammeas[parammeas$measure!="Nitrogen excretion per MMS",]
 parammeas<-parammeas[order(parammeas$sector_number,parammeas$category),]
@@ -88,35 +71,29 @@ paramdata<-paramdata[paramdata$variableUID %in% parammeas$variableUID,]
 paramdata<-paramdata[paramdata$party!="EU28",]
 paramdata<-paramdata[order(paramdata$sector_number,paramdata$category),]
 
-# CORRECTION OF ERRONEOUS VALUES ####
-writecorrection<-function(v,P,mult,name){
-    if(nrow(v)>0) {
-        v<-unique(v[,1])
-        before<-P[v,]
-        P[v,years]<-t(Reduce(cbind,lapply(c(1:length(v)),function(x) t(100*P[v[x],years]))))
-        after<-P[v,]
-        before$corr<-0
-        after$corr<-1
-        c<-paste(as.vector(unique(before$party)),collapse="-")
-        
-        con <- file(paste0(issuedir,name,"_",c,".csv"), open="wt")
-        writeLines("# Data before correction\n#",con)
-        write.csv(before,con)
-        writeLines("#\n#\n# Data after correction\n#",con)
-        write.csv(after,con)
-        close(con)
-    }
-    return(P)
-}
+# Autocorrections - detected errors in units etc. ####
+#empty data.frame http://stackoverflow.com/questions/10689055/create-an-empty-data-frame
+autocorrections<-data.frame(Characters=character(),Characters=character(),Ints=integer())
+names(autocorrections)<-c("variableUID","party","autocorr")
 
 # DIGESTIBILITY (Table 3As2) is in % - multiply values < 1 with 100
+mult<-100
 v<-which(paramdata$meastype=="DIGEST" & paramdata[years]<1 & paramdata[years]!=0,arr.ind = TRUE)
-paramdata<-writecorrection(v,paramdata,100,"DIGEST")
-    
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"DIGEST"
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
+
 # FRACBURN can must have data below 1 (unit is fraction not percent)
 # ... but if it is there is no 'outlier' that can be identified ... therefore remove from list
 v<-which(paramdata$meastype=="FracBURN" & paramdata[years]>=1,arr.ind = TRUE)
-paramdata<-writecorrection(v,paramdata,0.01,"FracBURN")
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"FracBURN"
+mult<-0.01
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
 v<-which(paramdata$meastype=="FracBURN" & paramdata[years]<1 & paramdata[years]>=0,arr.ind = TRUE)
 if(nrow(v)>0) {
     v<-unique(v[,1])
@@ -125,24 +102,77 @@ if(nrow(v)>0) {
 # DIRECT N2O EMISSIONS - IEF FRACTION NOT PERCENT (DIVIDE BY 100)
 v<-which((grepl("3.D.1.[14]",paramdata$sector_number) | grepl("3.D.2.[12]",paramdata$sector_number)) & 
              paramdata$meastype=="IEF" & paramdata[years]>=1,arr.ind = TRUE)
-paramdata<-writecorrection(v,paramdata,0.01,"N2OIEF")
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"N2OIEF"
+mult<-0.01
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
+
+# VEXC - VALUES MUST BE REPORTED IN (kg dm/head/day)
+#        VALUES >>100 ARE LIKELY IN (kg dm/head/YEAR) - (DIVIDE BY 365)
+v<-which(paramdata$meastype=="VEXC" & paramdata[years]>100,arr.ind = TRUE)
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"DIGEST"
+mult<-1/365
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
 
 # YM - VALUE REPORTED 10 TIMES TOO HIGH (OCCURS FOR GR)
 v<-which((grepl("3.A.1",paramdata$sector_number) ) & 
              paramdata$meastype=="YM" & paramdata[years]>=10,arr.ind = TRUE)
-paramdata<-writecorrection(v,paramdata,0.1,"YM")
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"YM"
+mult<-0.1
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
 
 # MCF - VALUE REPORTED AS FRACTION INSTEAD OF PERCENT (MULTIPLY WITH 100)
 v<-which( (paramdata$meastype=="MCF" & paramdata$source!="Daily spread" & paramdata[years]==0.1) |
               (paramdata$meastype=="MCF" & paramdata[years]<0.08 & paramdata[years]!=0)
               ,arr.ind = TRUE)
-paramdata<-writecorrection(v,paramdata,100,"MCF")
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"MCF"
+mult<-100
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
+
+# GE - VALUES ARE REPORTED IN ABSOLUTE VALUES (DIVIDE BY POPULATION DATA)
+v<-which(paramdata$meastype=="GE" & paramdata[years]>10000,arr.ind = TRUE)
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"GE"
+mult<-"POP"
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
+
+autocorrections<-merge(autocorrections,paramdata,by=c("variableUID","party"),all=FALSE)
+autocorrections[,docfields]<-""
+tn<-names(autocorrections)
+co<-c("sector_number","category","party","meastype","autocorr",docfields,"file")
+co<-c(co,tn[!tn%in%co])
+ro<-order(autocorrections$party,autocorrections$sector_number,autocorrections$meastype)
+autocorrections<-autocorrections[ro,co]
+
+
+filnamt<-paste0(issuedir,"/autocorrections/corrections",cursubm,".csv")
+con <- file(filnamt, open="wt")
+writeLines(docflags,con)
+if(nrow(autocorrections)>0){
+    writeLines("#\n# Issues on parameters which were corrected for calcultating EU-average values",con)
+    write.csv(autocorrections,con)
+}
+close(con)
 
 # EXCLUDE OTHER LIVESTOCK FROM CHECKS - INHOMOGENEOUS COMPOSITION
 paramdata<-paramdata[! paramdata$category=="Other Livestock",]
 paramdata<-paramdata[! paramdata$category=="Other Other Livestock",]
 paramdata<-paramdata[! paramdata$category=="Other Other Other Livestock",]
-
+#  ---> eliminate population, not needed any more
+paramdata<-paramdata[! paramdata$meastype=="POP",]
 
 # 'SERIOUS' ERRORS, LIKLY DUE TO COMMA-PROBLEM
 growth<-growthdata[,c(years,"party","variableUID")]
@@ -152,161 +182,208 @@ paramV<-paramdata[unique(which(paramdata[years]>1000,arr.ind = TRUE)[,1]),]
 # Save quantiles for growth rate
 # Store 'bias' in distibution of parameters: ratio of max/min (zeros excluded)
 #        -- If there is systematic mistakes in errors the bias is high
-growthquantiles<-subset(growth,select=c("variableUID","party"))
-growthquantiles[,c("min","p25","p50","p75","max")]<-t(Reduce(cbind,lapply(c(1:nrow(growth)),function(x) 
-    selquantiles(growth[x,years]))))
 
-paramquantiles<-as.data.frame(unique(param$variableUID))
-names(paramquantiles)<-"variableUID"
-paramquantiles[,c("min","p25","p50","p75","max")]<-t(Reduce(cbind,lapply(paramquantiles$variableUID,function(x) 
-    selquantiles(param[param$variableUID==x,years]))))
-paramquantiles$range<-paramquantiles[,"max"]/paramquantiles[,"min"]
-paramquantiles$range[is.nan(paramquantiles$range)]<-0
-
-
-# Median absolute deviation of the absolute deviations from the median
-growthmad<-apply(growth[years], 1, mad,  na.rm = TRUE)
-paramquantiles$mad<-unlist(lapply(paramquantiles$variableUID,function(x) 
-    mad(param[param$variableUID==x,years],na.rm=TRUE)))
-
-if(trendoutlmethod==1){
-    # Method 1 in outl tool: Deviation from median
-    growthmeddevtest<-abs(growth-growthquantiles[2,])>2*growthmadn
-    meddevtest<-abs(trend-trendquantiles[2,])>2*trendmadn
-    
-} else if (trendoutlmethod==2){
-    # Method 2 in outl tool
-    # Obtaining 95% confidence intervall 
-    bxplf <- 0.953
-
-    growthquantiles$uwhisk<-growthquantiles[,"p50"]+(1 + bxplf)*(growthquantiles[,"p75"]-growthquantiles[,"p50"])
-    growthquantiles$lwhisk<-growthquantiles[,"p50"]+(1 + bxplf)*(growthquantiles[,"p25"]-growthquantiles[,"p50"])
-    growthmeddevtest<-(growth[years]>growthquantiles$uwhisk) | (growth[years]<growthquantiles$lwhisk)
-    
-    paramquantiles$uwhisk<-paramquantiles[,"p50"]+(1 + bxplf)*(paramquantiles[,"p75"]-paramquantiles[,"p50"])
-    paramquantiles$lwhisk<-paramquantiles[,"p50"]+(1 + bxplf)*(paramquantiles[,"p25"]-paramquantiles[,"p50"])
-    param<-merge(param,paramquantiles,by="variableUID")
-
-    #               Keep values which are outside of the 95% confidence intervall
-    parammeddevtest<-(((param[years]>param$uwhisk) | (param[years]<param$lwhisk)) &
+identifyoutliers<-function(outlmethod,D,type){
+    if(outlmethod==1){
+        # Method 1 in outl tool: Deviation from median
+        # Median absolute deviation of the absolute deviations from the median
+        Dmeddevtest<-abs(trend-trenD[2,])>2*trendmadn
+        
+        n1<-c("party","sector_number","meastype","category","mad","value","variable")
+        n<-c("party","sector_number","meastype","unit","category","value","correction","variable",years,"gas",
+             "mad","method","classification","source","target","type","option","measure","variableUID")
+    } else if (outlmethod==2){
+        # Method 2 in outl tool
+        bxplf <- 0.953
+        
+        D$range<-D[,"max"]/D[,"min"]
+        D$range[is.nan(D$range)]<-0
+        D$uwhisk<-D[,"p50"]+(1 + bxplf)*(D[,"p75"]-D[,"p50"])
+        D$lwhisk<-D[,"p50"]+(1 + bxplf)*(D[,"p25"]-D[,"p50"])
+        D<-merge(D,D,by="variableUID")
+        
+        #               Keep values which are outside of the 95% confidence intervall
         #               Do NOT keep values which are very close to the median (rounding errors)
-        (abs(1-param[years]/param[,"p50"])>1.1))  #| 
-        #               Keep values with a very large distribution
-        #(param$range>maxr)
+        Dmeddevtest<-(((D[years]>D$uwhisk) | (D[years]<D$lwhisk)) & (abs(1-D[years]/D[,"p50"])>0.5)) 
+        n1<-c("party","sector_number","meastype","category","min","lwhisk","p25","p50","p75",
+              "uwhisk","max","range","value","variable")
+        
+    } else if (outlmethod==3){
+        # Method 2 in outl tool
+        # Obtaining 95% confidence intervall 
+        bxplf <- 1.5
+        D$range<-D[,"max"]/D[,"min"]
+        D$range[is.nan(D$range)]<-0
+        D$llim<-D[,"mean"]-bxplf*D[,"std"]
+        D$ulim<-D[,"mean"]+bxplf*D[,"std"]
+        
+        #               Keep values which are outside of the 95% confidence intervall
+        #               Do NOT keep values which are very close to the median (rounding errors)
+        Dmeddevtest<-(((D[years]>D$ulim) | (D[years]<D$llim)) & ((abs(1-D[years]/D[,"median"])>0.5)))
+        
+        if(type=="param") n1<-c("party","sector_number","meastype","value","rellim","range","correction",resolved,docfields,"variable",
+              "llim","ulim","unit","category","min","mean","p25","median","p75","max")
+        if(type=="growth") n1<-c("party","sector_number","meastype","value","range","correction","variable",
+              "llim","ulim","unit","category","min","mean","p25","median","p75","max")
+    }
+    
+    Doutl<-Dmeddevtest[,years]*D[,years]
+    nDoutl<-sum(Doutl!=0,na.rm=TRUE)
+    listofoutls<-which(unlist(Doutl)!=0)
+    Doutl$party<-D$party
+    Doutl$variableUID<-D$variableUID
+
+    Doutllist<-melt(Doutl,id.vars=c("party","variableUID"),na.rm=F)
+    select<-! is.na(Doutllist$value)
+    Doutllist<-Doutllist[! is.na(Doutllist$value),]
+    Doutllist<-Doutllist[Doutllist$value !=0,]
+
+    if(type=="growth") {
+        ming<-0.03
+        select<-(Doutllist$value<(1-ming) | Doutllist$value>(1+ming))
+        Doutllist<-Doutllist[select,]
+    }
+    
+    Doutlvalues<-subset(Doutllist,select=c(value,party,variableUID))
+    Doutllist<-subset(Doutllist,select=-value)
+    
+    Dcheck<-simplifytestmatrix(check = Doutllist,group = "variable",compare = years)
+    Dcheckv<-aggregate(value ~ party + variableUID,data =Doutlvalues,mean)
+    if(type=="growth"){
+        x<-simplifytestmatrix(check = Doutlvalues, group = "value")
+        Dcheck<-merge(Dcheck,x,by=c("variableUID","party"))
+        Dcheck<-merge(Dcheck,allagri[c(sectfields,measfields,metafields,"variableUID","party",years)],by=c("variableUID","party"),all=FALSE)
+    } else if (type=="param"){
+        Dcheck<-merge(Dcheck,Dcheckv,by=c("variableUID","party"))
+        Dcheck<-merge(Dcheck,allagri[c(sectfields,measfields,metafields,"variableUID","party")],by=c("variableUID","party"),all=FALSE)
+        
+    }
+    Dcheck<-merge(Dcheck,D,by=c("variableUID","party"))
+    Dcheck<-cbind(cursubm,Dcheck,row.names=NULL)                 
+    Dcheck$correction<-""
+    if(type=="param"){
+        Dcheck[,resolved]<-""
+        Dcheck[,docfields]<-""
+        Dcheck$rellim<-unlist(lapply(c(1:nrow(Dcheck)),function(x)
+            if(Dcheck$value[x]>Dcheck$ulim[x]){round(Dcheck$value[x]/Dcheck$ulim[x],2)}else
+                if(Dcheck$value[x]<Dcheck$llim[x]){round(Dcheck$value[x]/Dcheck$llim[x],2)}else
+                {1}))
+    }
+    n3<-c("gas","method","classification","source","target","type","option","measure","variableUID","cursubm")
+    
+    
+    if(type=="growth"){
+        n<-c(n1,paste0(years,".x"),paste0(years,".y"),n3)
+        o<-order(Dcheck$party,Dcheck$sector_number,Dcheck$category)
+    } else if (type=="param"){
+        n<-c(n1,years,n3)
+        o<-order(Dcheck$meastype,Dcheck$sector_number,Dcheck$category,Dcheck$party)
+    }
+    Dcheck<-Dcheck[o,n]
+ 
+    n[which(n=="variable")]<-"years"
+    names(Dcheck)<-n
+    
+    return(Dcheck)
+    
+}
+serious<-function(P,uid,c){
+    if(uid %in% P$variableUID){if(c %in% P$party[P$variableUID==uid]){s<-"0"}else{s<-""}
+    }else{s<-""}
+    return(s)
 }
 
-growthoutl<-growthmeddevtest*growth[years]
-ngrowthoutl<-sum(growthoutl!=0,na.rm=TRUE)
-paramoutl<-parammeddevtest[,years]*param[,years]
-nparamoutl<-sum(paramoutl!=0,na.rm=TRUE)
-#print("#unlist(growthoutl)")
+# Calculate statistical moments (call functions) ####
+newcols<-c("min","p25","median","p75","max")
+growthquantiles<-subset(growth,select=c("variableUID","party"))
+paramq<-as.data.frame(unique(param$variableUID))
+names(paramq)<-"variableUID"
+growth[,c("mean","std")]<-t(Reduce(cbind,lapply(c(1:nrow(growth)),function(x) selmeansd(growth[x,years]))))
+growth[,newcols]<-t(Reduce(cbind,lapply(c(1:nrow(growth)),function(x) selquantiles(growth[x,years]))))
+paramq$mad<-unlist(lapply(paramq$variableUID,function(x) mad(param[param$variableUID==x,years],na.rm=TRUE)))
+paramq[,c("mean","std")]<-t(Reduce(cbind,lapply(paramq$variableUID,function(x) selmeansd(param[param$variableUID==x,years]))))
+paramq[,newcols]<-t(Reduce(cbind,lapply(paramq$variableUID,function(x) selquantiles(param[param$variableUID==x,years]))))
+param<-merge(param,paramq,by="variableUID")
 
-if(ngrowthoutl>0){
-    #listofoutls<-which(unlist(subset(growthoutl,select=-country))!=0)
-    listofoutls<-which(unlist(growthoutl)!=0)
-    growthoutl$party<-growth$party
-    growthoutl$variableUID<-growth$variableUID
-    #growthoutl$rown<-row.names(growthoutl)
+# Calculate outliers (method) ####
+paramcheck<-identifyoutliers(trendoutlmethod,param,"param")
+paramcheck$correction<-unlist(lapply(c(1:nrow(paramcheck)),function(x)
+    serious(paramV,paramcheck$variableUID[x],paramcheck$party[x])))
+
+# Selection of issues if there are too many!!
+# Manure management IEFs vary largely because of different MMS --> a highly skewed distribution is OK
+ok1<-grepl("^3.B.",paramcheck$sector_number) & (paramcheck$rellim>0.5 & paramcheck$rellim<2.0)
+paramcheck<-paramcheck[!ok1,]
+
+#Allow a margin of 10% for the other categories
+ok1<-(paramcheck$rellim>0.9 & paramcheck$rellim<1.1)
+paramcheck<-paramcheck[!ok1,]
+paramR<-paramcheck[paramcheck$range>maxr,]
+
+ming<-0.03
+growthcheck<-identifyoutliers(trendoutlmethod,growth,"growth")
+
+
+if(nrow(growthcheck)>0){
     
-    growthoutllist<-melt(growthoutl,id.vars=c("party","variableUID"),na.rm=F)
-    select<-! is.na(growthoutllist$value)
-    growthoutllist<-growthoutllist[! is.na(growthoutllist$value),]
-    growthoutllist<-growthoutllist[growthoutllist$value !=0,]
-    #Restrict results to >3% growth rate
-    ming<-0.03
-    select<-(growthoutllist$value<(1-ming) | growthoutllist$value>(1+ming))
-    growthoutllist<-growthoutllist[select,]
-    
-    growthoutllist<-merge(growthoutllist,growthmeas,by="variableUID")
-    growthoutllist<-merge(growthoutllist,growthquantiles,by=c("variableUID","party"))
-    
-    
-    growthoutlvalues<-subset(growthoutllist,select=c(value,party,variableUID))
-    growthoutllist<-subset(growthoutllist,select=-value)
-    
-    growthcheck<-simplifytestmatrix(check = growthoutllist,group = "variable",compare = years)
-    growthcheckv<-aggregate(value ~ party + variableUID,data =growthoutlvalues,mean)
-    x<-simplifytestmatrix(check = growthoutlvalues, group = "value")
-    growthcheck<-merge(growthcheck,x,by=c("variableUID","party"))
-    growthcheck<-merge(growthcheck,alldata[c("variableUID","party",years)],by=c("variableUID","party"))
-    growthcheck<-merge(growthcheck,growth,by=c("variableUID","party"))
-    
-    growthcheck<-cbind(cursubm,growthcheck,row.names=NULL)                 
-    o<-order(growthcheck$party,growthcheck$sector_number,growthcheck$category)
-    n1<-c("party","sector_number","meastype","category","min","lwhisk","p25","p50","p75","uwhisk","max","value","variable")
-    n3<-c("gas","unit","method","classification","source","target","type","option","measure",
-          "variableUID","cursubm")
-    n<-c(n1,paste0(years,".x"),paste0(years,".y"),n3)
-    growthcheck<-growthcheck[o,n]
-    names(growthcheck)<-c(n1,years,paste0(years,".growth"),n3)
-    
-    con <- file(paste0(csvfil,"_growthcheck.csv"), open="wt")
+    filnam<-paste0(invloc,"/checks/timeseries/checks",cursubm,"growthcheck.csv")
+    con <- file(filnam, open="wt")
     writeLines(paste0("# File created by EU-GIRP v.4 on ",figdate), con)
     writeLines(paste0("# List of trend outliers. Outliers were identified with the following criteria"), con)
     writeLines(paste0("# (1) Growth Rate outside of the '95% confidence interval'. I.e. the growth rate was outside the range of median +/- 1.953 x (median-75percentile/25percentile) of the growth rates during the time period for this variable and country"), con)
     writeLines(paste0("# (2) Growth Rate larger than ", 1+ming," or smaller than ",1-ming), con)
-    writeLines(colexpl, con)
+    writeLines(colexpl1, con)
+    if(trendoutlmethod==2)writeLines(whisksexpl,con)
+    writeLines(lulimexpl, con)
+    writeLines(colexpl2, con)
+    writeLines(colexpl3, con)
     writeLines(paste0("# years.growth: growth rates calculated as y{t}/y{t-1}"), con)
     write.csv(growthcheck,con)
     close(con)
 }
-if(nparamoutl>0){
-    #listofoutls<-which(unlist(subset(growthoutl,select=-country))!=0)
-    listofoutls<-which(unlist(paramoutl)!=0)
-    paramoutl$party<-param$party
-    paramoutl$variableUID<-param$variableUID
-    
-    paramoutllist<-melt(paramoutl,id.vars=c("party","variableUID"),na.rm=F)
-    select<-! is.na(paramoutllist$value)
-    paramoutllist<-paramoutllist[! is.na(paramoutllist$value),]
-    paramoutllist<-paramoutllist[paramoutllist$value !=0,]
-    paramoutllist<-merge(paramoutllist,parammeas,by="variableUID")
-    #paramoutllist<-merge(paramoutllist,param,by="variableUID")
-    
-    paramoutlvalues<-subset(paramoutllist,select=c(value,party,variableUID))
-    paramoutllist<-subset(paramoutllist,select=-value)
-    
-    paramcheck<-simplifytestmatrix(check = paramoutllist,group = "variable",compare = years)
-    paramcheckv<-aggregate(value ~ party + variableUID,data =paramoutlvalues,mean)
-    
-    paramcheck<-merge(paramcheck,paramcheckv,by=c("variableUID","party"))
-    paramcheck<-merge(paramcheck,param,by=c("variableUID","party"))
-    paramcheck$correction<-""
-    
-    o<-order(paramcheck$meastype,paramcheck$sector_number,paramcheck$category,paramcheck$party)
-    n<-c("party","sector_number","meastype","unit","category","min","lwhisk","p25","p50","p75","uwhisk","max",
-         "range","value","correction","variable",years,"gas",
-         "mad","method","classification","source","target","type","option","measure","variableUID")
-    paramcheck<-paramcheck[o,n]
-    paramcheck<-cbind(cursubm,paramcheck,row.names=NULL)    
-    
+if(nrow(paramcheck)>0){
     #Check of systematic errors
-    serious<-function(P,uid,c){
-        if(uid %in% P$variableUID){if(c %in% P$party[P$variableUID==uid]){s<-"0"}else{s<-""}
-        }else{s<-""}
-        return(s)
-    }
-    paramcheck$correction<-unlist(lapply(c(1:nrow(paramcheck)),function(x)
-        serious(paramV,paramcheck$variableUID[x],paramcheck$party[x])))
-
-
     
-    paramR<-paramcheck[paramcheck$range>maxr,]
-    
-    con <- file(paste0(csvfil,"_countryoutliersserious.csv"), open="wt")
-    writeLines(coutlexp, con)
-    writeLines(colexpl, con)
+    filnam<-paste0(invloc,"/checks/countryoutliers/checks",cursubm,"countryoutliersserious.csv")
+    con <- file(filnam, open="wt")
+    writeLines(coutlexp1, con)
+    if(trendoutlmethod==2)writeLines(outlmethod2,con)
+    if(trendoutlmethod==3)writeLines(outlmethod3,con)
+    writeLines(coutlexp2, con)
+    writeLines(colexpl1, con)
+    if(trendoutlmethod==2)writeLines(whisksexpl,con)
+    writeLines(lulimexpl, con)
+    writeLines(colexpl2, con)
+    writeLines(colexpl3, con)
     write.csv(paramV,con)
     close(con)
     
-
-    con <- file(paste0(csvfil,"_countryoutliers.csv"), open="wt")
-    writeLines(coutlexp, con)
-    writeLines(colexpl, con)
+    # Generate the plots to illustrate the issues
+    plotparamcheck<-1
+    fignames<-character()
+    source("eugirpD.2_iefplots.r")
+    fignamesc<-gsub(paste0(issuedir,"countryoutliers/plots/"),"=HYPERLINK(\"",fignames)
+    paramcheck$plot<-paste0(fignamesc,"\")")
+    n<-names(paramcheck[!names(paramcheck)%in%"plot"])
+    oc<-c(n[1:(which(n=="issuedate"))],"plot",n[(which(n=="issuedate")+1):length(n)])
+    paramcheck<-paramcheck[,oc%in%names(paramcheck)]
+    #n1<-c("cursubm","party","sector_number","meastype","unit","category","value","correction"))
+    #n4<-names(paramcheck[!names(paramcheck)%in%c(n1,"std")])
+    #paramcheck<-paramcheck[,oc]
+    con <- file(filoutliers, open="wt")
+    writeLines(coutlexp1, con)
+    if(trendoutlmethod==2)writeLines(outlmethod2,con)
+    if(trendoutlmethod==3)writeLines(outlmethod3,con)
+    writeLines(coutlexp2, con)
+    writeLines(colexpl1, con)
+    if(trendoutlmethod==2)writeLines(whisksexpl,con)
+    writeLines(lulimexpl, con)
+    writeLines(colexpl2, con)
+    writeLines(colexpl3, con)
     writeLines("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. 1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified",con)
     write.csv(paramcheck,con)
     close(con)
     
+    
 }
-#paste0(runcateg,runpar)
 

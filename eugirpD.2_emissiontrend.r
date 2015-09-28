@@ -176,7 +176,7 @@ for(imeas in c(1:nrow(plotmeas))){
     curmatrix<-eu28fin
     
     if(!(sum(eu28fin,na.rm=TRUE)==0)) {
-        source("nirplots.r")
+        source("eugirp_nirplots.r")
         #nirplotsdone<-nirplots(eu28fin,eu28fin,eu28,rundata,runfocus,runcateg,runpar,curfoc)
     }
 }

@@ -7,7 +7,9 @@ measfields<-c("meastype","gas","unit","measure")
 #              none of them can completely be ignored, as they are important for at 
 #              least one variable
 uniquefields<-c(measfields,sectfields,metafields,"notation","variableUID")
-
+docfields<-c("issuenr","issueflag","issuedate")
+resolved<-c("explanation","date","source","resolved","comment")
+docflags<-paste0("# Flags: 0: new issue; o1: open issue action EU; o2: open issue action MS; o3: open pending (to be checked); cn: closed no issue; cs: closed solved; cu: closed unsolved - new issue opened")
 
 #allfields: all fields including year and party, 
 #           brought to an order 
@@ -19,15 +21,17 @@ climateZones<-c("_Cool.*","_Temperate.*","_Warm.*")
 manureSystems<-c("Anaerobic lagoon","Composting","Daily spread","Digesters","Liquid system","Solid storage and dry lot","Pasture  range and paddock","Other","Burned for fuel or as waste")
 manureSysshrt<-c("anaer","compost","daily","digest","liquid","solid","pasture","other","burned")
 
-meas2sum<-c("EM","AD","POP","FUEL","PROD","AREA","Nleach","Nvol","ADORG","ADSLUDGE","ADEFFLUENT","FLARED","RECOVERY","ADbio","ADnbio")
+meas2sum<-c("EM","AD","POP","FUEL","PROD","AREA","NEXC","Nleach","Nvol","ADORG","ADSLUDGE","ADEFFLUENT","FLARED","RECOVERY","ADbio","ADnbio")
 meas2popweight<-c("IEF","DIGEST","PREGNANT","YM","FEEDING","MILK","Milk","WORK","WEIGHT",
-                  "GE","GEav","VSEXC","MASS","B0","NEXC",
+                  "GE","GEav","VSEXC","MASS","B0","NRATE",
                   "FracGASM","FracGASF","FracLEACH","FracBURN","FracOXIDIZED","RatioResCrop",
                   "Combustion","DM","ORGAMENDMENT","YIELD")
 meas2clima<-c("CLIMA")
 meas2mcf<-c("MCF")
 
 
+mslivestockclass<-c("Enteric Fermentation","CH4 Emissions","N2O and NMVOC Emissions","Tier 2")
+mslivestocksect<-c("3.A","3.B.1","3.B.2")
 otherlivestock<-c("Other Livestock","Buffalo","Camels","Deer","Goats","Horses",
                   "Mules and Asses","Poultry","Other Other Livestock","Rabbit",
                   "Reindeer","Ostrich","Fur-bearing Animals","Other Other Other Livestock")
@@ -46,7 +50,9 @@ tables4measures<-c("Allocation by climate region","Feeding situation",
                    "Digestibility of feed")
 tables4classifi<-c("Nitrogen excretion per MMS","Emissions","Implied Emission Factor","Population")
 
-checktemp<-as.data.frame(matrix(rep(0,8),nrow=1,ncol=8))
-checkname<-c("test","val1","val2","ms","yr","sec","val","obs")
+checktemp<-as.data.frame(matrix(rep(0,10),nrow=1,ncol=10))
+checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
 
 gases<-c("CH4","CO2","N2O","Aggregate GHGs")
+gwps<-c(25,1,298,1)
+

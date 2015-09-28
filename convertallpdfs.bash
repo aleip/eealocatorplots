@@ -1,5 +1,5 @@
 curfold=test
-curfold=20150820
+curfold=20150824
 
 for a in ${curfold}/*\.pdf ; do
   . convertpdf2png.bash ${a}

@@ -1,0 +1,73 @@
+---
+output:
+  word_document:
+    fig_caption: yes
+    fig_width: 3
+  html_document: default
+---
+    
+```{r setdata,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+source("curplot.r")
+source("nirfunctions.r")
+library(captioner)
+library(pander)
+library(dplyr)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'right', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+panderOptions('table.emphasize.rownames',TRUE)
+panderOptions('graph.nomargin',TRUE)
+panderOptions('table.style','rmarkdown')
+figs<-captioner(prefix = "Figure ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
+tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
+#for(i in c(1:5)){figs("sec","");bump(figs,2);bump(tabs,1)}
+```
+
+```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+seltype<-"Total (with LULUCF)"
+seltype<-"" #with indirect
+# selclass<-"Total (with LULUCF  with indirect)    " #with indirect
+selclass<-"Total (without LULUCF  with indirect)    " #with indirect
+
+selclass<-"Sectors/Totals" #without indirect
+seltype<-"Total (without LULUCF)" #without indirect
+lastyear<-years[length(years)]
+lastyear2<-years[length(years)-1]
+firstyear<-years[1]
+
+totalghg<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="Aggregate GHGs",]
+totalch4<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="CH4",]
+totaln2o<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="N2O",]
+totalco2<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="CO2",]
+totalch4[,years]<-gwps[1]*totalch4[,years]
+totaln2o[,years]<-gwps[3]*totaln2o[,years]
+totalco2[,years]<-gwps[2]*totalco2[,years]
+
+eutotalghg<-apply(totalghg[years],2,sum)
+eutotalch4<-apply(totalch4[years],2,sum)
+eutotaln2o<-apply(totaln2o[years],2,sum)
+eutotalco2<-apply(totalco2[years],2,sum)
+
+#Do consider only direct emissions (no indirect N2O emissions)
+agritotalch4<-agriemissions[agriemissions$gas=="CH4"&agriemissions$sector_number=="3",]
+agritotaln2o<-agriemissions[agriemissions$gas=="N2O"&agriemissions$sector_number=="3"&
+                                agriemissions$measure=="Emissions",]
+agritotalco2<-agriemissions[agriemissions$gas=="CO2"&agriemissions$sector_number=="3",]
+
+euagritotalch4<-agritotalch4[agritotalch4$party=="EU28",]
+euagritotaln2o<-agritotaln2o[agritotaln2o$party=="EU28",]
+euagritotalco2<-agritotalco2[agritotalco2$party=="EU28",]
+euagritotalghg<-euagritotalch4
+
+euagritotalghg[,years]<-euagritotalch4[,years]+euagritotaln2o[,years]+euagritotalco2[,years]
+euagritotalghg$gas<-"CO2"
+figure<-0
+table<-0
+```
+

@@ -1,0 +1,85 @@
+agriselect<-grepl("^3",alldata$sector_number) 
+allagri<-alldata[agriselect,]
+o<-order(allagri$sector_number,allagri$category)
+allagri<-allagri[o,]
+allagri<-eu28sums(allagri)
+agriselect<-grepl("^3",allmethods$sector_number) 
+agrimethods<-allmethods[agriselect,]
+o<-order(agrimethods$sector_number,agrimethods$category)
+agrimethods<-agrimethods[o,]
+
+
+select<-grepl("\\.$",allagri$sector_number)
+allagri$sector_number[select]<-(gsub("\\.$","",allagri$sector_number[select]))
+
+agriswine<-(grepl("^3.A.3",allagri$sector_number) & allagri$category!="Swine") |
+    (grepl("^3.B.[12].3",allagri$sector_number) & allagri$category!="Swine")
+agrisheep<-(grepl("^3.A.2",allagri$sector_number) & allagri$category!="Sheep") |
+    (grepl("^3.B.[12].2",allagri$sector_number) & allagri$category!="Sheep")
+agricattle<-(grepl("^3.A.1",allagri$sector_number) & (allagri$category!="Cattle" | grepl("Option",allagri$sector_number))) |
+    (grepl("^3.B.[12].1",allagri$sector_number) & (allagri$category!="Cattle" | grepl("Option",allagri$sector_number)))
+agridairyA<-(grepl("^3.A.1",allagri$sector_number) & allagri$category=="Dairy Cattle" & ! grepl("Option",allagri$sector_number))
+agridairyB<-(grepl("^3.B.[12].1",allagri$sector_number) & allagri$category=="Dairy Cattle" & ! grepl("Option",allagri$sector_number))
+agrindairyA<-(grepl("^3.A.1",allagri$sector_number) & allagri$category=="Non-Dairy Cattle" & ! grepl("Option",allagri$sector_number))
+agrindairyB<-(grepl("^3.B.[12].1",allagri$sector_number) & allagri$category=="Non-Dairy Cattle" & ! grepl("Option",allagri$sector_number))
+
+cleanani<-!(agriswine | agrisheep | agricattle)
+noagg<-allagri$gas!="Aggregate GHGs" & ! grepl("^3.1",allagri$sector_number)
+
+d1<-nchar(allagri$sector_number)-nchar(gsub("\\.","",allagri$sector_number))==0
+agrid1<-allagri[d1 & noagg,]
+agrid1<-agrid1[order(agrid1$sector_number),]
+d2<-nchar(allagri$sector_number)-nchar(gsub("\\.","",allagri$sector_number))==1
+agrid2<-allagri[d2 & noagg & cleanani,]
+agrid2<-agrid2[order(agrid2$sector_number),]
+
+d3<-nchar(allagri$sector_number)-nchar(gsub("\\.","",allagri$sector_number))==2 
+agrid3<-allagri[d3 & noagg & cleanani,]
+agrid3<-agrid3[order(agrid3$sector_number),]
+
+d4<-nchar(allagri$sector_number)-nchar(gsub("\\.","",allagri$sector_number))==3 & allagri$sector_number!="3.B.2.5 N2O Emissions per MMS"
+d4<-d4 & noagg & cleanani & !(allagri$sector_number=="3.B.2.5" & allagri$meastype=="EM" & allagri$measure!="Emissions")
+agrid4<-allagri[d4 | agridairyA | agrindairyA,]
+agrid4<-agrid4[order(agrid4$sector_number),]
+
+d5<-nchar(allagri$sector_number)-nchar(gsub("\\.","",allagri$sector_number))==4 
+d5<-d5 & noagg & cleanani
+agrid5<-allagri[d5| agridairyB | agrindairyB,]
+agrid5<-agrid5[order(agrid5$sector_number),]
+
+agrigen<-agrid2[grepl("3.[ACEFGHIi]",agrid2$sector_number),]
+agrigen<-rbind(agrigen,agrid3[grepl("3.[BD]",agrid3$sector_number),])
+agrigen<-agrigen[order(agrigen$sector_number),]
+
+agrimix<-agrid3[grepl("3.[ACEFGHIi]",agrid3$sector_number),]
+agrimix<-rbind(agrimix,agrid4[grepl("3.[BD]",agrid4$sector_number),])
+agrimix<-agrimix[order(agrimix$sector_number),]
+
+agridet<-agrid4[grepl("3.[ACEFGHIi]",agrid4$sector_number),]
+agridet<-rbind(agridet,agrid5[grepl("3.[BD]",agrid5$sector_number),])
+agridet<-agridet[order(agridet$sector_number),]
+
+agriemissions<-allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,]
+convertfields<-c("gas","unit",years)
+agriemissions[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agriemissions)),function(x) Reduce(cbind,convert2co2eq(agriemissions[x,convertfields]))))
+agriemissions<-agriemissions[order(agriemissions$sector_number,agriemissions$category),]
+lastyear<-years[length(years)]
+
+agrigeneu<-agrigen[agrigen$party=="EU28"&agrigen$meastype=="EM"&agrigen$gas!="no gas",]
+agrimixeu<-agrimix[agrimix$party=="EU28"&agrimix$meastype=="EM"&agrimix$gas!="no gas",]
+agrideteu<-agridet[agridet$party=="EU28"&agridet$meastype=="EM"&agridet$gas!="no gas",]
+agrigeneu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrigeneu)),function(x) Reduce(cbind,convert2co2eq(agrigeneu[x,convertfields]))))
+agrimixeu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrimixeu)),function(x) Reduce(cbind,convert2co2eq(agrimixeu[x,convertfields]))))
+agrideteu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrideteu)),function(x) Reduce(cbind,convert2co2eq(agrideteu[x,convertfields]))))
+agrigeneu<-agrigeneu[order(agrigeneu[,lastyear],decreasing=TRUE),]
+agrimixeu<-agrimixeu[order(agrimixeu[,lastyear],decreasing=TRUE),]
+agrideteu<-agrideteu[order(agrideteu[,lastyear],decreasing=TRUE),]
+
+v<-agrigeneu$sector_number
+sel<-agrimixeu$category=="Farming"
+agrimixeu$category[sel]<-paste(agrimixeu$classification[sel],agrimixeu$target[sel]," ")
+x<-lapply(c(1:(length(v)-1)),function(x) makepie(agrimixeu,0.9,"agrimixeu",agrigeneu$sector_number[x]))
+makepie(agrigeneu,0.9,"agrigeneu","")
+#View(agrid1);View(agrid2);View(agrid3);View(agrid4);View(agrid5)
+
+

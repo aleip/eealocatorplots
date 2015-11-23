@@ -1,0 +1,84 @@
+#### Trends in Emissions and Activity Data
+```{r 3D2adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2"
+curseclong<-"Indirect Emissions from Managed Soils"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2015/plots/sec3/3D2Farming-AgriculturalSoilsIndirectN2OEmissionsFromManagedSoilsN2OEM-1VAL315_20151030.jpg)
+
+
+```{r 3D21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.1"
+curseclong<-"Atmospheric Deposition"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig",cursec,"trend","AD"),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+```{r 3D21ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.1"
+curseclong<-"Atmospheric Deposition"
+curcat<-"Farming"
+curmea<-"AD"
+source("nircatdata2.r")
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../2015/plots/sec3/3D21Farming-AgriculturalSoilsAtmosphericDepositionN2OEM-1VAL317_20151030.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2015/plots/sec3/3D21Farming-AgriculturalSoilsAtmosphericDepositionAD-1VAL316_20151030.jpg)
+
+
+```{r 3D22em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.2"
+curseclong<-"Nitrogen leaching and run-off"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig",cursec,"trend","AD"),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+```{r 3D22ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.2"
+curseclong<-"Nitrogen leaching and run-off"
+curcat<-"Farming"
+curmea<-"AD"
+source("nircatdata2.r")
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../2015/plots/sec3/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offN2OEM-1VAL319_20151030.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2015/plots/sec3/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offAD-1VAL318_20151030.jpg)
+

@@ -8,7 +8,8 @@ measfields<-c("meastype","gas","unit","measure")
 #              least one variable
 uniquefields<-c(measfields,sectfields,metafields,"notation","variableUID")
 docfields<-c("issuenr","issueflag","issuedate")
-resolved<-c("explanation","date","source","resolved","comment")
+resolved<-c("explanation","expldate","explsource","resolved","comment","followup","communication")
+testfields<-c("significant","effect","relmedian","lastyr","share","note")
 docflags<-paste0("# Flags: 0: new issue; o1: open issue action EU; o2: open issue action MS; o3: open pending (to be checked); cn: closed no issue; cs: closed solved; cu: closed unsolved - new issue opened")
 
 #allfields: all fields including year and party, 
@@ -17,7 +18,7 @@ allfields<-c(uniquefields[!uniquefields%in%c("measure","variableUID")],"measure"
 unitareas<-c("ha","kha","ha/year","kha/year","ha/day")
 
 div<-c("Cattle","Sheep","Swine","Livestock")
-climateZones<-c("_Cool.*","_Temperate.*","_Warm.*")
+climateZones<-c("Cool","Temperate","Warm")
 manureSystems<-c("Anaerobic lagoon","Composting","Daily spread","Digesters","Liquid system","Solid storage and dry lot","Pasture  range and paddock","Other","Burned for fuel or as waste")
 manureSysshrt<-c("anaer","compost","daily","digest","liquid","solid","pasture","other","burned")
 
@@ -28,6 +29,9 @@ meas2popweight<-c("IEF","DIGEST","PREGNANT","YM","FEEDING","MILK","Milk","WORK",
                   "Combustion","DM","ORGAMENDMENT","YIELD")
 meas2clima<-c("CLIMA")
 meas2mcf<-c("MCF")
+measta2weight<-c("IEF","WEIGHT","YM","GE","GEav","FEEDING","Milk","PREGNANT","WORK","DIGEST")
+meastb12weight<-c("IEF","VSEXC","MASS","B0","MCF","CLIMA")
+meastb22weight<-c("IEF","NRATE","Nvol","Nleach")
 
 
 mslivestockclass<-c("Enteric Fermentation","CH4 Emissions","N2O and NMVOC Emissions","Tier 2")
@@ -53,6 +57,16 @@ tables4classifi<-c("Nitrogen excretion per MMS","Emissions","Implied Emission Fa
 checktemp<-as.data.frame(matrix(rep(0,10),nrow=1,ncol=10))
 checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
 
+signthreshold<-0.0005 #min of 0.05% of national total
 gases<-c("CH4","CO2","N2O","Aggregate GHGs")
 gwps<-c(25,1,298,1)
+eukp<-"EU-KP"
+eukp<-"EU28"
+
+countries2<-c("AT","BE","BG","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LT","LU","LV","MT","NL","PL","PT","RO","SE","SI","SK","UK","EU28")
+countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Estonia",
+              "Spain","Finland","France","United Kingdom","Greece","Croatia","Hungary","Ireland",
+              "Island","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
+              "Portugal","Romania","Sweden","Slovenia","Slovakia","United Kingdom",
+              "EU28")
 

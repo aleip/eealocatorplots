@@ -1,0 +1,20 @@
+### Manure Management - N2O (CRF Source Category 3B2) 
+```{r 3b2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+source("nircatdata.r")
+figs("figb2share",sharefigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+`r curgas` emissions from source category `r curcattext` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs("figb2share",display="cite")`.
+
+![`r figs("figb2share",display="full")`](../2015/plots/20151030agrimixeu3.B.2.jpg)
+
+
+`r text2mscontr(sec=cursec)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2015/eureport/figs/3BManureManagement.jpg)
+

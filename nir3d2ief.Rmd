@@ -1,0 +1,109 @@
+#### Implied EFs  and Methodological Issues
+
+In this section we discuss the Implied Emission Factor for the main N sources 
+contributing to indirect N2O emissions from managed soils.
+Furthermore, we present data on the relevant fractions: 
+
+* Frac~GASF~: Fraction of synthetic fertilizer N applied to soils that volatilises as NH3 and NOX
+* Frac~GASM~: Fraction of livestock N excretion that volatilises as NH3 and NOX
+* Frac~LEACH~: Fraction of N input to managed soils that is lost through leaching and run-off.
+
+
+
+```{r 3D21ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.1"
+curseclong<-"Atmospheric Deposition"
+curcat<-"Farming"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figD21trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabD21ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+
+##### `r curcattext`
+
+
+`r text2ief(fig=figs("figD21trendief",display="cite"),tab=tabs("tabD21ief",display="cite"))`
+
+
+`r figs("figD21trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3D21Farming-AgriculturalSoilsAtmosphericDepositionN2OIEF-1VALiefs_20151030.jpg)
+
+
+
+`r tabs("tabD21ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111FracGASF,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.AI.1"
+curseclong<-"Indirect N2O emissions"
+curcat<-"Fraction of synthetic fertilizer"
+curmea<-"FracGASF"
+source("nircatdata2.r")
+figs("figB211trendFracGASF",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211FracGASF",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendFracGASF",display="cite"),tab=tabs("tabB211FracGASF",display="cite"))`
+
+`r tabs("tabB211FracGASF",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111FracGASM,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.AI.2"
+curseclong<-"Indirect N2O emissions"
+curcat<-"Fraction of Livestock N excretion"
+curmea<-"FracGASM"
+source("nircatdata2.r")
+figs("figB211trendFracGASM",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211FracGASM",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendFracGASM",display="cite"),tab=tabs("tabB211FracGASM",display="cite"))`
+
+`r tabs("tabB211FracGASM",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3D22ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.2"
+curseclong<-"Nitrogen leaching and run-off"
+curcat<-"Farming"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figD22trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabD22ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r curcattext`
+
+`r text2ief(fig=figs("figD22trendief",display="cite"),tab=tabs("tabD22ief",display="cite"))`
+
+`r figs("figD22trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offN2OIEF-1VALiefs_20151030.jpg)
+
+
+`r tabs("tabD22ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111FracLEACH,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.AI.3"
+curseclong<-"Indirect N2O emissions"
+curcat<-"Fraction of N input to managed soils"
+curmea<-"FracLEACH"
+source("nircatdata2.r")
+figs("figB211trendFracLEACH",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211FracLEACH",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendFracLEACH",display="cite"),tab=tabs("tabB211FracLEACH",display="cite"))`
+
+`r tabs("tabB211FracLEACH",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+

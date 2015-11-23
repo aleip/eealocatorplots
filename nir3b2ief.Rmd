@@ -1,0 +1,180 @@
+#### Implied EFs  and Methodological Issues
+
+In this section we discuss the Implied Emission Factor for the main animal types.
+Furthermore, we present data on the Nitrogen Excretion Rate.
+
+
+
+```{r 3B21ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB21trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB21ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB21trendief",display="cite"),tab=tabs("tabB21ief",display="cite"))`
+
+
+`r figs("figB21trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B21Cattle-N2OandNMVOCEmissionsN2OIEF-1VALiefs_20151030.jpg)
+
+
+
+`r tabs("tabB21ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B211ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB211trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendief",display="cite"),tab=tabs("tabB211ief",display="cite"))`
+
+`r figs("figB211trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B21DairyCattle-N2OandNMVOCEmissionsN2OIEF-1VALiefs_20151030.jpg) 
+
+
+`r tabs("tabB211ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B211NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB211trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendNRATE",display="cite"),tab=tabs("tabB211NRATE",display="cite"))`
+
+`r figs("figB211trendNRATE",display="full")`
+
+![](../2015/plots/sec3/iefs/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-1VALiefs_20151030.jpg) 
+
+
+`r tabs("tabB211NRATE",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B212ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB212trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB212ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB212trendief",display="cite"),tab=tabs("tabB212ief",display="cite"))`
+
+`r figs("figB212trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OIEF-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB212ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B212NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB212trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB212NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB212trendNRATE",display="cite"),tab=tabs("tabB212NRATE",display="cite"))`
+
+`r figs("figB212trendNRATE",display="full")`
+
+![](../2015/plots/sec3/iefs/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB212NRATE",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B25ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB25trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB25ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB25trendief",display="cite"),tab=tabs("tabB25ief",display="cite"))`
+
+`r figs("figB25trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B25Farming-IndirectN2OEmissionsN2OIEF-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB25ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B247ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4.7"
+curseclong<-"Manure Management"
+curcat<-"Poultry"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB247trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB247ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB247trendief",display="cite"),tab=tabs("tabB247ief",display="cite"))`
+
+`r figs("figB247trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B247Poultry-N2OandNMVOCEmissionsN2OIEF-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB247ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B247NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4.7"
+curseclong<-"Manure Management"
+curcat<-"Poultry"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB247trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB247NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB247trendNRATE",display="cite"),tab=tabs("tabB247NRATE",display="cite"))`
+
+`r figs("figB247trendNRATE",display="full")`
+
+![](../2015/plots/sec3/iefs/3B247Poultry-N2OandNMVOCEmissionsNRATE-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB247NRATE",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+

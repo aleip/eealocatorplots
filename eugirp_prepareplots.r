@@ -1,24 +1,23 @@
-plottype<-"emiplots"
 doplots<-2
 doplotsv<-2
-if(plottype=="iefplots"}) docateg<-"^3"
-if(plottype=="emiplots"}) docateg<-"all"
+if(rundata=="ief") docateg<-"^3"
+if(rundata=="adem") docateg<-"all"
 sharesexist<-0
-if(plottype=="emiplots"}) plotparamcheck<-0
+if(rundata=="adem") plotparamcheck<-0
 
 #plotdata$option==0 should not occur ... remove here
 alldata$option[alldata$option==0]<-""
 alldata<-unique(alldata)
 
-if(plottype=="emiplots"}) plotdata<-alldata
-if(plottype=="iefplots"}) plotdata<-allagri
+if(rundata=="adem") plotdata<-alldata
+if(rundata=="ief") plotdata<-allagri
 #remove also remove redundant options ABC which is not needed for plots (redundant for CATTLE parents)...
 plotdata$option<-""
 plotdata<-unique(plotdata)
 
 plotmeas<-unique(subset(plotdata,select=allfields[!allfields %in% c("notation","party",years)]))
-if(plottype=="emiplots"}) plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
-if(plottype=="iefplots"}) plotmeas<-plotmeas[plotmeas$meastype %in% c(meas2popweight,meas2mcf,meas2clima),]
+if(rundata=="adem") plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
+if(rundata=="ief") plotmeas<-plotmeas[plotmeas$meastype %in% c(meas2popweight,meas2mcf,meas2clima),]
 
 # Criterion 1: Do not plot without sector_number
 plotselect <- plotmeas$sector_number!=""
@@ -39,7 +38,7 @@ if(restrictcategory!=""){
     select <- grepl(restrictcategory,plotmeas$category)
     plotmeas<-plotmeas[select,]
 }
-if(plottype=="emiplots"}){
+if(rundata=="adem"){
     sectorplots<-read.table("plots_sec1.txt")
     sectorplots<-as.vector(sectorplots$V1)
     select<-!grepl("^1",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
@@ -68,12 +67,11 @@ if(plotparamcheck==1){plotmeas<-paramcheck}
 
 plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
 plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
-if(plottype=="emiplots"}) plotdata<-eu28sums(A = plotdata)
-
-#for(imeas in c(13)){
-#for(imeas in c(1449:nrow(plotmeas))){
+if(rundata=="adem") plotdata<-eu28sums(A = plotdata)
 
 runfunction<-1
+
+save(plotmeas,plotdata,file=gsub(".RData",paste0("_plotmeas",rundata,".RData"),rdatallem))
 
 
 #    plotmatr<-unique(plotdata[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eucountries),c("party",years)])
@@ -81,18 +79,26 @@ runfunction<-1
 
 if(runfunction==1){
 
-    resti<-plotmeas$imeas[plotmeas$category=="Dairy Cattle" | plotmeas$category=="Non-Dairy Cattle"]
-    for(imeas in resti){   
-    #for(imeas in c(41:42)){
-    #for(imeas in c(271:nrow(plotmeas))){
-    #for(imeas in c(1:nrow(plotmeas))){
+    #resti<-plotmeas$imeas[plotmeas$category=="Dairy Cattle" | plotmeas$category=="Non-Dairy Cattle"]
+    #for(imeas in resti){   
+    #for(imeas in c(113,119,120)){
+    #for(imeas in c(358:nrow(plotmeas))){
+    for(imeas in c(1:nrow(plotmeas))){
         figname<-""
-        curuid<-plotmeas$variableUID[imeas]
-        #runfoc<-paste0(runfoc,)
-        runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
-        cat(runid,"/",nrow(plotmeas))
-        makeemplot(curuid,plotdata,"value","adem","EU28",plotparamcheck=0,runid)
-        
+        selection<-TRUE
+        #selection<-grepl("^3",plotmeas$sector_number[imeas])
+        selection<-plotmeas$meastype[imeas]%in%c("GEav","Milk","MASS","VSEXC","NRATE","FracGASF","FracGASM","FracLEACH")
+        selection<-plotmeas$meastype[imeas]%in%c("VSEXC")
+        if(plotmeas$meastype[imeas]=="Milk") plotdata[plotdata$party=="LU",years]<-NA
+        if(plotmeas$meastype[imeas]=="VSEXC") plotdata[plotdata$party=="SE",years]<-NA
+        #rundata<-"iefs"
+        if(selection){
+            curuid<-plotmeas$variableUID[imeas]
+            #runfoc<-paste0(runfoc,)
+            runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
+            cat(runid,"/",nrow(plotmeas))
+            makeemplot(curuid,plotdata,"value",rundata,"EU28",plotparamcheck=0,runid)
+        }
     }
 }else{
     
@@ -175,4 +181,4 @@ if(runfunction==1){
     }
 }
 plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
-write.csv(plotmeas,file=paste0(figdate,"/emissionplots~",figdate,".csv",collapse=NULL))
+write.csv(plotmeas,file=paste0(plotsdir,"/",rundata,"plots~",figdate,".csv",collapse=NULL))

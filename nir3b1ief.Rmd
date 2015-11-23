@@ -1,0 +1,224 @@
+#### Implied EFs  and Methodological Issues
+
+In this section we discuss the Implied Emission Factor for the main animal types.
+Furthermore, we present data on the Typical Animal Mass as reported in CRF Tables 3B(a)s1
+and average VS daily excretion.
+
+
+```{r 3B11ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB11trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB11ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+
+`r text2ief(fig=figs("figB11trendief",display="cite"),tab=tabs("tabB11ief",display="cite"))`
+
+
+`r figs("figB11trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B11Cattle-CH4EmissionsCH4IEF-1VALiefs_20151030.jpg)
+
+
+
+`r tabs("tabB11ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+
+```{r 3B111ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB111trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB111ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB111trendief",display="cite"),tab=tabs("tabB111ief",display="cite"))`
+
+`r figs("figB111trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B11DairyCattle-CH4EmissionsCH4IEF-1VALiefs_20151030.jpg) 
+
+
+`r tabs("tabB111ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"MASS"
+source("nircatdata2.r")
+figs("figB111trendMASS",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB111MASS",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB111trendMASS",display="cite"),tab=tabs("tabB111MASS",display="cite"))`
+
+`r figs("figB111trendMASS",display="full")`
+
+![](../2015/plots/sec3/iefs/3B11DairyCattle-CH4EmissionsMASS-1VALiefs_20151030.jpg) 
+
+
+`r tabs("tabB111MASS",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"VSEXC"
+source("nircatdata2.r")
+figs("figB111trendVSEXC",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB111VSEXC",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB111trendVSEXC",display="cite"),tab=tabs("tabB111VSEXC",display="cite"))`
+
+`r figs("figB111trendVSEXC",display="full")`[^exclSEvsexc]
+
+![](../2015/plots/sec3/iefs/3B11DairyCattle-CH4EmissionsVSEXC-1VALiefs_20151030.jpg)
+
+
+`r tabs("tabB111VSEXC",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+[^exclSEvsexc]: &#09;Note that data from Sweden are not included in the plot as they are reported in a different unit.
+
+
+```{r 3B112ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB112trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB112ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB112trendief",display="cite"),tab=tabs("tabB112ief",display="cite"))`
+
+`r figs("figB112trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B11Non-DairyCattle-CH4EmissionsCH4IEF-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB112ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B112MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"MASS"
+source("nircatdata2.r")
+figs("figB112trendMASS",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB112MASS",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB112trendMASS",display="cite"),tab=tabs("tabB112MASS",display="cite"))`
+
+`r figs("figB112trendMASS",display="full")`
+
+![](../2015/plots/sec3/iefs/3B11Non-DairyCattle-CH4EmissionsMASS-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB112MASS",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B112VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"VSEXC"
+source("nircatdata2.r")
+figs("figB112trendVSEXC",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB112VSEXC",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB112trendVSEXC",display="cite"),tab=tabs("tabB112VSEXC",display="cite"))`
+
+`r figs("figB112trendVSEXC",display="full")`[^exclSEvsexc]
+
+![](../2015/plots/sec3/iefs/3B11Non-DairyCattle-CH4EmissionsVSEXC-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB112VSEXC",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B13ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB13trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB13ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB13trendief",display="cite"),tab=tabs("tabB13ief",display="cite"))`
+
+`r figs("figB13trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3B13Swine-CH4EmissionsCH4IEF-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB13ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B13MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"MASS"
+source("nircatdata2.r")
+figs("figB13trendMASS",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB13MASS",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB13trendMASS",display="cite"),tab=tabs("tabB13MASS",display="cite"))`
+
+`r figs("figB13trendMASS",display="full")`
+
+![](../2015/plots/sec3/iefs/3B13Swine-CH4EmissionsMASS-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB13MASS",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B13VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"VSEXC"
+source("nircatdata2.r")
+figs("figB13trendVSEXC",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB13VSEXC",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB13trendVSEXC",display="cite"),tab=tabs("tabB13VSEXC",display="cite"))`
+
+`r figs("figB13trendVSEXC",display="full")`[^exclSEvsexc]
+
+![](../2015/plots/sec3/iefs/3B13Swine-CH4EmissionsVSEXC-1VALiefs_20151030.jpg) 
+
+`r tabs("tabB13VSEXC",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+

@@ -54,7 +54,7 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
                                              & M$target==tar]))
         #print(measOK)
         if(length(measOK)==0) {
-            tms<-paste0("x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+            tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
             print(tms)
             stop()
         }
@@ -121,26 +121,30 @@ parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 # CORRECTIONS
 
 # 1. Autocorrections have an identified reason - update the data table
-calceu<-allagri
-selection1<-autocorrections[,c("party","variableUID","autocorr")]
-calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
-selection1<-!is.na(calceu$autocorr)
-correctcorrection<-function(autocorrections,party,uid){
-    year<-autocorrections[autocorrections$party==party & autocorrections$variableUID==uid,years]
-    return(year)
+selection<-allagri$party=="EU28" & allagri$meastype%in%meas2popweight
+calceu<-allagri[!selection,]
+if(exists("autocorrections")){
+    selection1<-autocorrections[,c("party","variableUID","autocorr")]
+    calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
+    selection1<-!is.na(calceu$autocorr)
+    correctcorrection<-function(autocorrections,party,uid){
+        year<-autocorrections[autocorrections$party==party & autocorrections$variableUID==uid,years]
+        return(year)
+    }
+    selc<-calceu[selection1,]
+    t<-Reduce(rbind,lapply(c(1:sum(selection1)),function(x) 
+        unlist(correctcorrection(autocorrections,selc$party[x],selc$variableUID[x]))))
+    calceu[selection1,years]<-t
+    allagri<-calceu
 }
-selc<-calceu[selection1,]
-t<-Reduce(rbind,lapply(c(1:sum(selection1)),function(x) 
-    unlist(correctcorrection(autocorrections,selc$party[x],selc$variableUID[x]))))
-calceu[selection1,years]<-t
-
 # 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
-corcalceu<-subset(corrections,select=c("party","variableUID","correction"))
-calceucor<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
-calceucor$correction[is.na(calceucor$correction)]<-1
-selection2<-calceucor$correction==0
-calceucor[selection2,years]<-NA
-
+if(exists("paramcheck")){
+    corcalceu<-subset(paramcheck,select=c("party","variableUID","correction"))
+    calceucor<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
+    calceucor$correction[is.na(calceucor$correction)]<-1
+    selection2<-calceucor$correction==0
+    calceucor[selection2,years]<-NA
+}
 eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
 names(eu28wei)<-names(calceu)
 eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]

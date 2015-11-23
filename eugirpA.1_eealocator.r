@@ -17,7 +17,6 @@ if(generatealldata==1){
         load(rdatfile)
     }
     
-
     # --- Eleminate the 'no' texts .... they do not add information ####
     #no<-"no method_|no option_|no source_|no target_|no type_|Additional Information_"
     #no<-c("no method","no option","no source","no target","no type","Additional Information")
@@ -31,6 +30,7 @@ if(generatealldata==1){
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     # Create vectors for categories, years, and unique rows (not considering years) ----
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    print("Create vectors for categories")
     measures<-levels(alldata$measure)
     parties<-levels(alldata$party)
     years<-levels(alldata$year)
@@ -63,20 +63,24 @@ if(generatealldata==1){
     alldata<-alldata[select,]
     
     # Store method descriptions in different data frame - delete from alldata ####
+    print("Store allmethods")
     allmethods<-alldata[alldata$measure=="Method",]
     allmethods<-simplifytestmatrix(allmethods,"year",years2keep)
     alldata<-alldata[! alldata$measure=="Method",]
     
     infos<-c("Documentation box","Emission factor information","Type")
+    print("Store allinfos")
     allinfos<-alldata[alldata$measure %in% infos,]
     allinfos<-simplifytestmatrix(allinfos,"year",years2keep)
     alldata<-alldata[! alldata$measure %in% infos,]
     
     # Store notations in different data frame - delete from alldata ####
+    print("Store allnotations")
     notationkeys<-"[CS,NO,NE,IE,NA,D,T1,T2]"
     allnotations<-alldata[grepl(notationkeys,alldata$notation),]
     alldata<-alldata[! grepl(notationkeys,alldata$notation),]
     allnotations<-simplifytestmatrix(allnotations,"year",years2keep)
+    alldata<-unique(alldata)
     
 
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -86,7 +90,7 @@ if(generatealldata==1){
     # http://stackoverflow.com/questions/11350537/convert-a-factor-column-to-multiple-boolean-columns
     # Alternative method could be: #http://stackoverflow.com/questions/9084439/r-colsums-by-group
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    
+    print("Generate data frame with one columns per year")
     # First create a vector of unique strings corresponding to each of the variables (all years) of alldata
     tmpfields<-c("sector_number","category","method","classification","source","target","type","measure","notation","gas","unit","party")
     tmpfields<-names(alldata)[!names(alldata)%in%c("year","value")]
@@ -140,25 +144,35 @@ if(generatealldata==1){
     # alldata$measurelong<-alldata$measure
     #measureacronyms<-read.csv("metadim_row8measure.txt",stringsAsFactors=FALSE)
     #alldata<-subset(temp1,select=-dummy)
+    print("measureacronyms")
     measureacronyms<-read.csv("measures_20150731.txt",stringsAsFactors=FALSE)
     alldata<-merge(alldata,measureacronyms,by.x="measure",by.y="measname")
     
-    # Remove UK (use GB) ####
-    selectParty<-! alldata$party == "UK"
-    ukdata<-alldata[! selectParty,]
+    # The new EEA locator file includes both UK submissions. The following coding applies:
+    # GBE (CRF Party code & ‘submission file’ in the locator) = UK (‘Party code’ in the locator) = Great Britain (‘Party name’ in the locator) = EU-territory geographical coverage > EU’s submission under the Convention
+    # GBR (CRF Party code & ‘submission file’ in the locator) = GB (‘Party code’ in the locator) = United Kingdom (‘Party name’ in the locator) = KP geographical coverage > EU’s submission under KP
+    # The plots should have GBE, 
+    # Iceland should not be included. 
+    
+    # Remove UK (use GB) and remove Island ####
+    print("Remove data from countries that shall not be included (GB and IS)")
+    selectParty<- ! ( alldata$party == "GB" | alldata$party == "IS")
+    restdata<-alldata[! selectParty,]
     alldata<-alldata[selectParty,]
 
     alldatanosector<-alldata[alldata$sector_number=="-",]
     alldata<-alldata[! alldata$sector_number=="-",]
     
     # Save alldata for later re-use incase of allem or all3 ####
+    print("Save alldata")
     stepsdone<-1
-    save(stepsdone,alldata,allnotations,allinfos,allmethods,file=rdatallem)
-    save(stepsdone,alldata,allnotations,allinfos,allmethods,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
+    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods","restdata")
+    save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
     save(measures,parties,years,notations,classifications,categories,sources,methods,
          targets,options,types,gases,units,sectors,uids,file=rdatmeta)
-    write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_agri.csv"),sep=",")
-    write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_lulucs.csv"),sep=",")
+    write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_agri_s1.csv"),sep=",")
+    write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_lulucs_s1.csv"),sep=",")
 
     source("curplot.r")
     

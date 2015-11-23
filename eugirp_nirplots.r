@@ -15,7 +15,8 @@ if (hastitle==1){yhea=0.90} else {yhea=1.0}
 bspace=0.1
 par(xpd=F)
 schraffierung<-1
-
+print(curuid)
+print(runfocus)
 if (runfocus=="value"){runfoc<-"1VAL"}
 if (runfocus=="trend"){runfoc<-"2TRD"}
 if (runfocus=="countries"){runfoc<-"3CNT"}
@@ -85,6 +86,7 @@ fnammethod<-paste0(fnammethod,runmeastype)
 #     runcategmetgas<-paste0(runcategmetgas,fnampar,runmeastype)
 # }
 figdir<-figdate
+if(plotparamcheck==1) plotformat<-"jpg"
 if(plotparamcheck==1) figdir<-paste0(issuedir,"countryoutliers")
 if (! file.exists(figdir)){
     dir.create(file.path(figdir))
@@ -94,9 +96,11 @@ if(plotparamcheck!=1) runfoc<-paste0(runfoc,formatC(imeas,width=ceiling(log10(nr
 figname<-paste0(figdir,"/",fnammethod,"-",runfoc,"~",figdate,".",plotformat,collapse=NULL)
 print(paste0(imeas,"/",nrow(plotmeas),": ",figname))
 #postscript(figname)
-if(plotformat=="pdf") pdf(file=figname,width=11,height=6)
-if(plotformat=="png") png(file=gsub("pdf","png",figname),width=11,height=6,unit="in",res=plotresolution)
-if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=11,height=6,unit="in",res=plotresolution)
+pwidth=16
+pheight=pwidth/1.833
+if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
+if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
+if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
 if(length(curuid)>1){stop("More than one UID selected for graph!!")}
 
 
@@ -463,7 +467,7 @@ if(ncountries>0){
             checkdig<-round(finshares[i],nzeros)
             if(round(checkdig,0)==checkdig){checkdig<-paste0(checkdig,".",addzeros)}
             mytextavv <- paste0(checkdig,"%",sep="")
-            
+            mytextran <-""
             mytexteu<-eukp
             
             mytexteua<-paste0(eukp)
@@ -602,11 +606,11 @@ if(length(textorder)>0){
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #  TITLE ############################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-#print("Plot title")
-if (rundata=="adem" && runfocus=="value") {mtexttitle<-"Trend in the EU-KP"}
-if (rundata=="adem" && runfocus=="trend") {mtexttitle<-"Annual changes in the EU-KP"}
-if (rundata=="ief" && runfocus=="value") {mtexttitle<-"Range of values in the EU-KP"}
-if (rundata=="ief" && runfocus=="trend") {mtexttitle<-"Range in annual changes across the EU-KP"}
+# print("Plot title")
+if (rundata=="adem" && runfocus=="value") {mtexttitle<-paste0("Trend in the ",eukp)}
+if (rundata=="adem" && runfocus=="trend") {mtexttitle<-paste0("Annual changes in the ",eukp)}
+if (rundata=="ief" && runfocus=="value") {mtexttitle<-paste0("Range of values in the ",eukp)}
+if (rundata=="ief" && runfocus=="trend") {mtexttitle<-paste0("Range in annual changes across the ",eukp)}
 if (rundata=="ief" && runfocus=="countries") {mtexttitle<-"Range values over time"}
 
 maxnchar<-60
@@ -668,7 +672,7 @@ par(omd=c(0,1,0,ystt))
 par(mar=c(0,0,0,0)) #bot,lef,top,rig
 par(fig=c(0,1,0,1),new=T)
 
-foottextleft<-paste0("EU-GIRP.v2 (EU-Greenhouse gas Inventory Reporting Plots) (c) EC-JRC/AL https://github.com/aleip/eealocatorplots.git")
+foottextleft<-paste0("EU-GIRP.v",eugirp.version," (",eugirp.fullname,") (c) EC-JRC/AL ",eugirp.web)
 foottextrigt<-paste0(figdate," - UID: ",curuid, ". Submission from ",cursubm)
 
 plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")

@@ -1,3 +1,7 @@
+#Remove end-blank in sector_number
+selection<-grepl(" $",allagri$sector_number)
+allagri$sector_number[selection]<-gsub(" $","",allagri$sector_number[selection])
+
 # Deal with 'other livestock' ####
 print("# Deal with 'other livestock' ####")
 # Prepare data frames that link other livestock to category via measures or classification
@@ -21,7 +25,7 @@ nother<-nrow(allother)
 
 # First, link the sub-category to 'other livestock'
 allother$sector_number<-unlist(lapply(c(1:nother),function(x)
-    otherlive$code[otherlive$otherlivestock==allother$category[x]]))
+    otherlive$code[unlist(otherlive$otherlivestock)==as.character(allother$category[x])]))
 # Second, link the categroy (3.A, 3.B.1, 3.B.2) to 'other livestock' sub-categories
 fillother<-function(x,tables4sect,allother){
     sec<-allother$sector_number[x]
@@ -65,27 +69,37 @@ allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x)
     paste0(assignab(allother$classification[select][x]),".2")))
 # Island reports 'Animals for replacement' ?? (checked over population data)... should be put as recommendation
 select<-grepl("replacement",tolower(allother$category))
-allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
+if(sum(select)>0) allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
     paste0(assignab(allother$classification[select][x]),".2")))
 
 select<-grepl("swine|pig|boars|sow|gilt",tolower(allother$category))
-allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
-    paste0(assignab(allother$classification[select][x]),".3")))
-# Belgium reports swine as 'General' ... should be put as recommendation
-select<-grepl("general",tolower(allother$category))
-allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
+if(sum(select)>0) allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
     paste0(assignab(allother$classification[select][x]),".3")))
 
 cntrylive<-unique(allother$category[allother$sector_number=="" & allother$classification%in%mslivestockclass])
-if(length(cntrylive>0))stop("There are more 'other livestock', check cntrylive")
+#there is still 'General' for belgium which is corrected later
+if(length(cntrylive)>1)stop("There are more 'other livestock', check cntrylive")
 #Recombine
 allagri$sector_number[allagri$sector_number=="" & allagri$classification%in%mslivestockclass]<-allother$sector_number
 
-allagri<-allagri
+# Belgium reports swine as 'General' ... should be put as recommendation
+#select<-grepl("general",tolower(allother$category))
+#allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
+#    paste0(assignab(allother$classification[select][x]),".3")))
+selection<-allagri$category=="General" & allagri$party=="BE" & 
+    !(allagri$meastype%in%meastb12weight | allagri$meastype%in%meastb22weight | allagri$meastype%in%measta2weight)
+allagri<-allagri[!selection,]
+selection<-allagri$category=="General"
+allagri$category[selection]<-"Swine"
+allagri$sector_number[selection & allagri$meastype%in%measta2weight]<-"3.A.3"
+allagri$sector_number[selection & allagri$meastype%in%meastb12weight]<-"3.B.1.3"
+allagri$sector_number[selection & allagri$meastype%in%meastb22weight]<-"3.B.2.3"
+
+allagri98<-allagri
 
 #Remove duplicate lines (e.g. 'Swine' and 'Other swine') for agri
-agriselect<-duplicated(allagri[,names(allagri)[!names(allagri)%in%c("category","variableUID")]])
-allagri<-allagri[!agriselect,allfields]
+#agriselect<-duplicated(allagri[,names(allagri)[!names(allagri)%in%c("category","variableUID")]])
+#allagri<-allagri[!agriselect,allfields]
 
 substituteothers<-function(A,check1,check2){
     B<-A
@@ -150,3 +164,17 @@ allagri<-merge(allagri,sheepuidsn,by=usefields,all.x=TRUE)
 agriselect<-!is.na(allagri$nvariableUID)
 allagri$variableUID[agriselect]<-allagri$nvariableUID[agriselect]
 allagri<-allagri[,allfields]
+allagri<-unique(allagri)
+
+# Calculate parameter for parent category 'swine' and 'sheep ####
+allagri160<-allagri #keep 160 here!
+
+sheepswine<-c("Sheep","Swine")
+source("eugirp_aggparentanimal.r")
+allagri174<-addparentanimal
+
+curagri<-addparentanimal
+source("eugirp_cattle.r")
+allagri177<-curagri
+allagri<-curagri
+allagri$option[allagri$category%in%allcattle]<-""

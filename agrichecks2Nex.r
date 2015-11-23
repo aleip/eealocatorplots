@@ -65,15 +65,13 @@ check1<-checktemp
 names(check1)<-checkname
 ncheck1<-1
 
-check2<-checktemp
-ncheck2<-1
-names(check2)<-checkname
+check2<-checktemp;ncheck2<-1;names(check2)<-checkname
 
 # Check 1: Difference between sum(NEXC,mms) and TNEXC ####
 print("Check 1: Difference between sum(NEXC,mms) and TNEXC")
 print("Check 2: Population number and N-excretion rates")
 for(i in c(1:nrow(checkuids))){
-#for(i in c(6:6)){
+#for(i in c(51:51)){
     tmp1<-tmp0
     for(j in manureSysshrt){
         if(checkuids[i,j]!=0){
@@ -86,20 +84,20 @@ for(i in c(1:nrow(checkuids))){
     tmp2<-extractuiddata(allagri,checkuids[i,"TNEXC"],allcountries)
     
     # Difference between sum(NEXC,mms) and TNEXC
-    test<-"NexTOT"
+    test1<-"NexTOT"
     val1<-"sum(mms)"
     val2<-"total"
     
     sec<-paste0("3.B.2",checkuids$sector_number[i])
     cat<-checkuids$category[i]
     if(sec!="3.B.2.5 N2O Emissions per MMS" & cat!="Other Sheep" & cat!="Other Swine"){
-        diffmatout<-diffmatrix(check1,ncheck1,tmp1,tmp2,test,val1,val2,sec,cat,roundn=0)
+        diffmatout<-diffmatrix(check1,ncheck1,tmp1,tmp2,test1,val1,val2,sec,cat,roundn=0)
         ncheck1<-diffmatout[[1]]
         check1<-diffmatout[[2]]
     }
     
     # Population number and N-excretion rates
-    test<-"NexRATE"
+    test2<-"NexRATE"
     val1<-"sum(mms)"
     val2<-"AD x Nrate"
     if(checkuids[i,"APOP"]!=0){
@@ -115,12 +113,12 @@ for(i in c(1:nrow(checkuids))){
             # Difference between sum(NEXC,mms) and POP*Nrate 
             sec<-paste0("3.B.2",checkuids$sector_number[i])
             cat<-checkuids$category[i]
-            diffmatout<-diffmatrix(check2,ncheck2,tmp2,tmp5,test,val1,val2,sec,cat,roundn=0)
+            diffmatout<-diffmatrix(check2,ncheck2,tmp1,tmp5,test2,val1,val2,sec,cat,roundn=0)
             ncheck2<-diffmatout[[1]]
             check2<-diffmatout[[2]]
             if(ncheck2>1 & check2$test[1]!=0){
                 uid<-newuid()
-                addallagriout<-add2allagri(tmp5,sec,cat,"","kt N/year","","","TNEXC2",uid,"calc POP and Nrate")
+                addallagriout<-add2allagri(tmp5,sec,cat,"","kt N/year","","","TNEXC2","",uid,"calc POP and Nrate")
                 allagri<-addallagriout[[1]]
                 rowsadded<-addallagriout[[2]]
                 if(rowsadded>0) checkuids[i,"TNEXC2"]<-uid
@@ -132,21 +130,28 @@ for(i in c(1:nrow(checkuids))){
 
 #check1$sec<-gsub("Other ","",check1$sec)
 #check1<-unique(check1)
+check1b<-check1
+check1<-check1b
 check1<-simplifytestmatrix(check1,c("yr","fac","val"),list(years,"range",0))
-check1<-simplifytestmatrix(check1,"ms",allcountries)
+#check1<-simplifytestmatrix(check1,"ms",allcountries)
 check1<-check1[order(check1$ms,check1$sec,check1$yr),names(check1)]
 check1<-Reduce(rbind,lapply(c(1:nrow(check1)),function(x) Reduce(cbind,reportchecks1(check=check1[x,checkname],data=allagri,x))))
 check1<-as.data.frame(check1)
 names(check1)<-checkname[]
+checks<-rbind(checks,check1)
 
 #check2<-simplifytestmatrix(check2,c("yr","fac","val"),list(years,"range",0))
 #check2<-simplifytestmatrix(check2,"ms",allcountries)
 check2b<-check2
-check2<-simplifytestmatrix(check2,c("ms","yr","fac","val"),list(allcountries,years,"range",""))
+
+check2<-check2b
+check2<-simplifytestmatrix(check2,c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
 check2<-check2[order(check2$ms,check2$sec,check2$yr),names(check2)]
 check2<-Reduce(rbind,lapply(c(1:nrow(check2)),function(x) Reduce(cbind,reportchecks1(check=check2[x,checkname],data=allagri,x))))
 check2<-as.data.frame(check2)
 names(check2)<-checkname
+
+checks<-rbind(checks,check2)
 
 # Check 3: Sum of N handled in MMS over animal type vs. total N handled ####
 print("Check 3: Sum of N handled in MMS over animal type vs. total N handled")
@@ -174,10 +179,12 @@ for(j in manureSysshrt[!manureSysshrt %in% "pasture"]){
     diffmatout<-diffmatrix(check3,ncheck3,tmp1,tmp2,test,"sum(animals)","total",sec,cat,roundn=0)
     ncheck3<-diffmatout[[1]]
     check3<-diffmatout[[2]]
+    checks<-rbind(checks,check3)
 }
-if(nrow(check3>1) & check3$val!=0){
+if(nrow(check3)>1 & check3$val[1]!=0){
     #check3<-simplifytestmatrix(check3,c("yr","fac","val"),list(years,"range",0))
     #check3<-simplifytestmatrix(check3,"ms",allcountries)
+    check3$cat[is.na(check3$cat)]<-0
     check3<-simplifytestmatrix(check3,c("ms","yr","fac","val"),list(allcountries,years,"range",""))
     check3<-check3[order(check3$ms,check3$sec,check3$yr),names(check3)]
     check3<-Reduce(rbind,lapply(c(1:nrow(check3)),function(x) Reduce(cbind,reportchecks1(check=check3[x,checkname],data=allagri,x))))
@@ -227,13 +234,14 @@ for(j in c(1:length(manureSystems))){
         ncheck4<-diffmatout[[1]]
         check4<-diffmatout[[2]]
         uid<-newuid()
-        addallagriout<-add2allagri(tmp5,sec,cat,"N2O","kg N2O-N/kg N handled",manureSystems[j],"","IEF",uid,"calc from EM and Totel N handled")
+        addallagriout<-add2allagri(tmp5,sec,cat,"N2O","kg N2O-N/kg N handled",manureSystems[j],"","IEF","Implied Emission Factor",uid,"calc from EM and Totel N handled")
         allagri<-addallagriout[[1]]
         rowsadded<-addallagriout[[2]]
         if(rowsadded>0) checkuids[icheck,curief]<-uid
     }
 }
-if(nrow(check4>1) & check4$val[1]!=0){
+if(nrow(check4)>1 & check4$val[1]!=0){
+    check4b<-check4
     check4$fac[is.na(check4$fac)]<-0
     check4<-simplifytestmatrix(check4,c("yr","fac","val"),list(years,"range",0))
     check4<-simplifytestmatrix(check4,"ms",allcountries)
@@ -241,6 +249,8 @@ if(nrow(check4>1) & check4$val[1]!=0){
     check4<-Reduce(rbind,lapply(c(1:nrow(check4)),function(x) Reduce(cbind,reportchecks1(check=check4[x,checkname],data=allagri,x))))
     check4<-as.data.frame(check4)
     names(check4)<-checkname
+    checks<-rbind(checks,check4)
+    
 }
 
 # Check 5: Calculate IEFs per animal type and related to N excreted ####
@@ -250,7 +260,7 @@ check5<-checktemp
 names(check5)<-checkname
 ncheck5<-1
 for(i in c(1:nrow(checkuids))){
-    #tmp1 is total N excretion per animal type
+    #tmp1 = Total N excretion per animal type (measure: Total N excreted, meastype: EM)
     tmp1<-extractuiddata(allagri,checkuids[i,"TNEXC"],allcountries)
     
     if(sum(tmp1)>0){
@@ -265,8 +275,11 @@ for(i in c(1:nrow(checkuids))){
             if(checkuids[i,manureSysshrt[j]]!=0) tmp2<-extractuiddata(allagri,checkuids[i,manureSysshrt[j]],allcountries)
             if(checkuids[icheck,paste0(manureSysshrt[j],"IEFN2O")]!=0) tmp3<-extractuiddata(allagri,checkuids[icheck,paste0(manureSysshrt[j],"IEFN2O")],allcountries)
             if(sum(tmp2)>0 & sum(tmp3)>0) {
-                #tmp4 is the weighted direct N2O-IEF (calculated above if not existing before)
-                #     with the share of manure handled in the MMS
+                #tmp2: N-excretion per MMS and animaltype; measure: Nitrogen excretion per MMS, meastype: NEXC
+                #tmp3: Implied N2O-EF per MMS; method: calc from EM and Totel N handled, meastype: IEF
+                
+                #tmp4: Implied N2o-EF, calculated as the weighted average of MMS-specific IEFs (calculated above if not existing before)
+                #      with the share of manure handled in the MMS by animal type.
                 #print(paste(cursystem,tmp2[7,24],tmp3[7,24],tmp4[7,24],sep="-"))
                 tmp4<-tmp4+tmp2/tmp1*tmp3
                 tmp4[is.nan(tmp4)]<-0
@@ -276,7 +289,7 @@ for(i in c(1:nrow(checkuids))){
             sec<-paste0("3.B.2",checkuids$sector_number[i])
             cat<-checkuids$category[i]
             uid<-newuid()
-            addallagriout<-add2allagri(tmp4,sec,cat,"N2O","kg N2O-N/kg N excreted","","","IEFN1",uid,"calc as weighted average over MMS-IEFs",force=1)
+            addallagriout<-add2allagri(tmp4,sec,cat,"N2O","kg N2O-N/kg N excreted","","","IEFN1","Implied Emission Factor",uid,"calc as weighted average over MMS-IEFs",force=1)
             allagri<-addallagriout[[1]]
             rowsadded<-addallagriout[[2]]
             if(rowsadded>0) checkuids[i,"IEFNN2O1"]<-uid
@@ -286,7 +299,7 @@ for(i in c(1:nrow(checkuids))){
             tmp6<-(tmp5*28/44)/(tmp1)
 
             uid<-newuid()
-            addallagriout<-add2allagri(tmp6,sec,cat,"N2O","kg N2O-N/kg N excreted","","","IEFN2",uid,"calc from Total N excreted and Emissions",force=1)
+            addallagriout<-add2allagri(tmp6,sec,cat,"N2O","kg N2O-N/kg N excreted","","","IEFN2","Implied Emission Factor",uid,"calc from Total N excreted and Emissions",force=1)
             allagri<-addallagriout[[1]]
             rowsadded<-addallagriout[[2]]
             if(rowsadded>0) checkuids[i,"IEFNN2O2"]<-uid
@@ -301,21 +314,48 @@ for(i in c(1:nrow(checkuids))){
     }
 }
 check5b<-check5
-if(nrow(check5>1) & check5$val[1]!=0){
+if(nrow(check5)>1 & check5$val[1]!=0){
     check5<-check5b
-    check5<-simplifytestmatrix(check5,c("ms","yr","fac","val"),list(allcountries,years,"range",""))
+    #check5<-simplifytestmatrix(check5,c("ms","yr","fac","val"),list(allcountries,years,"range",""))
+    check5<-simplifytestmatrix(check5,c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
     check5<-check5[order(check5$sec,check5$cat,check5$ms,check5$yr),names(check5)]
-    check5t<-Reduce(rbind,lapply(c(1:nrow(check5)),function(x) Reduce(cbind,reportchecks1(check=check5[x,checkname],data=allagri,x))))
+    check5<-Reduce(rbind,lapply(c(1:nrow(check5)),function(x) Reduce(cbind,reportchecks1(check=check5[x,checkname],data=allagri,x))))
     check5<-as.data.frame(check5)
     names(check5)<-checkname
+    checks<-rbind(checks,check5)
 }
-
 
 # Check 6: sum of climate allocations ####
 climfields<-c("sector_number","category","classification","option","party")
 allclimate<-allagri[allagri$meastype=="CLIMA",c(climfields,"target","source",years)]
 allclimateval<-allclimate[,years]
 allclimatedat<-allclimate[,climfields]
-allclimateagg<-aggregate(allclimatevalues,by=as.list(allclimatedat),function(x) sum(x))
+allclimateagg<-aggregate(allclimateval,by=as.list(allclimatedat),function(x) sum(x))
 v<-unique(which(round(allclimateagg[,years],1)!=100,arr.ind = TRUE)[,1])
 climcheck<-allclimateagg[v,]
+climcheck<-climcheck[!(climcheck$party=="DE"&climcheck$category=="Buffalo"),]
+
+check6<-data.frame(matrix(rep(0,ncol(checktemp)*nrow(climcheck)),ncol=ncol(checktemp),nrow=nrow(climcheck)))
+names(check6)<-checkname
+check6[,c("sec","cat","ms")]<-climcheck[,c("sector_number","category","party")]
+check6$test<-"CLIMA"
+check6[,c("val1","val2","yr")]<-""
+check6$obs<-"sum alloc over mms and climate not 100"
+check6$fac<-apply(climcheck[,years],1,mean)
+check6<-simplifytestmatrix(check6,c("sec","cat"),list(0,0))
+check6<-check6[order(check6$sec,check6$cat,check6$ms,check6$yr),names(check6)]
+check6<-Reduce(rbind,lapply(c(1:nrow(check6)),function(x) Reduce(cbind,reportchecks1(check=check6[x,checkname],data=allagri,x))))
+check6<-as.data.frame(check6)
+names(check6)<-checkname
+checks<-rbind(checks,check6)
+
+
+# Write out list of issues ####
+checks$correction<-1
+checks[,resolved]<-""
+checks[,docfields]<-""
+checks$val<-paste0("=HYPERLINK(\"",checks$val,"\")")
+call<-names(checks)
+c<-c(call[1:which(call=="val")],"correction",resolved,docfields,call[(which(call=="sec")+1):length(call)])
+checks<-checks[,c]
+write.csv(checks,file=paste0(issuedir,"agrichecks.csv"))

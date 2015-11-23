@@ -1,0 +1,23 @@
+### Manure Management - CH4 (CRF Source Category 3B1) 
+```{r 3b1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"share"),sharefigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+`r curgas` emissions from source category `r cursec` Manure Management are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharech4)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`) and `r subcateg$sector_number[2]` (`r subcateg$category[2]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`.
+`r text2mscontr(sec=cursec)`
+
+
+`r figs(paste0("fig",cursec,"share"),display="full")`
+
+![](../2015/plots/20151030agrimixeu3.B.1.jpg)
+
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2015/eureport/figs/3BManureManagement_.jpg)
+

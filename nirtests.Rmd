@@ -1,0 +1,50 @@
+#### Test of various kinds
+
+reference_docx: template1.docx
+
+http://rmarkdown.rstudio.com/word_document_format.html
+
+
+Test list
+
+* eins
+* zwei
+* drei
+
+Anotyher test list
+
+#. eins
+#. zwei
+#. drei [^footnote1]
+
+[^footnote1]: This is one footnite
+
+
+```{r Legengde,fig.pos='h',fig.cap='hallo",capt,"ok'}
+plot(years)
+```
+
+```{r testtable2}
+# http://www.rdocumentation.org/packages/knitr/functions/kable
+kable(alltotals[alltotals$party=="EU28" & alltotals$type==seltype &
+                       alltotals$classification==selclass,lastyear],
+          caption="Table ctopaion test")
+```
+
+
+```{r testtable}
+# http://www.rdocumentation.org/packages/knitr/functions/kable
+kt<-kable(alltotals[alltotals$party=="EU28" & alltotals$type==seltype &
+                       alltotals$classification==selclass,lastyear],
+          caption="Table ctopaion test")
+```
+
+
+![cat("Figure")](20151002/3A1Cattle-EntericFermentationCH4EM-1VAL156~20151002.jpg)
+
+
+Enteric fermentation is the largest[^footnote1],[^footnote2]
+100*agrigeneu[agrigeneu$sector_number=="3.A",lastyear] of emissions.
+
+[^footnote2]: data from ```lastyear```
+

@@ -28,6 +28,7 @@ ES	grey35	10	grey80	45	-45	21  black   black
 FI	grey35	 5	grey10	45	-45	22  white   grey 
 FR	grey20	20	grey50	45	-45	22  white   black
 GB	grey20	20	grey80	45	-45	22  white   white
+UK	grey20	20	grey80	45	-45	22  white   white
 GR	grey20	10	grey50	45	-45	22  grey    grey 
 HR	grey20	10	grey80	45	-45	22  grey    white
 HU	grey20	 5	grey50	45	-45	22  grey    black

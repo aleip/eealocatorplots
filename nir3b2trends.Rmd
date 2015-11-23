@@ -1,0 +1,167 @@
+#### Trends in Emissions and Activity Data
+```{r 3B2adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2015/plots/sec3/3B2Farming-N2OandNMVOCEmissionsN2OEM-1VAL180_20151030.jpg) 
+
+
+```{r 3B21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"EM"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+
+Main Activity Data for N2O emissions from Manure Management - Cattle are the animal numbers. 
+Cattle numbers are already discussed under source category 3.A Enteric Fermentation and therefore not further discussed here.
+
+Other activity Data is: 
+
+* N-allocation by MMS. 
+
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2015/eureport/figs/3B21CattleN2O.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2015/plots/sec3/3B21Cattle-N2OandNMVOCEmissionsN2OEM-1VAL181_20151030.jpg) 
+
+```{r 3B21pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"POP"
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+Main Activity Data for N2O emissions from Manure Management - Cattle are the animal numbers. 
+Cattle numbers are already discussed under source category 3.A Enteric Fermentation and therefore not further discussed here.
+
+Other activity Data: 
+
+* N-allocation by MMS. 
+
+
+
+```{r 3B25em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management - Indirect Emissions"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+Note that `r figs(paste0("fig",cursec,"trend",curmea),display="cite")` shows the then countries contributing most to `r eukp` total over the whole time period with Hungary contributing with 1.9% while the number above refers to the year `r lastyear` with Greece contributing with 2.2% explaining the slight deviation in the presented numbers.
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2015/eureport/figs/3B25IndirectEmissionsN2O.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2015/plots/sec3/3B25Farming-IndirectN2OEmissionsN2OEM-1VAL283_20151030.jpg) 
+
+
+```{r 3B24em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4"
+curseclong<-"Manure Management"
+curcat<-"Other Livestock"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+
+#subcategssel<-grepl(paste0("^",cursec,"\\."),agridet$sector_number) & agridet$party=="EU28"&agridet$meastype=="EM"&agridet$gas==curgas
+#subcategdet<-agridet[subcategssel,]
+#subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
+#nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
+
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2015/eureport/figs/3B24OtherLivestockN2O.jpg)
+
+
+```{r 3B247em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4.7"
+curseclong<-"Manure Management"
+curcat<-"Poultry"
+curmea<-"EM"
+source("nircatdata.r")
+
+subcategssel<-grepl("3.B.2.4.",agridet$sector_number) & agridet$party=="EU28"&agridet$meastype=="EM"&agridet$gas==curgas
+subcategdet<-agridet[subcategssel,]
+subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
+nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
+
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+Largest contribution to emissions comes from sub-category `r subcategdet$category[1]` with `r percent(subcategdet[1,lastyear]/sum(subcategdet[,lastyear]))` of total `r curgas` emissions. Other animal types with high emissions are `r subcategdet$category[2]` with a share of `r percent(subcategdet[2,lastyear]/sum(subcategdet[,lastyear]))` and `r subcategdet$category[3]` with a share of `r percent(subcategdet[3,lastyear]/sum(subcategdet[,lastyear]))`. Here only the most important animal type `r subcategdet$category[1]` is discussed. 
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+```{r 3B24ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.4.7"
+curseclong<-"Enteric Fermentation"
+curcat<-"Poultry"
+curmea<-"POP"
+source("nircatdata2.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+As population data for Poultry have not yet been discussed, this will be done here. 
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+Other activity Data:
+
+* N on MMS
+
+`r figs(paste0("fig","3.B.2.4","trend","EM"),display="full")`
+
+![](../2015/plots/sec3/3B24OtherLivestock-N2OandNMVOCEmissionsN2OEM-1VAL228_20151030.jpg) 
+
+`r figs(paste0("fig","3.B.2.4.7","trend","EM"),display="full")`
+
+![](../2015/plots/sec3/3B247Poultry-N2OandNMVOCEmissionsN2OEM-1VAL268_20151030.jpg) 
+
+`r figs(paste0("fig",cursec,"trend","POP"),display="full")`
+
+![](../2015/plots/sec3/3A47Poultry-EntericFermentationPOP-1VAL159_20151030.jpg) 
+

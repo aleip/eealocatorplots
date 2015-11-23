@@ -2,7 +2,8 @@
 is.nan.data.frame <- function(x) do.call(cbind, lapply(x, is.nan))
 is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 
-viewlast<-function(n){View(allagri[(nrow(allagri)-n):nrow(allagri),])}
+view<-function(D){View(D)}
+viewlast<-function(n,allagri=allagri){View(allagri[(nrow(allagri)-n):nrow(allagri),])}
 newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")}
 firstup<-function(string){
     rstring<-tolower(string)
@@ -11,9 +12,33 @@ firstup<-function(string){
 uidall<-function(D,uid){D[D$variableUID%in%uid,]}
 viewuid<-function(D,uid){
     View(uidall(D,uid),
-         unique(paste0(D$sector_number[D$variableUID==uid],D$category[D$variableUID==uid])))}
+         unique(paste0(D$sector_number[D$variableUID==uid],D$category[D$variableUID==uid])))
+}
+
 matbyind<-function(D,v){
+    # Extract the data identified from which with option arr.ind=TRUE into a matrix
     if(nrow(v)>0){M<-unlist(lapply(c(1:nrow(v)),function(y) D[v[y,1],v[y,2]]))}else{M<-0}
+    return(M)
+}
+whichmatrix<-function(D,v){
+    # Puts the results from 'which' with option arr.ind=TRUE back into the matrix 
+    M<-D
+    if(is.vector(v)){
+        M[]<-0
+        if(length(v)>0){
+            for(y in c(1:length(v))){
+                M[v[y]]<-D[v[y]]
+            }
+        }
+    }else{
+        if(nrow(v)>0){
+            vals<-matbyind(D,v)
+            M[,]<-0
+            for(y in c(1:nrow(v))){
+                M[v[y,1],v[y,2]]<-vals[y]
+            }
+        }
+    }
     return(M)
 }
 
@@ -52,6 +77,36 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     return(ngetuidr)
 }
 
+brief<-function(text){
+    
+    # Provides short names for items (sector_name,measure,method,...) in CRF
+    
+    if(text=="Atmospheric Deposition") {br<-"AtmDep"}else
+    if(text=="Nitrogen Leaching and Run-off") {br<-"NLR"}else
+    if(text=="Organic N Fertilizers") {br<-"OrgN"}else
+    if(text=="Inorganic N Fertilizers") {br<-"InorgN"}else
+    if(text=="3.B.2.5 N2O Emissions per MMS") {br<-"MMS"}else
+    if(text=="no gas") {br<-""}else
+    if(text=="Aggregate GHGs") {br<-"GHG"}else
+    if(text=="Option A") {br<-"A"}else
+    if(text=="Option B") {br<-"B"}else
+    if(text=="Option C") {br<-"C"}else
+    {br<-text}
+}
+
+linkto<-function(text){text<-paste0("=HYPERLINK(\"",text,"\")")}
+
+calculateshares<-function(uid,curval,totalval){
+    # Calculate the share of a time series (curval) for all MS against a give total (totalval)
+    val<-extractuiddata(DF = curval,uid = uid,c = allcountries,narm = FALSE)
+    res<-val/totalval
+    res<-as.data.frame(res)
+    res$party<-allcountries
+    res$variableUID<-uid
+    #stop()
+    return(res)
+}
+
 sumovercountries<-function(D,uid,y,c){
     y<-as.character(y)
     s<-matrix(0,ncol=length(y))
@@ -60,6 +115,26 @@ sumovercountries<-function(D,uid,y,c){
     s<-apply(m,2,sum)
     return(s)
 }
+
+eu28sums<-function(A){
+    agrimeas<-unique(subset(A,select=allfields[!allfields %in% c("notation","party",years,"option")]))
+    agri2sum<-agrimeas[agrimeas$meastype %in% meas2sum,]
+    removeeu28<-A$meastype %in% meas2sum & A$party=="EU28"
+    A<-A[!removeeu28,]
+    
+    eu28sum<-as.data.frame(matrix(rep(0,ncol(A)*nrow(agri2sum)),
+                                  ncol=ncol(A),nrow=nrow(agri2sum)))
+    names(eu28sum)<-names(A)
+    eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
+    eu28sum[,years]<-euvalue("sum",eu28sum,A,years,countriesic)
+    eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
+    eu28sum$notation[eu28sum$notation==0]<-""
+    eu28sum$option[eu28sum$option==0]<-""
+    A<-rbind(A,eu28sum)
+    return(A)
+}
+
+
 weightovercountries<-function(D,Auid,Puid,ok,y,c){
     
     # Returns the weighted average over all countries
@@ -72,7 +147,6 @@ weightovercountries<-function(D,Auid,Puid,ok,y,c){
     #print(paste0("ok<-",ok))
     Auid<-as.vector(unlist(Auid))
     Puid<-as.vector(unlist(Puid))
-    
     if(ok=="-" | ok=="" | grepl("^[1-9]",ok)){
         s<-rep(NA,length(y))
     }else{
@@ -92,25 +166,31 @@ weightovercountries<-function(D,Auid,Puid,ok,y,c){
         
         pa<-pa[!is.na(apply(ad,1,sum,rm.na=TRUE)),]
         ad<-ad[!is.na(apply(ad,1,sum,rm.na=TRUE)),]
-        if(length(pa)<length(c)){
-            ad<-t(ad)
-            pa<-t(pa)
-        }
         
-        if(nrow(ad)>0 & sum(apply(ad,2,sum))!=0 ){
-            m<-ad*pa
-            s<-apply(m,2,sum)/apply(ad,2,sum)
-        }else if(nrow(ad)>0 & sum(apply(ad,2,sum))==0){
-            #Calculate average
-            s<-apply(pa,2,mean)   
+        if(length(pa)==0){
+            s<-rep(NA,length(y))
         }else{
-            s<-0
+            if(length(pa)<length(c)){
+                ad<-t(ad)
+                pa<-t(pa)
+            }
+            
+            if(nrow(ad)>0 & sum(apply(ad,2,sum))!=0 ){
+                m<-ad*pa
+                s<-apply(m,2,sum)/apply(ad,2,sum)
+            }else if(nrow(ad)>0 & sum(apply(ad,2,sum))==0){
+                #Calculate average
+                s<-apply(pa,2,mean)   
+            }else{
+                s<-0
+            }
         }
     }
-    #if(is.nan(s)) s<-0
+#if(is.nan(s)) s<-0
     #if(is.na(s)) s<-0
     return(s)
 }
+
 euvalue<-function(todo,E,D,y,c){
     if(todo=="sum")l<-lapply(c(1:nrow(E)),function(x) sumovercountries(D,E$variableUID[x],y,c))
     if(todo=="weight"){
@@ -134,6 +214,18 @@ euvalue<-function(todo,E,D,y,c){
 #     
 #     return(myobject)
 # }
+
+convert2co2eq<-function(line){
+    #Converts data into CO2eq 
+    #Line needs to have just 'unit','gas' and the value-columns!!
+    g<-as.character(line$gas)
+    u<-as.character(line$unit)
+    y<-names(line)[!names(line)%in%c("gas","unit")]
+    convert<-gwps[which(gases==g)]
+    if(u=="kt CO2 equivalent") convert<-1
+    line[,y]<-line[,y]*convert
+    return(list(g,"kt CO2 equivalent",line[,y]))
+}
 
 extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE){
     c<-as.data.frame(c)
@@ -188,23 +280,30 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
             checks[ncheck,"cat"]<-cat
             
             # Check if the values differ by orders of magnitude
-            quotient<-round(log10(round(A[rn,cn],roundn)/round(B[rn,cn],roundn)),0)
+            quotient<-log10(A[rn,cn]/B[rn,cn])
             obs<-""
-            val<-paste0(round(A[rn,cn],roundn),"/",round(B[rn,cn],roundn))
+            val<-paste0(round(A[rn,cn],roundn+2),"/",round(B[rn,cn],roundn+2))
+            
             if(is.infinite(quotient)){
                 obs<-paste0(val2," is not reported")
                 val<-""
                 fac<-0
-            }else 
-                if(round(round(A[rn,cn],roundn)/10**quotient,roundn)==round(B[rn,cn],roundn)){
-                obs<-paste0(val1," is 10^fac x ",val2)
-                val<-""
-                fac<-quotient
             }else{
-                quotient<-round(round(A[rn,cn],roundn)/round(B[rn,cn],roundn),3)
-                if(quotient==0) quotient<-round(round(A[rn,cn],roundn)/round(B[rn,cn],roundn),3+3)
-                obs<-paste0("val1 is fac x val2")
-                fac<-quotient
+                #check order of mag of quotient
+                quotord<-round(quotient,0)
+                #Check if quotient is a multiple of 10
+                if(round(quotient,2)==10^quotord){
+                    cat("\n1",quotient,quotord)
+                    obs<-paste0(val1," is 10^fac x ",val2)
+                    val<-""
+                    fac<-round(quotient,3)
+                }else{
+                    quotient<-round(A[rn,cn]/B[rn,cn],3)
+                    if(quotient==0) quotient<-round(round(A[rn,cn],roundn)/round(B[rn,cn],roundn),3+3)
+                    obs<-paste0("val1 is fac x val2")
+                    fac<-round(quotient,3)
+                    #cat("\nelse",quotient,fac)
+                }
             }
             checks[ncheck,"val"]<-val
             checks[ncheck,"obs"]<-obs
@@ -215,11 +314,14 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
     return(list(ncheck,checks))
 }
 
-# Function group the years into a string
-#  - Returns "all" if all years in "years"
-#  - Returns the missing years if less than half are missin
-#  - Returns the selected years if less then half are selectd
 reportyears<-function(checkyx,compare){
+
+    # Required to write out issues
+    
+    # Function group the years into a string
+    #  - Returns "all" if all years in "years"
+    #  - Returns the missing years if less than half are missin
+    #  - Returns the selected years if less then half are selectd
     
     # If there are multiple columns compare must be passed as list
     if(! is.list(compare)) compare<-list(compare)
@@ -247,7 +349,7 @@ reportyears<-function(checkyx,compare){
         maxn<-length(compare[[docheck]])
         if(maxn==1){
             if(compare[[docheck]]==0){
-                ret<-paste0(curcheckyx,collapse=" ")
+                ret<-paste0(gsub(" ","_",curcheckyx),collapse=" ")
             }else if(compare[[docheck]]=="range"){
                 curcheckyx<-as.numeric(curcheckyx)
                 rmin<-min(curcheckyx,na.rm=TRUE)
@@ -299,101 +401,19 @@ simplifytestmatrix<-function(check,group,compare=0){
     
 }
 
-reportchecks1<-function(check,data,x){
-    reportfields<-c("party","sector_number","category","measure","meastype","gas","unit",
-                    "method","source","notation",
-                    "1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013",
-                    "classification","target","type","option","variableUID")
-    checkfields<-c("test","val1","val2","sec","cat","obs","ms","yr","fac","val")
-    n<-nrow(check)
-    
-
-    #resolve countries
-    c<-check$ms
-    y<-check$yr
-    s<-check$sec
-    cat<-check$cat
-
-    if(grepl("all",c) & grepl("all",y)){
-        check$val<-paste0("all countries and years")
-    }else{
-        #if 'all' or 'all except' report all 
-        if(grepl("all",c)){c<-allcountries}else{c<-unlist(strsplit(c," "))}
-        
-        selection<-data$sector_number==s & data$category==cat
-        selp<-as.vector(unique(unlist(data$party[selection])))
-        selp<-selp[!selp%in%c]
-        
-        if(check$test=="NexTOT"){
-            selection<-selection & data$gas=="no gas" & (data$meastype=="EM" | data$meastype=="NEXC") 
-            extraline<-"# Note: countries which do not report both 'Nitrogen excretion per MMS' and 'Total N excreted' are not identified"
-        }
-        if(check$test=="NexRATE"){
-            selection<-(selection | (data$sector_number==gsub("3.B.2","3.A",s) & data$category==cat)) &
-                       (data$meastype%in%c("POP","NRATE","TNEXC2","EM") & (data$gas%in%c("no gas","")))
-            
-            extraline<-"# Note: countries which do not report both 'Nitrogen excretion rate' and 'Total N excreted' are not identified"
-        }
-        
-        if(grepl("N in ",check$test)){
-            selection<-selection
-        }
-        if(grepl("N2O-IEF in ",check$test)){
-            selection<-(selection | (data$sector_number=="3.B.2.5 N2O Emissions per MMS" & data$meastype=="IEF"))
-        }
-        
-        if(grepl("N2O-NIEF",check$test)){
-            directsys<-manureSystems[!manureSystems%in%c("Pasture  range and paddock","Burned for fuel or as waste")]
-            selsys<-directsys[directsys%in%unique(unlist(data$source[selection]))]
-            selection<-(selection  | 
-                       (data$sector_number=="3.B.2.5 N2O Emissions per MMS" & data$meastype%in%c("IEF","EM","NEXC"))) &
-                        data$source %in% c(selsys,"") 
-                
-            extraline<-paste0("# Please compare IEFN1 with IEFN2.\n",
-                              "# IEFN1 is calculated as the weighted average of the IEF for the MMS (IEF_MMS) and the N excreted to the MMS, referred to Total N excreted (IEFN1=SUM(IEF_MMS * NEXC_MMS)/TNECX\n",
-                              "# IEFN2 is calculated as from total (direct) Emissions and Total N excreted. IEFN2=EM/TNEXC*28/44\n",
-                              "# IEF_MMS is calculated from Total N handled per MMS and Direct N2O emissions per MMS (IEF_MMS=EM_MMS/N_MMS*28/44\n",
-                              "# --> A difference in IEFN1 and IEFN2 indicates \n",
-                              "#     - The use of IEF_MMS that are different for different animal types. In this case please provide an explanation!!\n",
-                              "#     - An error in the calculation. In this case please provide a correction.\n",
-                              "#")
-        }
-        
-        selw<-selection & (data$party %in% c)
-        selc<-selection & (data$party %in% selp)
-        checkw<-data[selw,reportfields]
-        checkc<-data[selc,reportfields]
-        checkw<-checkw[order(checkw$party,checkw$notation,checkw$category,checkw$measure),]
-        checkc<-checkc[order(checkc$party,checkc$notation,checkc$category,checkc$measure),]
-        
-        if(exists("checkw")>0){
-            checkfile<-gsub(" ","",paste0(check$test,"_",check$val1,"_vs_",check$val2,"_",check$obs,s,cat,"_",x,".csv"))
-            checkfile<-gsub("/","",checkfile)
-            line<-paste(check[,checkfields],collapse="-")
-            con <- file(paste0(issuedir,checkfile), open="wt")
-            writeLines(paste0("# ",line,"\n#"), con)
-            if(exists("extraline")) writeLines(extraline, con)
-            writeLines(paste0("#\n#"), con)
-            for(cc in c) {write.csv(checkw[checkw$party==cc,],con);writeLines("#",con)}
-            writeLines("#\n# Comparison: other countries",con)
-            write.csv(checkc,con)
-            close(con)
-            check$val<-paste0(figdate,"/",checkfile)
-        }
-    }
-    return(check)
-}
-
-add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",uid="",note="",force=0){
+add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",msr="",uid="",note="",force=0,DATA=data.frame()){
     # Note this adds a new row only if it does not exist 
     # Existing rows will not be overwritten.
     
-    agruemp<-as.data.frame(matrix(rep("",ncol(allagri)),nrow=1,ncol=ncol(allagri)),stringsAsFactors = FALSE)
-    names(agruemp)<-names(allagri)
+    curdata<-allagri
+    if(nrow(DATA)>0) curdata<-DATA
+    
+    agruemp<-as.data.frame(matrix(rep("",ncol(curdata)),nrow=1,ncol=ncol(curdata)),stringsAsFactors = FALSE)
+    names(agruemp)<-names(curdata)
     agruemp[,years]<-rep(0,length(years))
     
-    exists<-nrow(allagri[allagri$sector_number==sec & allagri$category==cat & allagri$gas==gas & allagri$unit==unit &
-                             allagri$source==sou & allagri$meastype==mea,])
+    exists<-nrow(curdata[curdata$sector_number==sec & curdata$category==cat & curdata$gas==gas & curdata$unit==unit &
+                             curdata$source==sou & curdata$meastype==mea,])
     
     addr<-1
     if(exists==0 | force==1){
@@ -406,6 +426,7 @@ add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",u
         addrow$source[1]<-sou
         addrow$target[1]<-tar
         addrow$meastype[1]<-mea
+        addrow$measure[1]<-msr
         addrow$variableUID[1]<-uid
         addrow$method[1]<-note
         addrow$notation[1]<-"x"
@@ -431,18 +452,98 @@ add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",u
         addr<-addr-1
         #addnewrow[addnewrow[addr,uniquefields]==0,uniquefields]<-""
         if(addr>0) {
-            levels(allagri$unit)<-c(levels(allagri$unit),unit)
-            #levels(allagri$variableUID)<-c(levels(allagri$variableUID),uid)
-            #levels(allagri$source)<-c(levels(allagri$source),sou)
+            levels(curdata$unit)<-c(levels(curdata$unit),unit)
+            #levels(curdata$variableUID)<-c(levels(curdata$variableUID),uid)
+            #levels(curdata$source)<-c(levels(curdata$source),sou)
         }
-        if(addr>0) allagri<-rbind(allagri,addnewrow)
+        if(addr>0) curdata<-rbind(curdata,addnewrow)
     }else{
-        print("exists")
+        #print("exists")
     }
-    return(list(allagri,addr))
+    return(list(curdata,addr))
 }
 
-
+ispotentialissue<-function(line,S,signyear,signthreshold){
+    # Check if an issue identified as outlier is potentially significant
+    median<-line$median
+    y<-line[,signyear]
+    lastyr<-line$years
+    sect<-line$sector_number
+    categ<-line$category
+    targ<-line$target
+    meas<-line$meastype
+    type<-line$type
+    significant<-0
+    effect<-"no"
+    if(sect=="3.D.AI.1") {sect<-"3.D.2.1";categ<-"Farming"; targ<-"Atmospheric Deposition"}
+    if(sect=="3.D.AI.2") {sect<-"3.D.2.1";categ<-"Farming"; targ<-"Atmospheric Deposition"}
+    if(sect=="3.D.AI.3") {sect<-"3.D.2.2";categ<-"Farming"; targ<-"Nitrogen Leaching and Run-off"}
+    if(sect=="3.A.4.7" & meas=="WEIGHT") {sect<-"3.B.1.4.7"}
+    if(targ%in%climateZones){targ<-""}
+    if(type=="Organic amendments added"){type<-""}
+    
+    # Check if 2013 is included in the outliers
+    if(lastyr=="all"){
+        lastyr<-1
+    }else if(grepl("except",lastyr)){
+        if(signyear%in%unlist(strsplit(gsub("all except: ","",lastyr)," "))){
+            lastyr<-0
+        }else{
+            lastyr<-1
+        }
+    }else if(signyear%in%unlist(strsplit(lastyr," "))){
+        lastyr<-1
+    }else{
+        lastyr<-0
+    }
+    # In case 2013 is not included because it is zero add to the list
+    if(lastyr==0 & y==0) lastyr<-1
+    
+    # Calculate value relative to median
+    # retrieve the share in 2013 (or the max share if 2013 value is zero)
+    selection<-S$sector_number==sect & S$category==categ & 
+        S$target==targ & S$method==line$method & S$option==line$option &
+        S$type==type & S$source==line$source & S$party==line$party
+    if(sum(selection)==0){
+        lastyr<-0
+        relmedian<-0
+        share<-"no emissions reported"
+        if(line$party=="IS") share<-"Island excluded from check"
+    }else{
+        if(y!=0){
+            relmedian<-y/median
+            share<-mean(S[selection,signyear])
+        }else{
+            relmedian<-line$value/median
+            share<-mean(S[selection,"maxshare"])
+        }
+        if(meas%in%c("PREGNANT","MILK","ORGAMENDMENT","DM","RatioResCrop","WEIGHT","YIELD")){
+            note<-"measure excluded"
+        }else if(meas%in%c("MCF")){
+            note<-"Share of MMS needs to be assessed"
+        }else{
+            if(relmedian>1){
+                #Potential overestimation
+                effect<-(relmedian-1)/relmedian*share
+                if(effect>signthreshold & lastyr==1) significant<-"over"
+            }else{
+                effect<-share/relmedian
+                if(effect>signthreshold & lastyr==1) significant<-"under"
+            }
+        }
+    }
+    note<-""
+    if(significant%in%c("over","under")){
+        if(meas%in%c("GE","GEav")){note<-"CH4-EF for enteric fermentation direct proportional from Gross Energy Intake (IPCC2006, Equation 10.21)"}
+        if(meas%in%c("YM")){note<-"CH4-EF for enteric fermentation direct proportional from Gross Energy Intake (IPCC2006, Equatioo 10.21)"}
+        if(meas%in%c("FracGASF","FracGASM")){note<-"Indirect N2O emissions from volatilization are direct proportional to the Volatilization fractions (IPCC2006, Equation 11.9)"}
+        if(meas%in%c("FracLEACH")){note<-"Indirect N2O emissions from leaching are direct proportional to the Leaching Fractions (IPCC2006, Equation 11.10)"}
+        if(meas%in%c("NRATE")){note<-"Nitrogen Excretion Rate is important for several down-stream direct and indirect N2O emissions"}
+        if(meas%in%c("VSEXC")){note<-"CH4 emissions from manure management direct proportional to Volatile Solid Excretion (IPCC2006, Equation 10.23)"}
+    }
+    return(list(significant,effect,relmedian,lastyr,share,note))
+}
+source("eugirp_writeissues.r")
 
 # MHmakeRandomString(n, length)
 # function generates a random string random string of the
@@ -467,6 +568,88 @@ MHmakeRandomString <- function(n=1, lenght=12)
 
 
 # FUNCTIONS REQUIRED FOR PLOTTING #####
+source("eugirp_funemplot.r")
+source("eugirp_funnirplots.r")
+makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
+    
+    
+    print(piegrep)
+    piedata<-piedata[grepl(piegrep,piedata$sector_number),]
+    if(nrow(piedata)>0){
+        plotformat<-"jpg"
+        piewidth=3*2
+        pieheight=2
+        piefont<-1.6*pieheight/6
+        pieresolution=1000
+        figdir<-gsub("checks","plots",issuedir)
+        if (! file.exists(gsub("/$","",figdir))){
+            dir.create(file.path(figdir))
+            #    setwd(file.path(mainDir, figdate))
+        }
+        
+        piegen<-agrigeneu
+        piegen[,years]<-t(apply(piegen[,years],1,"/",apply(piegen[,years],2,sum)))
+        select<-piegen[,lastyear]<0.01
+        temp<-piegen[nrow(piegen),]
+        temp$sector_number<-"Other"
+        temp$category<-""
+        temp[,years]<-apply(piegen[select,years],2,sum)
+        piegen<-piegen[!select,]
+        piegen<-rbind(piegen,temp)
+        v<-piegen$sector_number
+        n<-nrow(piegen)
+        lin<-rep(1,n)
+        lin<-rep(0.9,n)
+        lin[which(v==piegrep)]<-0.6
+        
+        figname<-paste0(figdir,"/",cursubm,"agrimixeu",piegrep,".",plotformat,collapse=NULL)
+        if(plotformat=="pdf") pdf(file=figname,width=piewidth,height=pieheight)
+        if(plotformat=="png") png(file=gsub("pdf","png",figname),width=piewidth,height=pieheight,unit="in",res=pieresolution)
+        if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
+        par(mfrow = c(1,2))
+        par(omd=c(0,1,0,1))
+        par(mar=c(0,0,0,0)) #bot,lef,top,rig
+        par(lwd=0.5)
+        pie(piegen[,lastyear],init.angle=180,
+            radius=pieradius,
+            label=paste(piegen$sector_number," ",100*round(piegen[,lastyear],3),"%"),
+            clockwise=TRUE,
+            col=grey(lin),
+            cex=piefont
+        )
+        #graphics.off()
+        
+        
+        piedata[,years]<-t(apply(piedata[,years],1,"/",apply(piedata[,years],2,sum)))
+        select<-piedata[,lastyear]<0.01
+        temp<-piedata[nrow(piedata),]
+        temp$sector_number<-"Other"
+        temp$category<-""
+        temp[,years]<-apply(piedata[select,years],2,sum)
+        piedata<-piedata[!select,]
+        if(temp[,lastyear]>0.05) piedata<-rbind(piedata,temp)
+        
+        #figname<-paste0(figdir,"/",cursubm,piename,piegrep,".",plotformat,collapse=NULL)
+        #if(plotformat=="pdf") pdf(file=figname,width=piewidth,height=pieheight)
+        #if(plotformat=="png") png(file=gsub("pdf","png",figname),width=piewidth,height=pieheight,unit="in",res=pieresolution)
+        #if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
+        
+        #par(omd=c(0,1,0,1))
+        #par(mar=c(0,0,0,0)) #bot,lef,top,rig
+        par(lwd=0.5)
+        pie(piedata[,lastyear],init.angle=180,
+            radius=pieradius,
+            label=paste(piedata$sector_number," ",100*round(piedata[,lastyear],3),"%"),
+            clockwise=TRUE,col=gray(seq(0.3, 1.0, length = nrow(piedata))),
+            cex=piefont
+        )
+        graphics.off()
+    }
+    return(1)
+    
+}
+
+
 
 multilines<-function(text2split,maxWidth=30){
     #text2split: text

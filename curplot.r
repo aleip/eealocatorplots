@@ -12,8 +12,9 @@
 #
 # All parameters that MUST be adapted by the user are indicated by an #!!! at the and of the line
 
-library(ggplot2)
+library(ggplot2) #for graphics
 library(reshape2) #required for melt function - for outls
+library(dplyr) #for pipes and many data manipulation functions
 library(data.table)
 library(knitr)
 library(compare)
@@ -32,7 +33,7 @@ searchline<-FALSE
 #
 ##############################################################################
 # Define current submission.
-cursubm <- "20150903"                                                       #!!!
+cursubm <- "20151030"                                                       #!!!
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
 invyear<-2015
@@ -41,9 +42,12 @@ csvfil <- paste0(invloc,"/eealocator/eealocator_",cursubm)                  #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)
 years2keep<-c(1990:2013)
+signyear<-years2keep[length(years2keep)]
+signclass<-"Total (with LULUCF  with indirect)"
 
 figdate<-format(Sys.time(), "%Y%m%d")
 issuedir<-paste0(invloc,"/checks/")
+plotsdir<-paste0(invloc,"/plots/")
 if (! file.exists(issuedir)){dir.create(file.path(issuedir),showWarnings=FALSE)}
 rdatallem <- paste0(csvfil,"_clean.RData")
 rdatmeasu <- paste0(csvfil,"_measures.RData")
@@ -54,7 +58,7 @@ rdatagri <- paste0(csvfil,"_agri.RData")
 # --> number of countries which are listed in the legend
 doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
-plotresolution<-200   #Needed for png and jpg (200 is low, 600 high)        #!!!
+plotresolution<-250   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""
 restrictcategory<-""
 topn<-10
@@ -93,6 +97,7 @@ if(exists("alldata")){
     eucountries<-c("EU28","EU29")
     allcountries<-c(x[!(x %in% eucountries)],x[ (x %in% eucountries)])
     countriesnoeu<-allcountries[!allcountries %in% eucountries]
+    countrynames<-unlist(lapply(c(1:length(allcountries)),function(x) countriesl[which(countries2==allcountries[x])]))
 
     countries<-as.data.frame(allcountries)
     names(countries)<-"party"
@@ -102,31 +107,5 @@ if(exists("alldata")){
     # Explanations for the outlier files to be reported back to countries
     trendoutlmethod<-3
     maxr<-5
-    filoutliers<-paste0(invloc,"/checks/countryoutliers/checks",cursubm,"_countryoutliers.csv")
-    colexpl1<-paste0("#\n# Explanation of column names (different from CRF-dimensions)\n",
-                    "# min-max: minimum (ignoring reported zeroes) and maximum values")
-    whisksexpl<-paste0("# lwhisk-uwhisk: lower and upper 'whisker'. Values below the lower whisker",
-                    " or above the upper whisker are considered as outliers.\n",
-                    " The whiskers are determined to cover ca. 80% of values when they were normally distributed.")
-    lulimexpl<-paste0("#llim-ulim: lower and upper limit of values not considered as outliers.")
-    colexpl2<-paste0("# p25-median-p75: 25percentile-50percentile (median)-75percentile ",
-                    "of the distribution of growth rates for the variable in the ",
-                    "country over time period",years[1],"-",years[length(years)],"\n",
-                    "# range: max:min ratio - zeros excluded\n",
-                    "# value (trend-outlier): list of outlier values identified-space separated\n",
-                    "# value (country-outlier): average value of outlier values identified\n",
-                    "# years: list of years for which outlier values were identified\n")
-    colexpl3<-paste0("# resolved-flag: 0=not resolved - 1=resolved - 2=not significant (provide reason) - 3=parent (explanation given in more detailed categories)\n",
-                     "# explanation date and source: meta information about the issue: what is the explanation-when has it been solved and what was the source of information")
-    coutlexp1<-paste0("# File created by EU-GIRP v.4 on ",figdate,"\n",
-                     "# List of country outliers. Outliers were identified with the following criteria")
-    outlmethod2<-paste0("# (1) Country value outside the range of median +/- 1.953 x (median-75percentile/25percentile)")
-    outlmethod3<-paste0("# (1) Country value outside the range of mean +/- 1.5 standard deviations")
-    coutlexp2<-paste0("#      of the values reported for the variable during the time period and ",
-                     "by all countries by which this variable is reported\n",
-                     "# (2) To exclude minimim deviations though the country values ",
-                     "which are not more different that 10% from the median ",
-                     "are NOT considered as outliers\n",
-                     "# (3) A wide distribution indicates systematic errors (e.g. wrong unit used by MS(s))")
-    
+    source("eugirp_texts.r")    
 }

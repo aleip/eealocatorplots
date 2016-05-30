@@ -12,8 +12,6 @@ source("nirfunctions.r")
 library(captioner)
 library(pander)
 library(dplyr)
-library(png)
-library(grid)
 panderOptions('table.alignment.default', function(df)
     ifelse(sapply(df, is.numeric), 'right', 'left'))
 panderOptions('table.split.table', Inf)
@@ -28,8 +26,6 @@ tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n")
 ```
 
 ```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-agriemissions<-agriemissions[!agriemissions$party%in%excludeparty,]
-allagri<-allagri[!allagri$party%in%excludeparty,]
 seltype<-"Total (with LULUCF)"
 seltype<-"" #with indirect
 # selclass<-"Total (with LULUCF  with indirect)    " #with indirect
@@ -72,7 +68,6 @@ euagritotalghg<-euagritotalch4
 
 euagritotalghg[,years]<-euagritotalch4[,years]+euagritotaln2o[,years]+euagritotalco2[,years]
 euagritotalghg$gas<-"CO2"
-countrynamesnoex<-countrynames[-which(allcountries==excludeparty)]
 figure<-0
 table<-0
 ```

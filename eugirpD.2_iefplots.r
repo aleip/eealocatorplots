@@ -1,24 +1,24 @@
 plottype<-"iefplots"
 doplots<-2
 doplotsv<-2
-if(plottype=="iefplots"}) docateg<-"^3"
-if(plottype=="emiplots"}) docateg<-"all"
+if(plottype=="iefplots") docateg<-"^3"
+if(plottype=="emiplots") docateg<-"all"
 sharesexist<-0
-if(plottype=="emiplots"}) plotparamcheck<-0
+if(plottype=="emiplots") plotparamcheck<-0
 
 #plotdata$option==0 should not occur ... remove here
 alldata$option[alldata$option==0]<-""
 alldata<-unique(alldata)
 
-if(plottype=="emiplots"}) plotdata<-alldata
-if(plottype=="iefplots"}) plotdata<-allagri
+if(plottype=="emiplots") plotdata<-alldata
+if(plottype=="iefplots") plotdata<-allagri
 #remove also remove redundant options ABC which is not needed for plots (redundant for CATTLE parents)...
 plotdata$option<-""
 plotdata<-unique(plotdata)
 
 plotmeas<-unique(subset(plotdata,select=allfields[!allfields %in% c("notation","party",years)]))
-if(plottype=="emiplots"}) plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
-if(plottype=="iefplots"}) plotmeas<-plotmeas[plotmeas$meastype %in% c(meas2popweight,meas2mcf,meas2clima),]
+if(plottype=="emiplots") plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
+if(plottype=="iefplots") plotmeas<-plotmeas[plotmeas$meastype %in% c(meas2popweight,meas2mcf,meas2clima),]
 
 # Criterion 1: Do not plot without sector_number
 plotselect <- plotmeas$sector_number!=""
@@ -39,7 +39,7 @@ if(restrictcategory!=""){
     select <- grepl(restrictcategory,plotmeas$category)
     plotmeas<-plotmeas[select,]
 }
-if(plottype=="emiplots"}){
+if(plottype=="emiplots"){
     sectorplots<-read.table("plots_sec1.txt")
     sectorplots<-as.vector(sectorplots$V1)
     select<-!grepl("^1",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
@@ -68,7 +68,7 @@ if(plotparamcheck==1){plotmeas<-paramcheck}
 
 plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
 plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
-if(plottype=="emiplots"}) plotdata<-eu28sums(A = plotdata)
+if(plottype=="emiplots") plotdata<-eu28sums(A = plotdata)
 
 
 

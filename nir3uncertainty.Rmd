@@ -1,4 +1,7 @@
+
+
 ## Uncertainties
+
 
 ## Sector-specific quality assurance and quality control and verification
 
@@ -31,8 +34,10 @@ Over the time, several sections were added describing specific QA/QC and verific
 * Workshop on improving national inventories for agriculture (2013)
 * Comparison of Cultivated Organic Soil at the FAO GHG database and JRC calculations
 
-#### Main improvements in `r as.numeric(lastyear)+2`
-For the current submission (2015) the QA/QC system for the EU GHG inventory was thoroughly revised. While this is true for the whole EU GHG inventory, this is particularly true for the agriculture sector. The following specific issues with GHG inventory in the agriculture sector were identified to require improvements:
+
+
+#### Major changes for the 2015 submissions`
+The  submission in the year 2015 the QA/QC system brought a complete revision of the approach taken for the EU GHG inventory report in general and for the agriculture chapter in particular, driven by the need to adapt to new CRF software, increased number of countries to describe, and a series of new communication software products (e.g. EEA review tool, EU-GIRP). For this purpose, the EU GHG inventory was thoroughly revised. While this was true for the whole EU GHG inventory, this was particularly true for the agriculture sector. The following specific issues with regard to the GHG inventory in the agriculture sector were identified to require improvements:
 
 * The chapter contained many information and details which could not be kept after the increase of the number of countries to be covered. Many methodological details included in the agriculture chapter EU-GHG inventory report 2014 did not have a significant relevance for EU total emissions and thus 'diluted' the relevant information provided. Even though the chapter was consistently structured, some details that were added (e.g. as response to reviews) lead to an overall imbalance of the information provided.
 
@@ -50,22 +55,18 @@ In the current submission, therefore, a new system has been developed and introd
 [^eugirp]: &#09;EU-GIRP: EU-Greenhouse gas Inventory Reporting and Plots, see https://github.com/aleip/eealocatorplots.git
 [^prezi]: &#09;For an overview of the QA/QC system of the agriculture sector for the 2013 GHG inventory see presentation given for the ICR2013 at https://prezi.com/f1d3elxzd4qn/20131002_icr_agri/
 
+#### Main improvements in `r as.numeric(lastyear)+2`
+For the 2016 submission, the system implemented in 2015 was further developed, providing now some additional ‘checks’ that identify issues requiring clarification or justification. Particular attention was paid this year to ‘country outlier’ and ‘time series’ checks.
+
+Furthermore, chapters comparing GHG emissions and activity data reported by countries with data from the FAO-STAT data base and the CAPRI model are included again. 
+
 
 #### Further improvements
 
-The current submission (2015) brought a complete revision of the approach taken for the  EU GHG inventory report in general and for the agriculture chapter in particular, driven by the need to adapt to new CRF software, increased number of countries to describe, and a series of new communication softwares (e.g. EEA review tool, EU-GIRP).
+The following further improvements are foreseen for the next submission: 
 
-The agriculture chapter reflects these changes as described in the next section. 
-Improvements will regard:
-
-* Addition of sector-specific checks that could not be performed for the current submission
-
-* Further streamlining with other sectoral chapter, where possible and useful
-
-* Improved analysis of the data, e.g. with regard to time series
-
-* General streamlining of the data processing
-
+* Further addition of sector-specific checks that could not be performed for the current submission
+* Further development of the comparison with FAO and CAPRI data
 
 ### QA/QC system in the agriculture sector
 
@@ -77,7 +78,7 @@ The checks include:
 
 * **Check on NEs**[^checknes] and empty cells has been done by extracting all reported 'NE's from the data base. The results were compared with the data contained in the file NE_checks_20150903.xlsx provided which also contained a list of empty cells. 
 
-* **Outliers in activity data and emissions**: Data were checked on outliers in AD and emissions. For each source category the share of AD and emissions by the countries to total `r eukp` values were determined. A share above 95% was further assessed and in case this was not linnked to a source category which is dominated by single countries (such as emissions from buffalo, which are dominated by Italy) the country was notified 
+* **Outliers in activity data and emissions**: Data were checked on outliers in AD and emissions. For each source category the share of AD and emissions by the countries to total `r eukp` values were determined. A share above 95% was further assessed and in case this was not linked to a source category which is dominated by single countries (such as emissions from buffalo, which are dominated by Italy) the country was notified 
 
 * **Check on erroneous units**: In several case, countries report background data using different units (e.g. fractions insteat of percent values or vice versa; values per day instead of per year of vice versa; absolute values instead of values per head etc.). While these inconsistencies do not influence the reported emission estimates, a harmonization (at `r eukp` level) is important to ensure correct comparison of countries' values adn a correct calculation of `r eukp` background data. An automated check[^unitcheck] is carried out detecting *seven* cases which can easily be recognised. Other 'mistakes' in units used were detected following the outlier analysis (see below). The countries were notified via the review tool and in many cases corrections have already been implemented. 
 
@@ -85,9 +86,17 @@ The checks include:
 
 * **Identification of potentially significant issues**: For each of the outliers identified it was determined whether or not this could be a potentially significant issue based on the criterium of a share of 0.5% of national total GHG emissions. The 'size' of the possible over- or under-estimation was quantified comparing the reported value with an estimate using the median IEF or parameter as reported by all countries[^potsig]. All outliers were 'manually' cross-checked and analysed. Countries were notified on the results of the analysis.
 
-* **Time series outliers**: Time series outliers were detected on the basis of the same method as also used for the within-country-outlier check. Basis for the underlying distribution of data in this case, however, was not the values reported from all countries during the whole time series, but only the data reported by the country assessed. Only growth rates larger than &#177;3% could qualify as 'outliers'. However, this generated a large number of potential outliers which require further asseessment, which was not possible for the submission in 2015. 
+* **Time series outliers**: Time series outliers were detected on the basis of the same method as also used for the within-country-outlier check. Basis for the underlying distribution of data in this case, however, was not the values reported from all countries during the whole time series, but only the data reported by the country assessed. Only growth rates larger than &#177;3% could qualify as 'outliers'. However, this generated a large number of potential outliers which require further assessment.The following types of ‘issues’ were identified, which might be linked either to an inconsistent time series or be the consequence of 'real' trends:
+* * *Period outphased*:	Relative constant trend with few years above/below the trend that 'looks plausible'.
+* * *Trend break*: Timeseries in steps, in a stair shape: a few similar values, then a jump, and the same again.
+* * *One break group trend*: Regular timeseries with a different trend for a group of years, and a step when jumping from/coming back to  the general trend.
+* * *Inflection point*: Trend suddenly changes from a specific year from wich the growth of the values changes sign.
+* * *Single outlier*: One or few isolated year(s) where the value is out of the general trend
+* * *Smooth group trend change*: A series of years where the trend changes compared to the rest of the time series, but without any jumps
+* * *Trend jump*: There is a jump at some point in the time trend but it continues running paralell to the first section, after the jump. 
+* * *Jump and shape*: There is a jump at some point in the time trend and, after the jump, the trend changes shape
 
-* **Sector-specific checks**: Several checks were performed tailored to the reporting in the sector agriculture [^adchecks][^nexchecks]. First, the data are checked on consistency in reporting of activity data throughout the tables. Furhter, several other tests are performed:
+* **Sector-specific checks**: Several checks were performed tailored to the reporting in the sector agriculture[^adchecks]^,^[^nexchecks]. First, the data are checked on consistency in reporting of activity data throughout the tables. Furhter, several other tests are performed:
 * * Difference between the sum of nitrogen excreted and reported in the different manure management system (MMS) versus the total reported nitrogen excreted
 * * Difference between the total nitrogen excreted and the product of animal population and nitrogen excretion rate
 * * Difference of the sum of N handled in MMS over animal type vs. total N handled in each MMS
@@ -95,7 +104,7 @@ The checks include:
 * * Calculation and evaluation of the IEF in category 3.B.2 by animal type and in relation to the total N excreted
 * * Check that the sum of manure allocated to climate regions adds up to 100% over all MMS and climate regions
 
-* **Recalculation**[^recalcfile]: Countries were asked for justifications of recalculations of more than 0.5% of national total emissions (excluding LULUCF) and above or below the mean recalculations across all MS &#177;1.5 standard deviations.  
+* **Recalculation**: Countries were asked for justifications of recalculations of more than 0.5% of national total emissions (excluding LULUCF) and above or below the mean recalculations across all MS &#177;1.5 standard deviations.  
 
 [^checknes]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checknes.r
 [^unitcheck]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkunits.r
@@ -103,8 +112,6 @@ The checks include:
 [^potsig]: &#09;See function `ispotentialissue()` in the file https://github.com/aleip/eealocatorplots/blob/master/eugirp_functions.r
 [^adchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks1ADs.r
 [^nexchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks2Nex.r
-[^recalcfile]: &#09; File: Recalculations_Sep15_Nov14_14Sep2014_2_agri.xlsx
-
 
 #### Calculation of EU background data 
 
@@ -115,13 +122,13 @@ Care is being taken to not include in the calculation erroneous values:
 
 * Data which had been identified as being reported with a different unit than the values reported by other countries (see above) were *converted* into the appropriate unit before calculating `r eukp` weighted averages
 
-* Data which *obviously* wrong (very large outliers) but for which no clear correction could be identified were *eliminated* from the calcuation of the `r eukp` weighted averages to avoid biases in the results. Therefore, the `r eukp` weighted averages - in some cases - could not represent 100% of `r eukp` activity data.
+* Data which *obviously* wrong (very large outliers) but for which no clear correction could be identified were *eliminated* from the calculation of the `r eukp` weighted averages to avoid biases in the results. Therefore, the `r eukp` weighted averages - in some cases - could not represent 100% of `r eukp` activity data.
 
 [^wave]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_euweightedaverages.r
 
 
 #### Compilation of the chapter agriculture for the EU-GHG inventory report
 
-The agriculture chapter of the EU-GHG inventory report takes advantage of the data base generated by EU-GIRP. All numeric data presented in the chapter are calculated directly using the processed data as described above, thus eliminating the risk of transcription or copy errors. This does not eliminate the possibilty of mistakes completely. Therefore, all values are cross-checked.
+The agriculture chapter of the EU-GHG inventory report takes advantage of the data base generated by EU-GIRP. All numeric data presented in the chapter are calculated directly using the processed data as described above, thus eliminating the risk of transcription or copy errors. This does not eliminate the possibility of mistakes completely. Therefore, all values are cross-checked.
 
 

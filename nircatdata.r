@@ -4,20 +4,18 @@ select<-curemissions$sector_number=="3.D.1.1" | curemissions$sector_number=="3.D
 if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$type[select])
 select<-curemissions$sector_number=="3.D.2.1" | curemissions$sector_number=="3.D.2.2" 
 if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$target[select])
+if(cursec=="3.A") curemissions<-agriemissions[agriemissions$sector_number==cursec,]
 
 eusel<-curemissions$party=="EU28"
 curgas<-as.character(curemissions$gas[eusel])
-curmeasure<-as.character(curemissions$measure[eusel])
+curmeasure<-curmeasurenew(as.character(curemissions$measure[eusel]))
 curunit<-unique(as.character(curemissions$unit[eusel]))
+curcat<-curcatnew(curcat)
+curcattext<-curcatlong(curcat,cursec)
 
 # Names of sector and category
 # cursect: numerical sector (e.g. 3.A.1)
 # curseclong: term for sector (e.g. Enteric Fermenation: this is defined not obtained from data)
-# curcat: category if category if 'Farming' then it will be curseclong
-# curcattext: combination of sector and category (e.g. 3.A.1 Cattle)
-if(curcat=="Farming"){curcat<-curseclong}
-curcattext<-paste0(cursec," - ",curcat)
-if(grepl("3.D.1",cursec)){curcattext<-paste0(cursec," - ",curcat," ",curseclong)}
 if(curseclong=="")curseclong<-curcat
 
 if("Aggregate GHGs" %in% curgas) {

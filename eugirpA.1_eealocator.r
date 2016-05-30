@@ -2,20 +2,21 @@
 
 
 if(generatealldata==1){
-    # ---> Read text-file if no RData file exists of if the text file is more recent
-    rdatfile<-paste0(csvfil,".RData")
-    if(!file.exists(rdatfile)){
-        print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
-        alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
-        save(alldata,file=rdatfile)
-    #}else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
-    #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
-    #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
-    #    save(alldata,file=rdatfile)
-    }else{
-        print(paste0("Retrieve ",rdatfile))
-        load(rdatfile)
-    }
+#     # ---> Read text-file if no RData file exists of if the text file is more recent
+#     rdatfile<-paste0(csvfil,".RData")
+#     if(!file.exists(rdatfile)){
+#         print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
+#         alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
+#         save(alldata,file=rdatfile)
+#     #}else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
+#     #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
+#     #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
+#     #    save(alldata,file=rdatfile)
+#     }else{
+#         print(paste0("Retrieve ",rdatfile))
+#         load(rdatfile)
+#     }
+    source("eealocator_generate_rdata.r")
     
     # --- Eleminate the 'no' texts .... they do not add information ####
     #no<-"no method_|no option_|no source_|no target_|no type_|Additional Information_"
@@ -148,25 +149,13 @@ if(generatealldata==1){
     measureacronyms<-read.csv("measures_20150731.txt",stringsAsFactors=FALSE)
     alldata<-merge(alldata,measureacronyms,by.x="measure",by.y="measname")
     
-    # The new EEA locator file includes both UK submissions. The following coding applies:
-    # GBE (CRF Party code & ‘submission file’ in the locator) = UK (‘Party code’ in the locator) = Great Britain (‘Party name’ in the locator) = EU-territory geographical coverage > EU’s submission under the Convention
-    # GBR (CRF Party code & ‘submission file’ in the locator) = GB (‘Party code’ in the locator) = United Kingdom (‘Party name’ in the locator) = KP geographical coverage > EU’s submission under KP
-    # The plots should have GBE, 
-    # Iceland should not be included. 
-    
-    # Remove UK (use GB) and remove Island ####
-    print("Remove data from countries that shall not be included (GB and IS)")
-    selectParty<- ! ( alldata$party == "GB" | alldata$party == "IS")
-    restdata<-alldata[! selectParty,]
-    alldata<-alldata[selectParty,]
-
     alldatanosector<-alldata[alldata$sector_number=="-",]
     alldata<-alldata[! alldata$sector_number=="-",]
     
     # Save alldata for later re-use incase of allem or all3 ####
     print("Save alldata")
     stepsdone<-1
-    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods","restdata")
+    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
     save(measures,parties,years,notations,classifications,categories,sources,methods,

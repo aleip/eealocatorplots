@@ -30,28 +30,6 @@ restrictdata<-function(growthdata,measures){
     }
     return(growthmeas)
 }
-selquantiles<-function(D){
-    #View(D)
-    quantls<-c(0.25, 0.5, 0.75)
-    Dnozero<-matbyind(D = D,v = which(D!=0,arr.ind = TRUE))
-    mi<-min(Dnozero)
-    mx<-max(Dnozero)
-    q<-(as.vector(quantile(Dnozero,probs=quantls,na.rm=TRUE)))
-    z<-c(mi,q,mx)
-    return(z)
-}
-selmeansd<-function(D){
-    #View(D)
-    quantls<-c(0.5)
-    Dnozero<-matbyind(D = D,v = which(D!=0,arr.ind = TRUE))
-    mi<-min(Dnozero)
-    mx<-max(Dnozero)
-    mean<-mean(Dnozero)
-    std<-sd(Dnozero)
-    q<-(as.vector(quantile(Dnozero,probs=quantls,na.rm=TRUE)))
-    z<-c(mean,std)
-    return(z)
-}
 
 # Growthdata and paramdata initialization ####
 noemissions<-c(meas2popweight,meas2clima,meas2mcf,meas2sum[!meas2sum%in%"EM"])
@@ -150,9 +128,10 @@ autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
 paramdata<-writecorrection(v,paramdata,mult,name)
 
 autocorrections<-merge(autocorrections,paramdata,by=c("variableUID","party"),all=FALSE)
-autocorrections[,docfields]<-""
+#autocorrections[,docfields]<-""
 tn<-names(autocorrections)
-co<-c("sector_number","category","party","meastype","autocorr",docfields,"file")
+#co<-c("sector_number","category","party","meastype","autocorr",docfields,"file")
+co<-c("sector_number","category","party","meastype","autocorr","file")
 co<-c(co,tn[!tn%in%co])
 ro<-order(autocorrections$party,autocorrections$sector_number,autocorrections$meastype)
 autocorrections<-autocorrections[ro,co]
@@ -166,3 +145,6 @@ if(nrow(autocorrections)>0){
     write.csv(autocorrections,con)
 }
 close(con)
+
+
+

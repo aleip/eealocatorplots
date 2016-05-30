@@ -12,8 +12,6 @@ source("nirfunctions.r")
 library(captioner)
 library(pander)
 library(dplyr)
-library(png)
-library(grid)
 panderOptions('table.alignment.default', function(df)
     ifelse(sapply(df, is.numeric), 'right', 'left'))
 panderOptions('table.split.table', Inf)
@@ -28,8 +26,6 @@ tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n")
 ```
 
 ```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-agriemissions<-agriemissions[!agriemissions$party%in%excludeparty,]
-allagri<-allagri[!allagri$party%in%excludeparty,]
 seltype<-"Total (with LULUCF)"
 seltype<-"" #with indirect
 # selclass<-"Total (with LULUCF  with indirect)    " #with indirect
@@ -72,8 +68,42 @@ euagritotalghg<-euagritotalch4
 
 euagritotalghg[,years]<-euagritotalch4[,years]+euagritotaln2o[,years]+euagritotalco2[,years]
 euagritotalghg$gas<-"CO2"
-countrynamesnoex<-countrynames[-which(allcountries==excludeparty)]
 figure<-0
 table<-0
 ```
+
+#### Comparison of activity data in the FAO GHG database on the national inventory reports
+
+```{r nirfaopopdairy,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+load(file=paste0(invloc,"/eealocator/eealocator_20160322_clean_plotmeasademnir-fao.RData"))
+multisource<-unique(plotdata$datasource)
+multiref<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC"}else if(x=="fao") {"FAO"}else if(x=="capri"){CAPRI}))
+multirefl<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC GHG inventories"}else if(x=="fao") {"FAO GHG database"}else if(x=="capri"){CAPRI}))
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"POP"
+curvar<-getvariableUID(DF=plotdata,sec=cursec,cat=curcat,mt=curmea,gas="no gas")
+curdata<-plotdata[plotdata$variableUID==curvar,]
+curmeasure<-plotmeas$measure[plotmeas$variableUID==curvar]
+source("nircatdata2.r")
+figs(paste0("comp1",cursec,"trend",curmea),compademplots(eukp,cursec,curcat))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("comp1",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("comp1",cursec,"trend",curmea),display="full")`
+
+![](../2016/fao/plots/3A1DairyCattle-EntericFermentationPOP-nirfao1VAL_20160322.jpg) 
+
+
+```{r nirfaopopdairy2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+figs(paste0("comp2",cursec,"trend",curmea),compareplots(eukp,cursec,curcat))
+```
+`r figs(paste0("comp2",cursec,"trend",curmea),display="full")`
+
+![](../2016/fao/plots/3A1DairyCattle-EntericFermentationPOP-nirfao1COMP_20160322.jpg) 
 

@@ -10,35 +10,13 @@ if(curmea=="Milk") curemissions[curemissions$party=="LU",years]<-NA
 euemissions<-curemissions[curemissions$party=="EU28",]
 curgas<-as.character(euemissions$gas)
 if(curgas=="no gas"){if(grepl("3.A|3.B.1|3.C",cursec)){curgas<-"CH4"}else if(grepl("3.D|3.B.2",cursec)){curgas<-"N2O"}}
-curmeasure<-as.character(euemissions$measure)
-
+curmeasure<-curmeasurenew(as.character(euemissions$measure))
 curunit<-as.character(euemissions$unit)
 if(curmea=="Milk") curunit<-"kg/head/day"
-
 curclas<-as.character(euemissions$classification)
 
-# Names of sector and category
-# cursect: numerical sector (e.g. 3.A.1)
-# curseclong: term for sector (e.g. Enteric Fermenation: this is defined not obtained from data)
-# curcat: category if category if 'Farming' then it will be curseclong
-# curcattext: combination of sector and category (e.g. 3.A.1 Cattle)
-if(curcat=="Farming"){curcat<-curseclong}
-curcattext<-paste0(cursec," - ",curcat)
-
-if(curmeasure=="Atmospheric deposition"){
-    curcattext<-paste0(cursec," - ",curmeasure," from ",curcat)
-    if(curmea=="IEF")curmeasure<-"Implied emission factor"
-}
-curmeasure<-gsub(" \\(average\\)","",curmeasure)
-if(cursec=="3.D.1.1" | cursec=="3.D.1.2"){
-    curcattext<-gsub("Managed Soils",curseclong,curcattext)
-}
-if(cursec=="3.D.2.1" | cursec=="3.D.2.2"){
-    curcattext<-paste0(cursec," - Indirect N2O Emissions From ",curseclong)
-}
-if(grepl("3.D.AI.1",cursec)){curcattext<-"3.D.2.1 - Indirect emissions from atmospheric deposition"}
-if(grepl("3.D.AI.2",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from atmospheric deposition"}
-if(grepl("3.D.AI.3",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from nitrogen leaching and run-off"}
+curcat<-curcatnew(curcat)
+curcattext<-curcatlong(curcat,cursec)
 
 curtrend<-euemissions[lastyear]/euemissions[firstyear]
 curtrendabs<-euemissions[lastyear]-euemissions[firstyear]
@@ -111,7 +89,10 @@ if(curmea%in%meas2popweight){
 }
 
 stablen<-sum(alltrend$trend==1,na.rm=TRUE)
-missing<-sum(is.nan(alltrend$trend))+length(countriesnoeu)-nrow(alltrend)
+missingcountries<-countriesnoeu[!countriesnoeu%in%alltrend$party]
+missingcountries<-c(missingcountries,as.vector(alltrend$party[is.nan(alltrend$trend)]))
+missingcountries<-missingcountries[!missingcountries%in%excludeparty]
+missing<-length(missingcountries)
 
 # Exclude some national data with wrong unit
 panderOptions('missing'," - ")

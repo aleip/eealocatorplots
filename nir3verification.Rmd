@@ -53,7 +53,7 @@ In the JRC analysis mixed land use classes are not taken into account as the sha
 
 `r figs("fighist",display="full")`
 
-![](../2015/eureport/cropland_on_organic_soils_eu27.png)
+![](../2016/eureport/cropland_on_organic_soils_eu27.png)
 
 
 #### Comparison of activity data in the FAO GHG database on the national inventory reports

@@ -13,12 +13,13 @@ temp = list.files(pattern="*.csv",path=faodir)
 faodata = lapply(paste0(faodir,temp), read.csv,header=TRUE)
 
 # Clean up files so that they have the same number of cols (=> years) ####
-faoyears<-paste0("Y",c(1990:2013))
+faoyears<-paste0("Y",yearsnum)
 years2eliminate<-c(1950:1989,2030,2050)
 faodata<-lapply(faodata,function(x) x[,!names(x) %in% c(paste0("Y",years2eliminate),paste0("Y",years2eliminate,"F"))])
 
 fillyears<-function(D){
     lastyears<-c("Y2012","Y2012F","Y2013","Y2013F")
+    lastyears<-c(paste0("Y",2012:years[length(years)]),paste0("Y",2012:years[length(years)],"F"))
     for(lastyear in lastyears){
         if(!lastyear%in%names(D)){
             D[,lastyear]<-NA 
@@ -27,9 +28,10 @@ fillyears<-function(D){
     return(D)
 }
 
-faodata<-lapply(myfiles1,function(x) fillyears(x))
-nrowstotal<-sum(unlist(lapply(temp2,function(x) nrow(x))))
+#faodata<-lapply(myfiles1,function(x) fillyears(x))
+faodata<-lapply(faodata,function(x) fillyears(x))
 temp2<-faodata
+nrowstotal<-sum(unlist(lapply(temp2,function(x) nrow(x))))
 faodata<-Reduce(rbind,faodata)
 temp3<-faodata
 
@@ -49,6 +51,7 @@ faodata<-temp4
 createlinks<-0
 elementcode<-c("Element","Element.Code")
 itemcode<-c("Item","Item.Code")
+
 if(createlinks){
     faodata<-temp4
     # Clean up files so that they have the same number of cols (=> elements/measures) 
@@ -148,11 +151,11 @@ if(createlinks){
     faodata[,"category.y"]<-as.character(faodata[,"category.y"])
     nn<-c(catnrs,names(faodata)[!names(faodata)%in%catnrs])
     
-    curcat<-"Farming"
-    selection<-faodata[,"sector_number.x"]=="3.D.2" & faodata[,"category.x"]==curcat
+    curcat<-c("Farming","")
+    selection<-faodata[,"sector_number.x"]=="3.D.2" & faodata[,"category.x"]%in%curcat
     faodata[selection,"category.y"]<-faodata[selection,"category.x"]
     
-    selection<-faodata[,"category.x"]!=faodata[,"category.y"] & faodata[,"category.x"]==curcat & 
+    selection<-faodata[,"category.x"]!=faodata[,"category.y"] & faodata[,"category.x"]%in%curcat & 
         faodata[,"category.y"]!="" & grepl("3.[AB]",faodata[,"sector_number.x"])
     faodata[selection,"category.x"]<-faodata[selection,"category.y"]
     #if(sum(selection>0)){stop("Still problems with the categories!")}
@@ -214,11 +217,24 @@ if(createlinks){
     # Do not check 'cattle' (only Dairy and Non-Dairy Cattle
     selection<-faodata$category=="Cattle"
     faodata<-faodata[!selection,]
-    save(faodata,file=paste0(invloc,"/fao/faodata~",figdate,".RData"))
-    save(faodata,file=paste0(invloc,"/fao/faodata.RData"))
     temp9<-faodata
 }
 
+#faomeasures<-unique(faodata[,-which(names(faodata)%in%faoyears)])
+#faomeasures<-unique(faomeasures[,-which(names(faomeasures)%in%paste0(faoyears,"F"))])
+
+
+fnames<-names(faodata)
+fyears<-which(names(faodata)%in%paste0("Y",years))
+fnames[fyears]<-years
+names(faodata)<-fnames
+
+faodata<-filldf(faodata,names(allagri))
+faodata<-faodata[,names(allagri)]
+faodata<-convert2char(faodata)
+
+
+### Fill some data in allagri
 curagri<-allagri
 # Generate AD data for Pasture, Range and Paddock ####
 # Remove final 'dot' for 'other live
@@ -227,6 +243,7 @@ curagri$sector_number[selection]<-gsub("4\\.$","4",curagri$sector_number[selecti
 
 # Select all first level animal types
 selection<-grepl("3.B.2..$",curagri$sector_number)& (!grepl("Option",curagri$option)) & grepl("Pasture",curagri$source)
+selection<-selection & (curagri$category=="Cattle" | curagri$category=="Dairy Cattle" | curagri$category=="Non-Dairy Cattle" | curagri$sector_number!="3.B.2.1")
 selection<-selection & (curagri$category=="Sheep" | curagri$sector_number!="3.B.2.2")
 selection<-selection & (curagri$category=="Swine" | curagri$sector_number!="3.B.2.3")
 seluids<-unique(curagri$variableUID[selection])
@@ -246,7 +263,7 @@ rowsadded<-addallagriout[[2]]
 
 tempagri<-curagri
 # Group cattle to 'dairy' and 'non-dairy' for all countries ####
-source("eugirp_cattle.r")
+#source("eugirp_cattle.r")
 
 # AD in 3.F for all crops
 selectionad<-grepl("^3.F..$",curagri$sector_number) & curagri$meastype=="AD"
@@ -264,20 +281,138 @@ addallagriout<-add2allagri(adt1,sec="3.F",cat="Farming",gas="no gas",unit="kt dm
                            uid2,note="field burning AD only reported by crop",DATA=curagri)
 curagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
+
+allagri<-curagri
 #View(curagri[selection,])
 
-mergefields<-c(sectfields,"meastype","measure","gas","type","source","party")
-temp10<-merge(faodata,curagri,by=mergefields,all.x=TRUE,all.y=FALSE)
-#check duplicated rows
-check<-(temp10[duplicated(temp10[,orifields]),])
-if(nrow(check)>0){
-    View(check)
-    stop("Duplicate fields detected (line 260)")
-}
-check<-temp10[is.na(temp10$unit),]
-View(check)
 
-#Todo: 
-# 1.OK Sum-up indirect emissions all linked to 3.D.2 - but in UNFCCC there is only the sum of all N input
-# 2.OK Sum-up AD for 3.F and calculate IEF in UNFCCC data
-# 3.OK AD from 3.D.3 not available in UNFCCC??
+# Adding variableUID
+faouids<-unlist(lapply(c(1:nrow(faodata)),function(x) 
+    getvariableUID(sec = faodata$sector_number[x],cat = faodata$category[x],
+                   mt = faodata$meastype[x],gas = faodata$gas[x])))
+faodata$variableUID<-faouids
+faodata$variableUID[faodata$sector_number=="3.C"&faodata$meastype=="AREA"]<-"BC643791-5E99-423C-B292-8FA3AD614F77"
+faodata$variableUID[faodata$sector_number=="3.B.2.5"&faodata$meastype=="EM"]<-"8332828A-BBF4-4C8B-B6FD-AE2553118257" #Total indirect emissions
+faodata$variableUID[faodata$sector_number=="3.B.2.5 N2O Emissions per MMS"&faodata$meastype=="NEXC"]<-"158363A3-51A4-4420-8C88-045290B9D0DD" #Total MMS without pasture and burning
+
+# Fill missing metadata
+mismeta<-c("unit","classification","type","target","notation","option","method")
+faodata[,mismeta]<-Reduce(rbind,lapply(c(1:nrow(faodata)),function(x) Reduce(cbind,as.character(fillbyvariableUID(col = mismeta,uid = faodata$variableUID[x])))))
+#x<-faodata[,-which(names(faodata)%in%mismeta)]
+#y<-unique(allagri[,c("variableUID",mismeta)])
+#faodata[,mismeta]<-merge(x,y,by="variableUID",all.x=TRUE)
+
+# Ensure that excludeparty is not deleted
+if(excludeparty=="UK") faodata$party[faodata$party=="UK"]<-"GB"
+
+# Calculate EU28 sums
+faodata<-faodata[faodata$party!="EU28",]
+faodata<-eu28sums(A = faodata)
+faodata$datasource<-"fao"
+#faodata[faodata==0]<-NA
+faodata<-faodata[!grepl("0.00011221533645398",faodata$variableUID),]
+
+# Fill missing IEFs for EU28
+faounique<-c("meastype","measure","sector_number","category","gas","variableUID")
+faomeas<-(unique(faodata[,faounique]))
+faoem<-faomeas[faomeas$meastype=="EM",]
+
+euiefs<-function(line){
+    cat<-line$category
+    sec<-line$sector_number
+    admeas<-c("AD","POP","AREA")
+    #print(line)
+    #View(faodata[faodata$category==cat&faodata$sector_number==sec,])
+    aduid<-as.character(faomeas$variableUID[faomeas$category==cat&faomeas$sector_number==sec&faomeas$meastype%in%admeas])
+    #iefuid<-as.character(faomeas$variableUID[faomeas$category==cat&faomeas$sector_number==sec&faomeas$meastype=="IEF"])
+    iefuid<-as.character(agrimeas$variableUID[agrimeas$category==cat&agrimeas$sector_number==sec&agrimeas$meastype=="IEF"])
+    if(length(aduid)==0) {
+        aduid<-as.character(faomeas$variableUID[faomeas$category==cat&faomeas$sector_number==gsub("B.[12]","A",sec)&faomeas$meastype%in%admeas])
+        if(length(aduid)==0) {
+            aduid<-"x"
+            iefuid<-"x"
+        }
+    }else if(length(aduid)>1){
+        aduid<-"x"
+        iefuid<-"x"
+    }
+    if(length(iefuid)==0) iefuid<-"x"
+    print(paste(aduid,iefuid,length(aduid),length(iefuid),sep=" - "))
+    return(list(aduid,iefuid))
+}
+filliefs<-function(line){
+    uid<-line$variableUID
+    aduid<-as.character(line$aduid)
+    iefuid<-as.character(line$iefuid)
+    #print(iefuid)
+    if (line$measure=="Total N excreted"){
+        
+    }else{
+        eu28new<-unique(allagri[allagri$variableUID==iefuid,-which(names(allagri)%in%c("party",years,"datasource","correction","autocorr"))])
+        print(eu28new)
+        eu28new<-convert2char(eu28new)
+        print(eu28new)
+        eu28new$party<-"EU28"
+        eu28new$autocorr<-NA
+        eu28new$correction<-1
+        eu28new$datasource<-"fao"
+        em<-faodata[faodata$party=="EU28"&faodata$variableUID==uid,years]
+        ad<-faodata[faodata$party=="EU28"&faodata$variableUID==aduid,years]
+        ad[ad==0]<-NA
+        ief<-em/ad
+        eu28new[,years]<-ief
+        eu28new<-eu28new[,names(faodata)]
+        #print(eu28new)
+        return(eu28new)
+    }
+}
+
+faoem[,c("aduid","iefuid")]<-  Reduce(rbind,lapply(1:nrow(faoem),function(x) Reduce(cbind,euiefs(line = faoem[x,]))))
+faoem<-faoem[faoem$aduid!="x"&faoem$iefuid!="x",]
+faoeuiefs<-Reduce(rbind,lapply(1:nrow(faoem),function(x) Reduce(cbind,filliefs(line = faoem[x,]))))
+faoeuiefs<-as.data.frame(faoeuiefs)
+names(faoeuiefs)<-names(faodata)
+faoeuiefs<-convert2char(DF = faoeuiefs)
+faodata<-rbind(faodata,faoeuiefs)
+
+faodata<-convert2num(DF = faodata,cols = years)
+selection<-faodata$meastype=="POP"
+faodata[selection,years]<-faodata[selection,years]/1000
+selection<-faodata$meastype=="AD"&grepl("3.D.1.",faodata$sector_number)
+faodata[selection,years]<-faodata[selection,years]/1000000
+selection<-faodata$measure=="Total N excreted"&faodata$datasource=="fao"
+faodata[selection,years]<-faodata[selection,years]/1000000
+selection<-faodata$meastype=="AREA"&faodata$datasource=="fao"&grepl("3.C",faodata$sector_number)
+faodata[selection,years]<-faodata[selection,years]/1000000
+
+faodata$measure[faodata$measure=="Implied Emission Factor"]<-"Implied emission factor"
+
+save(faodata,file=paste0(invloc,"/fao/faodata~",curtime(),".RData"))
+save(faodata,file=paste0(invloc,"/fao/faodata.RData"))
+load(file=paste0(invloc,"/fao/faodata.RData"))
+
+# EU28 -iefs are not yet fully correct (unit!)
+faodata<-faodata[!(faodata$party=="EU28"&faodata$meastype=="IEF"),]
+
+## Launch comparison plots
+# Print plots for 'summable data' 
+adempars<-c("AD","EM") #Note also areas can be included here
+
+# runfocus defines type of plot (so far: value, trend, countries..)
+# .. however best tested is only 'value' as the other not recently used
+runfocus<-"value"
+runfocus<-"compare"
+
+# The vector 'datasource' determines which (and how many) 
+datasource<-c("nir","fao")
+
+# rundata defines datatype: adem or ief
+# adem: activity data, emissions etc
+# ief: implied emission factors and other variables expressed per activity unit
+rundata<-"ief"
+rundata<-"adem"
+
+plotdatagenerated<-generateplotdata(rundata = rundata,datasource = c("nir","fao"))
+plotdata<-plotdatagenerated[[1]]
+plotmeas<-plotdatagenerated[[2]]
+source("eugirp_prepareplots.r")

@@ -38,17 +38,22 @@ ok3<-unlist(lapply(c(1:nrow(allcat3_ne_em)),function(x) length(strsplit(as.chara
 ok3<-ok3 & grepl("^3.F",allcat3_ne_em$sector_number)
 allcat3_ne_em<-allcat3_ne_em[!(ok1 | ok2 | ok3),]
 
-checked<-read.csv(file=paste0(invloc,"/checks/nechecks/NEchecks.csv"),header = TRUE,comment.char = "#")
-select<-is.na(checked$source)
-checked$source[select]<-""
-select<-is.na(checked$target)
-checked$target[select]<-""
-select<-is.na(checked$method)
-checked$method[select]<-""
-select<-is.na(checked$option)
-checked$option[select]<-""
-necheck<-merge(checked,allcat3_ne_em,by=namesnecheck,all=TRUE)
-
+necheckfile<-paste0(invloc,"/checks/nechecks/NEchecks.csv")
+if(file.exists(necheckfile)){
+    checked<-read.csv(file=necheckfile,header = TRUE,comment.char = "#")
+    select<-is.na(checked$source)
+    checked$source[select]<-""
+    select<-is.na(checked$target)
+    checked$target[select]<-""
+    select<-is.na(checked$method)
+    checked$method[select]<-""
+    select<-is.na(checked$option)
+    checked$option[select]<-""
+    necheck<-merge(checked,allcat3_ne_em,by=namesnecheck,all=TRUE)
+}else{
+    necheck<-allcat3_ne_em
+    necheck[,c("Issue.nr","flag","Last.action.date","Last.action","comments")]<-""
+}
 # The 'no issues' can be removed directly
 nechecksclosed<-necheck[necheck$flag == "cn",nechecknames]
 nechecksclosed<-nechecksclosed[!is.na(nechecksclosed$party),]

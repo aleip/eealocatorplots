@@ -51,13 +51,29 @@ agrigen<-agrid2[grepl("3.[ACEFGHIi]",agrid2$sector_number),]
 agrigen<-rbind(agrigen,agrid3[grepl("3.[BD]",agrid3$sector_number),])
 agrigen<-agrigen[order(agrigen$sector_number),]
 
-agrimix<-agrid3[grepl("3.[ACEFGHIi]",agrid3$sector_number),]
-agrimix<-rbind(agrimix,agrid4[grepl("3.[BD]",agrid4$sector_number),])
+agrimix<-agrid3[grepl("3.[ACEFGHIi]",agrid3$sector_number)&agrid3$sector_number!="3.A.1",]
+agrimix<-rbind(agrimix,agrid4[grepl("3.[BD]",agrid4$sector_number)&!grepl("3.B.[12].1",agrid4$sector_number),])
+agrimix<-rbind(agrimix,agrid4[grepl("3.A.1",agrid4$sector_number),])
+agrimix<-rbind(agrimix,agrid5[grepl("3.B.[12].1",agrid5$sector_number),])
+agrimix<-rbind(agrimix,agrid2[grepl("3.[HIi]",agrid2$sector_number),])
 agrimix<-agrimix[order(agrimix$sector_number),]
+agrimix$sector_number[agrimix$category=="Dairy Cattle"]<-paste0(agrimix$sector_number[agrimix$category=="Dairy Cattle"],".1")
+agrimix$sector_number[agrimix$category=="Non-Dairy Cattle"]<-paste0(agrimix$sector_number[agrimix$category=="Non-Dairy Cattle"],".2")
 
-agridet<-agrid4[grepl("3.[ACEFGHIi]",agrid4$sector_number),]
+agridet<-agrid4[grepl("3.[AEGHIi]",agrid4$sector_number),]
+agridet<-rbind(agridet,agrid3[grepl("3.A.[23]",agrid3$sector_number),])
 agridet<-rbind(agridet,agrid5[grepl("3.[BD]",agrid5$sector_number),])
+agridet<-rbind(agridet,agrid4[grepl("3.D",agrid4$sector_number),])
+agridet<-agridet[agridet$sector_number!="3.D.1.2",]
+agridet<-rbind(agridet,agrid4[grepl("3.B.[12].[23]",agrid4$sector_number),])
+agridet<-rbind(agridet,agrid4[grepl("3.C.1",agrid4$sector_number),])
+agridet<-rbind(agridet,agrid3[grepl("3.C.[2-9]",agrid3$sector_number),])
+agridet<-rbind(agridet,agrid4[grepl("3.F.1",agrid4$sector_number),])
+agridet<-rbind(agridet,agrid3[grepl("3.F.[2-9]",agrid3$sector_number),])
+agridet<-rbind(agridet,agrid2[grepl("3.[HIi]",agrid2$sector_number),])
 agridet<-agridet[order(agridet$sector_number),]
+agridet$sector_number[agridet$category=="Dairy Cattle"]<-paste0(agridet$sector_number[agridet$category=="Dairy Cattle"],".1")
+agridet$sector_number[agridet$category=="Non-Dairy Cattle"]<-paste0(agridet$sector_number[agridet$category=="Non-Dairy Cattle"],".2")
 
 agriemissions<-allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,]
 convertfields<-c("gas","unit",years)

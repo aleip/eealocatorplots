@@ -1,4 +1,4 @@
-# EU-GIRP (EU-Greenhouse gas Inventory Reporting Plots; eealocatorplots)
+# EU-GIRP (EU-Greenhouse gas Inventory Reporting and Plots; eealocatorplots)
 # File curplot.csv
 # File required for the EU-GIRP R script eealocatorplots.r
 # Purpose: steers the R script defining which plots need to be generated
@@ -32,31 +32,42 @@ searchline<-FALSE
 #     GENERAL SETTINGS
 #
 ##############################################################################
+# Initialisation ####
+eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
+eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
+eugirp.version<-"2.0"
 # Define current submission.
 cursubm <- "20151030"                                                       #!!!
+invyear<-2015
+cursubm <- "20160202"                                                       #!!!
+cursubm <- "20160322"                                                       #!!!
+invyear<-2016
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
-invyear<-2015
 invloc<-paste0("../",invyear)                                               #!!!
 csvfil <- paste0(invloc,"/eealocator/eealocator_",cursubm)                  #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)
-years2keep<-c(1990:2013)
+years2keep<-c(1990:2014)
 signyear<-years2keep[length(years2keep)]
 signclass<-"Total (with LULUCF  with indirect)"
+excludeparty<-"UK"
 
 figdate<-format(Sys.time(), "%Y%m%d")
 issuedir<-paste0(invloc,"/checks/")
+plotsdir<-paste0(invloc,"/plots/test/")
 plotsdir<-paste0(invloc,"/plots/")
 if (! file.exists(issuedir)){dir.create(file.path(issuedir),showWarnings=FALSE)}
 rdatallem <- paste0(csvfil,"_clean.RData")
 rdatmeasu <- paste0(csvfil,"_measures.RData")
 rdatmeta <- paste0(csvfil,"_metadata.RData")
 rdatagri <- paste0(csvfil,"_agri.RData")
+lastkeyfile<-"keycategories~20151012.csv"
+lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
 
 # Settings for plots
 # --> number of countries which are listed in the legend
-doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
+doemissionplots<-TRUE #TRUE/FALSE                                           #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
 plotresolution<-250   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""
@@ -91,6 +102,8 @@ if(file.exists(rdatallem)){
 if(exists("alldata")){
     years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
     yearsnum<-as.numeric(years)
+    nyears<-length(years)
+    lastyear<-years[length(years)]
     countries<-unique(subset(alldata,select=party))
     allcountries<-as.character(countries$party)
     x<-allcountries[order(allcountries)]
@@ -105,7 +118,12 @@ if(exists("alldata")){
     countriesic<-allcountries 
     
     # Explanations for the outlier files to be reported back to countries
+    # method 2 : box-whisker methods (from outlier tool)
     trendoutlmethod<-3
+    if(trendoutlmethod==2)bxplf <- 1.5*0.953 #
+    if(trendoutlmethod==3)bxplf <- 1.5 #times standard deviation
+    
+    
     maxr<-5
     source("eugirp_texts.r")    
 }

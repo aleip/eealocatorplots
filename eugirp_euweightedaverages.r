@@ -140,10 +140,18 @@ if(exists("autocorrections")){
 # 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
 if(exists("paramcheck")){
     corcalceu<-subset(paramcheck,select=c("party","variableUID","correction"))
-    calceucor<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
-    calceucor$correction[is.na(calceucor$correction)]<-1
-    selection2<-calceucor$correction==0
+    calceu<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
+    
+    # All time series which have not been identified in paramcheck are OK and receive
+    # the correction-flag '1'
+    calceu$correction[is.na(calceu$correction)]<-1
+    selection2<-calceu$correction==0
+    calceucor<-calceu
+
+    # Do not use the 'correction==0' values for the EU average, but keep them in the data...
     calceucor[selection2,years]<-NA
+    
+    allagri<-calceu
 }
 eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
 names(eu28wei)<-names(calceu)
@@ -152,7 +160,8 @@ eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,countriesic)
 eu28wei[,"party"]<-rep("EU28",nrow(eu28wei))
 eu28wei$notation[eu28wei$notation==0]<-""
 
-allagri<-rbind(allagri[,allfields],eu28wei[,allfields])
+allfieldsplus<-c(allfields,"autocorr","correction")
+allagri<-rbind(allagri[,allfieldsplus],eu28wei[,allfieldsplus])
 write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
 
 

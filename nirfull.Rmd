@@ -1,0 +1,433 @@
+---
+output:
+  word_document:
+    fig_caption: yes
+    fig_width: 3
+  html_document: default
+---
+    
+```{r setdata,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+source("curplot.r")
+source("nirfunctions.r")
+library(captioner)
+library(pander)
+library(dplyr)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'right', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+panderOptions('table.emphasize.rownames',TRUE)
+panderOptions('graph.nomargin',TRUE)
+panderOptions('table.style','rmarkdown')
+figs<-captioner(prefix = "Figure ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
+tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
+#for(i in c(1:5)){figs("sec","");bump(figs,2);bump(tabs,1)}
+```
+
+```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+seltype<-"Total (with LULUCF)"
+seltype<-"" #with indirect
+# selclass<-"Total (with LULUCF  with indirect)    " #with indirect
+selclass<-"Total (without LULUCF  with indirect)    " #with indirect
+
+selclass<-"Sectors/Totals" #without indirect
+seltype<-"Total (without LULUCF)" #without indirect
+lastyear<-years[length(years)]
+lastyear2<-years[length(years)-1]
+firstyear<-years[1]
+
+totalghg<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="Aggregate GHGs",]
+totalch4<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="CH4",]
+totaln2o<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="N2O",]
+totalco2<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
+                        alltotals$gas=="CO2",]
+totalch4[,years]<-gwps[1]*totalch4[,years]
+totaln2o[,years]<-gwps[3]*totaln2o[,years]
+totalco2[,years]<-gwps[2]*totalco2[,years]
+
+eutotalghg<-apply(totalghg[years],2,sum)
+eutotalch4<-apply(totalch4[years],2,sum)
+eutotaln2o<-apply(totaln2o[years],2,sum)
+eutotalco2<-apply(totalco2[years],2,sum)
+
+#Do consider only direct emissions (no indirect N2O emissions)
+agritotalch4<-agriemissions[agriemissions$gas=="CH4"&agriemissions$sector_number=="3",]
+agritotaln2o<-agriemissions[agriemissions$gas=="N2O"&agriemissions$sector_number=="3"&
+                                agriemissions$measure=="Emissions",]
+agritotalco2<-agriemissions[agriemissions$gas=="CO2"&agriemissions$sector_number=="3"&
+                                agriemissions$measure=="Emissions",]
+
+euagritotalch4<-agritotalch4[agritotalch4$party=="EU28",]
+euagritotaln2o<-agritotaln2o[agritotaln2o$party=="EU28",]
+euagritotalco2<-agritotalco2[agritotalco2$party=="EU28",]
+euagritotalghg<-euagritotalch4
+
+euagritotalghg[,years]<-euagritotalch4[,years]+euagritotaln2o[,years]+euagritotalco2[,years]
+euagritotalghg$gas<-"CO2"
+figure<-0
+table<-0
+```
+
+### Enteric fermentation (CRF Source Category 3A) 
+
+```{r 3a,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A"
+curseclong<-"Enteric Fermentation"
+curcat<-"Farming"
+source("nircatdata.r")
+figs("figAshare",sharefigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+
+`r curgas` emissions from source category `r cursec` Enteric Fermentation are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharech4)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. It is thus the largest GHG source in agriculture and the largest source of `r curgas` emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`) and `r subcateg$sector_number[2]` (`r subcateg$category[2]`) as shown in `r figs("figAshare",display="cite")`.
+`r text2mscontr(sec=cursec)`
+
+`r figs("figAshare",display="full")`
+
+![](../2016/plots/20160322agrimixeu3.A.jpg)
+
+
+```{r 3atab,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curtab<-round(agriemissions[agriemissions$sector_number=="3.A",c(firstyear,lastyear)],0)
+rownames(curtab)<-countrynames
+curtab$new1<-curtab[,1]
+curtab$new2<-curtab[,2]
+curtab$country<-countrynames
+curtab<-curtab[c(5,1:4)]
+names(curtab)<-c("Member State",
+                 "GHG emissions in 1990 (kt CO2 equivalents)",
+                 "GHG emissions in 2013 (kt CO2 equivalents)",
+                 "CH4 emissions in 1990 (kt CO2 equivalents)",
+                 "CH4 emissions in 2013 (kt CO2 equivalents)")
+```
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2016/eureport/figs/3AEntericFermentation.jpg)
+
+
+```{r 3a1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curcat<-"Cattle"
+source("nircatdata.r")
+tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
+```
+`r text2mscontr(sec=curcattext)`
+
+`r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
+
+![](../2016/eureport/figs/3A1CattleCH4.jpg)
+
+
+```{r 3a2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curcat<-"Sheep"
+source("nircatdata.r")
+tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
+```
+`r text2mscontr(sec=curcattext)`
+
+`r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
+
+![](../2016/eureport/figs/3A2SheepCH4.jpg)
+
+#### Trends in Emissions and Activity Data
+```{r 3aadem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A"
+curseclong<-"Enteric Fermentation"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../2016/plots/sec3/3AFarming-EntericFermentationCH4EM-1VAL135_20160322.jpg) 
+
+
+```{r 3a1em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Cattle"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",cursec,"trend","POP"),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+```{r 3a1ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Cattle"
+curmea<-"POP"
+source("nircatdata2.r")
+```
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+The main driver for the decrease was the decrease in animal numbers shown in `r figs(paste0("fig",cursec,"trend",curmea),display="cite")`[^nopop]. 
+
+[^nopop]: No population data were reported from the UK
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../2016/plots/sec3/3A1Cattle-EntericFermentationCH4EM-1VAL136_20160322.jpg) 
+
+`r figs(paste0("fig",cursec,"trend","POP"),display="full")`
+
+![](../2016/plots/sec3/3A1Cattle-EntericFermentationPOP-1VAL137_20160322.jpg) 
+
+
+```{r 3a2em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+#figs("figA2trendad",trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+```{r 3a2ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"POP"
+source("nircatdata2.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+The main driver for the decrease was the decrease in animal numbers shown in `r figs(paste0("fig",cursec,"trend",curmea),display="cite")`.
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../2016/plots/sec3/3A2Sheep-EntericFermentationCH4EM-1VAL142_20160322.jpg) 
+
+`r figs(paste0("fig",cursec,"trend","POP"),display="full")`
+
+![](../2016/plots/sec3/3A2Sheep-EntericFermentationPOP-1VAL143_20160322.jpg) 
+
+#### Implied EFs  and Methodological Issues
+Information for cattle, sheep and swine are reported using national classification 
+of the animals. For example, it is possible to report Cattle numbers using one of three options.
+
+* Option A distinguishes 'Dairy Cattle' and 'Non-Dairy Cattle'. 
+* Option B distinguished 'Mature Dairy Cattle', 'Other Mature Cattle' and 'Growing Cattle'.
+* Option C allows for any national classification.
+
+To obtain values that can be aggregated to `r eukp` level, data reported under Option B
+and Option C were converted to Option A categories. 'Mature Dairy Cattle' is taken for 'Dairy Cattle'
+and the other two categories under Option B are used for 'Non-Dairy Cattle'.
+Also in Option C, dairy cattle can be identified (e.g. 'Dairy Cows', 'Other dairy cattle' etc.) and
+all other cattle category have been grouped to the animal type 'Non-Dairy Cattle'.
+
+In case data were aggregated, this was done on the basis of a weighted average using 
+population data as weighting factors.
+
+No population data were available for the United Kingdom, and therefore data could not be 
+aggregated or used.
+
+In the cases for 'Sheep' and 'Swine', all animal types reported by countries are aggregated
+to one single parent category using the same approach.
+
+In this section we discuss the Implied Emission Factor for the main animal types.
+Furthermore, we present data on the Average Gross Energy Intake and - for Dairy Cattle - also the Milk Yield.
+
+
+```{r 3a1ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA1trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA1ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+
+`r text2ief(fig=figs("figA1trendief",display="cite"),tab=tabs("tabA1ief",display="cite"))`
+
+
+`r figs("figA1trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3A1Cattle-EntericFermentationCH4IEF-1VALiefs_20151030.jpg)
+
+
+
+`r tabs("tabA1ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+
+```{r 3a11ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA11trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA11ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA11trendief",display="cite"),tab=tabs("tabA11ief",display="cite"))`
+
+`r figs("figA11trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3A1DairyCattle-EntericFermentationCH4IEF-1VALiefs_20151030.jpg) 
+
+
+`r tabs("tabA11ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a11geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"GEav"
+source("nircatdata2.r")
+figs("figA11trendgeav",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA11geav",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA11trendgeav",display="cite"),tab=tabs("tabA11geav",display="cite"))`
+
+`r figs("figA11trendgeav",display="full")`
+
+![](../2015/plots/sec3/iefs/3A1DairyCattle-EntericFermentationGEav-1VALiefs_20151030.jpg)
+
+
+`r tabs("tabA11geav",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3a11Milk,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"Milk"
+source("nircatdata2.r")
+figs("figA11trendMilk",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA11trendMilk",display="cite"),tab=tabs("tabA11Milk",display="cite"))`
+
+`r figs("figA11trendMilk",display="full")`[^exclLUmilk]
+
+![](../2015/plots/sec3/iefs/3A1DairyCattle-EntericFermentationMilk-1VALiefs_20151030.jpg) 
+
+
+`r tabs("tabA11Milk",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+[^exclLUmilk]: &#09;Note that data from Luxembourg are not included in the plot as they are reported in a different unit.
+
+```{r 3a12ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA12trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA12ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA12trendief",display="cite"),tab=tabs("tabA12ief",display="cite"))`
+
+`r figs("figA12trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3A1Non-DairyCattle-EntericFermentationCH4IEF-1VALiefs_20151030.jpg)
+
+`r tabs("tabA12ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a12geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"GEav"
+source("nircatdata2.r")
+figs("figA12trendgeav",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA12geav",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA12trendgeav",display="cite"),tab=tabs("tabA12geav",display="cite"))`
+
+`r figs("figA12trendgeav",display="full")`
+
+![](../2015/plots/sec3/iefs/3A1Non-DairyCattle-EntericFermentationGEav-1VALiefs_20151030.jpg)
+
+
+`r tabs("tabA12geav",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a2ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA2trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA2ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA2trendief",display="cite"),tab=tabs("tabA2ief",display="cite"))`
+
+`r figs("figA2trendief",display="full")`
+
+![](../2015/plots/sec3/iefs/3A2Sheep-EntericFermentationCH4IEF-1VALiefs_20151030.jpg) 
+
+`r tabs("tabA2ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3a2geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"GEav"
+source("nircatdata2.r")
+figs("figA2trendgeav",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA2geav",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA2trendgeav",display="cite"),tab=tabs("tabA2geav",display="cite"))`
+
+`r figs("figA2trendgeav",display="full")`
+
+![](../2015/plots/sec3/iefs/3A2Sheep-EntericFermentationGEav-1VALiefs_20151030.jpg)
+
+
+`r tabs("tabA2geav",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;

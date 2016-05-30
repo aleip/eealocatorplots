@@ -12,6 +12,7 @@ if(nrow(growthcheck)>0){
     writeLines(colexpl2, con)
     writeLines(colexpl3, con)
     writeLines(paste0("# years.growth: growth rates calculated as y{t}/y{t-1}"), con)
+    growthcheck<-growthcheck[,co]
     write.csv(growthcheck,con)
     close(con)
 }
@@ -35,18 +36,19 @@ if(nrow(paramcheck)>0){
     close(con)
     
     # Generate the plots to illustrate the issues
-    plotparamcheck<-1
-    fignames<-character()
+    #plotparamcheck<-1
+    #fignames<-character()
     
     # Add plots 
-    source("eugirpD.2_iefplots.r")
+    #source("eugirpD.2_iefplots.r")
 
-    fignamesc<-paste0(gsub(paste0(issuedir,"countryoutliers/"),"=HYPERLINK(\"",fignames),"\")")
-    paramcheck$plot<-fignamesc
+    #fignamesc<-paste0(gsub(paste0(issuedir,"countryoutliers/"),"=HYPERLINK(\"",fignames),"\")")
+    #paramcheck$plot<-fignamesc
     
     n<-names(paramcheck[!names(paramcheck)%in%c("plot",testfields)])
     oc<-c("plot",n[1:(which(n=="years"))],testfields,n[(which(n=="years")+1):length(n)])
     paramcheck<-paramcheck[,oc[oc%in%names(paramcheck)]]
+    paramcheck<-paramcheck[order(paramcheck$sector_number,paramcheck$category,paramcheck$meastype),]
     #n1<-c("cursubm","party","sector_number","meastype","unit","category","value","correction"))
     #n4<-names(paramcheck[!names(paramcheck)%in%c(n1,"std")])
     #paramcheck<-paramcheck[,oc]

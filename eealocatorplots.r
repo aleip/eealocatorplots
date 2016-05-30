@@ -10,17 +10,15 @@
 # Adrian Leip <adrian.leip@jrc.ec.europa.eu>
 # Version 1.5 - 07.09.2015
 # 
-# Initialisation ####
-eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
-eugirp.version<-"2.0"
-eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
 
 # current inventory year
 locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
 setwd(locplots)
 options(warn=0)
 source("curplot.r")
-options(warn=2)
+options(warn=2) #warn=2 turns warnings into errors; set to 0 if this should be avoided
+options(error=NULL) #error=recover goes into debug mode
+options(error=recover) #error=recover goes into debug mode
 
 # PART A: Link with EEA locator tool ----
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
@@ -44,18 +42,17 @@ source("eugirpA.1_eealocator.r")
 # - Recombine with the other sectors
 if(stepsdone==1){
     print("Step 2: Generate list of measures and deal with animals")
+    # Remove UK (use GB) and remove Island ####
+    
     source("eugirpA.2_meastype.r")
-
-    # For the moment: exclude Iceland
-    #alldata<-alldata[alldata$party!="IS",]
     
     # Deal with other animals and animal types without sector number
     selection<-alldata$sector_number=="" & alldata$classification%in%mslivestockclass
     selection<-selection | grepl("^3",alldata$sector_number)
     allagri<-alldata[selection,allfields]
     alldata<-alldata[!selection,allfields]
-
-    stop("Plause")
+    
+    #stop("Plause")
     source("eugirp_otherlivestock.r")
     
     alldata<-rbind(alldata,allagri)
@@ -69,12 +66,13 @@ if(stepsdone==1){
     print("Step 2: List of measures & animals ... already done")
 }
 
+#stop("first step done")
 # B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
 if(stepsdone==2){
     print("Step 3a: Calculating EU-sums only for summable variables")
-    
-    calceu<-alldata
 
+    calceu<-alldata
+    
     calcmeas<-unique(subset(calceu,select=allfields[!allfields %in% c("notation","party",years)]))
     measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
     lc<-measures2sum[grepl("^3",measures2sum$sector_number),]
@@ -150,7 +148,7 @@ if(stepsdone==2){
     save(alldata,eu28sum,file=gsub("_clean","_nounitconv",rdatallem))
     o<-order(calceu$sector_number,calceu$category,calceu$meastype,calceu$classification,calceu$party)
     alldata<-calceu[o,allfields]
-
+    
     #stop("pause")
     source("eugirp_allagri.r")
     
@@ -164,7 +162,7 @@ if(stepsdone==2){
     print("Step 3a: EU sums already calculated")
 }
 
-
+#stop("Second step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-1
 doemissionplots<-TRUE
@@ -173,8 +171,10 @@ if(stepsdone>2){
         if(emplotsdone==0){
             print("Step 4: Emission plots")
             adempars<-c("AD","EM")
-
+            
             rundata<-"adem"
+            datasource<-"nir"
+            alldata$autocorr<-NA
             source("eugirp_prepareplots.r")
             
             #Data not yet checked - no weighted average
@@ -197,12 +197,13 @@ if(stepsdone>2){
     }
 }
 
+#stop("plots done")
 #++++ END OF GENERAL PART 
 #++++ BELOW SECTOR-3 SPECIFIC PART
 # A.3 Calculate trend and growth rates ####
 if(stepsdone==3){
     print("Step 4: Calculating trends and growth rates")
-
+    
     nyears<-length(years)
     period1<-as.character(years[1]:years[nyears-1])
     period2<-as.character(years[2]:years[nyears])
@@ -212,7 +213,7 @@ if(stepsdone==3){
     agriemissions<-unique(agriemissions)
     
     # Agrishares as agriemissions relative to total emissions ####
-    totaluid<-unique(alltotals$variableUID[alltotals$classification==signclass])
+    totaluid<-unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs"])
     totalval<-alltotals[alltotals$classification=="Total (with LULUCF  with indirect)",]
     totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE)
     agrishares<-unique(agriemissions[,allfields[!allfields%in%c("party",years)]])
@@ -228,7 +229,7 @@ if(stepsdone==3){
     
     # Signnificant categories on the basis of the share threshold criterium only ####
     otheryears<-years[!years%in%signyear]
-
+    
     signcategories<-agrishares[allfields[!allfields%in%otheryears]]
     signcategories[,"maxshare"]<-apply(agrishares[,years],1,max)
     signshares<-c(signyear,"maxshare")
@@ -259,20 +260,27 @@ if(stepsdone==3){
     allgrowth[is.infinite(allgrowth)] <- 1
     allgrowth[,years]<-round(allgrowth[,years],3)
     allgrowth[,years[1]]<-NA
-
+    
     stepsdone<-4
+    checksteps<-4
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    save(checksteps,file="checksteps.RData")
     source("curplot.r")
 }else if(stepsdone>3){
     print("Step 4: Trends and growth rates already calculated")
 }
 
-# A.3 Check for outlier errors and calculate EU weighted averages ####
-checksteps<-4
-if(stepsdone==checksteps){
-
+#stop("step 3 done")
+# A.4 NE-check and check on unit errors. Prepare for outlier check ####
+if(stepsdone==4){
+    print("# A.4 NE-check and check on unit errors. Prepare for outlier check ####")
+    #load("checksteps.Rdata")
+    #print(checksteps)
+    
+    #if(checksteps == "4"){
+    print(paste0("Step ",stepsdone+1,"a: Caluclate allagri for EU28"))
     allagri<-eu28sums(allagri)
     allagri<-allagri[order(allagri$sector_number,allagri$category,allagri$meastype),]
     #remove option from Cattle, Dairy Cattle, Non-Dairy Cattle
@@ -280,70 +288,281 @@ if(stepsdone==checksteps){
     allagri$option[allagri$category%in%allcattle]<-""
     allagri<-unique(allagri)
     curnames<-c("sector_number","category","meastype","option","party","variableUID",years)
+    #checksteps<-"4a"
+    #save(checksteps,file="checksteps.RData")
+    #}   
     
-    print(paste0("Step ",checksteps+1,"a1: Check NEs"))
+    # Create table with statistical info for each variable
+    agrimeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
+    #parammeas<-unique(subset(param,select=names(param)[!names(param) %in% c("notation","party",years)]))
+    #agrimeas<-merge(agrimeas,parammeas,by="variableUID",all.x = TRUE)
+    agrimeas<-agrimeas[order(agrimeas$sector_number,agrimeas$category),]
+    
+    #if(checksteps == "4a"){
+    print(paste0("Step ",stepsdone+1,"b: Check NEs"))
+    if (! file.exists("../2016/checks/nechecks")){dir.create(file.path("../2016/checks/necheck/"))}
     source("eugirp_checknes.r")
-    
-    print(paste0("Step ",checksteps+1,"a2: Check units"))
+    #checksteps<-"4b"
+    #save(checksteps,file="checksteps.RData")
+    #}
+    #if(checksteps == "4b"| checksteps=="4c"){
+    print(paste0("Step ",stepsdone+1,"c: Check units"))
+    if (! file.exists("../2016/checks/autocorrections")){dir.create(file.path("../2016/checks/autocorrections/"))}
     source("eugirp_checkunits.r")
     
-    print(paste0("Step ",checksteps+1,"a3: Check for outlier errors"))
+    print(paste0("Step ",stepsdone+1,"d: Calculation statistics distribution for parameters and growth"))
+    newcols<-c("min","p25","median","p75","max")
+    source("eugirp_paramdata.r")
+    #checksteps<-"4c"
+    #save(checksteps,file="checksteps.RData")
+    
+    stepsdone<-5
+    savelist<-c(savelist,"agrimeas","param","growth","autocorrections")
+    save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    source("curplot.r")
+}else if(stepsdone>4){
+    print("Step 5: NEchecks and Unitchecks done; param and growth prepared for outlier checks.")
+}
+
+
+#stop("step 5 done")
+# A.3 Check for outlier errors and calculate EU weighted averages ####
+if(stepsdone==5){
+    
+    print("# A.3 Check for outlier errors and calculate EU weighted averages ####")
+    print(paste0("Step ",stepsdone+1,"a: Check for outlier errors on parameters"))
+    outcheck<-"param"
     source("eugirp_checkoutliers.r")
-    tmppar<-paramcheck
+    source("eugirp_ipccdefaults.r")
+    print(paste0("Step ",stepsdone+1,"b: Check for outlier errors on growth"))
+    outcheck<-"growth"
+    nyears<-length(years)
+    
+    #allcurve not very relevant
+    #period1<-as.character(yearsnum[1]:yearsnum[nyears-1])
+    #period2<-as.character(yearsnum[2]:yearsnum[nyears])
+    #allcurve<-as.data.frame(matrix(0,rep(0,ncol(alltrend)),ncol=ncol(alltrend)))
+    #allcurve<-alltrend[alltrend$meastype %in% meas2sum,]
+    #allcurve[,period2]<-alltrend[alltrend$meastype %in% meas2sum,period2]-alltrend[alltrend$meastype %in% meas2sum,period1]
+    #allcurve[,years[1]]<-NA
+    #allgcurve<-allgrowth
+    #allgcurve[,period2]<-allgrowth[,period2]/allgrowth[,period1]
+    source("eugirp_checkoutliers.r")
+    # Add the gas to each measure so see what the corresponding emissions are
     levels(paramcheck$gas)<-factor(signcategories$gas)
+
+    # Ispotentialissue:
+    # Method: (a) Significant issue only if the last year is included in the list of outliers
+    #         (b) Checks if the difference to using the median reported value is significant
+    #             acc. to the significance threshold. Uses data frame significantcategories
+    #             calculated earlier
+    # Flags: over --> issue is a potential overestimation
+    #        overnotlast ---> issue is a potential overestimation but last year is not identified
+    #        oversource ---> issue interests a significant source category, but overestimation might be below threshold
+    #        ... in analogy for 'under'
     paramcheck[,testfields]<-Reduce(rbind,lapply(c(1:nrow(paramcheck)),function(x) Reduce(cbind,ispotentialissue(paramcheck[x,],signcategories,as.character(signyear),signthreshold))))
-        
     paramchecked<-0
-    savelist<-c(savelist,"growthcheck","paramcheck","autocorrections","paramchecked")
     
-    print(paste0("Step ",checksteps+1,"b: Calculate EU weighted averages"))
-    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    savelist<-c(savelist,"assignad2par")
+    # Load IPCC default values
+    paramcheck<-loadipccdefaults(paramcheck,1,nrow(paramcheck),insert="value")
+    write.csv(paramcheck,file="paramcheck_ipcc.csv")
     
-    stop("now write issues")
+    print(paste0("Step ",stepsdone+1,"c: Write country outlier list"))
+    rundata<-"ief"
+    #plotparamcheck: plotmeas is overwritten by paramcheck
+    plotparamcheck<-0
+    # Create link to plots
+    paramcheck$plot<-
+        paste0("=HYPERLINK(\"",
+               gsub(" ","",
+                    gsub(invyear,"..",unlist(lapply(c(1:nrow(paramcheck)),function(x) 
+                        plotname("",plotsdir,issuedir,"*",paramcheck[x,sectfields],paramcheck[x,metafields],paramcheck[x,measfields],
+                                 runfoc="1VAL",figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
+               "\",\"Link to plot\")")
+    t<-growthcheck
+    co<-c("plot",names(growthcheck))
+    growthcheck$plot<-
+        paste0("=HYPERLINK(\"",
+               gsub(" ","",
+                    gsub(invyear,"..",unlist(lapply(c(1:nrow(growthcheck)),function(x) 
+                        plotname("",plotsdir,issuedir,"*",growthcheck[x,sectfields],growthcheck[x,metafields],growthcheck[x,measfields],
+                                 runfoc="1VAL",figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
+               "\",\"Link to plot\")")
     
-    ## Current manual changes to paramcheck
-    paramcheck$correction[paramcheck$party=="BG"&paramcheck$category=="Goats"]<-0
-    paramcheck$correction[paramcheck$party=="SE"&paramcheck$meastype=="VSEXC"]<-0
+    # Make growth plots to check ... improve loop!!
+    mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
+    mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
+    for(mm in mainmeasures) makegrowthplot(sec="3.",meastype=mm)
+    
+    
+    #corfile<-paste0(filoutliers,"list_checked_GC2.csv")
+    #corrections<-read.csv(file=corfile,comment.char = "#",header=TRUE)
+    #toflag<-corrections[corrections$correction=="flag",]
+    #names(toflag)<-yearheaders(names(toflag))
+    
+    keycategories<-keysources()
+    test0<-matrix(rep(0,nrow(growthcheck)*length(flag4issues)),ncol=length(flag4issues),nrow=nrow(growthcheck))
+    test0<-as.data.frame(test0)
+    names(test0)<-flag4issues
+    growthcheck<-growthcheck[,-which(names(growthcheck)=="gas")]
+    growthcheck<-cbind(growthcheck,test0)
+    co<-names(growthcheck)
+    # Integrate outcome into paramcheck and to writeoutlierlist!!
+    x1<-1;x2<-10
+    x1<-nrow(paramcheck);x2<-nrow(growthcheck)
+    growthcheck<-growthcheck[growthcheck$sector_number!="3.i",]
+    x1<-1;x2<-nrow(growthcheck)
+    test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(growthcheck[x,],"growth")))
+    test<-Reduce(rbind,test)
+    growthcheck[x1:x2,flag4issues]<-test
+    #write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
+    
+    
+    test<-as.data.frame(test)
+    names(test)<-flag4issues
+    write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
+    source("eugirp_writeoutlierlist.r")
+    
+    print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
+    #stop("now write issues")
+    #paramcheck$correction[paramcheck$party=="SE"&paramcheck$meastype=="VSEXC"]<-0
     source("eugirp_euweightedaverages.r")
     
-    
-    print(paste0("Step ",checksteps+1,"c: Write country outlier list and make corresponding plots"))
-    source("eugirp_writeoutlierlist.r")
-
-    rundata<-"ief"
-    plotparamcheck<-0
+    print(paste0("Step ",stepsdone+1,"e: Make plots"))
+    datasource<-"nir"
+    runfocus<-"value"
     source("eugirp_prepareplots.r")
+    stepsdone<-6
+    savelist<-c(savelist,"growthcheck","paramcheck","autocorrections","paramchecked","keycategories")
+    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    savelist<-c(savelist,"assignad2par")
+    save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    source("curplot.r")
+    
+}else if(stepsdone>5){
+    print(paste0("Step 5: Check for outlier errors already done"))
+}
+
+#stop("step 6 done")
+# C - Make checks for sector 3 ####
+checksteps<-6
+if(stepsdone==checksteps) {
+    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3"))
+    #load(rdatmeasu)
+    
+    # source("tmp_otherlivestockearlier.r")
+    # Again manual correction of BE-swine/sheep problem
+    #     allagri<-allagri[!allagri$variableUID=="8A72A9BE-DB94-4277-ADFC-8AE85BE6B999",]
+    #     uidrem<-"76660D32-4F2A-4C65-81C3-71FA2C340542"
+    #     uidnew<-"AB1CC8F6-D71C-46A1-A846-B5E76E2DE3A2"
+    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
+    #     allagri<-allagri[!allagri$variableUID==uidrem,]
+    #     uidrem<-"1FB8F04A-E6A1-47B7-A6F0-407836FDF3EF"
+    #     uidnew<-"3FB4B8CB-B0A8-4BA1-8D81-CD412F301D1B"
+    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
+    #     allagri<-allagri[!allagri$variableUID==uidrem,]
+    
+    keycategories<-keysources()
+    allcattle<-c("Cattle","Dairy Cattle","Non-Dairy Cattle")
+    allagri$option<-""
+    allagri<-unique(allagri)
+    source("agrichecks1ADs.r")
+    source("agrichecks2Nex.r")
+    
+    #agrichecks<-rbind(checks[names(check1)],check1,check2,check3,check4,check5)
+    agrichecks<-checks
+    #agrinames<-c("test","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved,docfields)
+    agrinames<-c("test","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved)
+    names(agrichecks)<-agrinames
+    agrichecks<-agrichecks[agrichecks$party!="all",]
+    agrichecks<-filldf(agrichecks,allcheckfields)
+    climcheck<-filldf(climcheck,allcheckfields)
+    
+    agrichecks<-rbind(agrichecks,climcheck[,names(agrichecks)])
+    
+    # Integrate outcome into paramcheck and to writeoutlierlist!!
+    x1<-55;x2<-56
+    x1<-1;x2<-nrow(agrichecks)
+    test<-Reduce(rbind,lapply(c(x1:x2),function(x) unlist(flags4newissue(agrichecks[x,],"agri"))))
+    agrichecks[x1:x2,flag4issues]<-test
+    write.csv(agrichecks[allcheckfields4emrt],file=paste0(issuedir,"agrichecks.csv"))
+    
+    
+    
+    stepsdone<-checksteps+1
+    savelist<-c(savelist,"checkuids","agrichecks")
+    #save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    source("curplot.r")
+}else if(stepsdone>checksteps){
+    print(paste0("Step ",checksteps+1,": Sector 3 checks already done"))
+}
+stop("Step 7 done")
+
+
+
+# A.3 Determine Key categories ####
+if(stepsdone==7){
     
     # Key source categories ####
-    print(paste0("Step ",checksteps+1,"d: Key source category analysis (unfinished)"))
+    
+    print(paste0("Step ",stepsdone+1,": Key source category analysis (unfinished)"))
+    # Make sure that the categories listed are complete but not redundant!!
+    # if necessary, do some tests!
+    # Check at the end if the totals are OK
     keycats<-read.table("keycategories.txt")
     keycats<-as.vector(keycats$V1)
     
     select<-alldata$variableUID%in%keycats
     keycategories<-alldata[select,]
     
-    select<-allmethods$variableUID%in%keycats
-    keymethods<-allmethods[select,]
-    agrimethods<-allmethods[grepl("^3",allmethods$sector_number),]
-    agrimethods<-agrimethods[agrimethods$notation!="NA",]
     
+    alldata$digit<-nchar(alldata$sector_number)-nchar(gsub("\\.","",alldata$sector_number))
+    allsectors<-unique(subset(alldata,select=c("sector_number","digit")))
+    allemissions<-alldata[alldata$meastype=="EM"&alldata$digit!=0,]
+    allemissions<-allemissions[!grepl("Aggregate",allemissions$gas),]
+    
+    allsectors$digit<-nchar(allsectors$sector_number)-nchar(gsub("\\.","",allsectors$sector_number))
+    allsectors$digit<-nchar(allsectors$sector_number)
+    select<-grepl(" $",allagri$sector_number)
+    allagri$sector_number[select]<-(gsub("\\.$","",allagri$sector_number[select]))
+    
+    
+    #select<-allmethods$variableUID%in%keycats
+    #keymethods<-allmethods[select,]
+    #agrimethods<-allmethods[grepl("^3",allmethods$sector_number),]
+    #agrimethods<-agrimethods[agrimethods$notation!="NA",]
+    
+    # Convert all emissions into CO2eq
     select<-keycategories$gas=="CH4"
     keycategories[select,years]<-keycategories[select,years]*gwps[1]
     select<-keycategories$gas=="N2O"
     keycategories[select,years]<-keycategories[select,years]*gwps[3]
     
+    # Define reference total 
     select<-alldata$gas=="Aggregate GHGs" & grepl("^[1-6].$",alldata$sector_number)
     select<-select | alldata$gas=="Aggregate GHGs" & grepl("Total",alldata$sector_number)
     totem<-alldata[select,]
     
-    print(paste0("Step ",checksteps+1,"e: Save results"))
-    stepsdone<-checksteps+1
+    # Rank all emissions according to their contribution to total
+    # (convert emissions into share of total)
+    
+    # Calculate cumulative share
+    
+    
+    # Assign yes/no if cumulative share is above/below threshold
+    
+    
+    print(paste0("Step ",checksteps,": Save results"))
+    stepsdone<-7
+    savelist<-c(savelist,"keycategories","totem")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    
-}else if(stepsdone>checksteps){
-    print(paste0("Step ",checksteps+1,": Check for outlier errors already done"))
+    source("curplot.r")
+}else if(stepsdone>5){
+    print(paste0("Step 7: Key category analysis errors already done"))
 }
 
 if(exists("paramchecked")){
@@ -354,6 +573,8 @@ if(exists("paramchecked")){
     #      if the issues are written into file, paramchecked is set to 2 and the 
     if(paramchecked==1){
         print(paste0("Step ",checksteps+1,": Write out country issues and list corrections needed for IEF calculation "))
+        
+        
         listoftext<-paste0(filoutliers,"_listoftext~",format(Sys.time(),format="%Y%m%d-%H%M"),".csv")
         corfile<-paste0(filoutliers,"list_checked.csv")
         con1 <- file(listoftext, open="wt")
@@ -396,7 +617,7 @@ if(exists("paramchecked")){
         firstissue<-1
         lastissue<-2
         lastissue<-nrow(notresolved)
-        notresolved[c(firstissue:lastissue),"issueID"]<-unlist(lapply(c(firstissue:lastissue),function(x) writeissue(allagri,notresolved[x,],listoftext)))
+        notresolved[c(firstissue:lastissue),"issueID"]<-unlist(lapply(c(firstissue:lastissue),function(x) writeoutlierissue(allagri,notresolved[x,],listoftext)))
         
         
         allissues<-rbind(notresolved,resolved)
@@ -428,44 +649,11 @@ if(exists("paramchecked")){
 }   
 
 
-# C - Make checks for sector 3 ####
-checksteps<-5
-if(stepsdone==checksteps) {
-    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3"))
-    #load(rdatmeasu)
-    
-    # source("tmp_otherlivestockearlier.r")
-    # Again manual correction of BE-swine/sheep problem
-    #     allagri<-allagri[!allagri$variableUID=="8A72A9BE-DB94-4277-ADFC-8AE85BE6B999",]
-    #     uidrem<-"76660D32-4F2A-4C65-81C3-71FA2C340542"
-    #     uidnew<-"AB1CC8F6-D71C-46A1-A846-B5E76E2DE3A2"
-    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
-    #     allagri<-allagri[!allagri$variableUID==uidrem,]
-    #     uidrem<-"1FB8F04A-E6A1-47B7-A6F0-407836FDF3EF"
-    #     uidnew<-"3FB4B8CB-B0A8-4BA1-8D81-CD412F301D1B"
-    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
-    #     allagri<-allagri[!allagri$variableUID==uidrem,]
-    
-    allcattle<-c("Cattle","Dairy Cattle","Non-Dairy Cattle")
-    allagri$option<-""
-    allagri<-unique(allagri)
-    source("agrichecks1ADs.r")
-    source("agrichecks2Nex.r")
-    
-    agrichecks<-rbind(checks[names(check1)],check1,check2,check3,check4,check5)
-    stepsdone<-checksteps+1
-    savelist<-c(savelist,"checkuids","agrichecks")
-    save(list=savelist,file=rdatallem)
-    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    source("curplot.r")
-}else if(stepsdone>checksteps){
-    print(paste0("Step ",checksteps+1,": Sector 3 checks already done"))
-}
 
 checksteps<-6
 if(stepsdone==checksteps) {
     print(paste0("Step ",checksteps+1,": Make additional plots for sector 3"))
-
+    
     #Attentions: for plots the identified issues need to be corrected again
     #(the data base has not been changed, it was just corrected for EU-weighted parameters)
     # Trend plots for AD-EM
@@ -476,7 +664,7 @@ if(stepsdone==checksteps) {
     # Trend plots for IEF
     
     # Country-plots for IEF
- 
+    
     #stepsdone<-checksteps+1
     #source("curplot.r")
 }else if(stepsdone>checksteps){

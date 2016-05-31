@@ -78,15 +78,46 @@ checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
 signthreshold<-0.0005 #min of 0.05% of national total
 gases<-c("CH4","CO2","N2O","Aggregate GHGs")
 gwps<-c(25,1,298,1)
-eukp<-"EU28"
-eukp<-"EU-KP"
 
-countries2<-c("AT","BE","BG","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LT","LU","LV","MT","NL","PL","PT","RO","SE","SI","SK","UK","EU28")
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","GBR","GRC","HRV","HUN","IRL","IS","ITA","LT","LUX",
-              "LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK","UK","EU")
+
+#email david 20160203
+#* - GBE (CRF Party code & ‘submission file’ in the locator) = UK (‘Party code’ in the locator) = Great Britain (‘Party name’ in the locator) = EU-territory geographical coverage > EU’s submission under the Convention
+#* - GBR (CRF Party code & ‘submission file’ in the locator) = GB (‘Party code’ in the locator) = United Kingdom (‘Party name’ in the locator) = KP geographical coverage > EU’s submission under KP
+
+#email david 20150703 (quoted in email spyri 20150706)
+# - 2 XML files for UK: GBE and GBR ("GBE" has been assigned code "GB" and label "Great Britain", 
+#                                    "GBR" has been assigned code "UK" and label "United Kingdom").
+
+#email riccardo 20160530
+#I think the first email is right: UK=GBE=EU-territory & GB=GBR=KP
+#GBR is clearly KP and should be higher than GBE. 
+#The Party name is confusing because it is the United Kingdom in both instances 
+#(one with overseas territories 'GBR' and the other without 'GBE').  We should improve this next year. 
+
+countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"EE" ,"ES" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SE" ,"SI" ,"SK" ,"EUA","EUC")
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRA","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK","EUA","EUC")
+
 countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Estonia",
-              "Spain","Finland","France","United Kingdom","Greece","Croatia","Hungary","Ireland",
+              "Spain","Finland","France","France incl Mayotte",
+              "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBE=EU territory)","Greece","Croatia","Hungary","Ireland",
               "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
-              "Portugal","Romania","Sweden","Slovenia","Slovakia","United Kingdom",
-              "EU28")
+              "Portugal","Romania","Sweden","Slovenia","Slovakia",
+              "EU under Convention (EU28)","EU under Kyoto (EU28+ISL)")
+
+country4sub<-as.data.frame(countries2)
+country4sub$countries3<-countries3
+country4sub$countriesl<-countriesl
+country4sub$eua<-1
+country4sub$euc<-1
+country4sub$eua[country4sub$countries2=="FR"]<-0
+country4sub$euc[country4sub$countries2=="FR"]<-0
+country4sub$eua[country4sub$countries3=="GBR"]<-0
+country4sub$euc[country4sub$countries3=="GBE"]<-0
+country4sub$eua[country4sub$countries3=="EUC"]<-0
+country4sub$euc[country4sub$countries3=="EUA"]<-0
+
 countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
+
+eua<-"EU28"
+euc<-"EU28+ISL"
+eukp<-euc

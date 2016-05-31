@@ -84,8 +84,8 @@ if(stepsdone==2){
     #eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
     #eu28sum$notation[eu28sum$notation==0]<-""
     #calceu<-rbind(alldata,eu28sum)
-    calceu<-eu28sums(calceu)
     print("Calculate EU-sums")
+    calceu<-eu28sums(calceu)
     eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EU28",]
     
     # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting

@@ -41,6 +41,7 @@ cursubm <- "20151030"                                                       #!!!
 invyear<-2015
 cursubm <- "20160202"                                                       #!!!
 cursubm <- "20160322"                                                       #!!!
+cursubm <- "20160420"                                                       #!!!
 invyear<-2016
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.

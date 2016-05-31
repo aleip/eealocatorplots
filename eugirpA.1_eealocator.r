@@ -32,48 +32,51 @@ if(generatealldata==1){
     # Create vectors for categories, years, and unique rows (not considering years) ----
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     print("Create vectors for categories")
-    measures<-levels(alldata$measure)
-    parties<-levels(alldata$party)
-    years<-levels(alldata$year)
-    notations<-levels(alldata$notation)
-    classifications<-levels(alldata$classification)
-    categories<-levels(alldata$category)
-    sources<-levels(alldata$source)
-    methods<-levels(alldata$method)
-    targets<-levels(alldata$target)
-    options<-levels(alldata$option)
-    types<-levels(alldata$type)
-    gases<-levels(alldata$gas)
-    units<-levels(alldata$unit)
-    sectors<-levels(alldata$sector_number)
-    uids<-levels(alldata$variableUID)
-    
-    submission_version<-unique(alldata$submission_version)
-    submission_year<-unique(alldata$submission_year)
-    countries<-unique(alldata[,c("party","country_name")])
-    alldata<-subset(alldata,select=(! names(alldata) %in% c("country_name","submission_version","submission_year")))
-    
+
     # Select gases ####
     gases2keep<-c("Aggregate GHGs","CH4","no gas","CO2","N2O")
     select<-alldata$gas %in% gases2keep
     alldata<-alldata[select,]
+    gases<-as.character(unique(alldata$gas))
     
     # Select years ####
     #years2delete<-as.vector(as.character(allyears[!(allyears %in% years2keep)]))
     select<-alldata$year %in% years2keep
     alldata<-alldata[select,]
+    years<-as.character(unique(alldata$year))
     
     # Store method descriptions in different data frame - delete from alldata ####
     print("Store allmethods")
+    methods<-as.character(unique(alldata$method))
     allmethods<-alldata[alldata$measure=="Method",]
     allmethods<-simplifytestmatrix(allmethods,"year",years2keep)
     alldata<-alldata[! alldata$measure=="Method",]
     
-    infos<-c("Documentation box","Emission factor information","Type")
     print("Store allinfos")
+    infos<-c("Documentation box","Emission factor information","Type")
+    measures<-as.character(unique(alldata$measure))
     allinfos<-alldata[alldata$measure %in% infos,]
     allinfos<-simplifytestmatrix(allinfos,"year",years2keep)
     alldata<-alldata[! alldata$measure %in% infos,]
+
+    notations<-levels(alldata$notation)
+    
+    parties<-as.character(unique(alldata$party))
+    classifications<-as.character(unique(alldata$classification))
+    categories<-as.character(unique(alldata$category))
+    sources<-as.character(unique(alldata$source))
+    targets<-as.character(unique(alldata$target))
+    options<-as.character(unique(alldata$option))
+    types<-as.character(unique(alldata$type))
+    units<-as.character(unique(alldata$unit))
+    sectors<-as.character(unique(alldata$sector_number))
+    uids<-as.character(unique(alldata$variableUID))
+    
+    submission_version<-as.character(unique(alldata$submission_version))
+    submission_year<-as.character(unique(alldata$submission_year))
+    countries<-unique(alldata[,c("party","country_name")])
+    alldata<-subset(alldata,select=(! names(alldata) %in% c("country_name","submission_version","submission_year")))
+    
     
     # Store notations in different data frame - delete from alldata ####
     print("Store allnotations")

@@ -10,28 +10,29 @@ figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
 figs(paste0("fig","3.B.2.5","sharems"),sharemsfigurecaption(eukp,"3.B.2.5",lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
-`r curgas` emissions from source category `r curcattext` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs("figb2share",display="cite")`.
+`r curgas` emissions from source category `r curcattext` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`.
+
 `r text2sharems(sec=cursec)`
 
 Regarding the handling of manure in the different Member States, `r figs(paste0("fig","3.B.2.5","sharems"),display="cite")` shows the distribution of total manure nitrogen by manure system in all Member States and in the EU28. Each bar represents the total manure nitrogen handled in the current system for the country, where different shades of grey correspond to the emitting manure systems.
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![](../2016/plots/20160322agrimixeu3.B.2.jpg)
+![](../2016/plots/20160420agrimixeu3.B.2.jpg)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![](../2016/plots/20160322emissionshare_3.B.2.jpg)
+![](../2016/plots/20160420emissionshare_3.B.2.jpg)
 
 `r figs(paste0("fig","3.B.2.5","sharems"),display="full")`
 
-![](../2016/plots/20160322emissionshare_3.B.2.5.jpg)
+![](../2016/plots/20160420emissionshare_3.B.2.5.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B2_N2O.png)
+![](../2016/eureport/20160420/Table3B2ManureManagementotalGHGN2O.jpg)
 
 
 #### Trends in Emissions and Activity Data
@@ -49,7 +50,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec,"
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B2Farming-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B2Farming-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 
 ```{r 3B21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -59,23 +60,27 @@ curcat<-"Cattle"
 curmea<-"EM"
 source("nircatdata.r")
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
-figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig3B211","trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
-`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
-
+`r text2trend(fig="",option=1)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B21_N2O.png)
+![](../2016/eureport/20160420/Table3B21CattleN2O.jpg)
 
-`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+`r figs(paste0("fig3B211","trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B21Cattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+`r figs(paste0("fig3B212","trend",curmea),display="full")`
+
+![](../2016/plots/20160420/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 ```{r 3B21pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 curmea<-"POP"
@@ -110,11 +115,11 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B25_N2O.png)
+![](../2016/eureport/20160420/Table3B25ManureManagementN2O.jpg)
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
 
 
 ```{r 3B24em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -141,7 +146,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B24_N2O.png)
+![](../2016/eureport/20160420/Table3B24OtherLivestockN2O.jpg)
 
 
 ```{r 3B247em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -151,7 +156,7 @@ curcat<-"Poultry"
 curmea<-"EM"
 source("nircatdata.r")
 
-subcategssel<-grepl("3.B.2.4.",agridet$sector_number) & agridet$party=="EU28"&agridet$meastype=="EM"&agridet$gas==curgas
+subcategssel<-grepl("3.B.2.4.",agridet$sector_number) & agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas==curgas
 subcategdet<-agridet[subcategssel,]
 subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
 nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
@@ -184,15 +189,15 @@ Other activity data related to this emission category are:
 
 `r figs(paste0("fig","3.B.2.4","trend","EM"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B24OtherLivestock-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B24OtherLivestock-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig","3.B.2.4.7","trend","EM"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B247Poultry-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B247Poultry-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig",cursec,"trend","POP"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3A47Poultry-EntericFermentationPOP-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3A47Poultry-EntericFermentationPOP-nirvalue.jpg) 
 
 
 #### Implied EFs  and Methodological Issues
@@ -208,21 +213,13 @@ curseclong<-"Manure Management"
 curcat<-"Cattle"
 curmea<-"IEF"
 source("nircatdata2.r")
-figs("figB21trendief",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabB21ief",paratablecaption(eukp,curcattext,lastyear))
 ```
 
 
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2ief(fig=figs("figB21trendief",display="cite"),tab=tabs("tabB21ief",display="cite"))`
-
-
-`r figs("figB21trendief",display="full")`
-
-![](../2016/plots/20160322/rangeief/3B21Cattle-N2OandNMVOCEmissionsIEF-nirrange.jpg)
-
-
+`r text2ief(fig="",tab=tabs("tabB21ief",display="cite"))`
 
 `r tabs("tabB21ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -246,7 +243,7 @@ tabs("tabB211ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB211trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 
 `r tabs("tabB211ief",display="full")`
@@ -267,7 +264,7 @@ tabs("tabB211NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB211trendNRATE",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 
 `r tabs("tabB211NRATE",display="full")`
@@ -288,7 +285,7 @@ tabs("tabB212ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB212trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB212ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -308,7 +305,7 @@ tabs("tabB212NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB212trendNRATE",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 `r tabs("tabB212NRATE",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -328,7 +325,7 @@ tabs("tabB247ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB247trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B247Poultry-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B247Poultry-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB247ief",display="full")`
 
@@ -350,7 +347,7 @@ tabs("tabB247NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB247trendNRATE",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B247Poultry-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B247Poultry-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 `r tabs("tabB247NRATE",display="full")`
 
@@ -371,7 +368,7 @@ tabs("tabB25ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB25trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B25Farming-IndirectN2OEmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B25Farming-IndirectN2OEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB25ief",display="full")`
 

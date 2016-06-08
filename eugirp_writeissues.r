@@ -32,14 +32,15 @@ observationoutlier<-function(line){
 }
 observationrecalc<-function(line,check){
     
-    observationsec<-line$
+    observationsec<-line$sector_number
     observationcat<-line$category
     yrs<-strsplit(line$years,"-")[[1]]
     observationyrs<-length(yrs)
     
     if(observationyrs>0){
         share<-0
-        for(i in c(1:observationyrs)){share<-share+(line[,paste0("s",yrs[i])])/observationyrs}
+        #for(i in c(1:observationyrs)){share<-share+(line[,paste0("s",yrs[i])])/observationyrs}
+        for(i in c(1:observationyrs)){share<-share+(line[,paste0("sYear",i)])/observationyrs}
         observation<-paste0(line$sector_number," - ",line$category,": ",
                         "Recalculation for the year",if(observationyrs>1){"s"}," ",gsub("-"," and ",line$years),
                         if(share>0){" increased "}else{" decreased "},
@@ -60,8 +61,10 @@ questionrecalc<-function(line){
     if(questionyrs>0){
         question<-paste0("Emissions were checked on significant recalculations for the years 1990 and ",as.numeric(lastyear)-1,". ")
         for(i in c(1:questionyrs)){
-            effect<-rounddigit(line[,paste0("e",yrs[i])])
-            share<-rounddigit(line[,paste0("s",yrs[i])])
+            #effect<-rounddigit(line[,paste0("e",yrs[i])])
+            #share<-rounddigit(line[,paste0("s",yrs[i])])
+            effect<-rounddigit(line[,paste0("eYear",i)])
+            share<-rounddigit(line[,paste0("sYear",i)])
             question<-paste0(question,
                              "Recalculation in ",yrs[i]," was ",effect," ",line$unit," or ",
                             share*100,"% of total national ",line$gas," emissions. ")
@@ -239,7 +242,15 @@ growthtype<-function(line){
 keysources<-function(){
     keycategories<-read.csv(lastkeyfile)
     keycategories<-keycategories[keycategories$party!="",c("party","category","gas","keylevel")]
-    keycategories$party<-unlist(lapply(c(1:nrow(keycategories)),function(x) countries2[which(countries3==keycategories$party[x])]))
+    keycategories$party<-unlist(lapply(c(1:nrow(keycategories)),function(x) 
+        if(keycategories$party[x]=="FRK"){
+            "FM"
+        }else if(keycategories$party[x]=="EU"){
+            "EUC"
+        }else{
+            as.character(country4sub[country4sub$code3==keycategories$party[x],"code2"])
+        }))
+    keycategories$party[keycategories$party=="EU"]
     keycategories$category<-unlist(lapply(c(1:nrow(keycategories)),function(x) 
         {sec<-substr(keycategories$category[x],1,3)
         if(sec=="3.D") sec<-substr(keycategories$category[x],1,5)
@@ -285,7 +296,7 @@ keysourcecat<-function(line){
     sec<-getshortsector(line$sector_number)
     if(grepl("^\\.",sec)) sec<-"3.A"
     gas<-identifygas(sec)
-    keyeu<-keycategories$keylevel[keycategories$party=="EU28" & keycategories$category==sec & keycategories$gas==gas]
+    keyeu<-keycategories$keylevel[keycategories$party=="EUC" & keycategories$category==sec & keycategories$gas==gas]
     keyms<-keycategories$keylevel[keycategories$party==prt & keycategories$category==sec & keycategories$gas==gas]
     if(length(keyms)==0)keyms<-0
     #print(sec)
@@ -336,8 +347,8 @@ keyflags<-function(line,check){
     return(list(key1,key2,key3,key4,key5,key6))
 }
 
-flags4newissue<-function(line,check){
-    country<-countriesl[which(countries2==as.character(line$party))]
+flags4newissue<-function(line,check,x){
+    country<-country4sub[country4sub$code2==as.character(line$party),"long"]
     if(check=="outlier") {
         observation<-observationoutlier(line)
         question<-questionoutlier(line)
@@ -395,6 +406,8 @@ flags4newissue<-function(line,check){
             if(line$meastype%in%c("AD","AREA","POP")){par<-"Activity Data"}else{par<-"Other"}
     }
     flags<-keyflags(line,check)
+    
+    #cat(x,"(",length(unlist(list(country,observation,question,revyear,sector,gas,yrs,par,flags))),") ")
     return(list(country,observation,question,revyear,sector,gas,yrs,par,flags))
 }
 

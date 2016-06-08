@@ -2,7 +2,7 @@ print("start eugirp_funnirplots.R")
 #print(objects())
 
 
-generateplotdata<-function(rundata="adem",datasource=c("nir")){
+generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"){
     if(rundata=="ief") docateg<-"^3"
     if(rundata=="adem") docateg<-"all"
     sharesexist<-0
@@ -14,9 +14,12 @@ generateplotdata<-function(rundata="adem",datasource=c("nir")){
     alldata<-unique(alldata)
     
     #Exlcudeparty is required because there are two submissions from UK: UK and GB (incl some islands...)
-    if(rundata=="adem") plotdata<-alldata
-    if(rundata=="ief") plotdata<-allagri
-    if(length(datasource)>1)plotdata<-allagri
+    if(length(datasource)>1){
+        plotdata<-allagri
+    }else{
+        if(rundata=="adem") plotdata<-alldata
+        if(rundata=="ief") plotdata<-allagri
+    }
     plotdata$datasource<-"nir"
     plotdata<-convert2char(plotdata)
     
@@ -93,6 +96,13 @@ generateplotdata<-function(rundata="adem",datasource=c("nir")){
     
     # Remove rows where countries report zero (or NA) for the whole time period
     plotdata<-plotdata[apply(plotdata[,years],1,sum,na.rm=TRUE)!=0,]
+    if(rundata=="adem"){
+        acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code2"])
+        acountry<-acountry[!acountry%in%eu]
+        plotdata<-plotdata[plotdata$party%in%acountry,]
+        plotdata<-eu28sums(A = plotdata,aeu = subcountries)
+    }
+        
     
     #if(rundata=="adem") plotdata<-eu28sums(A = plotdata)
     adddefault<-0
@@ -104,23 +114,24 @@ generateplotdata<-function(rundata="adem",datasource=c("nir")){
     
     
     # For multiple plots select only those variables which are available for both
+    muds<-length(as.character(unique(plotdata$datasource)))
     selv<-unique(plotdata[,c("variableUID","datasource")])
     selv$ok<-unlist(lapply(1:nrow(selv),function(x) sum(selv$variableUID==selv$variableUID[x])))
-    selv$ok<-unlist(lapply(1:nrow(selv),function(x) sum(selv$variableUID==selv$variableUID[x])==2))
+    selv$ok<-unlist(lapply(1:nrow(selv),function(x) sum(selv$variableUID==selv$variableUID[x])==muds))
     measOK<-merge(plotmeas,unique(selv[,c("variableUID","ok")]),by="variableUID",all.x=TRUE,sort = FALSE)
     measOK<-measOK[!is.na(measOK$ok),]
     plotmeas<-measOK[measOK$ok,]
     #plotmeas<-plotmeas[measOK$ok,]
     
     save(plotmeas,plotdata,rundata,sharesexist,adddefault,datasource,file=gsub(".RData",paste0("_plotmeas",rundata,paste(datasource,collapse="-"),".RData"),rdatallem))
-    return(list(plotdata,plotmeas))
+    return(list(plotdata,plotmeas,adddefault,sharesexist))
 }
-loopoverplots<-function(imeas,runfocus="value"){
+loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
     if(plotmeas$meastype[imeas]=="Milk") plotdata[plotdata$party=="LU",years]<-NA
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
-    plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eukp,plotparamcheck,dsource,multisource,adddefault)        
-    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,"EU28",dsource,plotted)
+    plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,dsource,multisource,adddefault)        
+    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted)
     graphics.off()
 }
 plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfoc,
@@ -136,6 +147,7 @@ plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfo
     fnammethod<-paste0(fnammethod,runmeastype)
     #print(fnammethod)
     figdir<-paste0(plotsdir,"/",cursubm,"/sec",substr(runsector,start = 1,stop = 1))
+    if (! file.exists(figdir)){dir.create(file.path(paste0(plotsdir,"/",cursubm)),showWarnings = FALSE )}
     if(substr(runsector,start = 1,stop = 1)=="3") {
         if (! file.exists(figdir)){dir.create(file.path(paste0(plotsdir,"/",cursubm)),showWarnings = FALSE )}
         figdir<-paste0(plotsdir,cursubm,"/",runfocus,rundata)
@@ -247,7 +259,7 @@ gettdis<-function(tmin,tmax,tmag){
 }
 
 
-prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,plotparamcheck=1,dsource,multisource,adddefault=0){
+prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
     
     curuid<-plotmeas$variableUID[imeas]
     #runfoc<-paste0(runfoc,)
@@ -267,6 +279,9 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
     relavs<-NULL
     nmain<-NULL
     nothers<-NULL
+    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+    acountryminus<-acountry[!acountry%in%eu]
+    eukp<-eunames[,eusubm]
     
     tmin<-NULL
     tmax<-NULL
@@ -275,13 +290,12 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
         # Determine y-axis for ADEM plots
         isource<-which(dsource==multisource)
         plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
-        plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = countries,narm = FALSE))
+        plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
         eu28<-plotmatr[nrow(plotmatr),]
         plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
-        
         if(rundata=="adem"){
             temp<-plotmatr
-            temp[temp==0]<-NA
+            temp[temp<=0]<-NA
             eu28pos<-colSums(temp,na.rm=T)
             eu28pos[eu28pos==0]<-NA
             euquant<-as.data.frame(matrix(rep(0,length(years)*3),ncol=length(years),nrow=3))
@@ -298,7 +312,7 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
             tmax<-max(tmax,ticksyaxis[[2]])
             tmag<-max(tmag,ticksyaxis[[3]])
             #print(paste(tmin,tmax,tmag))
-            
+
         }else if(grepl("ief",rundata)){
             eu28pos<-max(plotmatr,na.rm=T)
             eu28neg<-min(plotmatr,na.rm=T)
@@ -308,11 +322,12 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
         isource<-which(dsource==multisource)
         #print(paste0("isource=",isource,dsource,"-",paste(multisource,collapse=",")))
         plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
-        autocorr<-countriesnoeu[countriesnoeu%in%plotdatacur$party[!is.na(plotdatacur$autocorr)]]
+        autocorr<-acountryminus[acountryminus%in%plotdatacur$party[!is.na(plotdatacur$autocorr)]]
         autocorr<-unlist(lapply(autocorr,function(x) paste(x," (",plotdatacur$autocorr[plotdatacur$party==x],")",sep="")))
         autocorr<-paste(autocorr,collapse=", ")
         if(autocorr!="") autocorr<-paste0("Data correction: ",autocorr)
-        serious<-which(countriesnoeu%in%plotdatacur$party[plotdatacur$correction==0])
+        serious<-which(acountryminus%in%plotdatacur$party[plotdatacur$correction==0])
+        plotdatacur<-plotdatacur[plotdatacur$correction!=0|plotdatacur$party%in%eu,]
         if(length(serious)==0)serious=""
         if(dsource!="nir") serious<-""
         if(nrow(plotdatacur)>0){
@@ -327,18 +342,19 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
             #    plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur[!plotdatacur$party %in% eucountries,],uid = curuid,c = countries,narm = FALSE))
             #    eu28<-colSums(extractuiddata(DF = plotdatacur[plotdatacur$party=="EU28",],uid = curuid,c = countries,narm = FALSE),na.rm=TRUE)
             #}else if(grepl("ief",rundata)){
-            plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = countries,narm = FALSE))
+            plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
             eu28<-plotmatr[nrow(plotmatr),]
             plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
             #}
             #Make plot when any value is different from zero or NA:
             if(isource==1) cat(runid,"/",nrow(plotmeas),sep = "")
             cat("-",dsource,sep="")
+            View(plotmatr,dsource)
             if(sum(plotmatr,na.rm=TRUE)!=0){
                 #return(list(plotted,eu28fin,euquant,finnames,finshares,eu28,eu28pos,eu28neg,sharesexist=0,textorder))
                 #plotmade<-makeemplot(curuid,plotdata,plotmatr,"value",rundata,"EU28",plotparamcheck=0,runid,dsource,multisource)
                 
-                plotcoun<-as.vector(unlist((fdata$party[fdata[,"variableUID"]==curuid & !(fdata$party %in% eucountries)])))
+                plotcoun<-as.vector(unlist((fdata$party[fdata[,"variableUID"]==curuid & !(fdata$party %in% eu)])))
                 
                 #print(curuid)
                 #print(plotcoun)
@@ -368,11 +384,12 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
                     
                     # Relative value in country compared to EU value averaged over all years
                     relav<-rowMeans(rel,na.rm=TRUE)
+                    relav[is.nan(relav)]<-NA
                     
                     relavx<-relav[!is.na(relav)]
-                    relavx<-relav[!relav==0]
+                    relavx<-relavx[!relavx==0]
                     
-                    plotmatr$party<-allcountries[!allcountries%in%eucountries]
+                    plotmatr$party<-acountry[!acountry%in%eu]
                     topn<-min(10,length(relavx))
                     topno<-max(0,length(relavx)-topn)
                     
@@ -385,7 +402,7 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
                     Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years],na.rm=TRUE)))
                     Other$party<-"Other"
                     topnnames<-eu28main$party
-                    
+
                     if(length(relavx)>length(topneu28)){eu28fin<-rbind(eu28main,Other)}else{eu28fin<-eu28main}
                     finnames<-eu28fin$party
                     eu28fin<-as.matrix(eu28fin[,years])
@@ -394,7 +411,7 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
                     finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
                     #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
                     # General determination of the last available year
-                    lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)>0))
+                    lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
                     finshares<-eu28fin[,years[lastyear]]/as.matrix(eu28[years[lastyear]])*100
                     ###Necessary addition as long as capri only has values up to 2010 
                     #print("Remove capri manipulation for calculation of country shares when there are values for final year")
@@ -464,7 +481,7 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eukp,
                     relplot[relplot==0]<-NA
                     
                     #plotmatr$party<-allcountries[!allcountries%in%eucountries]
-                    plotmatr$party<-allcountries[!allcountries%in%eucountries]
+                    plotmatr$party<-acountry[!acountry%in%eu]
                     plotmatr$relav<-relav
                     plotmatr<-plotmatr[!is.na(relav),]
                     plotmatr<-plotmatr[order(plotmatr$relav,decreasing=T),]
@@ -632,6 +649,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     # TICKS #######################################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     tdis<-gettdis(tmin,tmax,tmag)
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     #print("Start plotting")
@@ -718,11 +736,21 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
                  cex=0.75*pconv,srt=90,adj=0)
             
             lines<-eu28fin
-            lines[lines==0]<-NA
-            linemin<-apply(lines,2,min,na.rm=TRUE)
-            linemax<-apply(lines,2,max,na.rm=TRUE)
-            lines(c(1:length(years)),linemax,ylim=c(tmin,tmax),col="grey30",new=FALSE)
-            lines(c(1:length(years)),linemin,ylim=c(tmin,tmax),col="grey30",new=FALSE)
+            if(nrow(lines)>1){
+                lines[lines==0]<-NA
+                linesok<-which(apply(lines,2,sum,na.rm=T)==0)
+                if(length(linesok)>0){
+                    linemin<-rep(NA,nyears)
+                    linemax<-rep(NA,nyears)
+                    linemin[-linesok]<-apply(lines[,-linesok],2,min,na.rm=TRUE)
+                    linemax[-linesok]<-apply(lines[,-linesok],2,max,na.rm=TRUE)
+                }else{
+                    linemin<-apply(lines,2,min,na.rm=TRUE)
+                    linemax<-apply(lines,2,max,na.rm=TRUE)
+                }
+                lines(c(1:length(years)),linemax,ylim=c(tmin,tmax),col="grey30",new=FALSE)
+                lines(c(1:length(years)),linemin,ylim=c(tmin,tmax),col="grey30",new=FALSE)
+            }
             #points(matrix(eu28),pch=21,bg="black",col="red",cex=5.5,lwd=5)
             ypos<- 0.1
             xpos<--0.5
@@ -795,8 +823,10 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         axis(2,at=tseq,pos=c(ypos+0.5,0),lwd=0,las=1,cex.axis=1*pconv)
         
         # Draw line so 'connect' the y-axis with the x-axis
-        #if(rundata!="ief") abline(h=xpos,lwd=largeticks)
+        #if(rundata!="ief") 
+        if(tmin/tmax<0) lines(x=c(-1,length(years)*1.2),y=c(0,0),lwd=largeticks*1.2)
         abline(v=ypos,lwd=largeticks)
+        #stop()
     }
     
     if(length(multisource)>1){
@@ -816,7 +846,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
             if(!is.na(ipccmin)){
                 lines(c(-1,0.5),rep(ipccmin,2),pch=21,col="blue",cex=1.5*pconv,lwd=2)
                 lines(c(-1,0.5),rep(ipccmax,2),pch=21,col="blue",lwd=2)
-                if(ipccmin!=ipccmax) arrows(x0=0,y0=ipccmin,x1=0,y1=ipccmax,code=3,length=0.08,angle=25,col="blue",lwd=1)
+                if((ipccmax-ipccmin)/tmag>0.01) arrows(x0=0,y0=ipccmin,x1=0,y1=ipccmax,code=3,length=0.08,angle=25,col="blue",lwd=1)
             }
         }else{ipcctxt<-""}
     }else{ipcctxt<-""}
@@ -824,7 +854,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     return(list(tmin,tmax,ipcctxt))
 }
 
-plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,plotted){
+plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted){
     #print(par("usr"))
     uabs<-par("usr")[3]
     oabs<-par("usr")[4]
@@ -876,10 +906,14 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
     topnos<-unlist(plotted[[2]][[4]])
     
     # Retrieve ordering info
+    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+    acountry<-acountry[!acountry%in%eu]
+    eukp<-eunames[,eusubm]
+    
     relavs<-plotted[[2]][[5]]
-    relav<-as.data.frame(matrix(rep(NA,length(countriesnoeu)*(nplots+1)),ncol=(nplots+1),nrow=length(countriesnoeu)))
+    relav<-as.data.frame(matrix(rep(NA,length(acountry)*(nplots+1)),ncol=(nplots+1),nrow=length(acountry)))
     names(relav)<-c("party",c(1:(nplots)))
-    relav$party<-countriesnoeu
+    relav$party<-acountry
     for(iplot in c(1:nplots)){
         relav[,iplot+1]<-relavs[[iplot]]
     }
@@ -1082,13 +1116,15 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
                     #if(finshares[i]!=0 | finshares[i]==0){
                     #print(paste(i,ncountries,finnames[i],finshares[i],sep="-"))
                     mytextavc <- finnames[i]
+                    if(finnames[i]!="Other")mytextavc <- country4sub[country4sub$code2==finnames[i],"code3"]
                     mytexteu<-eukp
                     mytexteua<-paste0(eukp)
                     if(is.nan(finshares[i])) finshares[i]<-NA
                     if(!is.na(finshares[i])){
                         checkdig<-round(finshares[i],nzeros)
-                        if(round(checkdig,0)==checkdig){checkdig<-paste0(checkdig,".",addzeros)}
+                        if(round(checkdig,0)==checkdig & addzeros!=""){checkdig<-paste0(checkdig,".",addzeros)}
                         mytextavv <- paste0(checkdig,"%",sep="")
+                        if(runfocus=="range")mytextavv<-checkdig
                         mytextran <-""
                     }else{
                         mytextavv<-finshares[i]
@@ -1150,7 +1186,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
                     #chartr substitutes dots with space
                     if (sharesexist) {
                         text(avshare+0.03,eu28ispos,shareADeu,cex=legcex-0.1*pconv,adj=0,font=2)
-                        if(iplot==1)text(recside+recdist,mid,mytextavc,cex=legcex-0.25*pconv,adj=0)
+                        if(iplot==1)text(recside+recdist,mid,mytextavc,cex=legcex-0.25*pconv,adj=0,family="Courier")
                         text(2.2*recside*recdist,mid,mytextavv,cex=legcex-0.25*pconv,adj=1)
                         text(avshare+0.11,mid+0.000,shareAD1,cex=legcex-0.25*pconv,adj=1)
                         text(avshare+0.12,mid-0.000,shareAD2,cex=legcex-0.25*pconv,adj=0)
@@ -1218,8 +1254,8 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
             
         }
     }
+    
     if(haslegend==1){
-        
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
         # Box with explanation country-selection ####
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -1239,7 +1275,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
         }
         
         if(rundata=="adem"){
-            textorderadem1<-paste0("Countries are sorted by the average contribution to the sum of ",eukp," value over the the whole time period. ")
+            textorderadem1<-paste0("Countries are sorted by the average contribution to the sum of the ",eukp," value over the whole time period. ")
             if(topno>0) {
                 textorderadem2<-paste0("The top ",topntext," countries are displayed. ")
                 textorderadem3<-paste0("The other ",topnotext," reporting countries with data are lumped to 'other'.")
@@ -1249,10 +1285,9 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
             }
             textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
         }else if(grepl("ief",rundata)){
-            runfocus<-"value"
-            if(runfocus=="value"){
-                textiefval1<-paste0(eukp," value is obtained from a weighted average of country-values. ")
-                textiefval2<-"The relative distance from MS/EU28 value is calculated for each year (e.g. 10% smaller). "
+            if(runfocus%in%c("value","range")){
+                textiefval1<-paste0("The ",eukp," value is obtained from a weighted average of country-values. ")
+                textiefval2<-"The relative distance from the MS/EU28 value is calculated for each year (e.g. 10% smaller). "
                 textiefval3<-"Countries are sorted by average absolute relative distance calculated over the whole time period. "
             }
             if(topno>0){
@@ -1324,7 +1359,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
     #text(0,par("cin")[2],adj=0,mfooter1,cex=0.8)
     #text(0,0,adj=0,mfooter2,cex=0.8)
     #print(mtexttitle0)
-    plottitle(mtexttitle0,plotted)
+    plottitle(mtexttitle0,plotted,eukp)
     
     #stop("Stop after x-axis")
     
@@ -1351,7 +1386,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
     if(runfocus%in%c("range"))serioustext<-NULL
     plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
     
-    if(length(serioustext)!=0)text(0.005,0.4+0.2*(nchar(ipcctxt)>1),adj=0,serioustext,cex=0.5*pconv,font=1,col="red")
+    if(rundata!="adem")if(length(serioustext)!=0)text(0.005,0.4+0.2*(nchar(ipcctxt)>1),adj=0,serioustext,cex=0.5*pconv,font=1,col="red")
     text(0.005,0.4,adj=0,ipcctxt,cex=0.5*pconv,font=1,col="blue")
     text(0.005,0.1,adj=0,foottextleft,cex=0.5*pconv,font=1)
     text(0.995,0.1,adj=1,foottextrigt,cex=0.5*pconv,font=1)
@@ -1361,7 +1396,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eukp="EU-KP",dsource,p
     
 }
 
-plottitle<-function(mtexttitle0="x",plotted){
+plottitle<-function(mtexttitle0="x",plotted,eukp){
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     #  TITLE ############################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

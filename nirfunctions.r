@@ -139,7 +139,8 @@ absval<-function(curch,d=0){
 }
 laender<-function(pp){
     #pp: vector with country acronyms
-    pl<-unlist(lapply(c(1:length(pp)),function(x) countrieslthe[which(countries2==pp[x])]))
+    pp<-as.character(pp)
+    pl<-unlist(lapply(c(1:length(pp)),function(x) country4sub$thename[which(country4sub$code2==pp[x])]))
     npl<-length(pp)
     laender<-pl[1]
     if(npl==2){laender<-paste(pl,collapse=" and ")}
@@ -173,9 +174,9 @@ curcatlong<-function(curcat,cursec=cursec){
     if(cursec=="3.D.1.1" | cursec=="3.D.1.2"){curcattext<-gsub("Managed Soils",curseclong,curcattext)}
     if(cursec=="3.D.2.1" | cursec=="3.D.2.2"){curcattext<-paste0(cursec," - Indirect N2O Emissions From ",curseclong)}
     if(cursec=="3.D.1.3"){curcattext<-paste0(cursec," - ",curcat)}
-    if(grepl("3.D.AI.1",cursec)){curcattext<-"3.D.2.1 - Indirect emissions from atmospheric deposition"}
-    if(grepl("3.D.AI.2",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from atmospheric deposition"}
-    if(grepl("3.D.AI.3",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from nitrogen leaching and run-off"}
+    if(grepl("3.D.AI.1",cursec)){curcattext<-"3.D.2.1 - Indirect emissions from Atmospheric Deposition"}
+    if(grepl("3.D.AI.2",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Atmospheric Deposition"}
+    if(grepl("3.D.AI.3",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Nitrogen Leaching and Run-off"}
     if(cursec=="3.B.2.5"){curcattext<-"3.B.2.5 - Indirect N2O emissions from manure management"}
     curcattext<-paste0("*",gsub(" $","",curcattext),"*")
     return(curcattext)
@@ -210,9 +211,9 @@ capmeasure<-function(curmeasure,t="short"){
 }
 
 # Captions ####
-sharefigurecaption<-function(eukp,cursec,lastyear){
+sharefigurecaption<-function(eusubml,cursec,lastyear){
     cap<-paste0("&#09;Share of source category ",cursec," ",
-                "on total ",eukp," agricultural emissions (left panel) ",
+                "on total ",eusubml," agricultural emissions (left panel) ",
                 "and decomposition into its sub-categories (right panel). ",
                 "The percentages refer to the emission in the year ",lastyear,".",
                 if(cursec=="3.B.2"){"3.B.2.1-3.B.3.4: emissions by animal types (cattle, sheep, swine, other livestock); 3.B.2.5:Indirect emissions from manure management."}else
@@ -223,7 +224,7 @@ sharefigurecaption<-function(eukp,cursec,lastyear){
                 )
     return(cap)
 }
-sharemsfigurecaption<-function(eukp,sec=cursec,lastyear){
+sharemsfigurecaption<-function(eusubml,sec=cursec,lastyear){
     cap<-paste0("&#09;Decomposition of emissions in source category ",curcattext," ",
                 "into its sub-categories by Member State in the year ",lastyear,". ",
                 if(grepl("D.1",sec)){
@@ -246,34 +247,36 @@ msconttablecaption<-function(){
     cap<-paste0("&#09;",curcattext,": Member States&apos; contributions to total GHG and ",paste(curgas,collapse=", ")," emissions")
     return(cap)
 }
-trendfigurecaption<-function(eukp,sec=cursec,lastyear){
+trendfigurecaption<-function(eusubml,sec=cursec,lastyear){
     cap<-paste0("&#09;",sec,": Trend in ",
                 if(curmea=="POP"){paste0(firstlow(curcat)," ")},
-                firstlow(curmeasure)," in the ",eukp,
-                " and the countries contributing most to ",eukp," values",
-                " including their share to ",eukp," emissions in ",lastyear,"")
+                firstlow(curmeasure)," in the ",eusubml,
+                " and the countries contributing most to ",eusubml," values",
+                " including their share to ",eusubml," emissions in ",lastyear,"")
     return(cap)
 }
-trendiefcaption<-function(eukp,sec=cursec,lastyear){
-    cap<-paste0("&#09;",sec,": Trend in ",firstlow(curmeasure)," in the ",eukp,
+trendiefcaption<-function(eusubml,sec=cursec,lastyear){
+    cap<-paste0("&#09;",sec,": Trend in ",firstlow(curmeasure)," in the ",eusubml,
                 " and range of values reported by countries")
     return(cap)
 }
-paratablecaption<-function(eukp,sec=cursec,lastyear){
+paratablecaption<-function(eusubml,sec=cursec,lastyear){
     if(curunit==""){uu<-"-"}else{uu<-curunit}
-    cap<-paste0("&#09;",curcattext,": Member States&apos; and ",eukp," ",
+    uvprep<-gsub("\\*","",gsub("\\\"","",paste(curtable["Member State"],collapse="")))
+    if(grepl("EU28",uvprep)){uv<-paste0("and ",eusubml," ")}else{uv<-""}
+    cap<-paste0("&#09;",curcattext,": Member States&apos; ",uv                ,
                 firstlow(curmeasure)," (",uu,")")
     return(cap)
 }
-compademplots<-function(eukp,sec=cursec,cat=curcat){
-    cap<-paste0("&#09;",sec,": Comparison of ",cat," ",firstlow(curmeasure)," in the ",eukp,
+compademplots<-function(eusubml,sec=cursec,cat=curcat){
+    cap<-paste0("&#09;",sec,": Comparison of ",cat," ",firstlow(curmeasure)," in the ",eusubml,
                 " and range of values reported by countries in the ",multiref[1]," and the ",multiref[2],".")
     return(cap)
 }
-compareplots<-function(eukp,sec=cursec,cat=curcat){
-    cap<-paste0("&#09;",sec,": (a) Average ",cat," ",firstlow(curmeasure)," in the ",eukp,
+compareplots<-function(eusubml,sec=cursec,cat=curcat){
+    cap<-paste0("&#09;",sec,": (a) Average ",cat," ",firstlow(curmeasure)," in the ",eusubml,
                 " in the ",multiref[1]," and the  ",multiref[2],
-                ", (b) Importance of range of difference in the databases for total EU28 value",
+                ", (b) Importance of range of difference in the databases for total ",eusubml," value",
                 " and (c) Relative difference of mean values by country.")
     return(cap)
 }
@@ -316,7 +319,7 @@ text2sharems<-function(sec=cursec){
                  if(grepl("D",cursec)){"managed soils"}else{gsub("n2o","N2O",tolower(curseclong))},
                  " by ", 
                  if(grepl("A|B",cursec)){"livestock category"}else{"emission source"},
-                 " in all Member States and in the EU28.",
+                 " in all Member States and in the ",eusubml,".",
                  " Each bar represents the total emissions of a country in the current emission category, ",
                  "where different shades of grey correspond to the emitting ",
                  if(grepl("A|B",cursec)){"animal types"}else{"sub-categories"},".")
@@ -335,22 +338,23 @@ text2trend<-function(fig="",option=0){
         sent1<-""
     }else{
         sent1<-paste0(capmeasure(curmeasure),deorincrease(1-curtrend),"d ",trendstrength(curtrend),
-                      " in ",eukp," by ",
+                      " in ",eusubml," by ",
                       percent(abs(1-curtrend))," or ",absval(curtrendabs),
                       " in the period ",firstyear," to ",lastyear,". ")
     }
     
     sent2a<-paste0(fig," shows the trend of ")
     if(curmeasure=="Emissions"){sent2b<-"emissions"}else{sent2b<-firstlow(capmeasure(curmeasure))}
-    sent2c<-paste0(" indicating the countries contributing most to ",eukp," total. ")
+    sent2c<-paste0(" indicating the countries contributing most to ",eusubml," total. ")
     
     sent2d<-paste0("The figure represents the trend in ",curgas," ",firstlow(curmeasure),
-                   if(curmea!="POP"){paste0(" from ",tolower(curseclong))},
-                   " for the different member states along the inventory period. ")
+                   if(curmea!="POP"){paste0(" from ",gsub(" n "," N ",tolower(curseclong)))},
+                   " for the different Member States along the inventory period. ")
     sent2<-paste0(sent2a,sent2b,sent2c,sent2d)
-    if(cursec=="3.A.1"&curmea=="EM"){
-        sent2<-paste0(sent2,"Each bar shows the emissions accumulated by the different Member States in a specific year, in kt, where every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the EU28. The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total.")
+    if(cursec=="3.A.1"&curmea=="EM"&curcat=="Dairy Cattle"){
+        sent2<-paste0(sent2,"Each bar shows the emissions accumulated by the different Member States in a specific year, in kt, where every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total.")
     }
+    if(fig==""){sent2<-""}
     
     curcatgas<-paste0(tolower(curcat))
     if(capgas!="" & !curmea%in%c("AD","POP"))curcatgas<-paste0(curcatgas,capgas)
@@ -360,7 +364,7 @@ text2trend<-function(fig="",option=0){
     if(grepl("Direct N2O Emissions",curcat)&curmea=="EM"){curcatgas<-paste0("direct ",capgas)}
     if(grepl("Indirect N2O Emissions",curcat)&curmea=="EM"){curcatgas<-paste0("indirect ",capgas)}
     #if(curmea%in%c("AD","POP"))curcatgas<-curcat
-    sent3<-paste0("The ",singular(10,"countries",2)," with highest ",firstlow(curmeasure),
+    sent3<-paste0("The ",singular(10,"countries",2)," with the highest ",firstlow(curmeasure),
                   " accounted together for ",
                   percent(sum(allshare$share[1:nshare]),d=1),
                   " of the total. ")
@@ -379,7 +383,7 @@ text2trend<-function(fig="",option=0){
             if(decreasencnt>2){
                 temp<-paste0("The ",singular(decreasencnt,"countries",2)," with the largest decreases ",singular(decreasencnt,"were",0)," ")
             }else{
-                temp<-"Largest decreases occurred in "
+                temp<-"The largest decreases occurred in "
             }
         }else{temp<-paste0(firstup(curmeasure)," decreased in ")}
         sent5<-paste0(temp,laender(decreasecnt)," with a total absolute decrease of ",absval(decreasescnt),". ")
@@ -411,26 +415,29 @@ text2ief<-function(fig="",tab=""){
     # The implied emission factor for CH4 emissions in source category 3.A.1 - Cattle 
     # increased slightly in EU28 by 3.2% or 2.17 kg/head/year. 
     if(is.na(curtrend)){
-        sent1<-paste0(capmeasure(curmeasure,"long"),"could not be evaluated at ",eukp," level. ")
+        sent1<-paste0(capmeasure(curmeasure,"long"),"could not be evaluated at ",eusubml," level. ")
         sent2<-""
     }else{
-        sent1<-paste0(capmeasure(curmeasure,"long"),deorincrease(1-curtrend),"d "," in ",eukp,
+        sent1<-paste0(capmeasure(curmeasure,"long"),deorincrease(1-curtrend),"d "," in ",eusubml,
                       trendstrength(curtrend)," between ",firstyear," and ",lastyear,
                       " by ",percent(abs(1-curtrend),d = 1)," or ",absval(curtrendabs,d=3),". ")
         
         # Figure 1.1 shows the trend of the IEF in EU28 indicating also the range of 
         # values used by the countries contributing between 1990 and 2013. 
-        sent2a<-paste0(fig," shows the trend of the ",what," in ",eukp)
+        sent2a<-paste0(fig," shows the trend of the ",what," in ",eusubml)
         sent2c<-paste0(" indicating also the range of values used by the countries. ")
         sent2<-paste0(sent2a,sent2c)
     }
     sent3<-paste0(tab," shows ",firstlow(capmeasure(curmeasure)),
                   " for the years ",firstyear," and ",lastyear,
-                  " for all Member States and ",eukp,". ")
+                  " for all Member States and ",eusubml,". ")
+    if(fig=="") sent2<-""
 
     # The IEF decreased in 5 countries and increased in 22 countries. 
     if(decreasen>0 & increasen>0){
         if(curmea%in%c("IEF","FracGASF","FracGASM")){sent4<-paste0("The ",what)}else{sent4<-firstup(what)}
+        print(what)
+        if(grepl("VS",what))sent4<-what
         sent4<-paste0(sent4," decreased in ",singular(decreasen,"countries",1)," and increased in ",singular(increasen,"countries",1),". ")
         if(stablen>0){sent4<-paste0(sent4,"It was in ",lastyear," at the level of ",firstyear," in ",singular(stablen,"countries",1),". ")}
         if(missing>0){

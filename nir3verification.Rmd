@@ -56,17 +56,3 @@ In the JRC analysis mixed land use classes are not taken into account as the sha
 ![](../2016/eureport/cropland_on_organic_soils_eu27.png)
 
 
-#### Comparison of activity data in the FAO GHG database on the national inventory reports
-
-A comparison between the activity data in the global FAO GHG data base[^faoghg] and the data reported in the national GHG inventories has been carried out for the submission in 2014. 
-
-This exercise could not be repeated for the current submission. 
-
-The corresponding chapter of the submission in 2014[^eea2014] has been extracted and is available here[^carmona2014].
-
-[^faoghg]: &#09;http://faostat3.fao.org/browse/G1/*/E
-[^eea2014]: &#09;Chapter 6.7.3 in: EEA, 2014. Annual European Union greenhouse gas inventory 1990 - 2012 and inventory report 2014 Submission to the UNFCCC Secretariat. Technical report No 09/2014. European Environment Agency, Copenhagen, Denmark. Available at: http://www.eea.europa.eu/publications/european-union-greenhouse-gas-inventory-2014
-[^carmona2014]: &#09;ftp://mars.jrc.ec.europa.eu/Afoludata/Public/363_eughginventory2014/carmona_leip2014.comparison_fao_nir.pdf
-
-## Sector-specific recalculations, including changes in response of to the review process and impact on emission trend
-

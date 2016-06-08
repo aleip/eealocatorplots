@@ -14,17 +14,17 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs("figD1share",display="full")`
 
-![](../2016/plots/20160322agrimixeu3.D.1.jpg)
+![](../2016/plots/20160420agrimixeu3.D.1.jpg)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![](../2016/plots/20160322emissionshare_3.D.1.jpg)
+![](../2016/plots/20160420emissionshare_3.D.1.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3D1_N2O.png)
+![](../2016/eureport/20160420/Table3D1DirectN2OEmissions.jpg)
 
 
 #### Trends in Emissions and Activity Data
@@ -36,8 +36,8 @@ curmea<-"EM"
 source("nircatdata.r")
 figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
 
-inorg<-allagri[allagri$sector_number=="3.D.1.1"&allagri$meastype=="AD"&allagri$party=="EU28",]
-organ<-allagri[allagri$sector_number=="3.D.1.2"&allagri$meastype=="AD"&allagri$party=="EU28",]
+inorg<-allagri[allagri$sector_number=="3.D.1.1"&allagri$meastype=="AD"&allagri$party==eusubm,]
+organ<-allagri[allagri$sector_number=="3.D.1.2"&allagri$meastype=="AD"&allagri$party==eusubm,]
 
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
@@ -46,7 +46,7 @@ organ<-allagri[allagri$sector_number=="3.D.1.2"&allagri$meastype=="AD"&allagri$p
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D1DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3D1DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsN2OEM-nirvalue.jpg) 
 
 The main driving force of direct N2O emissions from agricultural soils is the use of nitrogen fertiliser and animal manure, which were `r trendtext(as.vector(inorg[lastyear]/inorg[firstyear]))[[2]]` and `r trendtext(as.vector(organ[lastyear]/organ[firstyear]))[[2]]` below `r firstyear` levels in `r lastyear`, respectively. N2O emissions from agricultural land can be decreased by overall efficiency improvements of nitrogen uptake by crops, which should lead to lower fertiliser consumption on agricultural land. The decrease of fertiliser use is partly due to the effects of the 1992 reform of the Common Agricultural Policy and the resulting shift from production-based support mechanisms to direct area payments in arable production. This has tended to lead to an optimisation and overall reduction in fertiliser use. In addition, reduction in fertiliser use is also due to directives such as the Nitrate Directive and to the extensification measures included in the Agro-Environment Programmes (EC, 2001).
 
@@ -77,11 +77,11 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r figs(paste0("fig",cursec,"trend","EM"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D1DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3D1DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirvalue.jpg) 
 
 
 ```{r 3D12em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -107,15 +107,15 @@ source("nircatdata2.r")
 ```
 ##### `r paste0("3.D.1.2 - Direct N2O emissions from organic N fertilizers"," - ",curmeasure)`
 
-`r text2trend(fig=figs(paste0("fig",cursec,"trend","EM"),display="cite"))`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
 
 `r figs(paste0("fig",cursec,"trend","EM"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig",cursec,"trend","AD"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirvalue.jpg) 
 
 ```{r 3D13em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3.D.1.3"
@@ -136,11 +136,11 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3D13_N2O.png)
+![](../2016/eureport/20160420/Table3D13UrineandDungN2O.jpg)
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D13UrineandDungDepositedbyGrazingAnimals-AgriculturalSoilsN2OEM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3D13UrineandDungDepositedbyGrazingAnimals-AgriculturalSoilsN2OEM-nirvalue.jpg) 
 
 
 ```{r 3D13ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -177,7 +177,7 @@ tabs("tabD11ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figD11trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersIEF-nirrange.jpg)
+![](../2016/plots/20160420/rangeief/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersIEF-nirrange.jpg)
 
 
 
@@ -201,7 +201,7 @@ tabs("tabD12ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figD12trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersIEF-nirrange.jpg)
+![](../2016/plots/20160420/rangeief/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersIEF-nirrange.jpg)
 
 
 `r tabs("tabD12ief",display="full")`
@@ -214,16 +214,15 @@ curseclong<-"Grazing Animals"
 curcat<-"Urine and Dung Deposited by Grazing Animals"
 curmea<-"IEF"
 source("nircatdata2.r")
-figs("figD13trendief",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabD13ief",paratablecaption(eukp,curcattext,lastyear))
-#![](../2016/plots/20160322/rangeief/3D13UrineandDungDepositedbyGrazingAnimals-AgriculturalSoilsN2OIEF-nirvalue.jpg)
+#figs("figD13trendief",trendiefcaption(eukp,curcattext,lastyear))
+#![](../2016/plots/20160420/rangeief/3D13UrineandDungDepositedbyGrazingAnimals-AgriculturalSoilsN2OIEF-nirvalue.jpg)
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2ief(fig=figs("figD13trendief",display="cite"),tab=tabs("tabD13ief",display="cite"))`
+`r text2ief(fig="",tab=tabs("tabD13ief",display="cite"))`
 
 `r #figs("figD13trendief",display="full")`
-
 
 `r tabs("tabD13ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -244,17 +243,17 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs("figD2share",display="full")`
 
-![](../2016/plots/20160322agrimixeu3.D.2.jpg)
+![](../2016/plots/20160420agrimixeu3.D.2.jpg)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![](../2016/plots/20160322emissionshare_3.D.2.jpg)
+![](../2016/plots/20160420emissionshare_3.D.2.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3D2_N2O.png)
+![](../2016/eureport/20160420/Table3D2IndirectEmissionsN2O.jpg)
 
 
 #### Trends in Emissions and Activity Data
@@ -272,7 +271,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec,"
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D2Farming-AgriculturalSoilsIndirectN2OEmissionsFromManagedSoilsN2OEM-nirvalue.jpg)
+![](../2016/plots/20160420/valueadem/3D2Farming-AgriculturalSoilsIndirectN2OEmissionsFromManagedSoilsN2OEM-nirvalue.jpg)
 
 
 ```{r 3D21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -301,11 +300,11 @@ source("nircatdata2.r")
 
 `r figs(paste0("fig",cursec,"trend","EM"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D21Farming-AgriculturalSoilsAtmosphericDepositionN2OEM-nirvalue.jpg)
+![](../2016/plots/20160420/valueadem/3D21Farming-AgriculturalSoilsAtmosphericDepositionN2OEM-nirvalue.jpg)
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D21Farming-AgriculturalSoilsAtmosphericDepositionAD-nirvalue.jpg)
+![](../2016/plots/20160420/valueadem/3D21Farming-AgriculturalSoilsAtmosphericDepositionAD-nirvalue.jpg)
 
 
 ```{r 3D22em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -335,11 +334,11 @@ source("nircatdata2.r")
 
 `r figs(paste0("fig",cursec,"trend","EM"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offN2OEM-nirvalue.jpg)
+![](../2016/plots/20160420/valueadem/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offN2OEM-nirvalue.jpg)
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offAD-nirvalue.jpg)
+![](../2016/plots/20160420/valueadem/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offAD-nirvalue.jpg)
 
 #### Implied EFs  and Methodological Issues
 
@@ -372,7 +371,7 @@ tabs("tabD21ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figD21trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3D21Farming-AgriculturalSoilsAtmosphericDepositionIEF-nirrange.jpg)
+![](../2016/plots/20160420/rangeief/3D21Farming-AgriculturalSoilsAtmosphericDepositionIEF-nirrange.jpg)
 
 
 
@@ -385,12 +384,12 @@ curseclong<-"Indirect N2O emissions"
 curcat<-"Fraction of synthetic fertilizer"
 curmea<-"FracGASF"
 source("nircatdata2.r")
-figs("figB211trendFracGASF",trendiefcaption(eukp,curcattext,lastyear))
+#figs("figB211trendFracGASF",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabB211FracGASF",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2ief(fig=figs("figB211trendFracGASF",display="cite"),tab=tabs("tabB211FracGASF",display="cite"))`
+`r text2ief(fig="",tab=tabs("tabB211FracGASF",display="cite"))`
 
 `r tabs("tabB211FracGASF",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -401,12 +400,12 @@ curseclong<-"Indirect N2O emissions"
 curcat<-"Fraction of Livestock N excretion"
 curmea<-"FracGASM"
 source("nircatdata2.r")
-figs("figB211trendFracGASM",trendiefcaption(eukp,curcattext,lastyear))
+#figs("figB211trendFracGASM",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabB211FracGASM",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2ief(fig=figs("figB211trendFracGASM",display="cite"),tab=tabs("tabB211FracGASM",display="cite"))`
+`r text2ief(fig="",tab=tabs("tabB211FracGASM",display="cite"))`
 
 `r tabs("tabB211FracGASM",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -427,7 +426,7 @@ tabs("tabD22ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figD22trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offIEF-nirrange.jpg)
+![](../2016/plots/20160420/rangeief/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offIEF-nirrange.jpg)
 
 
 `r tabs("tabD22ief",display="full")`

@@ -209,26 +209,35 @@ sumovercountries<-function(D,uid,y,c){
     y<-as.character(y)
     s<-matrix(0,ncol=length(y))
     m<-matrix(0,ncol=length(y),nrow=length(c))
-    m<-D[D$variableUID==uid,y]
+    m<-D[D$variableUID==uid&D$party%in%c,y]
+    #View(m,"n")
+    #stop()
     s<-apply(m,2,sum,na.rm=T)
     return(s)
 }
 
-eu28sums<-function(A){
+eu28sums<-function(A,aeu=eu){
     agrimeas<-unique(subset(A,select=allfields[!allfields %in% c("notation","party",years,"option")]))
     agri2sum<-agrimeas[agrimeas$meastype %in% meas2sum,]
-    removeeu28<-A$meastype %in% meas2sum & A$party%in%c("EU28",excludeparty)
+    removeeu28<-A$meastype %in% meas2sum & A$party%in%c("EU28",aeu,excludeparty)
     A<-A[!removeeu28,]
     
-    eu28sum<-as.data.frame(matrix(rep(0,ncol(A)*nrow(agri2sum)),
-                                  ncol=ncol(A),nrow=nrow(agri2sum)))
-    names(eu28sum)<-names(A)
-    eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
-    eu28sum[,years]<-euvalue("sum",eu28sum,A,years,countriesic)
-    eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
-    eu28sum$notation[eu28sum$notation==0]<-""
-    eu28sum$option[eu28sum$option==0]<-""
-    A<-rbind(A,eu28sum)
+    for(i in 1:length(aeu)){
+        print(paste0("Calculate sum for ",aeu[i]))
+        eu28sum<-as.data.frame(matrix(rep(0,ncol(A)*nrow(agri2sum)),
+                                      ncol=ncol(A),nrow=nrow(agri2sum)))
+        names(eu28sum)<-names(A)
+        eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
+        acountry<-as.character(country4sub[country4sub[,aeu[i]]==1,"code2"])
+        acountry<-acountry[!acountry%in%eu]
+        print(acountry)
+        eu28sum[,years]<-euvalue("sum",eu28sum,A,years,acountry)
+        eu28sum[,"party"]<-rep(aeu[i],nrow(eu28sum))
+        eu28sum$notation[eu28sum$notation==0]<-""
+        eu28sum$option[eu28sum$option==0]<-""
+        A<-rbind(A,eu28sum)
+    
+    }
     return(A)
 }
 
@@ -366,7 +375,7 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE){
     tmp1<-merge(c,tmp1,by="party",all=TRUE,sort=TRUE)
     tmp1<-tmp1[tmp1$party %in% c$party,]
     
-    eucountries<-c("EU28","EU29")
+    eucountries<-eu
     x<-tmp1[order(tmp1$party),]
     tmp1<-rbind(x[!(x$party %in% eucountries),],x[ (x$party %in% eucountries),])
     
@@ -1038,24 +1047,25 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
     return(1)
 }
 
-emissionshareplot<-function(sec,DF=agrimix){
+emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     pwidth=16
     pheight=pwidth/1.833
     plotresolution<-plotresolution
     
-    dfm<-DF[DF$measure=="Emissions"&grepl(sec,DF$sector_number),]
+    acountry<-as.character(country4sub[country4sub[,eukp]==1,"code2"])
+    dfm<-DF[DF$measure=="Emissions"&grepl(sec,DF$sector_number)&DF$party%in%acountry,]
     if(grepl("A|B",sec)){
-        dfm<-agridet[agridet$measure=="Emissions"&grepl(sec,agridet$sector_number)&!grepl(paste0(sec,".4"),agridet$sector_number),]
-        dfm2<-agrimix[agrimix$measure=="Emissions"&grepl(sec,agrimix$sector_number)&!agrimix$sector_number%in%c(paste0(sec,".1")),]
-        dfm<-rbind(dfm,dfm2)
+        #dfm<-agridet[agridet$measure=="Emissions"&grepl(sec,agridet$sector_number)&!grepl(paste0(sec,".4"),agridet$sector_number),]
+        #dfm2<-agrimix[agrimix$measure=="Emissions"&grepl(sec,agrimix$sector_number)&!agrimix$sector_number%in%c(paste0(sec,".1")),]
+        #dfm<-rbind(dfm,dfm2)
         if(sec=="3.B.2.5"){
-            dfm<-allagri[allagri$meastype=="NEXC"&grepl("3.B.2.5",allagri$sector_number)&allagri$source!="",]
+            dfm<-allagri[allagri$meastype=="NEXC"&grepl("3.B.2.5",allagri$sector_number)&allagri$source!=""&allagri$party%in%acountry,]
         }
     }
-    dfp<-countries2[countries2%in%unique(dfm$party)]
-    dfc<-sapply(dfp,function(x) countriesl[which(countries2==x)])
+    dfp<-as.character(unique(dfm$party))
+    dfc<-sapply(dfp,function(x) country4sub[country4sub$code2==x,"code3"])
     if(sec=="3.B.2.5"){
-        dfm<-dcast(dfm,source ~ party,value.var = "2014")
+        dfm<-dcast(dfm,source +gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
         dfl<-dfm$source
         dfo<-order(sapply(dfl,function(x) which(x==manureSystems)))
@@ -1065,7 +1075,7 @@ emissionshareplot<-function(sec,DF=agrimix){
         print(dfl)
         dfm<-dfm[dfo,]
     }else if(grepl("A|B",sec)){
-        dfm<-dcast(dfm,category ~ party,value.var = "2014")
+        dfm<-dcast(dfm,category + gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
         dfl<-dfm$category
         dfo<-order(sapply(dfl,function(x) which(x==c(livestock,otherlivestock,"Farming"))))
@@ -1073,13 +1083,13 @@ emissionshareplot<-function(sec,DF=agrimix){
         dfl<-gsub("Farming","Indirect emissions",dfl)
         dfm<-dfm[dfo,]
     }else{
-        dfm<-dcast(dfm,sector_number ~ party,value.var = "2014")
+        dfm<-dcast(dfm,sector_number + gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
-        dfl<-dfm$sector_number
+        dfl<-paste(dfm$sector_number,dfm$gas,sep="-")
     }
 
-    dmt<-as.vector(apply(dfm[,2:ncol(dfm)],2,sum))
-    dfms<-rbind(sapply(1:nrow(dfm),function(x) dfm[x,2:ncol(dfm)]/dmt))
+    dmt<-as.vector(apply(dfm[,3:ncol(dfm)],2,sum))
+    dfms<-rbind(sapply(1:nrow(dfm),function(x) dfm[x,3:ncol(dfm)]/dmt))
     row.names(dfms)<-dfc
     #View(dfms)
     
@@ -1089,7 +1099,7 @@ emissionshareplot<-function(sec,DF=agrimix){
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
 
-    par(mar=c(7,4,1,7), xpd=TRUE)
+    par(mar=c(4,4,1,7), xpd=TRUE)
     par(cex=0.7)
     curcols<-grey.colors(length(dfl))
     curcols1<-curcols[as.logical(c(1:length(dfl))%%2)]

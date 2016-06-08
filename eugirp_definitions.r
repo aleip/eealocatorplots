@@ -7,7 +7,7 @@ quantfields<-c("25","50","70")
 #uniquefields: all fields without party and years - determines unique variables
 #              none of them can completely be ignored, as they are important for at 
 #              least one variable
-uniquefields<-c(measfields,sectfields,metafields,"notation","variableUID")
+uniquefields<-c(measfields,sectfields,metafields,"notation","variableUID","datasource")
 #docfields<-c("issuenr","issueflag","issuedate")
 flagnames<-c("ne","init","recalc1","recalc2","unfccc","union","psi1","ptc","notsent","tc","revised")
 flag4issues<-c("Country","Obs","question","revyear","sec","gas","invyear","par","key.ms","key.eu",flagnames)
@@ -94,30 +94,48 @@ gwps<-c(25,1,298,1)
 #The Party name is confusing because it is the United Kingdom in both instances 
 #(one with overseas territories 'GBR' and the other without 'GBE').  We should improve this next year. 
 
-countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"EE" ,"ES" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SE" ,"SI" ,"SK" ,"EUA","EUC")
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRA","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK","EUA","EUC")
+countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"EE" ,"ES" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SE" ,"SI" ,"SK" )
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
+eu<-c("EUA","EUC")
+eum<-c("EU28","EU28+ISL")
+eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
 
 countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Estonia",
               "Spain","Finland","France","France incl Mayotte",
               "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBE=EU territory)","Greece","Croatia","Hungary","Ireland",
               "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
-              "Portugal","Romania","Sweden","Slovenia","Slovakia",
-              "EU under Convention (EU28)","EU under Kyoto (EU28+ISL)")
+              "Portugal","Romania","Sweden","Slovenia","Slovakia")
 
-country4sub<-as.data.frame(countries2)
-country4sub$countries3<-countries3
-country4sub$countriesl<-countriesl
-country4sub$eua<-1
-country4sub$euc<-1
-country4sub$eua[country4sub$countries2=="FR"]<-0
-country4sub$euc[country4sub$countries2=="FR"]<-0
-country4sub$eua[country4sub$countries3=="GBR"]<-0
-country4sub$euc[country4sub$countries3=="GBE"]<-0
-country4sub$eua[country4sub$countries3=="EUC"]<-0
-country4sub$euc[country4sub$countries3=="EUA"]<-0
+country4sub<-as.data.frame(c(countries2,eu))
+country4sub$countries3<-c(countries3,eu)
+country4sub$countriesl<-c(countriesl,eul)
+names(country4sub)<-c("code2","code3","long")
+country4sub$EU28<-1
+country4sub$EUA<-1
+country4sub$EUC<-1
+country4sub$EU28[country4sub$code2=="FR"]<-0
+country4sub$EUA[country4sub$code2=="FR"]<-0
+country4sub$EUC[country4sub$code2=="FR"]<-0
+country4sub$EU28[country4sub$code3=="GBR"]<-0
+country4sub$EUA[country4sub$code3=="GBR"]<-0
+country4sub$EUC[country4sub$code3=="GBE"]<-0
+country4sub$EU28[country4sub$code3=="EUC"]<-0
+country4sub$EU28[country4sub$code3=="EUA"]<-0
+country4sub$EUA[country4sub$code3=="EU28"]<-0
+country4sub$EUA[country4sub$code3=="EUC"]<-0
+country4sub$EUC[country4sub$code3=="EU28"]<-0
+country4sub$EUC[country4sub$code3=="EUA"]<-0
+
+country4sub$name<-country4sub$long
+country4sub$name[grepl("United",country4sub$name)]<-"United Kingdom"
+country4sub$name[grepl("France",country4sub$name)]<-"France"
+country4sub$name[country4sub$code3=="EUA"]<-"EU28"
+country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL"
+
+country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
 countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
-eua<-"EU28"
-euc<-"EU28+ISL"
-eukp<-euc
+eunames<-as.data.frame("EU28")
+names(eunames)<-"EUA"
+eunames$EUC<-"EU28+ISL"

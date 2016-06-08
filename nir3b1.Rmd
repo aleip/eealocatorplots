@@ -16,17 +16,17 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![](../2016/plots/20160322agrimixeu3.B.1.jpg)
+![](../2016/plots/20160420agrimixeu3.B.1.jpg)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![](../2016/plots/20160322emissionshare_3.B.1.jpg)
+![](../2016/plots/20160420emissionshare_3.B.1.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B1_GHGCH4.png)
+![](../2016/eureport/20160420/Table3B1ManureManagementtotalCH4.jpg)
 
 
 #### Trends in Emissions and Activity Data
@@ -45,7 +45,7 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 
 `r figs(paste0("fig",cursec,"trendem"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B1Farming-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B1Farming-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b11em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -53,24 +53,29 @@ cursec<-"3.B.1.1"
 curseclong<-"Manure Management"
 curcat<-"Cattle"
 source("nircatdata.r")
-figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),trendfigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharech4)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharech4)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. `r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="cite")` and `r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="cite")` show the trend of emissions for Dairy and Non-Dairy Cattle indicating the countries contributing most to `r eusubml`.
 
 `r text2mscontr(sec=cursec)`
-`r text2trend(fig=figs(paste0("fig",cursec,"trendem"),display="cite"),option=1)`
+`r text2trend(fig="",option=1)`
 
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B11_CH4.png)
+![](../2016/eureport/20160420/Table3B11CattleCH4.jpg)
 
-`r figs(paste0("fig",cursec,"trendem"),display="full")`
+`r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B11Cattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B11DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+
+`r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="full")`
+
+![](../2016/plots/20160420/valueadem/3B11Non-DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b11pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -79,7 +84,6 @@ curseclong<-"Manure Management"
 curcat<-"Cattle"
 curmea<-"POP"
 source("nircatdata.r")
-figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 ##### `r paste0(curcattext," - Activity Data")`
@@ -107,11 +111,11 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/figs/3B13_CH4.png)
+![](../2016/eureport/20160420/Table3B13SwineCH4.jpg)
 
 `r figs(paste0("fig",cursec,"trendem"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B13Swine-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B13Swine-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b13ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -131,7 +135,7 @@ data is discussed here.
 
 `r figs(paste0("fig",cursec,"trendad"),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B13Swine-CH4EmissionsPOP-nirvalue.jpg) 
+![](../2016/plots/20160420/valueadem/3B13Swine-CH4EmissionsPOP-nirvalue.jpg) 
 
 #### Implied EFs  and methodological issues
 
@@ -146,19 +150,12 @@ curseclong<-"Manure Management"
 curcat<-"Cattle"
 curmea<-"IEF"
 source("nircatdata2.r")
-figs("figB11trendief",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabB11ief",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
 
-`r text2ief(fig=figs("figB11trendief",display="cite"),tab=tabs("tabB11ief",display="cite"))`
-
-
-`r figs("figB11trendief",display="full")`
-
-![](../2016/plots/20160322/rangeief/3B11Cattle-CH4EmissionsIEF-nirrange.jpg)
-
+`r text2ief(fig="",tab=tabs("tabB11ief",display="cite"))`
 
 
 `r tabs("tabB11ief",display="full")`
@@ -181,7 +178,7 @@ tabs("tabB111ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B11DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B11DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
 
 
 `r tabs("tabB111ief",display="full")`
@@ -202,7 +199,7 @@ tabs("tabB111MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendMASS",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B11DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B11DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
 
 
 `r tabs("tabB111MASS",display="full")`
@@ -223,7 +220,7 @@ tabs("tabB111VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendVSEXC",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
+![](../2016/plots/20160420/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
 
 
 `r tabs("tabB111VSEXC",display="full")`
@@ -245,7 +242,7 @@ tabs("tabB112ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B11Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B11Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB112ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -265,7 +262,7 @@ tabs("tabB112MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendMASS",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B11Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B11Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
 
 `r tabs("tabB112MASS",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -285,7 +282,7 @@ tabs("tabB112VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendVSEXC",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B11Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B11Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
 
 `r tabs("tabB112VSEXC",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -306,7 +303,7 @@ tabs("tabB13ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB13trendief",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B13Swine-CH4EmissionsIEF-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B13Swine-CH4EmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB13ief",display="full")`
 
@@ -328,7 +325,7 @@ tabs("tabB13MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB13trendMASS",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B13Swine-CH4EmissionsMASS-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B13Swine-CH4EmissionsMASS-nirrange.jpg) 
 
 `r tabs("tabB13MASS",display="full")`
 
@@ -349,7 +346,7 @@ tabs("tabB13VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB13trendVSEXC",display="full")`
 
-![](../2016/plots/20160322/rangeief/3B13Swine-CH4EmissionsVSEXC-nirrange.jpg) 
+![](../2016/plots/20160420/rangeief/3B13Swine-CH4EmissionsVSEXC-nirrange.jpg) 
 
 `r tabs("tabB13VSEXC",display="full")`
 

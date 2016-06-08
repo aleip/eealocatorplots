@@ -283,6 +283,7 @@ curagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 
 allagri<-curagri
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
 #View(curagri[selection,])
 
 
@@ -303,11 +304,13 @@ faodata[,mismeta]<-Reduce(rbind,lapply(c(1:nrow(faodata)),function(x) Reduce(cbi
 #faodata[,mismeta]<-merge(x,y,by="variableUID",all.x=TRUE)
 
 # Ensure that excludeparty is not deleted
-if(excludeparty=="UK") faodata$party[faodata$party=="UK"]<-"GB"
+if("GB" %in% acountry) faodata$party[faodata$party=="UK"]<-"GB"
+if("FM" %in% acountry) faodata$party[faodata$party=="FR"]<-"FM"
+if("IS" %in% acountry) faodata$party[faodata$party=="IC"]<-"IS"
 
 # Calculate EU28 sums
-faodata<-faodata[faodata$party!="EU28",]
-faodata<-eu28sums(A = faodata)
+faodata<-faodata[!faodata$party%in%eu,]
+faodata<-eu28sums(A = faodata,aeu = eusubm)
 faodata$datasource<-"fao"
 #faodata[faodata==0]<-NA
 faodata<-faodata[!grepl("0.00011221533645398",faodata$variableUID),]
@@ -352,12 +355,12 @@ filliefs<-function(line){
         print(eu28new)
         eu28new<-convert2char(eu28new)
         print(eu28new)
-        eu28new$party<-"EU28"
+        eu28new$party<-eusubm
         eu28new$autocorr<-NA
         eu28new$correction<-1
         eu28new$datasource<-"fao"
-        em<-faodata[faodata$party=="EU28"&faodata$variableUID==uid,years]
-        ad<-faodata[faodata$party=="EU28"&faodata$variableUID==aduid,years]
+        em<-faodata[faodata$party==eusubm&faodata$variableUID==uid,years]
+        ad<-faodata[faodata$party==eusubm&faodata$variableUID==aduid,years]
         ad[ad==0]<-NA
         ief<-em/ad
         eu28new[,years]<-ief
@@ -392,7 +395,7 @@ save(faodata,file=paste0(invloc,"/fao/faodata.RData"))
 load(file=paste0(invloc,"/fao/faodata.RData"))
 
 # EU28 -iefs are not yet fully correct (unit!)
-faodata<-faodata[!(faodata$party=="EU28"&faodata$meastype=="IEF"),]
+faodata<-faodata[!(faodata$party==eusubm&faodata$meastype=="IEF"),]
 
 ## Launch comparison plots
 # Print plots for 'summable data' 
@@ -411,8 +414,19 @@ datasource<-c("nir","fao")
 # ief: implied emission factors and other variables expressed per activity unit
 rundata<-"ief"
 rundata<-"adem"
-
-plotdatagenerated<-generateplotdata(rundata = rundata,datasource = c("nir","fao"))
+datasource <- c("nir","fao")
+plotdatagenerated<-generateplotdata(rundata = rundata,datasource = datasource,subcountries = "EUC")
 plotdata<-plotdatagenerated[[1]]
 plotmeas<-plotdatagenerated[[2]]
+adddefault<-plotdatagenerated[[3]]
+sharesexist<-plotdatagenerated[[4]]
+
+x1<-97;x2<-nrow(plotmeas)
+x1<-7;x2<-7
+x1<-1;x2<-nrow(plotmeas)
+for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = "value",eusubm = "EUC")}
+plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
+write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
+
+
 source("eugirp_prepareplots.r")

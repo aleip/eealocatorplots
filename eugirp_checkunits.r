@@ -34,6 +34,7 @@ restrictdata<-function(growthdata,measures){
 # Growthdata and paramdata initialization ####
 noemissions<-c(meas2popweight,meas2clima,meas2mcf,meas2sum[!meas2sum%in%"EM"])
 growthdata<-allgrowth
+growthdata$datasource<-"nir"
 growthmeas<-restrictdata(growthdata,noemissions)
 growthdata<-growthdata[growthdata$variableUID %in% growthmeas$variableUID,]
 growthdata<-growthdata[growthdata$party!="EU28",]

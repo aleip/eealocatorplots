@@ -10,37 +10,45 @@ lastkeyfile<-"keycategories~20151012.csv"
 lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
 years2keep<-c(1990:2014)
 
-updrec<-0
+newsubm<-"20160420"
+oldsubm<-"20160322"
+
+load(file=paste0(invloc,"/eealocator/eealocator_recalc.RData"))
+updrec<-1
+
 if(updrec==1){
-    allagri20160322<-allagri
-    alltotals20160322<-alltotals
-    agridet20160322<-agridet
-    saverecalc<-c(saverecalc,"allagri20160322","alltotals20160322","agridet20160322")
+    source("curplot.r")
+    assign(paste0("allagri",newsubm),allagri)
+    assign(paste0("alltotals",newsubm),alltotals)
+    assign(paste0("agridet",newsubm),agridet)
+    saverecalc<-c(saverecalc,paste0("allagri",newsubm),paste0("alltotals",newsubm),paste0("agridet",newsubm))
     save(list=saverecalc,file=paste0(invloc,"/eealocator/eealocator_recalc~",figdate,".RData"))
     save(list=saverecalc,file=paste0(invloc,"/eealocator/eealocator_recalc.RData"))
-}else{
-    load(file=paste0(invloc,"/eealocator/eealocator_recalc.RData"))
 }
 source("eugirp_functions.r")
 source("eugirp_definitions.r")
 
-assign("agridet1",agridet20160202)
-assign("agridet2",agridet20160322)
-mergefields<-c("party",uniquefields[-which(uniquefields=="variableUID")])
+agridet1<-get(paste0("agridet",oldsubm))
+agridet2<-get(paste0("agridet",newsubm))
+alltotals1<-get(paste0("alltotals",oldsubm))
+alltotals2<-get(paste0("alltotals",newsubm))
+allagri1<-get(paste0("allagri",oldsubm))
+allagri2<-get(paste0("allagri",newsubm))
+mergefields<-c("party",uniquefields[-which(uniquefields%in%c("variableUID","datasource"))])
 
 # compare GB with UK ... fake they are the same
 agridet1$party[agridet1$party=="UK"]<-"GB"
 
 agridetrecalc<-merge(agridet1,agridet2,by=mergefields,all = TRUE)
 sel<-is.na(agridetrecalc$variableUID.x)
-notin20160202<-agridetrecalc[sel & agridetrecalc$measure=="Emissions",]
+notinoldsubm<-agridetrecalc[sel & agridetrecalc$measure=="Emissions",]
 agridetrecalc<-agridetrecalc[!sel,]
 sel<-is.na(agridetrecalc$variableUID.y)
-notin20160322<-agridetrecalc[sel & agridetrecalc$measure=="Emissions",]
+notinnewsubm<-agridetrecalc[sel & agridetrecalc$measure=="Emissions",]
 agridetrecalc<-agridetrecalc[!sel,]
 View(agridetrecalc)
-View(notin20160202)
-View(notin20160322)
+View(notinoldsubm)
+View(notinnewsubm)
 
 years<-names(agridet1)[grepl("^[12]",names(agridet1),perl=TRUE)]
 yearsdet2<-names(agridet2)[grepl("^[12]",names(agridet2),perl=TRUE)]
@@ -65,7 +73,7 @@ sel<-is.nan(checkrecalc$rYear1) & checkrecalc[,paste0(year1,".x")]==checkrecalc[
 checkrecalc<-checkrecalc[!sel,]
 sel<-is.nan(checkrecalc$rYear2) & checkrecalc[,paste0(year2,".x")]==checkrecalc[,paste0(year2,".y")]
 checkrecalc<-checkrecalc[!sel,]
-checkrecalc<-checkrecalc[!checkrecalc$party=="EU28",]
+checkrecalc<-checkrecalc[!checkrecalc$party%in%eu,]
 
 sel<-checkrecalc$rYear1!=1 | checkrecalc$rYear2!=1
 sel[is.na(sel)]<-TRUE
@@ -82,9 +90,9 @@ checkrecalc$eYear2<-checkrecalc[,paste0(year2,".y")]-checkrecalc[,paste0(year2,"
 # Share of national total emissions by gas
 lul<-"Total (with LULUCF)"
 lui<-"Total (with LULUCF  with indirect)"
-totCH4<-alltotals20160322[alltotals20160322$gas=="CH4"&alltotals20160322$type==lul,c("party","gas",keepy)]
-totN2O<-alltotals20160322[alltotals20160322$gas=="N2O"&alltotals20160322$type==lul,c("party","gas",keepy)]
-totCO2<-alltotals20160322[alltotals20160322$gas=="CO2"&alltotals20160322$classification==lui,c("party","gas",keepy)]
+totCH4<-alltotals2[alltotals2$gas=="CH4"&alltotals2$type==lul,c("party","gas",keepy)]
+totN2O<-alltotals2[alltotals2$gas=="N2O"&alltotals2$type==lul,c("party","gas",keepy)]
+totCO2<-alltotals2[alltotals2$gas=="CO2"&alltotals2$classification==lui,c("party","gas",keepy)]
 tots<-rbind(totCH4,totN2O,totCO2)
 tots$gas<-droplevels(tots$gas)
 tots$party<-as.character(tots$party)
@@ -119,11 +127,11 @@ checkrecalc<-filldf(checkrecalc,allcheckfields)
 keycategories<-keysources()
 x1<-18;x2<-19
 x1<-1;x2<-nrow(checkrecalc)
-test<-Reduce(rbind,lapply(c(x1:x2),function(x) unlist(flags4newissue(checkrecalc[x,],"recalc1"))))
+test<-Reduce(rbind,lapply(c(x1:x2),function(x) unlist(flags4newissue(checkrecalc[x,],"recalc1",x))))
 checkrecalc[x1:x2,flag4issues]<-test
 addfields<-names(checkrecalc)[!names(checkrecalc)%in%allcheckfields4emrt]
 allfields<-c(allcheckfields4emrt[1:which(allcheckfields4emrt=="years")],addfields,allcheckfields4emrt[(which(allcheckfields4emrt=="years")+1):length(allcheckfields4emrt)])
-write.csv(checkrecalc[allfields],file=paste0(issuedir,"recalculations/checkrecalc_20160322.vs.20160202~",figdate,".csv"))
+write.csv(checkrecalc[allfields],file=paste0(issuedir,"recalculations/checkrecalc_",newsubm,".vs.",oldsubm,"~",figdate,".csv"))
 
 
 

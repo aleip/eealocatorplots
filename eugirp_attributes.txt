@@ -26,6 +26,7 @@ DK	grey35	20	grey80	45	-45	21  black   white
 EE	grey35	10	grey10	45	-45	21  black   grey    
 ES	grey35	10	grey80	45	-45	21  black   black
 FI	grey35	 5	grey10	45	-45	22  white   grey 
+FM	grey20	20	grey50	45	-45	22  white   black
 FR	grey20	20	grey50	45	-45	22  white   black
 GB	grey20	20	grey80	45	-45	22  white   white
 UK	grey20	20	grey80	45	-45	22  white   white

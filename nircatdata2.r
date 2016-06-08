@@ -1,13 +1,14 @@
 curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea,]
 if(cursec=="3.B.2.5")curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&grepl("Atmospheric",allagri$measure),]
 if(curcat%in%c("Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine"))curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&allagri$category==curcat,]
+curemissions<-curemissions[curemissions$party%in%acountry,]
 curemissions[is.nan(curemissions)]<-NA
 
 # Exclude some national data with wrong unit
 if(curmea=="Milk") curemissions[curemissions$party=="LU",years]<-NA
 
-#euemissions<-filter(curemissions,party=="EU28")
-euemissions<-curemissions[curemissions$party=="EU28",]
+#euemissions<-filter(curemissions,party==eusubm)
+euemissions<-curemissions[curemissions$party==eusubm,]
 curgas<-as.character(euemissions$gas)
 if(curgas=="no gas"){if(grepl("3.A|3.B.1|3.C",cursec)){curgas<-"CH4"}else if(grepl("3.D|3.B.2",cursec)){curgas<-"N2O"}}
 curmeasure<-curmeasurenew(as.character(euemissions$measure))
@@ -22,12 +23,14 @@ curtrend<-euemissions[lastyear]/euemissions[firstyear]
 curtrendabs<-euemissions[lastyear]-euemissions[firstyear]
 lasttrend<-euemissions[lastyear]/euemissions[lastyear2]
 
-eusel<-curemissions$party=="EU28"
+eusel<-curemissions$party==eusubm
 alltrend<-cbind(curemissions[!eusel,],curemissions[!eusel,lastyear]/curemissions[!eusel,firstyear])
-alltrend<-cbind(alltrend,alltrend[,lastyear]-alltrend[,firstyear])
-names(alltrend)<-c(names(curemissions),"trend","diff")
+names(alltrend)<-c(names(curemissions),"trend")
+alltrend[alltrend$trend==0,lastyear]<-alltrend[alltrend$trend==0,years[nyears-1]]
+alltrend$diff<-alltrend[,lastyear]-alltrend[,firstyear]
 alltrend<-alltrend[order(alltrend$diff),]
 alltrend<-arrange(alltrend,diff)
+alltrend<-alltrend[!is.infinite(alltrend$trend),]
 
 allshare<-subset(alltrend,select=lastyear)
 allshare$share<-alltrend[,lastyear]/sum(alltrend[,lastyear],na.rm=TRUE)
@@ -101,10 +104,13 @@ panderOptions('table.alignment.default', c('left','right','right','right','left'
 
 selyears<-c(firstyear,lastyear)
 curtable<-(curemissions%>%select(party,one_of(selyears)))
-curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) countriesl[which(countries2==curtable$party[x])]))
+curtable$party<-as.character(curtable$party)
+curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) country4sub$name[which(country4sub$code2==curtable$party[x])]))
 curtable[,selyears]<-format(curtable[,selyears],digits=2)
-sel<-curtable$party=="EU28"
-curtable[curtable$party=="EU28",]<-paste0("**",gsub(" ","",curtable[curtable$party=="EU28",]),"**")
+sel<-curtable$party==eusubml
+#eumsubm<-eum[which(eu==eusubm)]
+#curtable$party[curtable$party==eusubm]<-eum[which(eu==eusubm)]
+curtable[curtable$party==eusubml,]<-paste0("**",gsub(" ","",curtable[curtable$party==eusubml,]),"**")
 if(grepl("NA",curtable[sel,firstyear])&grepl("NA",curtable[sel,lastyear])) curtable<-curtable[!sel,]
 for(yy in selyears){
     curtable[,yy]<-unlist(lapply(c(1:nrow(curtable)),function(x) if(grepl("NA",curtable[x,yy])){"&#09;"}else{curtable[x,yy]}))

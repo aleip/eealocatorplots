@@ -121,7 +121,7 @@ parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 # CORRECTIONS
 
 # 1. Autocorrections have an identified reason - update the data table
-selection<-allagri$party=="EU28" & allagri$meastype%in%meas2popweight
+selection<-allagri$party%in%eu & allagri$meastype%in%meas2popweight
 calceu<-allagri[!selection,]
 if(exists("autocorrections")){
     selection1<-autocorrections[,c("party","variableUID","autocorr")]
@@ -145,6 +145,8 @@ if(exists("paramcheck")){
     # All time series which have not been identified in paramcheck are OK and receive
     # the correction-flag '1'
     calceu$correction[is.na(calceu$correction)]<-1
+    
+    calceu$correction[calceu$meastype=="Milk"&calceu$party=="LU"]<-0
     selection2<-calceu$correction==0
     calceucor<-calceu
 
@@ -153,11 +155,13 @@ if(exists("paramcheck")){
     
     allagri<-calceu
 }
+
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
 eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
 names(eu28wei)<-names(calceu)
 eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]
-eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,countriesic)
-eu28wei[,"party"]<-rep("EU28",nrow(eu28wei))
+eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,acountry)
+eu28wei[,"party"]<-rep(eusubm,nrow(eu28wei))
 eu28wei$notation[eu28wei$notation==0]<-""
 
 allfieldsplus<-c(allfields,"autocorr","correction")

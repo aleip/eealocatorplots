@@ -42,7 +42,7 @@ sapm<-rbind(sapm,t(c("","Used agricultural area on which slurry is applied","Tot
 sapm<-rbind(sapm,t(c("","Used agricultural area on which slurry is applied","With immediate incorporation","UAA % band (^2^)")))
 sapm<-rbind(sapm,t(c("","Percent of the total produced manure exported from the holding","","Percentage band (^3^)")))
 sapm<-rbind(sapm,t(c("Manure storage and treatment facilities","Storage facilities for:","Solid dung","Yes/No")))
-sapm<-rbind(sapm,t(c("","","Liqued manure","Yes/No")))
+sapm<-rbind(sapm,t(c("","","Liquid manure","Yes/No")))
 sapm<-rbind(sapm,t(c("","","Slurry: Slurry tank","Yes/No")))
 sapm<-rbind(sapm,t(c("","","Slurry: Lagoon","Yes/No")))
 sapm<-rbind(sapm,t(c("","Are the storage facilities covered?","Solid dung","Yes/No")))

@@ -1,7 +1,9 @@
 agriselect<-grepl("^3",alldata$sector_number) 
 allagri<-alldata[agriselect,]
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
 o<-order(allagri$sector_number,allagri$category)
 allagri<-allagri[o,]
+
 allagri<-eu28sums(allagri)
 agriselect<-grepl("^3",allmethods$sector_number) 
 agrimethods<-allmethods[agriselect,]
@@ -50,6 +52,7 @@ agrid5<-agrid5[order(agrid5$sector_number),]
 agrigen<-agrid2[grepl("3.[ACEFGHIi]",agrid2$sector_number),]
 agrigen<-rbind(agrigen,agrid3[grepl("3.[BD]",agrid3$sector_number),])
 agrigen<-agrigen[order(agrigen$sector_number),]
+agrigen<-agrigen[agrigen$party%in%acountry,]
 
 agrimix<-agrid3[grepl("3.[ACEFGHIi]",agrid3$sector_number)&agrid3$sector_number!="3.A.1",]
 agrimix<-rbind(agrimix,agrid4[grepl("3.[BD]",agrid4$sector_number)&!grepl("3.B.[12].1",agrid4$sector_number),])
@@ -59,6 +62,7 @@ agrimix<-rbind(agrimix,agrid2[grepl("3.[HIi]",agrid2$sector_number),])
 agrimix<-agrimix[order(agrimix$sector_number),]
 agrimix$sector_number[agrimix$category=="Dairy Cattle"]<-paste0(agrimix$sector_number[agrimix$category=="Dairy Cattle"],".1")
 agrimix$sector_number[agrimix$category=="Non-Dairy Cattle"]<-paste0(agrimix$sector_number[agrimix$category=="Non-Dairy Cattle"],".2")
+agrimix<-agrimix[agrimix$party%in%acountry,]
 
 agridet<-agrid4[grepl("3.[AEGHIi]",agrid4$sector_number),]
 agridet<-rbind(agridet,agrid3[grepl("3.A.[23]",agrid3$sector_number),])
@@ -74,16 +78,18 @@ agridet<-rbind(agridet,agrid2[grepl("3.[HIi]",agrid2$sector_number),])
 agridet<-agridet[order(agridet$sector_number),]
 agridet$sector_number[agridet$category=="Dairy Cattle"]<-paste0(agridet$sector_number[agridet$category=="Dairy Cattle"],".1")
 agridet$sector_number[agridet$category=="Non-Dairy Cattle"]<-paste0(agridet$sector_number[agridet$category=="Non-Dairy Cattle"],".2")
+agridet<-agridet[agridet$party%in%acountry,]
 
 agriemissions<-allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,]
 convertfields<-c("gas","unit",years)
 agriemissions[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agriemissions)),function(x) Reduce(cbind,convert2co2eq(agriemissions[x,convertfields]))))
 agriemissions<-agriemissions[order(agriemissions$sector_number,agriemissions$category),]
 lastyear<-years[length(years)]
+agriemissions<-agriemissions[agriemissions$party%in%acountry,]
 
-agrigeneu<-agrigen[agrigen$party=="EU28"&agrigen$meastype=="EM"&agrigen$gas!="no gas",]
-agrimixeu<-agrimix[agrimix$party=="EU28"&agrimix$meastype=="EM"&agrimix$gas!="no gas",]
-agrideteu<-agridet[agridet$party=="EU28"&agridet$meastype=="EM"&agridet$gas!="no gas",]
+agrigeneu<-agrigen[agrigen$party==eusubm&agrigen$meastype=="EM"&agrigen$gas!="no gas",]
+agrimixeu<-agrimix[agrimix$party==eusubm&agrimix$meastype=="EM"&agrimix$gas!="no gas",]
+agrideteu<-agridet[agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas!="no gas",]
 agrigeneu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrigeneu)),function(x) Reduce(cbind,convert2co2eq(agrigeneu[x,convertfields]))))
 agrimixeu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrimixeu)),function(x) Reduce(cbind,convert2co2eq(agrimixeu[x,convertfields]))))
 agrideteu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrideteu)),function(x) Reduce(cbind,convert2co2eq(agrideteu[x,convertfields]))))
@@ -98,4 +104,12 @@ x<-lapply(c(1:(length(v)-1)),function(x) makepie(agrimixeu,0.9,"agrimixeu",agrig
 makepie(agrigeneu,0.9,"agrigeneu","")
 #View(agrid1);View(agrid2);View(agrid3);View(agrid4);View(agrid5)
 
+
+emissionshareplot(sec = "3",DF = agrigen)
+emissionshareplot(sec = "3.A",DF = agrimix)
+emissionshareplot(sec = "3.B.1",DF = agrimix)
+emissionshareplot(sec = "3.B.2",DF = agrimix)
+emissionshareplot(sec = "3.B.2.5",DF = agrimix)
+emissionshareplot(sec = "3.D.1",DF = agrimix)
+emissionshareplot(sec = "3.D.2",DF = agrimix)
 

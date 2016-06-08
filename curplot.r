@@ -35,7 +35,7 @@ searchline<-FALSE
 # Initialisation ####
 eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
 eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
-eugirp.version<-"2.0"
+eugirp.version<-"2.1" #20160531
 # Define current submission.
 cursubm <- "20151030"                                                       #!!!
 invyear<-2015
@@ -52,7 +52,6 @@ csvfil <- paste0(invloc,"/eealocator/eealocator_",cursubm)                  #!!!
 years2keep<-c(1990:2014)
 signyear<-years2keep[length(years2keep)]
 signclass<-"Total (with LULUCF  with indirect)"
-excludeparty<-"UK"
 
 figdate<-format(Sys.time(), "%Y%m%d")
 issuedir<-paste0(invloc,"/checks/")
@@ -65,10 +64,12 @@ rdatmeta <- paste0(csvfil,"_metadata.RData")
 rdatagri <- paste0(csvfil,"_agri.RData")
 lastkeyfile<-"keycategories~20151012.csv"
 lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
+excludeparty<-NULL
+eusubm<-"EUC"
 
 # Settings for plots
 # --> number of countries which are listed in the legend
-doemissionplots<-TRUE #TRUE/FALSE                                           #!!!
+doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
 plotresolution<-250   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""

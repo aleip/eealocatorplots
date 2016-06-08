@@ -6,9 +6,9 @@ select<-curemissions$sector_number=="3.D.2.1" | curemissions$sector_number=="3.D
 if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$target[select])
 if(cursec=="3.A") curemissions<-agriemissions[agriemissions$sector_number==cursec,]
 
-eusel<-curemissions$party=="EU28"
+eusel<-curemissions$party==eusubm
 curgas<-as.character(curemissions$gas[eusel])
-curmeasure<-curmeasurenew(as.character(curemissions$measure[eusel]))
+curmeasure<-curmeasurenew(unique(as.character(curemissions$measure[eusel])))
 curunit<-unique(as.character(curemissions$unit[eusel]))
 curcat<-curcatnew(curcat)
 curcattext<-curcatlong(curcat,cursec)
@@ -101,7 +101,7 @@ trendtot<-increasetot+decreasetot
 
 stablen<-sum(alltrend$trend==1)
 
-subcategssel<-grepl(paste0("^",cursec,"\\."),agrimix$sector_number) & agrimix$party=="EU28"&agrimix$meastype=="EM"&agrimix$gas==curgas
+subcategssel<-grepl(paste0("^",cursec,"\\."),agrimix$sector_number) & agrimix$party==eusubm&agrimix$meastype=="EM"&agrimix$gas%in%curgas
 subcateg<-agrimix[subcategssel,]
 subcateg<-subcateg[order(subcateg[,lastyear],decreasing = TRUE),]
 nsubcateg<-sum(subcateg[,lastyear]/sum(subcateg[,lastyear])>0.1)

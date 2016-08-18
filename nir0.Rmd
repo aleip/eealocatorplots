@@ -149,7 +149,7 @@ curseclong<-"Agriculture"
 curcat<-"Farming"
 source("nircatdata.r")
 # figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
-tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+#tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 
 In the year `r lastyear`, `r curgas[c(1,3)]` and `r curgas[2]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,1)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,1)` of total `r eukp` CH4, N2O, and CO2 emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively.<br>

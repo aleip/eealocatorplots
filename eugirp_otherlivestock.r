@@ -149,7 +149,7 @@ allagri<-substituteothers(allagri,"Other Sheep.General","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Sheep")
 allagri<-substituteothers(allagri,"sheep","Sheep")
-
+allagri152<-allagri
 selectsw<-grepl("sheep",tolower(allagri$category))
 sheeps<-unique(allagri$category[selectsw])
 

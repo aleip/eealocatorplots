@@ -65,7 +65,7 @@ figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastye
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represent the trend in N2O emissions from manure management for the different Member States along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
@@ -87,7 +87,7 @@ curmea<-"POP"
 ```
 ##### `r paste0(curcattext," - population")`
 
-Main activity data for N2O emissions from manure management - cattle is the animal numbers. 
+One of the main activity data for N2O emissions from manure management - cattle is the animal numbers. 
 Cattle numbers are already discussed under source category 3.A Enteric Fermentation and therefore not further discussed here.
 
 Other activity data is:
@@ -165,7 +165,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-Largest contribution to otherlivestock emissions comes from sub-category `r if(subcategdet$category[1]=="Other Other Livestock"){"'other' animals in this sub-category"}else{tolower(subcategdet$category[1])}` with `r percent(subcategdet[1,lastyear]/sum(subcategdet[,lastyear]))` of total `r curgas` emissions. Other animal types with high emissions are `r if(subcategdet$category[2]=="Other Other Livestock"){"'other' animals in this sub-category"}else{tolower(subcategdet$category[2])}` with a share of `r percent(subcategdet[2,lastyear]/sum(subcategdet[,lastyear]))` and `r subcategdet$category[3]` with a share of `r percent(subcategdet[3,lastyear]/sum(subcategdet[,lastyear]))`. Here only the most important animal type `r subcategdet$category[1]` is discussed. 
+Largest contribution to other livestock emissions comes from sub-category `r if(subcategdet$category[1]=="Other Other Livestock"){"'other' animals in this sub-category"}else{tolower(subcategdet$category[1])}` with `r percent(subcategdet[1,lastyear]/sum(subcategdet[,lastyear]))` of total `r curgas` emissions. Other animal types with high emissions are `r if(subcategdet$category[2]=="Other Other Livestock"){"'other' animals in this sub-category"}else{tolower(subcategdet$category[2])}` with a share of `r percent(subcategdet[2,lastyear]/sum(subcategdet[,lastyear]))` and `r subcategdet$category[3]` with a share of `r percent(subcategdet[3,lastyear]/sum(subcategdet[,lastyear]))`. Here only the most important animal type `r subcategdet$category[1]` is discussed. 
 
 `r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
 

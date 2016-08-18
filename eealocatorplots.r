@@ -12,7 +12,14 @@
 # 
 
 # current inventory year
-locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
+if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
+    adrian<-"c:/Adrian/"
+}else if(Sys.info()[4]=="D01RI1600881"){
+    adrian<-"x:/Adrian/"
+}else{
+    adrian<-"C:/Adrian/"
+}
+locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
 setwd(locplots)
 options(warn=0)
 source("curplot.r")
@@ -44,6 +51,7 @@ if(stepsdone==1){
     print("Step 2: Generate list of measures and deal with animals")
     # Remove UK (use GB) and remove Island ####
     
+    alldata$datasource<-"nir"
     source("eugirpA.2_meastype.r")
     
     # Deal with other animals and animal types without sector number

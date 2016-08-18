@@ -35,15 +35,7 @@ emissions for the period 1990-2010. The data base can be consulted at the follow
 
 http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E 
 
-Emissions are specified for the different agricultural sub-domains, estimated by FAO following Tier 1 
-approach from the 2006 IPCC Guidelines for National GHG Inventories (IPCC, 2006), using activity 
-data provided by countries and default emission factors by IPCC. The data provided by FAO does not 
-necessarily match the numbers reported by countries to the UNFCCC in their national inventory 
-reports.
-
-The FAOSTAT database is intended primarily as a service to help member countries assess and 
-report their emissions, as well as a useful international benchmark. The FAOSTAT Emissions data 
-are disseminated publicly to facilitate continuous feedback from member countries.
+Emissions are specified for the different agricultural sub-domains, estimated by FAO following Tier 1 approach from the 2006 IPCC Guidelines for National GHG Inventories (IPCC, 2006), using activity data provided by countries and default emission factors by IPCC. The data provided by FAO does not necessarily match the numbers reported by countries to the UNFCCC in their national inventory reports.
 
 
 ```{r nirfaooverview,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -306,3 +298,15 @@ Finally, we compare UNFCC and FAOSTAT data on N from crop residues applied to so
 ![](../2016/plots/20160322/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
 
 ## Sector-specific recalculations, including changes in response of to the review process and impact on emission trend
+
+```{r nirrecalc,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+captextch4<-paste0("Contribution of MS to EU-28+ISL recalculations in CH4 emissions for 1990 and ",lastyear," (difference between latest submission and previous submissions in kt CO2 equivalents and percent)")
+captextn2o<-paste0("Contribution of MS to EU-28+ISL recalculations in N2O emissions for 1990 and ",lastyear," (difference between latest submission and previous submissions in kt CO2 equivalents and percent)")
+
+tabs("nirrecalc3A",paste0("3A Enteric fermentation: ",captextch4)
+tabs("nirrecalc3B1",paste0("3B Manure Management: ",captextch4)
+tabs("nirrecalc3B2",paste0("3B Manure Management: ",captextn2o)
+tabs("nirrecalc3D",paste0("3D Agricultural Soils: ",captextn2o)
+
+
+```

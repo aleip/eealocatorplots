@@ -26,7 +26,8 @@ lasttrend<-euemissions[lastyear]/euemissions[lastyear2]
 eusel<-curemissions$party==eusubm
 alltrend<-cbind(curemissions[!eusel,],curemissions[!eusel,lastyear]/curemissions[!eusel,firstyear])
 names(alltrend)<-c(names(curemissions),"trend")
-alltrend[alltrend$trend==0,lastyear]<-alltrend[alltrend$trend==0,years[nyears-1]]
+sel<-alltrend$trend==0 & !is.na(alltrend$trend)
+alltrend[sel,lastyear]<-alltrend[alltrend$trend==0,years[nyears-1]]
 alltrend$diff<-alltrend[,lastyear]-alltrend[,firstyear]
 alltrend<-alltrend[order(alltrend$diff),]
 alltrend<-arrange(alltrend,diff)
@@ -104,6 +105,7 @@ panderOptions('table.alignment.default', c('left','right','right','right','left'
 
 selyears<-c(firstyear,lastyear)
 curtable<-(curemissions%>%select(party,one_of(selyears)))
+curtable[curtable==0]<-NA
 curtable$party<-as.character(curtable$party)
 curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) country4sub$name[which(country4sub$code2==curtable$party[x])]))
 curtable[,selyears]<-format(curtable[,selyears],digits=2)
@@ -114,6 +116,7 @@ curtable[curtable$party==eusubml,]<-paste0("**",gsub(" ","",curtable[curtable$pa
 if(grepl("NA",curtable[sel,firstyear])&grepl("NA",curtable[sel,lastyear])) curtable<-curtable[!sel,]
 for(yy in selyears){
     curtable[,yy]<-unlist(lapply(c(1:nrow(curtable)),function(x) if(grepl("NA",curtable[x,yy])){"&#09;"}else{curtable[x,yy]}))
+    #curtable[,yy]<-unlist(lapply(c(1:nrow(curtable)),function(x) if(" 0"==curtable[x,yy]){"&#09;"}else{curtable[x,yy]}))
 }
 rownames(curtable)<-NULL
 names(curtable)<-c("Member State",selyears)

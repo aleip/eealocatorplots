@@ -4,7 +4,22 @@ is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 
 view<-function(D){View(D)}
 viewlast<-function(n,allagri=allagri){View(allagri[(nrow(allagri)-n):nrow(allagri),])}
-newuid<-function(){paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")}
+newuid<-function(sector,categ,meast,units,metho,sourc,targe,opti,gasun){
+    paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
+    sector<-substring(paste0(gsub(" ","",gsub("\\.","",gsub("\\^","",sector))),"0000"),1,5) #5
+    categ<-substring(paste0(gsub(" ","",gsub("-","",categ)),"00000"),1,5) #5
+    meast<-substring(paste0(meast,"00000"),1,3)                           #3
+    units<-substring(paste0((gsub(" ","",gsub("\\/","",gsub("\\^","",units)))),"00000"),1,6) #6
+    sourc<-substring(paste0(gsub(" ","",gsub("-","",sourc)),"00000"),1,3) #3
+    targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #3
+    gasun<-substring(paste0(gasun,"0"),1,2)                               #2
+    optio<-if(optio!=""){substring(optio,nchar(optio),nchar(optio))}else{"0"}   #1
+    metho<-substring(paste0(gsub(" ","",gsub("-","",metho)),"00000"),1,3) #3
+    newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun,optio,metho)
+    cat("\n",nchar(newid),"-",newid)
+    return(newid)
+    
+}
 firstup<-function(string){
     rstring<-tolower(string)
     rstring<-paste0(toupper(substr(rstring,0,1)),substr(rstring,2,nchar(rstring)))
@@ -910,6 +925,7 @@ plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri){
         timelegend$leg<-paste0(timelegend$leg,timelegend$category)
     }
     View(time_series)
+    write.csv(time_series,file="time_series.csv")
     if(nrow(time_series)>1){
         plot(years,time_series[1,years],ylim=c(timemin,timemax),ylab=timelabel)
         for(i in c(2:nrow(time_series))){
@@ -920,7 +936,7 @@ plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri){
         plot(years,as.data.frame(time_series)[1,years],ylim=c(timemin,timemax),ylab=timelabel)
         #plot(years,as.data.frame(time_series)[1,years],ylim=c(min(time_series,na.rm=TRUE),max(time_series,na.rm=TRUE)))
     }
-    legend(x="topleft",ncol=5,legend=timelegend$leg,pch=seq(1,nrow(time_series))%%26)
+    if(nrow(time_series)>1) legend(x="topleft",ncol=5,legend=timelegend$leg,pch=seq(1,nrow(time_series))%%26)
 }
 
 mtexttit<-function(runsect,runmeta,runmeas){

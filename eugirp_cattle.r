@@ -28,7 +28,7 @@ cattleuid<-unique(curagri[curagri$category%in%allcattle & ssummable ,uniquefield
 for(cat in allcattle){
     for(sec in c("3.A.1","3.B.1.1","3.B.2.1")){
         for(mea in c("POP","EM","NEXC")){
-            for(gas in c("no gas","N2O","CH4")){
+            for(gas in c("no gas","N2O","CH4","NMVOC")){
                 for(sou in unique(allagri$source)){
                     select<-sec==cattleuid$sector_number & 
                         cat==cattleuid$category & 
@@ -43,7 +43,9 @@ for(cat in allcattle){
                         newcuid$meastype<-mea
                         newcuid$gas<-gas
                         newcuid$source<-sou
-                        newcuid$variableUID<-newuid()
+                        newcuid$variableUID<-newuid(sector = sec,categ = cat,meast = mea,
+                                                    units = "",metho = "",sourc = sou,targe = "",
+                                                    opti = "",gasun = gas)
                         #print(newcuid)
                         cattleuid<-rbind(cattleuid,newcuid)
                     }
@@ -72,7 +74,7 @@ getcatuid<-function(line,cattleuid){
     uid<-unique(as.character(cattleuid$variableUID[selection]))
     n<-length(uid)
     if(n>1){print(line);print(uid);stop("There is more than one UID")}
-    if(n==0){stop("There is no UID")}
+    if(n==0){print(line);stop("There is no UID")}
     return(uid)
 }
 
@@ -90,6 +92,8 @@ temp<-unlist(lapply(c(1:nrow(nondairyagg)),function(x) getcatuid(nondairyagg[x,]
 nondairyagg$variableUID<-temp
 nondairyagg<-nondairyagg[,allfields]
 
+dairyagg$method<-""
+nondairyagg$method<-""
 curagri<-rbind(curagri,dairyagg,nondairyagg)
 ssummable<-curagri$meastype%in%c("POP","EM","NEXC")
 scattle<-curagri$category%in%allcattle[!allcattle%in%"Cattle"]
@@ -101,6 +105,7 @@ cattleagg$category<-"Cattle"
 temp<-unlist(lapply(c(1:nrow(cattleagg)),function(x) getcatuid(cattleagg[x,],cattleuid)))
 cattleagg$variableUID<-temp
 cattleagg<-cattleagg[,allfields]
+cattleagg$method<-""
 curagri<-rbind(curagri,cattleagg)
 
 

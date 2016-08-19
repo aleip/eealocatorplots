@@ -23,9 +23,10 @@ for(parent in sheepswine){
     #curcatego<-"^3.B.1"
     curcategos<-c("^3.A","^3.B.1","^3.B.2")
     for(curcatego in curcategos){
-        if(curcatego=="^3.A")   curmeasures<-measta2weight
-        if(curcatego=="^3.B.1") curmeasures<-meastb12weight
-        if(curcatego=="^3.B.2") curmeasures<-meastb22weight
+        if(curcatego=="^3.A")   {curmeasures<-measta2weight;curgas<-"CH4"}
+        if(curcatego=="^3.B.1") {curmeasures<-meastb12weight;curgas<-"CH4"}
+        if(curcatego=="^3.B.2") {curmeasures<-meastb22weight;curgas<-"N2O"}
+        
         #print(paste0("2",curcatego))
         
         #curmeasty<-"VSEXC"
@@ -47,7 +48,7 @@ for(parent in sheepswine){
                 for(sour in sources){                
                     parentuid<-unique(tarstart$variableUID[tarstart$party%in%countriesparent & tarstart$category==parent & tarstart$source==sour])
                     if(length(parentuid)>1) View(tarstart[tarstart$party%in%countriesparent & tarstart$category==parent & tarstart$source==sour,])
-                    if(length(parentuid)==0) parentuid<-newuid()
+                    if(length(parentuid)==0) parentuid<-newuid(sector = paste0(curcatego,".",subcat),categ = parent,meast = curmeasty,units = "",metho = "",sourc = sour,targe = targ,opti = "",gasun = curgas)
                     #if(length(parentuid)==0) countriesmissig<-""
                     #View(tarstart[tarstart$party%in%countriesparent & tarstart$category==parent,])
                     selection<-tarstart$party%in%countriesmissig & tarstart$category%in%childs & tarstart$source==sour
@@ -61,8 +62,9 @@ for(parent in sheepswine){
                             curchilds<-agrimissing$category[seltemp]
                             tmpp<-vector(length = length(years))
                             tmps<-vector(length = length(years))
-                            tmpmin<-rep(NA,length(years))
-                            tmpmax<-vector(length = length(years))
+                            #20160819 - unclear what tmpmin, tmpmax, tmp1d do ... lines commented
+                            #tmpmin<-rep(NA,length(years))
+                            #tmpmax<-vector(length = length(years))
                             newline<-agrimissing[seltemp & agrimissing$category==curchilds[1],]
                             if(nrow(newline)>0) {
                                 newline$category<-parent
@@ -71,16 +73,16 @@ for(parent in sheepswine){
                                 for(at in curchilds){
                                     #print(paste0("5",at))
                                     tmp1<-agrimissing[seltemp & agrimissing$category==at,years]
-                                    tmp1d<-data.frame(tmp1)
-                                    tmp1d[2,]<-tmpmin
-                                    tmpmin<-apply(tmp1d,2,min,na.rm=TRUE)
-                                    tmpmax<-apply(tmp1d,2,max,na.rm=TRUE)
+                                    #tmp1d<-data.frame(tmp1)
+                                    #tmp1d[2,]<-tmpmin
+                                    #tmpmin<-apply(tmp1d,2,min,na.rm=TRUE)
+                                    #tmpmax<-apply(tmp1d,2,max,na.rm=TRUE)
                                     tmp2<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
                                     if(ms=="PL"&at=="Other Cattle.Non-dairy cattle") tmp2<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category=="Non-Dairy Cattle" & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
                                     
                                     tmp1[is.nan(tmp1)]<-NA
                                     if(!is.na(sum(tmp1,na.rm=TRUE))){
-                                        if(!is.na(sum(tmp2))){
+                                        if(!is.na(sum(tmp2,na.rm=TRUE))){
                                             tmpp<-tmpp + tmp1 * tmp2
                                             tmps<-tmps + tmp2
                                         }else{stop(paste0("Population missing ",ms,at,curmeasty,curcatego))}

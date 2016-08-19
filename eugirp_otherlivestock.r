@@ -96,6 +96,10 @@ allagri$sector_number[selection & allagri$meastype%in%meastb12weight]<-"3.B.1.3"
 allagri$sector_number[selection & allagri$meastype%in%meastb22weight]<-"3.B.2.3"
 
 allagri98<-allagri
+# Method-column gives problems for merge (20160819 - never previously)
+allagrimethod<-allagri$method
+allagri<-allagri[,-which(names(allagri)=="method")]
+
 
 #Remove duplicate lines (e.g. 'Swine' and 'Other swine') for agri
 #agriselect<-duplicated(allagri[,names(allagri)[!names(allagri)%in%c("category","variableUID")]])
@@ -126,6 +130,9 @@ swines<-unique(allagri$category[selectsw])
 
 #Harmonize UIDs
 usefields<-c(sectfields,metafields,measfields)
+usefields<-usefields[usefields!="method"]
+allfields<-allfields[allfields!="method"]
+#allagri$method<-as.character(allagri$method)
 swineuids<-unique(allagri[allagri$category=="Swine",c(usefields,"variableUID")])
 swineuids<-swineuids[order(swineuids$sector_number,swineuids$measure),]
 swineuidsn<-unique(swineuids[,usefields])
@@ -149,7 +156,7 @@ allagri<-substituteothers(allagri,"Other Sheep.General","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Sheep")
 allagri<-substituteothers(allagri,"sheep","Sheep")
-
+allagri152<-allagri
 selectsw<-grepl("sheep",tolower(allagri$category))
 sheeps<-unique(allagri$category[selectsw])
 
@@ -168,7 +175,7 @@ allagri<-unique(allagri)
 
 # Calculate parameter for parent category 'swine' and 'sheep ####
 allagri160<-allagri #keep 160 here!
-
+allagri$method<-""
 sheepswine<-c("Sheep","Swine")
 source("eugirp_aggparentanimal.r")
 allagri174<-addparentanimal

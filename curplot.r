@@ -12,18 +12,18 @@
 #
 # All parameters that MUST be adapted by the user are indicated by an #!!! at the and of the line
 
-library(ggplot2) #for graphics
-library(reshape2) #required for melt function - for outls
-library(dplyr) #for pipes and many data manipulation functions
-library(data.table)
-library(knitr)
-library(compare)
+require(ggplot2) #for graphics
+require(reshape2) #required for melt function - for outls
+require(dplyr) #for pipes and many data manipulation functions
+require(data.table)
+require(knitr)
+require(compare)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 rm(list=objects())
 
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
-locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"           #!!!
+locplots<-"x:/adrian/data/inventories/ghg/unfccc/eealocatorplots"           #!!!
 setwd(locplots)
 searchline<-FALSE
 
@@ -42,6 +42,7 @@ invyear<-2015
 cursubm <- "20160202"                                                       #!!!
 cursubm <- "20160322"                                                       #!!!
 cursubm <- "20160420"                                                       #!!!
+cursubm <- "20160810"                                                       #!!!
 invyear<-2016
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.

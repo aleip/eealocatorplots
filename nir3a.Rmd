@@ -132,7 +132,7 @@ figs(paste0("fig","Non-Dairy Cattle","trend","POP"),trendfigurecaption(eukp,past
 
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-The main driver for the decrease of CH4 emissions from enteric fermentation was the decrease in animal numbers shown in `r figs(paste0("fig","Dairy Cattle","trend",curmea),display="cite")` and `r figs(paste0("fig","Non-Dairy Cattle","trend",curmea),display="cite")` .
+The main driver for the decrease of CH4 emissions from enteric fermentation was the decrease in animal numbers shown in `r figs(paste0("fig","Dairy Cattle","trend",curmea),display="cite")` and `r figs(paste0("fig","Non-Dairy Cattle","trend",curmea),display="cite")`.
 
 `r text2trend(fig="")`
 
@@ -265,8 +265,7 @@ tabs("tabA11geav",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2ief(fig=figs("figA11trendgeav",display="cite"),tab=tabs("tabA11geav",display="cite"))` 
-Data from Luxembourg are reported in a different unit and are therefore not included in this comparison.
+`r text2ief(fig=figs("figA11trendgeav",display="cite"),tab=tabs("tabA11geav",display="cite"))` Data from Luxembourg are reported in a different unit and are therefore not included in this comparison.
 
 `r figs("figA11trendgeav",display="full")`
 

@@ -1062,7 +1062,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
             dfm<-allagri[allagri$meastype=="NEXC"&grepl("3.B.2.5",allagri$sector_number)&allagri$source!=""&allagri$party%in%acountry,]
         }
     }
-    dfp<-as.character(unique(dfm$party))
+    dfp<-acountry[as.character(unique(dfm$party))%in%acountry]
     dfc<-sapply(dfp,function(x) country4sub[country4sub$code2==x,"code3"])
     if(sec=="3.B.2.5"){
         dfm<-dcast(dfm,source +gas ~ party,value.var = lastyear)

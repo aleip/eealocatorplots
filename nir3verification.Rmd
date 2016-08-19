@@ -3,6 +3,20 @@
 
 #### Comparison of national inventories with EU-wide calculations with the CAPRI model
 
+```{r capricomparison,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+tabs("caprit1","")
+tabs("caprit2","")
+tabs("caprit3","")
+
+figs("capriFig1","")
+figs("capriFig2","")
+figs("capriFig3","")
+figs("capriFig4","")
+figs("capriFig5","")
+figs("capriFig6","")
+#figs("capriFig7","")
+```
+
 An in-depth comparison between GHG emission estimates as calculated with the CAPRI model and national GHG emission inventories had been done in the frame of the GGELS project[^ggelsweb].
 
 A brief summary of the report was included in previous submissions of the EU GHG emission inventories in the agriculture chapter. This summary is available from the JRC website[^ggelssummary].
@@ -44,9 +58,9 @@ FAO gave larger area of organic soils cultivated compared to JRC results for all
 In the JRC approach Soil Typological Units (STU) of the HWSD are defined as 'organic soils' 
 
 (#) if the topsoil organic carbon content is > 18% or 
-(#) if the topsoil organic carbon content is higher than the topsoil clay content * 0.1 + 12. All STUs in the EU27 of the HWSD which have been classified as 'organic soils' showed a organic carbon content of >30%, thus de facto only criterion (1) was applied.
+(#) if the topsoil organic carbon content is higher than the topsoil clay content * 0.1 + 12. All STUs in the EU27 of the HWSD which have been classified as 'organic soils' showed an organic carbon content of >30%, thus de facto only criterion (1) was applied.
 
-To delineate 'cropland area' in the land use/cover map, FAO considers pure cropland classes as well as mixed cropland/other land use classes. For the latter, assumptions were made on the share of cropland within these mixed classes. However,  the JRC approach takes assumes that in case of mixed land use classes the probability of the different land uses happening on organic soils are not the same, in contract to the approach of the FAO, which distribute land cover proportionally.  As some crops do not grow well on organic soils it might occur that the land uses are not distributed equally on the mineral and organic soilbut that 100% of the forest is grown an organic soil and the crops are cultivated only on mineral soils.
+To delineate 'cropland area' in the land use/cover map, FAO considers pure cropland classes as well as mixed cropland/other land use classes. For the latter, assumptions were made on the share of cropland within these mixed classes. However,  the JRC approach takes assumes that in case of mixed land use classes the probability of the different land uses happening on organic soils are not the same, in contract to the approach of the FAO, which distribute land cover proportionally.  As some crops do not grow well on organic soils it might occur that the land uses are not distributed equally on the mineral and organic soil but that 100% of the forest is grown an organic soil and the crops are cultivated only on mineral soils.
 
 In the JRC analysis mixed land use classes are not taken into account as the shares of cropland within these classes are given as ranges in the legend of CORINE. The cropland/other land use shares in the mixed land use classes might also vary between regions. Thus, by excluding mixed land use classes, the estimate of cropland area on organic soils can be considered as conservative compared to the FAO approach.
 

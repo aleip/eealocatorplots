@@ -157,7 +157,7 @@ percent<-function(x,d=0){
 curcatnew<-function(curcat){
     # curcat: category if category if 'Farming' then it will be curseclong
     if(curcat=="Farming"){curcat<-curseclong}
-    if(curcat=="Direct N2O Emissions From Managed Soils") curcat<-"Direct N2O emissions from managed soils"
+    if(curcat=="Direct N2O Emissions from Managed Soils") curcat<-"Direct N2O emissions from managed soils"
     return(curcat)
 }
 seccatsou<-function(sec=cursec,cat=curcat,cla=curcla,tar="",typ=""){
@@ -172,7 +172,7 @@ curcatlong<-function(curcat,cursec=cursec){
     if(grepl("3.D.1",cursec)){curcattext<-paste0(cursec," - ",curcat," ",curseclong)}
     if(curmeasure=="Atmospheric deposition"){curcattext<-paste0(cursec," - ",curmeasure," from ",curcat)}
     if(cursec=="3.D.1.1" | cursec=="3.D.1.2"){curcattext<-gsub("Managed Soils",curseclong,curcattext)}
-    if(cursec=="3.D.2.1" | cursec=="3.D.2.2"){curcattext<-paste0(cursec," - Indirect N2O Emissions From ",curseclong)}
+    if(cursec=="3.D.2.1" | cursec=="3.D.2.2"){curcattext<-paste0(cursec," - Indirect N2O Emissions from ",curseclong)}
     if(cursec=="3.D.1.3"){curcattext<-paste0(cursec," - ",curcat)}
     if(grepl("3.D.AI.1",cursec)){curcattext<-"3.D.2.1 - Indirect emissions from Atmospheric Deposition"}
     if(grepl("3.D.AI.2",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Atmospheric Deposition"}
@@ -215,7 +215,7 @@ sharefigurecaption<-function(eusubml,cursec,lastyear){
     cap<-paste0("&#09;Share of source category ",cursec," ",
                 "on total ",eusubml," agricultural emissions (left panel) ",
                 "and decomposition into its sub-categories (right panel). ",
-                "The percentages refer to the emission in the year ",lastyear,".",
+                "The percentages refer to the emissions in the year ",lastyear,".",
                 if(cursec=="3.B.2"){"3.B.2.1-3.B.3.4: emissions by animal types (cattle, sheep, swine, other livestock); 3.B.2.5:Indirect emissions from manure management."}else
                 if(cursec=="3.D.1"){paste0(" Categories 3.D.1.1-3.D.1.5: direct N2O emissions by N source ",
                                            "(inorganic fertilizers, organic fertilizers, urine and dung deposited by grazing animals, ",
@@ -235,7 +235,7 @@ sharemsfigurecaption<-function(eusubml,sec=cursec,lastyear){
                            "3.D.1.5 mineralisation/immobilisation associated with loss/gain of soil organic matter, and ",
                            "3.D.1.6 cultivation of organic soils (histosols).")
                 }else if(grepl("D.2",sec)){
-                    paste0("3.D.2.1 atmospheric deposition and 3.D.2.2 nitrogen leaching and run-off.")
+                    paste0("3.D.2.1 Atmospheric Deposition and 3.D.2.2 Nitrogen Leaching and Run-off.")
                 }else{""}
     )
     if(sec=="3.B.2.5")cap<-paste0("&#09;Decomposition of manure nitrogen handled in source category ",curcattext," ",
@@ -352,7 +352,7 @@ text2trend<-function(fig="",option=0){
                    " for the different Member States along the inventory period. ")
     sent2<-paste0(sent2a,sent2b,sent2c,sent2d)
     if(cursec=="3.A.1"&curmea=="EM"&curcat=="Dairy Cattle"){
-        sent2<-paste0(sent2,"Each bar shows the emissions accumulated by the different Member States in a specific year, in kt, where every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total.")
+        sent2<-paste0(sent2,"Each bar shows the emissions accumulated by the different Member States in a specific year, in kt, where every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total. ")
     }
     if(fig==""){sent2<-""}
     

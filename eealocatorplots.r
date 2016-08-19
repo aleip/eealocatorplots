@@ -12,7 +12,7 @@
 # 
 
 # current inventory year
-locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
+locplots<-"x:/adrian/data/inventories/ghg/unfccc/eealocatorplots"
 setwd(locplots)
 options(warn=0)
 source("curplot.r")

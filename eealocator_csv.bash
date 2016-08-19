@@ -5,8 +5,9 @@ ofil=eealocator_$(date +%Y%m%d).txt
 ifil=CRF_MMR_20160202.txt
 ifil=CRF_MMR_20160322.txt
 ifil=CRF_MMR_20160420.txt
+ifil=CRF_MMR_20160810.txt
 direct=../2016/eealocator/
-submission=20160420
+submission=20160810
 
 ifil=${direct}/${ifil}
 

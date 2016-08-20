@@ -96,6 +96,8 @@ dairyagg$method<-""
 nondairyagg$method<-""
 curagri<-rbind(curagri,dairyagg,nondairyagg)
 ssummable<-curagri$meastype%in%c("POP","EM","NEXC")
+
+# Now sum-up dairy and non-dairy
 scattle<-curagri$category%in%allcattle[!allcattle%in%"Cattle"]
 cattle<-curagri[scattle & ssummable,]
 aggfields<-cattle[,allfields[!allfields%in%c("category",years,"variableUID")]]
@@ -106,14 +108,15 @@ temp<-unlist(lapply(c(1:nrow(cattleagg)),function(x) getcatuid(cattleagg[x,],cat
 cattleagg$variableUID<-temp
 cattleagg<-cattleagg[,allfields]
 cattleagg$method<-""
+
 curagri<-rbind(curagri,cattleagg)
-
-
-allagri160<-curagri
+allagricattle112<-curagri
 sheepswine<-c("Dairy Cattle","Non-Dairy Cattle")
+addparentanimal<-curagri #needs addparentanimal
 source("eugirp_aggparentanimal.r")
 
-allagri160<-addparentanimal
+allagricattle116<-addparentanimal
+curagri<-addparentanimal
 sheepswine<-c("Cattle")
 source("eugirp_aggparentanimal.r")
 curagri<-addparentanimal

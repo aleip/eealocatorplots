@@ -174,13 +174,14 @@ allagri<-allagri[,allfields]
 allagri<-unique(allagri)
 
 # Calculate parameter for parent category 'swine' and 'sheep ####
-allagri160<-allagri #keep 160 here!
 allagri$method<-""
+allagri160<-allagri #keep 160 here!
 sheepswine<-c("Sheep","Swine")
+addparentanimal<-allagri #needs addparentanimal
 source("eugirp_aggparentanimal.r")
-allagri174<-addparentanimal
 
-curagri<-addparentanimal
+allagri174<-addparentanimal 
+curagri<-addparentanimal  #needs curagri
 source("eugirp_cattle.r")
 allagri177<-curagri
 allagri<-curagri

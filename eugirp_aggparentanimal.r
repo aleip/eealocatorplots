@@ -1,4 +1,3 @@
-addparentanimal<-allagri160
 options(warn=2)
 options(error=recover) 
 #addparentvalues<-function(addparentanimal){
@@ -18,7 +17,7 @@ for(parent in sheepswine){
     if(parent=="Cattle")           subcat<-1
     if(parent=="Dairy Cattle")     subcat<-1
     if(parent=="Non-Dairy Cattle") subcat<-1
-    #print(paste0("1",parent))
+    #print(paste0("1",parent,paste(childs,collapse="-")))
     
     #curcatego<-"^3.B.1"
     curcategos<-c("^3.A","^3.B.1","^3.B.2")
@@ -56,40 +55,58 @@ for(parent in sheepswine){
                     #View(agrimissing)
                     #ms<-"IS"
                     for(ms in countriesmissig){
+                        #if(curmeasty=="WEIGHT" & parent=="Non-Dairy Cattle"&ms=="HR")stop()
                         #print(paste0("4",ms))
                         seltemp<-agrimissing$party==ms
                         if(length(seltemp)>0){
                             curchilds<-agrimissing$category[seltemp]
-                            tmpp<-vector(length = length(years))
-                            tmps<-vector(length = length(years))
-                            #20160819 - unclear what tmpmin, tmpmax, tmp1d do ... lines commented
-                            #tmpmin<-rep(NA,length(years))
-                            #tmpmax<-vector(length = length(years))
                             newline<-agrimissing[seltemp & agrimissing$category==curchilds[1],]
                             if(nrow(newline)>0) {
+                                # Childs must be all for which population data are availabe
+                                # otherwise a bias will be generated
+                                curchilds<-childs
+                                tmpp<-vector(length = length(years))
+                                tmps<-vector(length = length(years))
                                 newline$category<-parent
+                                newline$notation<-"eugirp"
+                                noparent<-FALSE
                                 if(length(parentuid)>0) newline$variableUID<-parentuid
                                 #at<-curchilds[1]
                                 for(at in curchilds){
                                     #print(paste0("5",at))
-                                    tmp1<-agrimissing[seltemp & agrimissing$category==at,years]
-                                    #tmp1d<-data.frame(tmp1)
-                                    #tmp1d[2,]<-tmpmin
-                                    #tmpmin<-apply(tmp1d,2,min,na.rm=TRUE)
-                                    #tmpmax<-apply(tmp1d,2,max,na.rm=TRUE)
-                                    tmp2<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
-                                    if(ms=="PL"&at=="Other Cattle.Non-dairy cattle") tmp2<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category=="Non-Dairy Cattle" & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
+                                    tmpval<-agrimissing[seltemp & agrimissing$category==at,years]
+                                    tmpval[is.nan(tmpval)]<-NA
+                                    tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
+                                    if(ms=="PL"&at=="Other Cattle.Non-dairy cattle") 
+                                        tmppop<-unique(filter(addparentanimal,party==ms,category=="Non-Dairy Cattle",
+                                                            grepl("^3.A",sector_number),meastype=="POP"))[,years]                                    
+                                    #if(curmeasty=="WEIGHT" & at=="Dairy Cattle"&ms=="GB")stop()
+                                    #if(curmeasty=="WEIGHT" & at=="Non-Dairy Cattle"&ms=="HR")stop()
                                     
-                                    tmp1[is.nan(tmp1)]<-NA
-                                    if(!is.na(sum(tmp1,na.rm=TRUE))){
-                                        if(!is.na(sum(tmp2,na.rm=TRUE))){
-                                            tmpp<-tmpp + tmp1 * tmp2
-                                            tmps<-tmps + tmp2
-                                        }else{stop(paste0("Population missing ",ms,at,curmeasty,curcatego))}
-                                    }else{stop(paste0(curmeasty," missing ",ms,at,curcatego))}
+                                    nopop<-nrow(tmppop)==0
+                                    noval<-nrow(tmpval)==0
+                                    if(!nopop)nopop<-sum(tmppop,na.rm=TRUE)==0
+                                    if(!noval)noval<-sum(tmpval,na.rm=TRUE)==0
+                                    
+                                    if(!nopop & noval){
+                                        # Aggregate value for parent cannot be calculated
+                                        newline[,years]<-NA
+                                        newline$notation<-paste0("NE - values for ",at," are missing")
+                                        noparent<-TRUE
+                                    }else if(nopop & !noval){
+                                        stop(paste0("There are values for parameter",curmeasty," but no population data of ",at," in ",ms," for ",curcatego))
+                                    }else if(nopop & noval){
+                                        #... Otherwise this child does not exist and does not have to be considered
+                                        #print(paste0("No population data or values for ",curmeasty," of ",at," in ",ms))
+                                    }else if(!nopop & !noval){
+                                        tmpp<-tmpp + tmpval * tmppop
+                                        tmps<-tmps + tmppop
+                                    }
                                 }
-                                tmpn<-tmpp/tmps
-                                newline[years]<-tmpn
+                                if(!noparent){
+                                    tmpn<-tmpp/tmps
+                                    newline[years]<-tmpn
+                                }
                                 addparentanimal<-rbind(addparentanimal,newline)
                             }
                         }

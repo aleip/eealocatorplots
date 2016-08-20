@@ -43,6 +43,7 @@ searchline<-FALSE
 eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
 eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
 eugirp.version<-"2.1" #20160531
+eugirp.version<-"2.2" #20160820
 # Define current submission.
 cursubm <- "20151030"                                                       #!!!
 invyear<-2015

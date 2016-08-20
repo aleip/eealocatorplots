@@ -4,7 +4,7 @@ is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 
 view<-function(D){View(D)}
 viewlast<-function(n,allagri=allagri){View(allagri[(nrow(allagri)-n):nrow(allagri),])}
-newuid<-function(sector,categ,meast,units,metho,sourc,targe,opti,gasun){
+newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
     paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
     sector<-substring(paste0(gsub(" ","",gsub("\\.","",gsub("\\^","",sector))),"0000"),1,5) #5
     categ<-substring(paste0(gsub(" ","",gsub("-","",categ)),"00000"),1,5) #5
@@ -16,7 +16,7 @@ newuid<-function(sector,categ,meast,units,metho,sourc,targe,opti,gasun){
     optio<-if(optio!=""){substring(optio,nchar(optio),nchar(optio))}else{"0"}   #1
     metho<-substring(paste0(gsub(" ","",gsub("-","",metho)),"00000"),1,3) #3
     newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun,optio,metho)
-    cat("\n",nchar(newid),"-",newid)
+    #cat("\n",nchar(newid),"-",newid)
     return(newid)
     
 }

@@ -8,8 +8,6 @@
 #          C. run eugirp_nirplots.r for current plot
 #
 # Adrian Leip <adrian.leip@jrc.ec.europa.eu>
-# Version 1.5 - 07.09.2015
-# 
 
 # current inventory year
 if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
@@ -74,7 +72,7 @@ if(stepsdone==1){
     print("Step 2: List of measures & animals ... already done")
 }
 
-#stop("first step done")
+stop("second step done")
 # B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
 if(stepsdone==2){
     print("Step 3a: Calculating EU-sums only for summable variables")

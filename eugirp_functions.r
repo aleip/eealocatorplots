@@ -1078,6 +1078,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
             dfm<-allagri[allagri$meastype=="NEXC"&grepl("3.B.2.5",allagri$sector_number)&allagri$source!=""&allagri$party%in%acountry,]
         }
     }
+    dfm<-filter(dfm,gas!="NMVOC")
     dfp<-acountry[as.character(unique(dfm$party))%in%acountry]
     dfc<-sapply(dfp,function(x) country4sub[country4sub$code2==x,"code3"])
     if(sec=="3.B.2.5"){
@@ -1120,7 +1121,19 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     curcols<-grey.colors(length(dfl))
     curcols1<-curcols[as.logical(c(1:length(dfl))%%2)]
     curcols2<-curcols[!as.logical(c(1:length(dfl))%%2)]
-    if(length(dfl)>8|sec=="3.B.2.5")curcols<-c(curcols1,curcols2)
+    
+    #See available palettes with display.brewer.all()
+    if(length(dfl)<3){
+        #http://colorbrewer2.org/#type=sequential&scheme=BuPu&n=3
+        curcols<-c("#9ebcda","#8856a7")
+    }else if(length(dfl)>8|sec=="3.B.2.5"){
+        curcols2<-rev(brewer.pal(ceiling(length(dfl)/2),"Reds"))
+        curcols1<-rev(brewer.pal(length(dfl)-ceiling(length(dfl)/2),"Blues"))
+        curcols<-c(curcols1,curcols2)
+    }else{
+        curcols<-rev(brewer.pal(length(dfl),"Blues"))
+    }
+    print(curcols)
     barplot(t(dfms),horiz = FALSE,las=2,cex.axis = 0.8,offset = 0,col = curcols)
     legend("topright",inset=c(-0.19,0), legend=dfl,fill=curcols,cex=0.7)
     graphics.off()

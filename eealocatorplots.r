@@ -72,7 +72,7 @@ if(stepsdone==1){
     print("Step 2: List of measures & animals ... already done")
 }
 
-stop("second step done")
+#stop("second step done")
 # B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
 if(stepsdone==2){
     print("Step 3a: Calculating EU-sums only for summable variables")
@@ -172,7 +172,7 @@ if(stepsdone==2){
     print("Step 3a: EU sums already calculated")
 }
 
-#stop("Second step done")
+stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-1
 #doemissionplots<-TRUE

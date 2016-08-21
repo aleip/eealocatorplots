@@ -76,8 +76,8 @@ checktemp<-as.data.frame(matrix(rep(0,10),nrow=1,ncol=10))
 checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
 
 signthreshold<-0.0005 #min of 0.05% of national total
-gases<-c("CH4","CO2","N2O","Aggregate GHGs")
-gwps<-c(25,1,298,1)
+gases<-c("CH4","CO2","N2O","Aggregate GHGs","NMVOC")
+gwps<-c(25,1,298,1,0)
 
 
 #email david 20160203
@@ -113,9 +113,11 @@ names(country4sub)<-c("code2","code3","long")
 country4sub$EU28<-1
 country4sub$EUA<-1
 country4sub$EUC<-1
+country4sub$EU28[country4sub$code3=="ISL"]<-0
+country4sub$EUA[country4sub$code3=="ISL"]<-0
 country4sub$EU28[country4sub$code2=="FR"]<-0
 country4sub$EUA[country4sub$code2=="FR"]<-0
-country4sub$EUC[country4sub$code2=="FR"]<-0
+country4sub$EUC[country4sub$code2=="FM"]<-0
 country4sub$EU28[country4sub$code3=="GBR"]<-0
 country4sub$EUA[country4sub$code3=="GBR"]<-0
 country4sub$EUC[country4sub$code3=="GBE"]<-0

@@ -18,6 +18,7 @@ require(dplyr) #for pipes and many data manipulation functions
 require(data.table)
 require(knitr)
 require(compare)
+require(RColorBrewer)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 rm(list=objects())
 

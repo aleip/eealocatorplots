@@ -22,8 +22,8 @@ setwd(locplots)
 options(warn=0)
 source("curplot.r")
 options(warn=2) #warn=2 turns warnings into errors; set to 0 if this should be avoided
-options(error=recover) #error=recover goes into debug mode
 options(error=NULL) #error=recover goes into debug mode
+options(error=recover) #error=recover goes into debug mode
 
 # PART A: Link with EEA locator tool ----
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
@@ -172,7 +172,7 @@ if(stepsdone==2){
     print("Step 3a: EU sums already calculated")
 }
 
-stop("Third step done")
+#stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-1
 #doemissionplots<-TRUE
@@ -302,7 +302,7 @@ if(stepsdone==3){
     print("Step 4: Trends and growth rates already calculated")
 }
 
-#stop("step 3 done")
+#stop("step 4 done")
 # A.4 NE-check and check on unit errors. Prepare for outlier check ####
 if(stepsdone==4){
     print("# A.4 NE-check and check on unit errors. Prepare for outlier check ####")
@@ -461,6 +461,7 @@ if(stepsdone==5){
     #stop("now write issues")
     #paramcheck$correction[paramcheck$party=="SE"&paramcheck$meastype=="VSEXC"]<-0
     source("eugirp_euweightedaverages.r")
+    export4uba(allagri = allagri)
     
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
     datasource<-"nir"
@@ -494,7 +495,7 @@ if(stepsdone==5){
     print(paste0("Step 5: Check for outlier errors already done"))
 }
 
-#stop("step 6 done")
+stop("step 6 done")
 # C - Make checks for sector 3 ####
 checksteps<-6
 if(stepsdone==checksteps) {

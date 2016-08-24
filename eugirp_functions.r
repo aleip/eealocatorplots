@@ -678,6 +678,7 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
         lastyr<-0
     }
     # In case 2013 is not included because it is zero add to the list
+    if(is.na(y))y<-0
     if(lastyr==0 & y==0) lastyr<-1
     
     # Calculate value relative to median
@@ -873,6 +874,71 @@ adddefaults<-function(line,x,D){
         ipcc<-c(ipcc2006,ipcc1997)
     }
     return(ipcc)
+}
+
+export4uba<-function(allagri){
+    
+    dtagri<-as.data.table(allagri)
+    col2show<-c("party","gas","meastype","source","sector_number","category",years,"variableUID")
+    t3s1<-dtagri[grepl("EUC|EUA",party)&meastype=="EM"&
+                     grepl("3.A|3.B.",sector_number)&
+                     category%in%c(livestock,otherlivestock)&
+                     gas%in%c("CH4","N2O","NMVOC"),
+                 col2show,
+                 with=FALSE]
+    t3s1<-t3s1[order(party,gas,sector_number,category)]
+    write.csv(t3s1,file=paste0(invloc,"/eealocator/table3s1_",cursubm,"~",curdate(),".csv"))
+    
+    
+    t3as1<-dtagri[grepl("EUC|EUA",party)&
+                      meastype%in%c("POP","GEav","YM","IEF","EM")&
+                      #meastype%in%c("GE")&
+                      grepl("3.A",sector_number)&
+                      category%in%c(livestock,otherlivestock)&
+                      gas%in%c("CH4","no gas"),
+                  col2show,
+                  with=FALSE]
+    t3as1<-t3as1[order(party,gas,meastype,sector_number,category)]
+    write.csv(t3as1,file=paste0(invloc,"/eealocator/tablet3as1_",cursubm,"~",curdate(),".csv"))
+    View(t3as1)
+
+    t3as2<-dtagri[grepl("EUC|EUA",party)&
+                      meastype%in%c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE")&
+                      #meastype%in%c("GE")&
+                      grepl("3.A",sector_number)&
+                      category%in%c(livestock,otherlivestock)&
+                      gas%in%c("CH4","no gas"),
+                  col2show,
+                  with=FALSE]
+    t3as2<-t3as2[order(party,gas,meastype,sector_number,category)]
+    write.csv(t3as2,file=paste0(invloc,"/eealocator/tablet3as2_",cursubm,"~",curdate(),".csv"))
+    View(t3as2)
+
+    t3bas1<-dtagri[grepl("EUC|EUA",party)&
+                      meastype%in%c("POP","MASS","VSEXC","B0","EM")&
+                      #meastype%in%c("GE")&
+                      grepl("3.B.1",sector_number)&
+                      category%in%c(livestock,otherlivestock)&
+                      gas%in%c("CH4","no gas"),
+                  col2show,
+                  with=FALSE]
+    t3bas1<-t3bas1[order(party,gas,meastype,sector_number,category)]
+    write.csv(t3bas1,file=paste0(invloc,"/eealocator/tablett3bas1_",cursubm,"~",curdate(),".csv"))
+    View(t3bas1)
+
+    t3bb<-dtagri[grepl("EUC|EUA",party)&
+                      meastype%in%c("POP","NRATE","NEXC","WEIGHT","EM")&
+                      #meastype%in%c("GE")&
+                      grepl("3.B.2",sector_number)&
+                      category%in%c(livestock,otherlivestock)&
+                      gas%in%c("CH4","no gas"),
+                  c(col2show),
+                  with=FALSE]
+    t3bb<-t3bb[order(party,gas,meastype,source,sector_number,category)]
+    write.csv(t3bb,file=paste0(invloc,"/eealocator/tablett3bb_",cursubm,"~",curdate(),".csv"))
+    View(t3bb)
+    
+    
 }
 
 

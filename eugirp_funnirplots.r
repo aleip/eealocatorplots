@@ -95,6 +95,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
     
     # Remove rows where countries report zero (or NA) for the whole time period
+    plotdata[,years]<-apply(plotdata[,years],2,function(x) as.numeric(x))
     plotdata<-plotdata[apply(plotdata[,years],1,sum,na.rm=TRUE)!=0,]
     if(rundata=="adem"){
         acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code2"])
@@ -258,8 +259,7 @@ gettdis<-function(tmin,tmax,tmag){
     return(tdis)    
 }
 
-
-prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
+prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
     
     curuid<-plotmeas$variableUID[imeas]
     #runfoc<-paste0(runfoc,)
@@ -322,6 +322,7 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eusub
         isource<-which(dsource==multisource)
         #print(paste0("isource=",isource,dsource,"-",paste(multisource,collapse=",")))
         plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
+        # The first time this runs autocorr column is all NA -- no checks yet made
         autocorr<-acountryminus[acountryminus%in%plotdatacur$party[!is.na(plotdatacur$autocorr)]]
         autocorr<-unlist(lapply(autocorr,function(x) paste(x," (",plotdatacur$autocorr[plotdatacur$party==x],")",sep="")))
         autocorr<-paste(autocorr,collapse=", ")
@@ -349,12 +350,12 @@ prepareplot<-function(imeas,plotmeas,fdata,runfocus="value",rundata="adem",eusub
             #Make plot when any value is different from zero or NA:
             if(isource==1) cat(runid,"/",nrow(plotmeas),sep = "")
             cat("-",dsource,sep="")
-            View(plotmatr,dsource)
+            #View(plotmatr,dsource)
             if(sum(plotmatr,na.rm=TRUE)!=0){
                 #return(list(plotted,eu28fin,euquant,finnames,finshares,eu28,eu28pos,eu28neg,sharesexist=0,textorder))
                 #plotmade<-makeemplot(curuid,plotdata,plotmatr,"value",rundata,"EU28",plotparamcheck=0,runid,dsource,multisource)
                 
-                plotcoun<-as.vector(unlist((fdata$party[fdata[,"variableUID"]==curuid & !(fdata$party %in% eu)])))
+                plotcoun<-as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eu)])))
                 
                 #print(curuid)
                 #print(plotcoun)

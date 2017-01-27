@@ -77,7 +77,14 @@ checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
 
 signthreshold<-0.0005 #min of 0.05% of national total
 gases<-c("CH4","CO2","N2O","Aggregate GHGs","NMVOC")
-gwps<-c(25,1,298,1,0)
+# Values from Third Assessment Report 2001 http://www.grida.no/publications/other/ipcc_tar/?src=/climate/ipcc_tar/wg1/212.htm
+gwpstar<-c(23,1,296,1,0)
+# Values from Forth Assessment Report 2007 https://www.ipcc.ch/publications_and_data/ar4/wg1/en/ch2s2-10-2.html
+gwpsar4<-c(25,1,298,1,0)
+# Values from Fifth Assessment Report 2013 (page 714) https://ipcc.ch/pdf/assessment-report/ar5/wg1/WG1AR5_Chapter08_FINAL.pdf
+gwpsar5<-c(28,1,265,1,0)
+
+gwps<-gwpsar4
 
 
 #email david 20160203
@@ -115,9 +122,14 @@ country4sub$EUA<-1
 country4sub$EUC<-1
 country4sub$EU28[country4sub$code3=="ISL"]<-0
 country4sub$EUA[country4sub$code3=="ISL"]<-0
+
+# France: EU28 and EU-inventory for UNFCCC: France excluding Mayotte
+#         Kyoto: France including Mayotte
 country4sub$EU28[country4sub$code2=="FR"]<-0
 country4sub$EUA[country4sub$code2=="FR"]<-0
 country4sub$EUC[country4sub$code2=="FM"]<-0
+
+#
 country4sub$EU28[country4sub$code3=="GBR"]<-0
 country4sub$EUA[country4sub$code3=="GBR"]<-0
 country4sub$EUC[country4sub$code3=="GBE"]<-0

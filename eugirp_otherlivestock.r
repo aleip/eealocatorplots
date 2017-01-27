@@ -1,3 +1,6 @@
+# Next line converts values to numeric - should already be done during dcase in eugirpA.1_eealocator.r
+allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
+
 #Remove end-blank in sector_number
 selection<-grepl(" $",allagri$sector_number)
 allagri$sector_number[selection]<-gsub(" $","",allagri$sector_number[selection])
@@ -11,12 +14,19 @@ tables4sect<-unique(allagri[allagri$measure%in%tables4measures &
                                 grepl("^3",allagri$sector_number) &
                                 !grepl("Option",allagri$sector_number),c("sector_number","measure")])
 tables4sect$sector_number<-gsub("[1-9] *$","",tables4sect$sector_number)
+tables4sect$sector_number<-gsub("4 Other *$","",tables4sect$sector_number)
 tables4sect<-unique(tables4sect)
+#tables4remo<-tables4sect[grepl("Other",tables4sect$sector_number),"sector_number"]
+#tables4sect<-tables4sect[!grepl("Other",tables4sect$sector_number),]
+allagritemp<-allagri
+#allagri[allagri$sector_number%in%tables4remo,"sector_number"]<-""
 
 tables4clas<-unique(allagri[allagri$measure%in%tables4classifi & 
                                 grepl("^3.[AB]",allagri$sector_number) &
                                 !grepl("Option",allagri$sector_number),c("sector_number","classification")])
 tables4clas$sector_number<-gsub("[1-9] *$","",tables4clas$sector_number)
+tables4clas$sector_number<-gsub("4 Other *$","",tables4clas$sector_number)
+#tables4clas<-tables4clas[!grepl("Other",tables4clas$sector_number),]
 tables4clas<-unique(tables4clas)
 
 # Work with sub-data set for other livestock
@@ -28,21 +38,23 @@ allother$sector_number<-unlist(lapply(c(1:nother),function(x)
     otherlive$code[unlist(otherlive$otherlivestock)==as.character(allother$category[x])]))
 # Second, link the categroy (3.A, 3.B.1, 3.B.2) to 'other livestock' sub-categories
 fillother<-function(x,tables4sect,allother){
-    sec<-allother$sector_number[x]
-    cla<-allother$classification[x]
-    mea<-allother$measure[x]
-    if(mea%in% tables4measures){
-        secn<-paste0(tables4sect$sector_number[tables4sect$measure==mea],sec)
-    }else
-    {
-        if(cla=="Enteric Fermentation"){secn<-paste0("3.A.",sec)}else
-            if(cla=="CH4 Emissions"){secn<-paste0("3.B.1.",sec)}else
-                if(grepl("N2O",cla)){secn<-paste0("3.B.2.",sec)}else
-                {secn<-sec}
-    }
-    #print(x)
-    #print(paste(mea,cla,secn,sep="-"))
-    if(length(secn)>1)print(x)
+    #for(i in 1:nother){print(i)
+        sec<-allother$sector_number[x]
+        cla<-allother$classification[x]
+        mea<-allother$measure[x]
+        if(mea%in% tables4measures){
+            secn<-paste0(tables4sect$sector_number[tables4sect$measure==mea],sec)
+        }else
+        {
+            if(cla=="Enteric Fermentation"){secn<-paste0("3.A.",sec)}else
+                if(cla=="CH4 Emissions"){secn<-paste0("3.B.1.",sec)}else
+                    if(grepl("N2O",cla)){secn<-paste0("3.B.2.",sec)}else
+                    {secn<-sec}
+        }
+        print(secn)
+        #print(paste(mea,cla,secn,sep="-"))
+        if(length(secn)>1)print(x)
+    #}
     return(secn)
 }
 allother$sector_number<-unlist(lapply(c(1:nother),function(x) fillother(x,tables4sect,allother)))
@@ -60,6 +72,7 @@ assignab<-function(class){
 
 allother<-allagri[allagri$sector_number=="" & allagri$classification%in%mslivestockclass,]
 nother<-nrow(allother)
+# Cattle Option C --> belongs to category 1
 select<-grepl("Option C",allother$option)
 allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
     paste0(assignab(allother$classification[select][x]),".1")))
@@ -104,7 +117,6 @@ allagri<-allagri[,-which(names(allagri)=="method")]
 #Remove duplicate lines (e.g. 'Swine' and 'Other swine') for agri
 #agriselect<-duplicated(allagri[,names(allagri)[!names(allagri)%in%c("category","variableUID")]])
 #allagri<-allagri[!agriselect,allfields]
-
 substituteothers<-function(A,check1,check2){
     B<-A
     B$category<-gsub(check1,check2,A$category)
@@ -173,16 +185,3 @@ allagri$variableUID[agriselect]<-allagri$nvariableUID[agriselect]
 allagri<-allagri[,allfields]
 allagri<-unique(allagri)
 
-# Calculate parameter for parent category 'swine' and 'sheep ####
-allagri$method<-""
-allagri160<-allagri #keep 160 here!
-sheepswine<-c("Sheep","Swine")
-addparentanimal<-allagri #needs addparentanimal
-source("eugirp_aggparentanimal.r")
-
-allagri174<-addparentanimal 
-curagri<-addparentanimal  #needs curagri
-source("eugirp_cattle.r")
-allagri177<-curagri
-allagri<-curagri
-allagri$option[allagri$category%in%allcattle]<-""

@@ -22,8 +22,8 @@ setwd(locplots)
 options(warn=0)
 source("curplot.r")
 options(warn=2) #warn=2 turns warnings into errors; set to 0 if this should be avoided
-options(error=NULL) #error=recover goes into debug mode
 options(error=recover) #error=recover goes into debug mode
+options(error=NULL) #error=recover goes into debug mode
 
 # PART A: Link with EEA locator tool ----
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
@@ -60,6 +60,20 @@ if(stepsdone==1){
     
     #stop("Plause")
     source("eugirp_otherlivestock.r")
+    # Calculate parameter for parent category 'swine' and 'sheep ####
+    allagri$method<-""
+    allagri65<-allagri #keep 65 here!
+    sheepswine<-c("Sheep","Swine")
+    addparentanimal<-allagri #needs addparentanimal
+    source("eugirp_aggparentanimal.r")
+    
+    allagri70<-addparentanimal 
+    curagri<-addparentanimal  #needs curagri
+    source("eugirp_cattle.r")
+    allagri177<-curagri
+    allagri<-curagri
+    allagri$option[allagri$category%in%allcattle]<-""
+    
     
     alldata<-rbind(alldata,allagri)
     alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
@@ -94,6 +108,7 @@ if(stepsdone==2){
     #eu28sum$notation[eu28sum$notation==0]<-""
     #calceu<-rbind(alldata,eu28sum)
     print("Calculate EU-sums")
+    calceu[,years]<-apply(calceu[,years],2,function(x) as.numeric(x))
     calceu<-eu28sums(calceu,"EUC")
     eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EUC",]
     agrisummeas<-measures2sum[grepl("^3",measures2sum$sector_number),]
@@ -136,8 +151,9 @@ if(stepsdone==2){
     ok2<-ademoutl$party=="DK"&ademoutl$source=="Digesters"
     ok3<-ademoutl$party=="NL"&ademoutl$option=="Option B"
     ok4<-ademoutl$party=="RO"&grepl("^3.F.",ademoutl$sector_number)
+    ok6<-ademoutl$party=="ES"&grepl("^3.F.",ademoutl$sector_number) #20170127 burning of agricultural residues, no area burnt is reported (NA) but some biomass available (table 3.F, column C) from soybean and other non-specified. Reported emissions are NO.
     ok5<-ademoutl$party=="SE"&grepl("^3.*8$",ademoutl$sector_number)
-    ademoutl<-ademoutl[!(ok1 | ok2 | ok3 | ok4 | ok5),]
+    ademoutl<-ademoutl[!(ok1 | ok2 | ok3 | ok4 | ok5 | ok6),]
     ademoutl$correction<-0
     ademoutl<-ademoutl[order(ademoutl$party,ademoutl$sector_number),]
     if(nrow(ademoutl)>0){write.csv(ademoutl,file=paste0(invloc,"/checks/checks",cursubm,"ADEMoutliers.csv"))}
@@ -186,22 +202,20 @@ if(stepsdone>2){
             runfocus<-"value"
             datasource<-"nir"
             alldata$autocorr<-NA
+            alldata$correction<-1
             
-            #Temporary correction!!!!
-            #sel<-alldata$sector_number=="3.B.2.1"&alldata$category=="Dairy Cattle"&alldata$party=="CZ"&alldata$unit=="kt N/year"
-            #alldata[sel,"2000"]<-alldata[sel,"2000"]/2000
-            #sel<-allagri$sector_number=="3.B.2.1"&allagri$category=="Dairy Cattle"&allagri$party=="CZ"&allagri$unit=="kt N/year"
-            #allagri[sel,"2000"]<-allagri[sel,"2000"]/2000
+            #Do temporary corrections for observations
             
             temp<-generateplotdata(rundata = rundata,datasource = datasource,subcountries = "EUC")
             plotdata<-temp[[1]]
             plotmeas<-temp[[2]]
             adddefault<-temp[[3]]
             sharesexist<-temp[[4]]
+            source("corr20170127.r")
             
             x1<-1;x2<-nrow(plotmeas)
             x1<-368;x2<-nrow(plotmeas)
-            x1<-1;x2<-2
+            x1<-1;x2<-20
             for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
             plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
             write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
@@ -246,7 +260,7 @@ if(stepsdone==3){
     totaluid<-unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs"])
     totalval<-alltotals[alltotals$classification=="Total (with LULUCF  with indirect)",]
     totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE)
-    agrishares<-unique(agriemissions[,allfields[!allfields%in%c("party",years)]])
+    agrishares<-unique(agriemissions[,allfields[!allfields%in%c("party",years,"notation")]])
     shareuids<-unique(agrishares$variableUID)
     if(nrow(agrishares)!=length(shareuids)){stop("number of uids inconsistent with data frame agrishares")}
     tmp<-Reduce(rbind,lapply(c(1:length(shareuids)),function(x) 

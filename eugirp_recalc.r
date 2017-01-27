@@ -4,8 +4,8 @@ locplots<-"c:/adrian/data/inventories/ghg/unfccc/eealocatorplots"           #!!!
 setwd(locplots)
 figdate<-format(Sys.time(), "%Y%m%d")
 invyear<-2016
-invloc<-paste0("../",invyear)                                               #!!!
-issuedir<-paste0(invloc,"/checks/")
+eealocdir<-paste0("../",invyear,"/eealocator")                                               #!!!
+issuedir<-paste0("x:/Adrian/google/projects/ec/checks/")
 lastkeyfile<-"keycategories~20151012.csv"
 lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
 years2keep<-c(1990:2014)
@@ -13,7 +13,7 @@ years2keep<-c(1990:2014)
 newsubm<-"20160420"
 oldsubm<-"20160322"
 
-load(file=paste0(invloc,"/eealocator/eealocator_recalc.RData"))
+load(file=paste0("../",invyear,"/eealocator/eealocator_recalc.RData"))
 updrec<-1
 
 if(updrec==1){
@@ -22,8 +22,8 @@ if(updrec==1){
     assign(paste0("alltotals",newsubm),alltotals)
     assign(paste0("agridet",newsubm),agridet)
     saverecalc<-c(saverecalc,paste0("allagri",newsubm),paste0("alltotals",newsubm),paste0("agridet",newsubm))
-    save(list=saverecalc,file=paste0(invloc,"/eealocator/eealocator_recalc~",figdate,".RData"))
-    save(list=saverecalc,file=paste0(invloc,"/eealocator/eealocator_recalc.RData"))
+    save(list=saverecalc,file=paste0(eealocdir,"/eealocator_recalc~",figdate,".RData"))
+    save(list=saverecalc,file=paste0(eealocdir,"/eealocator_recalc.RData"))
 }
 source("eugirp_functions.r")
 source("eugirp_definitions.r")

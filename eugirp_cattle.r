@@ -57,6 +57,8 @@ for(cat in allcattle){
 cattleuid<-cattleuid[order(cattleuid$sector_number,cattleuid$category),]
 
 
+
+
 sdairy<-curagri$category%in%alldairy[!alldairy%in%"Dairy Cattle"]
 dairy<-curagri[sdairy & ssummable,]
 aggfields<-dairy[,allfields[!allfields%in%c("category",years,"variableUID")]]

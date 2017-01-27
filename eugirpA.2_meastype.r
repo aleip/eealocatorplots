@@ -84,6 +84,11 @@ if(nrow(measures)==length(measures$variableUID)){print("No duplicate UIDs")}else
     }
 }
 
+for(tosp in c("target","source","option","type")){
+    no2emtpy<-paste("no",tosp)
+    alldata[alldata[,tosp]==no2emtpy,tosp]<-""
+}
+
 
 #al20150809 - cleanCattle not really needed any more .... it is contained in Option
 #allagri<-alldata[grepl("^3",alldata$sector_number),allfields]

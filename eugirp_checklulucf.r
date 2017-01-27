@@ -39,7 +39,7 @@ nratioflag<-nratio[,years]>0.1
 
 
 # Check 2: Area of organic soils
-# Issue: part of grasslandin LULUCF could be NOT cultivated
+# Issue: part of grassland in LULUCF could be NOT cultivated
 #        thus the sum of orgsoilincropland+orsoilingrassland >= orgsoilinagri
 # Check: flag if sum is ==, >, or <
 orgsoilincropland<-(alldata[alldata$sector_number=="4.B"&alldata$measure=="Area of organic soil",])

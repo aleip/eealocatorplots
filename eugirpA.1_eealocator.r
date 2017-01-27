@@ -17,6 +17,7 @@ if(generatealldata==1){
     select<-alldata$year %in% years2keep
     alldata<-alldata[select,]
     years<-as.character(unique(alldata$year))
+    years<-sort(years)
     
     # Store method descriptions in different data frame - delete from alldata ####  
     print("Store allmethods")
@@ -68,6 +69,8 @@ if(generatealldata==1){
     #startt<-Sys.time()
     cols2leave<-paste(names(alldata)[!names(alldata)%in%c("year","value")],collapse="+")
     arrange<-as.formula(paste(cols2leave,"~ year"))
+    
+    #todo!! Convert values immediately to numeric maybe before in the 'value' column
     alldata<-dcast(alldata,arrange,value.var="value")
     #finished<-Sys.time()
     #print(finished-startt)
@@ -89,7 +92,7 @@ if(generatealldata==1){
     # Save alldata for later re-use incase of allem or all3 ####
     print("Save alldata")
     stepsdone<-1
-    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods")
+    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods","alldatanosector")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
     save(measures,parties,years,notations,classifications,categories,sources,methods,

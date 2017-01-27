@@ -109,7 +109,6 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     # mode=2: returns UIDs if #ist 1
     
     # Note all info a re set to default "*" which means that all are selected
-    #      only those which are of interest need to be given and only if different
     selc<-c("sec","cat","met","cla","sou","tar","opt","msr","mea","gas")
     selv<-c(sec,cat,met,cla,sou,tar,opt,msr,mea,gas)
     sel<-"";for(i in c(1:length(selv))) {g<-paste0(selc[i],"<-'",selv[i],"'");sel<-paste(sel,g,sep=";")}
@@ -232,10 +231,12 @@ sumovercountries<-function(D,uid,y,c){
 }
 
 eu28sums<-function(A,aeu=eu){
+    A[,years]<-apply(A[,years],2,function(x) as.numeric(x))
     agrimeas<-unique(subset(A,select=allfields[!allfields %in% c("notation","party",years,"option")]))
     agri2sum<-agrimeas[agrimeas$meastype %in% meas2sum,]
     removeeu28<-A$meastype %in% meas2sum & A$party%in%c("EU28",aeu,excludeparty)
     A<-A[!removeeu28,]
+    A<-A[,allfields]
     
     for(i in 1:length(aeu)){
         print(paste0("Calculate sum for ",aeu[i]))
@@ -245,11 +246,20 @@ eu28sums<-function(A,aeu=eu){
         eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
         acountry<-as.character(country4sub[country4sub[,aeu[i]]==1,"code2"])
         acountry<-acountry[!acountry%in%eu]
-        print(acountry)
-        eu28sum[,years]<-euvalue("sum",eu28sum,A,years,acountry)
-        eu28sum[,"party"]<-rep(aeu[i],nrow(eu28sum))
-        eu28sum$notation[eu28sum$notation==0]<-""
-        eu28sum$option[eu28sum$option==0]<-""
+        # remove unwanted countries
+        B<-A[A$party%in%acountry,]
+        # calculate the sum over remaining countries
+        C<-B[,c(years,"variableUID")]
+        D<-aggregate(C[,years],by=list(C$variableUID),sum,na.rm=TRUE)
+        # get other columns back
+        E<-unique(B[,names(B[!names(B)%in%c(years,"party","notation")])])
+        eu28sum<-merge(E,D,by.x="variableUID",by.y="Group.1")
+        eu28sum$notation<-"eugirp"
+        eu28sum$party<-aeu[i]
+        
+        # sort to standard
+        eu28sum<-eu28sum[,allfields]
+
         A<-rbind(A,eu28sum)
     
     }
@@ -1172,8 +1182,9 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     }
 
     dmt<-as.vector(apply(dfm[,3:ncol(dfm)],2,sum))
+    
     dfms<-rbind(sapply(1:nrow(dfm),function(x) dfm[x,3:ncol(dfm)]/dmt))
-    row.names(dfms)<-dfc
+    row.names(dfms)<-colnames(dfm[3:ncol(dfm)])
     #View(dfms)
     
     figname<-paste0(plotsdir,"/",cursubm,"emissionshare_",sec,".",plotformat,collapse=NULL)

@@ -47,19 +47,19 @@ eugirp.version<-"2.1" #20160531
 eugirp.version<-"2.2" #20160820
 # Define current submission.
 cursubm <- "20151030"                                                       #!!!
-invyear<-2015
 cursubm <- "20160202"                                                       #!!!
 cursubm <- "20160322"                                                       #!!!
 cursubm <- "20160420"                                                       #!!!
 cursubm <- "20160810"                                                       #!!!
-invyear<-2016
+cursubm <- "20170123"                                                       #!!!
+invyear<-2017
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
-invloc<-paste0("../",invyear)                                               #!!!
-csvfil <- paste0(invloc,"/eealocator/eealocator_",cursubm)                  #!!!
+invloc<-paste0(adrian,"google/projects/ecir",invyear)                                               #!!!
+csvfil <- paste0("../",invyear,"/eealocator/eealocator_",cursubm)                  #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)
-years2keep<-c(1990:2014)
+years2keep<-c(1990:(invyear-2))
 signyear<-years2keep[length(years2keep)]
 signclass<-"Total (with LULUCF  with indirect)"
 
@@ -73,6 +73,7 @@ rdatmeasu <- paste0(csvfil,"_measures.RData")
 rdatmeta <- paste0(csvfil,"_metadata.RData")
 rdatagri <- paste0(csvfil,"_agri.RData")
 lastkeyfile<-"keycategories~20151012.csv"
+lastkeyfile<-"keycategories~20160606.csv"
 lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
 excludeparty<-NULL
 eusubm<-"EUC"
@@ -81,7 +82,7 @@ eusubm<-"EUC"
 # --> number of countries which are listed in the legend
 doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
-plotresolution<-250   #Needed for png and jpg (200 is low, 600 high)        #!!!
+plotresolution<-400   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""
 restrictcategory<-""
 topn<-10

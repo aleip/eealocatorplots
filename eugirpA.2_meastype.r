@@ -84,7 +84,7 @@ if(nrow(measures)==length(measures$variableUID)){print("No duplicate UIDs")}else
     }
 }
 
-for(tosp in c("target","source","option","type")){
+for(tosp in c("target","source","option","type","method")){
     no2emtpy<-paste("no",tosp)
     alldata[alldata[,tosp]==no2emtpy,tosp]<-""
 }

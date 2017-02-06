@@ -15,7 +15,7 @@ resolved<-c("explanation","expldate","explsource","resolved","comment","followup
 testfields<-c("significant","effect","relmedian","lastyr","share","note")
 ipccfields<-c(c("min2006","max2006","ref2006"),c("min1997","max1997","ref1997"))
 outlierfields<-c("llim","ulim","min","mean","p25","median","p75","max")
-docflags<-paste0("# Flags: 0: new issue; o1: open issue action EU; o2: open issue action MS; o3: open pending (to be checked); cn: closed no issue; cs: closed solved; cu: closed unsolved - new issue opened")
+docflags<-paste0("# Flags: 0: new issue; o1: open issue action EU; o2: open issue action MS; o3: open pending (to be checked); cn: closed no issue; cs: closed solved; cu: closed unsolved - new issue opened; csr: closed solved - repopened for TERT recommendation")
 #allfields: all fields including year and party, 
 #           brought to an order 
 allfields<-c(uniquefields[!uniquefields%in%c("measure","variableUID")],"measure","party",years2keep,"variableUID")

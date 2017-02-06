@@ -55,12 +55,12 @@ convert2num<-function(DF,cols=NULL){
         }
     return(DF)
 }
-filldf<-function(DF,cols=allcheckfields){
+filldf<-function(DF,cols=allcheckfields,fillwith=0){
     
     missing<-cols[!cols%in%names(DF)]
     nmissing<-length(missing)
     
-    test0<-matrix(rep(0,nrow(DF)*nmissing),ncol=nmissing,nrow=nrow(DF))
+    test0<-matrix(rep(fillwith,nrow(DF)*nmissing),ncol=nmissing,nrow=nrow(DF))
     test0<-as.data.frame(test0)
     names(test0)<-missing
     DF<-cbind(DF,test0)
@@ -157,9 +157,11 @@ brief<-function(text){
 
 linkto<-function(text){text<-paste0("=HYPERLINK(\"",text,"\")")}
 
-calculateshares<-function(uid,curval,totalval){
+calculateshares<-function(x,uid,curval,totalval){
     # Calculate the share of a time series (curval) for all MS against a give total (totalval)
+    #print(x)
     val<-extractuiddata(DF = curval,uid = uid,c = allcountries,narm = FALSE)
+    val<-apply(val,2,function(x) as.numeric(x))
     res<-val/totalval
     res<-as.data.frame(res)
     res$party<-allcountries
@@ -563,7 +565,21 @@ convertyear<-function(yrs){
     }
     return(yremrt)
 }
-
+checkforyear<-function(yrstring,yr){
+    if(yrstring=="all"){
+        yremrt<-TRUE
+    }else if(grepl("except",yrstring)){
+        yremrt<-as.numeric(unlist(strsplit(gsub("all except: ","",yrstring)," ")[[1]]))
+        yremrt<-!yr%in%yremrt
+    }else{
+        
+        yremrt<-as.numeric(unlist(strsplit(yrstring," ")[[1]]))
+        yremrt<-yr%in%yremrt
+        #cat(yrstring,yremrt,yr,"\n")
+    }
+    return(yremrt)
+    
+}
 
 simplifytestmatrix<-function(check,group,compare=0){
     # group: column which will be grouped.
@@ -648,6 +664,38 @@ add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",m
         #print("exists")
     }
     return(list(curdata,addr))
+}
+
+remagglevel<-function(T,mt=NULL){
+    
+    # Checks sector_numbers flags those rows for which 
+    # the sector number exists at a more detailed level.
+    # E.g. 3.A.1 will be flagged 'FALSE' if there is an entry with 3.A.1.1 
+    
+    # Requirement: the data frame has a columns with the name 'sector_number'
+    # 1. Calculate length of sector_number string
+    o1<-sapply(1:nrow(T),function(x) nchar(as.character(T$sector_number[x])))
+    # 2. Select all lines which have the same sector number (or a sub-category)
+    o2<-sapply(1:nrow(T),function(x) which(grepl(as.character(T$sector_number[x]),as.character(T$sector_number))))
+    #o2mt<-sapply(1:nrow(T),function(x) which(T$meastype[x]==T$meastype))
+    tmp<-function(x){
+        tmpx<-grepl(as.character(T$sector_number[x]),as.character(T$sector_number)) & !grepl("3.B.2.5",T$sector_number[x])
+        #print(tmpx)
+        tmpy<-T$meastype[x]==T$meastype
+        #print(tmpy)
+        tmpz<-tmpx & tmpy
+        #print(tmpz)
+        tmpr<-which(tmpz)
+        if(is.null(tmpr))tmpr<-999
+        #print(tmpr)
+        return(tmpr)
+    }
+    if(!is.null(mt)) o2<-sapply(1:nrow(T),function(x) tmp(x))
+    #if(!is.null(mt)) o2<-sapply(1:10,function(x) tmp(x))
+    # 3. Check if the sector_number is an aggregate of any other 
+    o3<-sapply(1:nrow(T),function(x) sum(o1[x]<o1[o2[[x]]]))
+    o4<-!o3
+    return(o4)
 }
 
 ispotentialissue<-function(line,S,signyear,signthreshold){
@@ -757,6 +805,26 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
     }
     return(list(significant,effect,relmedian,lastyr,share,note))
 }
+
+keycategories<-function(){
+    keycategories<-read.csv(paste0(issuedir,"../keycategories/EUkeycategoryanalysis_variables_JRC.csv"),stringsAsFactors = FALSE)
+    keycategories<-keycategories$variable_UID
+    potkeycategories<-alldata[alldata$variableUID%in%keycategories,]
+    gasf<-sapply(1:nrow(potkeycategories),function(x) gwps[which(gases==potkeycategories$gas[x])])
+    potkeycategories[,lastyear]<-as.numeric(potkeycategories[,lastyear])*gasf
+    
+    cols2leave<-paste(names(potkeycategories)[!names(potkeycategories)%in%c(years,"party")],collapse="+")
+    arrange<-as.formula(paste(cols2leave,"~ party"))
+    #countries in the list
+    cindf<-names(potkeycategories)[names(potkeycategories)%in%countries2]
+    potkeycategories<-dcast(potkeycategories,arrange,value.var=lastyear)
+    potkeycategories$EUC<-apply(potkeycategories[,cindf],1,sum,na.rm=TRUE)
+    
+    rankcategories<-function(){
+        
+    }
+    
+}
 checkhierarchy<-function(D,sec,dig){
     #Attention - unfinished .. should be part of keysource analysis
     Dsub1<-D[grepl(paste0("^",sec),D$sector_number)&D$digit==dig,]
@@ -791,6 +859,40 @@ loadipccdefaults<-function(D,xfr,xto,insert=NULL){
     }
     
     return(D)
+}
+
+ipccdefaultexists<-function(EMI){
+    # EMI data frame with emissions
+    
+    ufields<-c(measfields,sectfields,metafields,"variableUID")
+    allem<-unique(allagri[allagri$measure=="Emissions",ufields])
+    allief<-unique(allagri[allagri$meastype=="IEF",ufields])
+    
+    mergefields<-ufields[!ufields%in%c("measure","meastype","unit","variableUID")]
+    allem<-as.data.frame(apply(allem,2,function(x) as.character(x)))
+    allief<-as.data.frame(apply(allief,2,function(x) as.character(x)))
+    allemief<-merge(allem,allief,by=mergefields)
+    allemief$uidEM<-allemief$variableUID.x
+    allemief$uidIEF<-allemief$variableUID.y
+    allemief<-allemief[,c("uidEM","uidIEF")]
+    
+    ipccdefaults<-read.csv(file="ipcc_defaults.csv")
+    ipccdefaults<-ipccdefaults[ipccdefaults$variableUID%in%allemief$uidIEF,]
+    ipccdefaults<-ipccdefaults[ipccdefaults$IPCC2006!=""|ipccdefaults$IPCC1997!="",]
+    ipccdefaults<-ipccdefaults[,c("variableUID","IPCC2006","IPCC1997")]
+    
+    # Condense defaults if there are multiple
+    ipccdefaults<-aggregate(ipccdefaults[,c("IPCC2006","IPCC1997")],by=list(ipccdefaults$variableUID),function(x) paste(x,collapse="-"))
+    names(ipccdefaults)[1]<-"variableUID"
+    ipccdefaults$IPCC2006[nchar(ipccdefaults$IPCC2006)>15]<-"multiple"
+    ipccdefaults$IPCC1997[nchar(ipccdefaults$IPCC1997)>15]<-"multiple"
+    
+    ipccdefaults<-merge(allemief,ipccdefaults,by.y="variableUID",by.x="uidIEF")
+    
+    xx<-merge(ipccdefaults,EMI,by.y="variableUID",by.x="uidEM",all.y=TRUE)
+    names(xx)[which(names(xx)=="uidEM")]<-"variableUID"
+    #xx[is.na(xx)]<-""
+    return(xx)
 }
 
 multidefaults<-function(D,keep,ignore){

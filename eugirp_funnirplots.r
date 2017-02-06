@@ -261,6 +261,7 @@ gettdis<-function(tmin,tmax,tmag){
 
 prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
     
+    #print("prepareplot")
     curuid<-plotmeas$variableUID[imeas]
     #runfoc<-paste0(runfoc,)
     runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
@@ -321,6 +322,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     for(dsource in multisource){
         isource<-which(dsource==multisource)
         #print(paste0("isource=",isource,dsource,"-",paste(multisource,collapse=",")))
+        #save(list=objects(),file="temp.rdata")
         plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
         # The first time this runs autocorr column is all NA -- no checks yet made
         autocorr<-acountryminus[acountryminus%in%plotdatacur$party[!is.na(plotdatacur$autocorr)]]
@@ -343,6 +345,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
             #    plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur[!plotdatacur$party %in% eucountries,],uid = curuid,c = countries,narm = FALSE))
             #    eu28<-colSums(extractuiddata(DF = plotdatacur[plotdatacur$party=="EU28",],uid = curuid,c = countries,narm = FALSE),na.rm=TRUE)
             #}else if(grepl("ief",rundata)){
+            save(plotdatacur,curuid,acountry,file="temp.rdata")
             plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
             eu28<-plotmatr[nrow(plotmatr),]
             plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
@@ -383,18 +386,21 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     # This is different from trend-plots!!!
                     rel<-abs(plotmatr[,years])
                     
-                    # Relative value in country compared to EU value averaged over all years
+                    #print("# Relative value in country compared to EU value averaged over all years")
                     relav<-rowMeans(rel,na.rm=TRUE)
                     relav[is.nan(relav)]<-NA
                     
                     relavx<-relav[!is.na(relav)]
                     relavx<-relavx[!relavx==0]
                     
+                    #print("plotmatr1")
+                    save(rel,eu,acountry,plotmatr,file="rel.rdata")
                     plotmatr$party<-acountry[!acountry%in%eu]
+                    #print("plotmatr2")
                     topn<-min(10,length(relavx))
                     topno<-max(0,length(relavx)-topn)
                     
-                    # Select the top countries with highest mean value over all years
+                    #print("# Select the top countries with highest mean value over all years")
                     topneu28<-row.names(as.matrix(head(relavx[order(relavx,decreasing=T,na.last=T)],topn)))
                     topother<-row.names(as.matrix(tail(relavx[order(relavx,decreasing=T,na.last=T)],topno)))
                     
@@ -411,7 +417,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     
                     finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
                     #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
-                    # General determination of the last available year
+                    #print("# General determination of the last available year")
                     lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
                     finshares<-eu28fin[,years[lastyear]]/as.matrix(eu28[years[lastyear]])*100
                     ###Necessary addition as long as capri only has values up to 2010 
@@ -856,7 +862,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
 }
 
 plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted){
-    #print(par("usr"))
+    #print(paste("plotlegend. ",par("usr")))
     uabs<-par("usr")[3]
     oabs<-par("usr")[4]
     xstt<-par()$omd[1]

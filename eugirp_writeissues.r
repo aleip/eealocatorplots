@@ -520,7 +520,9 @@ writecorrection<-function(v,P,mult,name){
         observation<-paste0(observation," Question: please provide justification for the values used or otherwise correct the values used.")
         observation<-paste0(observation," Suggested corrected values and concerned source categories are found below.")
         filnam<-paste0("corrections_",name,"_",c,".csv")
-        filnamt<-paste0(issuedir,"autocorrections/",filnam)
+        filfol<-paste0(issuedir,"autocorrections")
+        filnamt<-paste0(filfol,"/",filnam)
+        if (! file.exists(filfol)){dir.create(file.path(filfol))}
         con <- file(filnamt, open="wt")
         writeLines(paste0("# Observation: ",observation),con)
         writeLines("# Data before correction\n#",con)

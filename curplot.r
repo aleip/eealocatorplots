@@ -55,13 +55,17 @@ cursubm <- "20170123"                                                       #!!!
 invyear<-2017
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
-invloc<-paste0(adrian,"google/projects/ecir",invyear)                                               #!!!
+invloc<-paste0(adrian,"google/projects/ecir")                                               #!!!
 csvfil <- paste0("../",invyear,"/eealocator/eealocator_",cursubm)                  #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)
 years2keep<-c(1990:(invyear-2))
 signyear<-years2keep[length(years2keep)]
 signclass<-"Total (with LULUCF  with indirect)"
+signclass<-"Sectors/Totals"
+signtype<-"Total (with LULUCF)"
+signtype<-"Total (without LULUCF)"
+if(signclass=="Total (with LULUCF  with indirect)") signtype<-""
 
 figdate<-format(Sys.time(), "%Y%m%d")
 issuedir<-paste0(invloc,"/checks/")
@@ -80,7 +84,7 @@ eusubm<-"EUC"
 
 # Settings for plots
 # --> number of countries which are listed in the legend
-doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
+doemissionplots<-TRUE #TRUE/FALSE                                           #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
 plotresolution<-400   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""

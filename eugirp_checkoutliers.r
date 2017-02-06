@@ -135,10 +135,10 @@ outlierintimeseries<-function(paramcheckfew,x,conv=0){
 
 # Calculate statistical moments (call functions) ####
 newcols<-c("min","p25","median","p75","max")
-if (! file.exists("../2016/checks/timeseries")){dir.create(file.path("../2016/checks/timeseries/"))}
-if (! file.exists("../2016/checks/timeseries/checks")){dir.create(file.path("../2016/checks/timeseries/checks/"))}
-if (! file.exists("../2016/checks/countryoutliers")){dir.create(file.path("../2016/checks/countryoutliers/"))}
-if (! file.exists("../2016/checks/countryoutliers/checks")){dir.create(file.path("../2016/checks/countryoutliers/checks/"))}
+crdir<-paste0(issuedir,"timeseries");if (! file.exists(crdir)){dir.create(file.path(crdir))}
+crdir<-paste0(issuedir,"timeseries/checks");if (! file.exists(crdir)){dir.create(file.path(crdir))}
+crdir<-paste0(issuedir,"countryoutliers");if (! file.exists(crdir)){dir.create(file.path(crdir))}
+crdir<-paste0(issuedir,"countryoutliers/checks");if (! file.exists(crdir)){dir.create(file.path(crdir))}
 
 
 # Calculate outliers (method) ####

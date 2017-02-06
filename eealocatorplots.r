@@ -57,7 +57,7 @@ if(stepsdone==1){
     selection<-selection | grepl("^3",alldata$sector_number)
     allagri<-alldata[selection,allfields]
     alldata<-alldata[!selection,allfields]
-    
+    save(allagri,file="tmpallagri60.rdata")
     #stop("Plause")
     source("eugirp_otherlivestock.r")
     # Calculate parameter for parent category 'swine' and 'sheep ####
@@ -201,21 +201,21 @@ if(stepsdone>2){
             rundata<-"adem"
             runfocus<-"value"
             datasource<-"nir"
-            alldata$autocorr<-NA
-            alldata$correction<-1
             
             #Do temporary corrections for observations
             
             temp<-generateplotdata(rundata = rundata,datasource = datasource,subcountries = "EUC")
             plotdata<-temp[[1]]
+            plotdata$autocorr<-NA
+            plotdata$correction<-1
             plotmeas<-temp[[2]]
             adddefault<-temp[[3]]
             sharesexist<-temp[[4]]
             source("corr20170127.r")
             
-            x1<-1;x2<-nrow(plotmeas)
             x1<-368;x2<-nrow(plotmeas)
-            x1<-1;x2<-20
+            x1<-154;x2<-nrow(plotmeas)
+            x1<-1;x2<-154
             for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
             plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
             write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
@@ -257,18 +257,20 @@ if(stepsdone==3){
     agriemissions<-unique(agriemissions)
     
     # Agrishares as agriemissions relative to total emissions ####
-    totaluid<-unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs"])
-    totalval<-alltotals[alltotals$classification=="Total (with LULUCF  with indirect)",]
+    totaluid<-as.vector(unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$type==signtype&alltotals$gas=="Aggregate GHGs"]))
+    totalval<-alltotals[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs",]
     totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE)
+    totalval<-apply(totalval,2,function(x) as.numeric(x))
     agrishares<-unique(agriemissions[,allfields[!allfields%in%c("party",years,"notation")]])
     shareuids<-unique(agrishares$variableUID)
     if(nrow(agrishares)!=length(shareuids)){stop("number of uids inconsistent with data frame agrishares")}
     tmp<-Reduce(rbind,lapply(c(1:length(shareuids)),function(x) 
-        calculateshares(shareuids[x],agriemissions,totalval)))
+        calculateshares(x,shareuids[x],agriemissions,totalval)))
     
     selection<-is.na(apply(tmp[,years],1,sum,rm.na=TRUE)) | apply(tmp[,years],1,sum,rm.na=TRUE)==0
     tmp<-tmp[!selection,]
     agrishares<-merge(agrishares,tmp,by=c("variableUID"))
+    agrishares$notation<-""
     agrishares<-agrishares[order(agrishares$sector_number,agrishares$category,agrishares$party),allfields]
     
     # Signnificant categories on the basis of the share threshold criterium only ####
@@ -282,6 +284,8 @@ if(stepsdone==3){
     shiftfields<-c(metafields,"meastype","unit","measure","notation")
     sigfield<-c(allfields[!allfields%in%c(years,"variableUID",shiftfields)],"potsig",signyear,"maxshare","variableUID",shiftfields)
     signcategories<-signcategories[order(signcategories$sector_number,signcategories$category),sigfield]
+    
+    if (! file.exists(paste0(invloc,"/checks/significant/"))){dir.create(file.path(paste0(invloc,"/checks/significant")),showWarnings = FALSE )}
     fileunder<-paste0(invloc,"/checks/significant/signcategories~",figdate,".csv")
     
     con<-file(fileunder,open = "wt")
@@ -363,7 +367,7 @@ if(stepsdone==4){
     #save(checksteps,file="checksteps.RData")
     
     stepsdone<-5
-    savelist<-c(savelist,"agrimeas","param","growth","autocorrections")
+    savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     source("curplot.r")
@@ -372,7 +376,7 @@ if(stepsdone==4){
 }
 
 
-#stop("step 5 done")
+stop("step 5 done")
 # A.3 Check for outlier errors and calculate EU weighted averages ####
 if(stepsdone==5){
     
@@ -380,24 +384,19 @@ if(stepsdone==5){
     print(paste0("Step ",stepsdone+1,"a: Check for outlier errors on parameters"))
     outcheck<-"param"
     source("eugirp_checkoutliers.r")
-    source("eugirp_ipccdefaults.r")
+    #source("eugirp_ipccdefaults.r")
     print(paste0("Step ",stepsdone+1,"b: Check for outlier errors on growth"))
+    
     outcheck<-"growth"
     nyears<-length(years)
-    
-    #allcurve not very relevant
-    #period1<-as.character(yearsnum[1]:yearsnum[nyears-1])
-    #period2<-as.character(yearsnum[2]:yearsnum[nyears])
-    #allcurve<-as.data.frame(matrix(0,rep(0,ncol(alltrend)),ncol=ncol(alltrend)))
-    #allcurve<-alltrend[alltrend$meastype %in% meas2sum,]
-    #allcurve[,period2]<-alltrend[alltrend$meastype %in% meas2sum,period2]-alltrend[alltrend$meastype %in% meas2sum,period1]
-    #allcurve[,years[1]]<-NA
-    #allgcurve<-allgrowth
-    #allgcurve[,period2]<-allgrowth[,period2]/allgrowth[,period1]
     source("eugirp_checkoutliers.r")
     # Add the gas to each measure so see what the corresponding emissions are
     levels(paramcheck$gas)<-factor(signcategories$gas)
-
+    paramcheck<-paramcheck[!paramcheck$party%in%eu,]
+    paramcheck<-paramcheck[remagglevel(paramcheck,mt = 1),]
+    growthcheck<-growthcheck[!growthcheck$party%in%eu,]
+    growthcheck<-growthcheck[remagglevel(growthcheck,mt = 1),]
+    
     # Ispotentialissue:
     # Method: (a) Significant issue only if the last year is included in the list of outliers
     #         (b) Checks if the difference to using the median reported value is significant
@@ -423,7 +422,7 @@ if(stepsdone==5){
     paramcheck$plot<-
         paste0("=HYPERLINK(\"",
                gsub(" ","",
-                    gsub(invyear,"..",unlist(lapply(c(1:nrow(paramcheck)),function(x) 
+                    gsub(plotsdir,"../plots/",unlist(lapply(c(1:nrow(paramcheck)),function(x) 
                         plotname("",plotsdir,issuedir,"*",paramcheck[x,sectfields],paramcheck[x,metafields],paramcheck[x,measfields],
                                  runfoc="1VAL",figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
                "\",\"Link to plot\")")
@@ -432,7 +431,7 @@ if(stepsdone==5){
     growthcheck$plot<-
         paste0("=HYPERLINK(\"",
                gsub(" ","",
-                    gsub(invyear,"..",unlist(lapply(c(1:nrow(growthcheck)),function(x) 
+                    gsub(plotsdir,"../plots/",unlist(lapply(c(1:nrow(growthcheck)),function(x) 
                         plotname("",plotsdir,issuedir,"*",growthcheck[x,sectfields],growthcheck[x,metafields],growthcheck[x,measfields],
                                  runfoc="1VAL",figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
                "\",\"Link to plot\")")

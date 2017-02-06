@@ -1,6 +1,10 @@
 # Next line converts values to numeric - should already be done during dcase in eugirpA.1_eealocator.r
 allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 
+#Slovakia: remove Other.swine.sine
+sel<-allagri$party=="SK"&allagri$category=="Other Swine.swine"
+allagri<-allagri[!sel,]
+
 #Remove end-blank in sector_number
 selection<-grepl(" $",allagri$sector_number)
 allagri$sector_number[selection]<-gsub(" $","",allagri$sector_number[selection])

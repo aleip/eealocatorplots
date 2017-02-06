@@ -3,7 +3,7 @@
 #vignette('RSelenium-basics')
 
 options(warnings=0)
-RSelenium::startServer()
+RSelenium::startServer(dir = "RSelenium",log = FALSE)
 require(RSelenium)
 
 ### LOGIN ####
@@ -45,7 +45,9 @@ logingema<-function(remDr,issue=""){
 
 emrt<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
+    #startServer(args = c("-Dwebdriver.chrome.driver=RSelenium/chromedriver.exe"), dir = "RSelenium", log = FALSE, invisible = FALSE)
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
+    #remDr<-remoteDriver(browserName = "chrome")
     remDr$open()
     loginemrt(remDr)
     return(remDr)
@@ -819,6 +821,14 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
 }
 
 # FIRST LEVEL FUNCTIONS ####
+# First Checks - select issues to be approved, approve and send to MS
+approveandsendissues<-function(revyear=2017,focus="",details=0){
+    remDr<-emrt()
+    filter<-"workflow"
+    
+}
+
+
 selectissuesandwritedetails<-function(revyear=2016,focus="",details=0){
     remDr<-emrt()
     filter<-"workflow"
@@ -1067,8 +1077,8 @@ resolvedissues<-function(){
 
 
 
-curyear<-"2016"
-revyear<-"2016"
+curyear<-"2017"
+revyear<-"2017"
 urlemrttest <- paste0("https://emrt.eea.europa.eu/test/")
 urlemrt <- paste0("https://emrt.eea.europa.eu/")
 

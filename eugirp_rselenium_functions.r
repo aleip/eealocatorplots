@@ -5,6 +5,10 @@
 options(warnings=0)
 RSelenium::startServer(dir = "RSelenium",log = FALSE)
 require(RSelenium)
+#rsDriver(port = 4567L, browser = "chrome", version = "latest", chromever = "latest",
+#         geckover = "latest", iedrver = NULL, phantomver = "2.1.1",
+#         verbose = TRUE, check = TRUE)
+
 
 ### LOGIN ####
 loginemrt<-function(remDr,issue=""){
@@ -46,8 +50,13 @@ logingema<-function(remDr,issue=""){
 emrt<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
     #startServer(args = c("-Dwebdriver.chrome.driver=RSelenium/chromedriver.exe"), dir = "RSelenium", log = FALSE, invisible = FALSE)
-    remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
+    
+    #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     #remDr<-remoteDriver(browserName = "chrome")
+    
+    # New
+    rD<-rsDriver(port = 4444L, browser = "firefox",verbose = FALSE)
+    remDr<-rD$client
     remDr$open()
     loginemrt(remDr)
     return(remDr)

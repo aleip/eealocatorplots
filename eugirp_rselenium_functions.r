@@ -51,7 +51,7 @@ emrt<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
     #startServer(args = c("-Dwebdriver.chrome.driver=RSelenium/chromedriver.exe"), dir = "RSelenium", log = FALSE, invisible = FALSE)
     
-    #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
+    remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     #remDr<-remoteDriver(browserName = "chrome")
     
     # New

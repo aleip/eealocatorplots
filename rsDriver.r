@@ -63,3 +63,11 @@ In addition: Warning message:
   In rsDriver(port = 4567L, browser = "chrome", version = "latest",  :
                 Could not determine server status.
               
+              
+              
+installs manually the binaries
+server does not start with rsDriver, 
+but a gecko-jar could be openend manualy: console opens saying the port and that it is listening.
+then, rsDriver call doesnt give error and contains client and server.
+however client doesnt open
+              

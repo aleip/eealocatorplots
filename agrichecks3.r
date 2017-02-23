@@ -33,14 +33,14 @@ print("Check 7: NH3 and NOx volatilized")
 #
 #
 
-tmp0<-extractuiddata(allagri,"",allcountries)
+tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE)
 allagritab<-unique(subset(allagri,select=uniquefields))
 ccp<-c("Cattle","Swine","Poultry")
 so<-c("Sheep",otherlivestock[-match(c("Other Livestock","Poultry","Other Other Livestock"),otherlivestock)])
 for(i in c(ccp,so)){
     sel<-allagri$meastype=="TNEXC2"&grepl("^3.B.2",allagri$sector_number)& allagri$category==i
     curuid<-getuid(1,ok=1,mea="TNEXC2",sec="^3.B.2",cat=paste0("^",i,"$"))
-    tmp2<-extractuiddata(allagri,curuid,allcountries)
+    tmp2<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
     if(i=="Poultry"){manurepou<-tmp2}
     if(i%in%ccp){if(i==ccp[1]){manurecpp<-tmp2}else{manurecpp<-manurecpp+tmp2}}
     if(i%in%so){if(i==so[1]){manureso<-tmp2}else{manureso<-manureso+tmp2}}
@@ -56,7 +56,7 @@ for(i in c("Cattle","Swine","Poultry","Sheep",tmplive)){
         icheck<-which(checkuids$category==i)
         
         # Total N excretion reported per animal type and MMS
-        tmp2<-extractuiddata(allagri,checkuids[icheck,cursystem],allcountries)
+        tmp2<-extractuiddata(allagri,checkuids[icheck,cursystem],allcountries,noeu = TRUE)
         
         if(cursystem=="pasture"){
             if(i=="Poultry"){manurerprp<-tmp2}
@@ -91,17 +91,17 @@ totRPR<-manure[[1]][[2]]+manure[[2]][[2]]
 sec<-"3.D.1.3"
 cat<-"Urine and Dung Deposited by Grazing Animals"
 uid<-newuid()
-addallagriout<-add2allagri(manure[[1]][[2]]/totRPR,sec,cat,"","1","","","FracRPR_CPP","",uid,"calc N in RPR by animal types")
+addallagriout<-add2allagri(manure[[1]][[2]]/totRPR,sec,cat,"","1","","","FracRPR_CPP","",uid,"calc N in RPR by animal types",noeu=TRUE)
 allagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 uid<-newuid()
-addallagriout<-add2allagri(manure[[2]][[2]]/totRPR,sec,cat,"","1","","","FracRPR_SO","",uid,"calc N in RPR by animal types")
+addallagriout<-add2allagri(manure[[2]][[2]]/totRPR,sec,cat,"","1","","","FracRPR_SO","",uid,"calc N in RPR by animal types",noeu=TRUE)
 allagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 defIEF<-(0.02*manure[[1]][[2]]+0.01*manure[[2]][[2]])/totRPR
 defIEF[is.nan(defIEF)]<-0
 uid<-newuid()
-addallagriout<-add2allagri(defIEF,sec,cat,"","1","","","EF3_default","",uid,"calc default EF3s times FracRPR_CPP and FracRPR_SO")
+addallagriout<-add2allagri(defIEF,sec,cat,"","1","","","EF3_default","",uid,"calc default EF3s times FracRPR_CPP and FracRPR_SO",noeu=TRUE)
 allagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 
@@ -111,7 +111,7 @@ icheck<-which(checkuids$category==i)
 
 # IEF in pasture range and paddock
 curuid<-unique(allagri$variableUID[allagri$meastype=="IEF"&allagri$sector_number=="3.D.1.3"])
-d13ief<-extractuiddata(allagri,curuid,allcountries)
+d13ief<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
 check7<-checktemp
 names(check7)<-checkname
 ncheck7<-1
@@ -127,7 +127,7 @@ if(nrow(check7)>1 & check7$val[1]!=0){
     check7b<-check7
     check7$fac[is.na(check7$fac)]<-0
     check7<-simplifytestmatrix(check7,c("yr","fac","val"),list(years,"range",0))
-    check7<-simplifytestmatrix(check7,"ms",allcountries)
+    check7<-simplifytestmatrix(check7,"ms",allcountries[!allcountries%in%eu])
     check7<-check7[order(check7$ms,check7$sec,check7$yr),names(check7)]
     check7c<-Reduce(rbind,lapply(c(1:nrow(check7)),function(x) Reduce(cbind,reportchecks1(check=check7[x,checkname],data=allagri,x))))
     check7c<-as.data.frame(check7c)
@@ -137,9 +137,9 @@ if(nrow(check7)>1 & check7$val[1]!=0){
 
 # N lost in MMS as NH3+NOx or leached versus total Managed N (exception of RPR and manure burning)
 curuid<-unique(allagri$variableUID[grepl("3.B.2.5",allagri$sector_number)&allagri$meastype=="Nvol"])
-nvol<-extractuiddata(allagri,curuid,allcountries)/1000000
+nvol<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)/1000000
 curuid<-unique(allagri$variableUID[grepl("3.B.2.5",allagri$sector_number)&allagri$meastype=="Nleach"])
-nlea<-extractuiddata(allagri,curuid,allcountries)/1000000
+nlea<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)/1000000
 nloss<-nvol+nlea
 
 totmanaged<-manure[[1]][[1]]+manure[[2]][[1]] #!!! does not correspond !!!!
@@ -149,7 +149,7 @@ nlossratio<-nloss/totmanaged
 sec<-"3.B.2.5"
 cat<-"Farming"
 uid<-newuid()
-addallagriout<-add2allagri(nlossratio,sec,cat,"","1","","","Nlossratio","",uid,"calc (Nvol+Nleach)/(managed N)")
+addallagriout<-add2allagri(nlossratio,sec,cat,"","1","","","Nlossratio","",uid,"calc (Nvol+Nleach)/(managed N)",noeu=TRUE)
 allagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 
@@ -174,7 +174,7 @@ if(nrow(check8)>1 & check8$val[1]!=0){
     check8b<-check8
     check8$fac[is.na(check8$fac)]<-0
     check8<-simplifytestmatrix(check8,c("yr","fac","val"),list(years,"range",0))
-    check8<-simplifytestmatrix(check8,"ms",allcountries)
+    check8<-simplifytestmatrix(check8,"ms",allcountries[!allcountries%in%eu])
     check8<-check8[order(check8$ms,check8$sec,check8$yr),names(check8)]
     check8c<-Reduce(rbind,lapply(c(1:nrow(check8)),function(x) Reduce(cbind,reportchecks1(check=check8[x,checkname],data=allagri,x))))
     check8c<-as.data.frame(check8c)
@@ -183,12 +183,12 @@ if(nrow(check8)>1 & check8$val[1]!=0){
 }
 
 curuid<-unique(allagri$variableUID[grepl("3.D.1.2.a",allagri$sector_number)&allagri$meastype=="AD"])
-FAM<-extractuiddata(allagri,curuid,allcountries)
+FAM<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
 FAMratio<-1-FAM/totmanaged
 sec<-"3.D.1.2a"
 cat<-"Animal Manure Applied to Soils"
 uid<-newuid()
-addallagriout<-add2allagri(FAMratio,sec,cat,"","1","","","FAMratio","",uid,"calc Non-applied Manure-N)/(Managed N)")
+addallagriout<-add2allagri(FAMratio,sec,cat,"","1","","","FAMratio","",uid,"calc Non-applied Manure-N)/(Managed N)",noeu=TRUE)
 allagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 
@@ -220,7 +220,7 @@ if(nrow(check9)>1 & check9$val[1]!=0){
     check9b<-check9
     check9$fac[is.na(check9$fac)]<-0
     check9<-simplifytestmatrix(check9,c("yr","fac","val"),list(years,"range",0))
-    check9<-simplifytestmatrix(check9,"ms",allcountries)
+    check9<-simplifytestmatrix(check9,"ms",allcountries[!allcountries%in%eu])
     check9<-check9[order(check9$ms,check9$sec,check9$yr),names(check9)]
     check9c<-Reduce(rbind,lapply(c(1:nrow(check9)),function(x) Reduce(cbind,reportchecks1(check=check9[x,checkname],data=allagri,x))))
     check9c<-as.data.frame(check9c)

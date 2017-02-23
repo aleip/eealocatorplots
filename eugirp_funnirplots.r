@@ -9,10 +9,6 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     if(rundata=="adem") plotparamcheck<-0
     if(rundata=="ief") plotparamcheck<-0
     
-    #plotdata$option==0 should not occur ... remove here
-    alldata$option[alldata$option==0]<-""
-    alldata<-unique(alldata)
-    
     #Exlcudeparty is required because there are two submissions from UK: UK and GB (incl some islands...)
     if(length(datasource)>1){
         plotdata<-allagri
@@ -20,6 +16,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
         if(rundata=="adem") plotdata<-alldata
         if(rundata=="ief") plotdata<-allagri
     }
+
     plotdata$datasource<-"nir"
     plotdata<-convert2char(plotdata)
     
@@ -131,7 +128,7 @@ loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
     if(plotmeas$meastype[imeas]=="Milk") plotdata[plotdata$party=="LU",years]<-NA
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
-    plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,dsource,multisource,adddefault)        
+    plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,multisource,adddefault)        
     if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted)
     graphics.off()
 }
@@ -191,7 +188,7 @@ iniplot<-function(figname,nplots){
     if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
-    cat(figname,": ")
+    cat(gsub(plotsdir,"plots/",figname),": ")
     # Parameters must be set afte defining graphic (?)
     par(mfrow = c(nplots,1))
     if(runfocus=="compare") par(mfrow=c(1,3))
@@ -259,7 +256,8 @@ gettdis<-function(tmin,tmax,tmag){
     return(tdis)    
 }
 
-prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
+#prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
+prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,multisource,adddefault=0){
     
     #print("prepareplot")
     curuid<-plotmeas$variableUID[imeas]

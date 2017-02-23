@@ -38,7 +38,7 @@ signcatexp<-paste0("# Information for the identification of significant source c
 
 colexpl1<-paste0("#\n# Explanation of column names (different from CRF-dimensions)\n",
                  "# min-max: minimum (ignoring reported zeroes) and maximum values")
-lulimexpl<-paste0(" # llim-ulim: lower and upper limit of values not considered as outliers.",
+lulimexpl<-paste0(" # llim-ulim: lower and upper limit of values not considered as outliers.\n",
                   " # rellim: (mean) value report relative to the lower/upper limit depending if the reported value is low or large.")
 
 whisksexpl<-paste0("# lwhisk-uwhisk: lower and upper 'whisker'. Values below the lower whisker",

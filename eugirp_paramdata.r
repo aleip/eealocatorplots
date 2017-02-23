@@ -10,6 +10,7 @@ paramdata<-paramdata[! paramdata$meastype=="POP",]
 param<-paramdata[,c(years,"party","variableUID")]
 paramq<-as.data.frame(unique(param$variableUID))
 names(paramq)<-"variableUID"
+# Calculate the Median Absolute Deviation (mad) 
 paramq$mad<-unlist(lapply(paramq$variableUID,function(x) mad(param[param$variableUID==x,years],na.rm=TRUE)))
 paramq[,c("mean","std")]<-t(Reduce(cbind,lapply(paramq$variableUID,function(x) selmeansd(param[param$variableUID==x,years]))))
 paramq[,newcols]<-t(Reduce(cbind,lapply(paramq$variableUID,function(x) selquantiles(param[param$variableUID==x,years]))))

@@ -5,7 +5,7 @@ is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 view<-function(D){View(D)}
 viewlast<-function(n,allagri=allagri){View(allagri[(nrow(allagri)-n):nrow(allagri),])}
 newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
-    paste("EUGIRP",gsub("2015","15",cursubm),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
+    paste("EUGIRP",substr(cursubm,3,nchar(cursubm)),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
     sector<-substring(paste0(gsub(" ","",gsub("\\.","",gsub("\\^","",sector))),"0000"),1,5) #5
     categ<-substring(paste0(gsub(" ","",gsub("-","",categ)),"00000"),1,5) #5
     meast<-substring(paste0(meast,"00000"),1,3)                           #3
@@ -70,7 +70,9 @@ filldf<-function(DF,cols=allcheckfields,fillwith=0){
 }
 last<-function(years){last<-years[length(years)]}
 curdate<-function(){format(Sys.time(), "%Y%m%d")}
-curtime<-function(){format(Sys.time(), "%Y%m%d-%H%M")}
+curtime<-function(secs=FALSE){
+    if(secs){format(Sys.time(), "%Y%m%d-%H%M%S")
+        }else{format(Sys.time(), "%Y%m%d-%H%M")}}
 rounddigit<-function(val){
     sig<-val/abs(val)
     n<-log10(abs(val))
@@ -133,7 +135,8 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     curuids<-getuidr$variableUID
     #print(curuids)
     if(ngetuidr>1){View(allagri[allagri$variableUID%in%curuids,]);
-                   ngetuidr<-paste0(ngetuidr,": ",paste(unlist(as.vector(curuids)),collapse=","))}
+                   ngetuidr<-paste0(ngetuidr,": ",paste(unlist(as.vector(paste0("xx",curuids,"yy"))),collapse=","))
+                   stop(ngetuidr)}
     if(ngetuidr==1){ngetuidr<-unlist(as.vector(curuids))}
     return(ngetuidr)
 }
@@ -390,7 +393,10 @@ fillbyvariableUID<-function(DF=allagri,col,uid){
     return(cval)
 }
 
-extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE){
+extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE){
+    
+    # Extracts data for one variableUID and 
+    # Resorts them thus that the eu-countries (EUC, EUA etc) which are in 'c' and in the data are last
     c<-as.data.frame(c)
     names(c)<-"party"
     #DF<-droplevels(DF)
@@ -404,7 +410,8 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE){
     
     eucountries<-eu
     x<-tmp1[order(tmp1$party),]
-    tmp1<-rbind(x[!(x$party %in% eucountries),],x[ (x$party %in% eucountries),])
+    tmp1<-x[!(x$party %in% eucountries),]
+    if(!noeu){tmp1<-rbind(tmp1,x[ (x$party %in% eucountries),])}
     
     tmp1<-tmp1[,years]
     if(narm) tmp1[is.na(tmp1)]<-0
@@ -428,16 +435,15 @@ nodiff<-function(checks=NULL,ncheck=1,test=NULL,val1=NULL,val2=NULL,sec=NULL,cat
 
 diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2=NULL,sec=NULL,cat=NULL,roundn=3){
     diff=NULL
-    diff<-which(round(A,roundn)!=round(B,roundn))
+    diff<-which(round(A,roundn)!=round(B,roundn),arr.ind = TRUE)
     if(length(diff)>0){
-        for(d in c(1:length(diff))){
-            rn<-diff[d] %% nrow(A)
-            if(rn==0){rn=nrow(A)}
-            cn<-ceiling(diff[d]/nrow(A))
+        for(d in c(1:nrow(diff))){
+            rn<-diff[d,1]
+            cn<-diff[d,2]
             checks[ncheck,"test"]<-test
             checks[ncheck,"val1"]<-val1
             checks[ncheck,"val2"]<-val2
-            checks[ncheck,"ms"]<-allcountries[rn]
+            checks[ncheck,"ms"]<-allcountries[!allcountries%in%eu][rn]
             checks[ncheck,"yr"]<-years[cn]
             checks[ncheck,"sec"]<-sec
             checks[ncheck,"cat"]<-cat
@@ -591,6 +597,7 @@ simplifytestmatrix<-function(check,group,compare=0){
     checky<-as.data.frame(check[,group])
     
     #here row.names warning...
+    options(warn=0)
     checky<-aggregate(checky, by = as.list(check3), function(x) paste0(x,collapse=NULL))
     ncheck<-length(group)
     checkn<-c(ncol(checky)-ncheck+1:ncheck)
@@ -604,7 +611,7 @@ simplifytestmatrix<-function(check,group,compare=0){
     
 }
 
-add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",msr="",uid="",note="",force=0,DATA=data.frame()){
+add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",msr="",uid="",note="",force=0,DATA=data.frame(),noeu=FALSE){
     # Note this adds a new row only if it does not exist 
     # Existing rows will not be overwritten.
     
@@ -642,6 +649,7 @@ add2allagri<-function(matrix,sec="",cat="",gas="",unit="",sou="",tar="",mea="",m
                 #print(i)
                 #View(addnewrow)
                 addnewrow$party[addr]<-allcountries[i]
+                if(noeu)addnewrow$party[addr]<-allcountries[!allcountries%in%eu][i]
                 for (j in c(1:length(years))){
                     if(is.nan(matrix[i,j])){
                         addnewrow[addr,years[j]]<-0
@@ -813,17 +821,33 @@ keycategories<-function(){
     gasf<-sapply(1:nrow(potkeycategories),function(x) gwps[which(gases==potkeycategories$gas[x])])
     potkeycategories[,lastyear]<-as.numeric(potkeycategories[,lastyear])*gasf
     
-    cols2leave<-paste(names(potkeycategories)[!names(potkeycategories)%in%c(years,"party")],collapse="+")
+    cols2leave<-paste(names(potkeycategories)[!names(potkeycategories)%in%c(years,"party","notation")],collapse="+")
     arrange<-as.formula(paste(cols2leave,"~ party"))
-    #countries in the list
-    cindf<-names(potkeycategories)[names(potkeycategories)%in%countries2]
     potkeycategories<-dcast(potkeycategories,arrange,value.var=lastyear)
-    potkeycategories$EUC<-apply(potkeycategories[,cindf],1,sum,na.rm=TRUE)
+    #countries in the list
+    cindf<-c(countries2[countries2%in%names(potkeycategories)],"EUC")
+    #potkeycategories$EUC<-apply(potkeycategories[,cindf],1,sum,na.rm=TRUE)
     
-    rankcategories<-function(){
-        
+    rankcategories<-function(x){
+        test<-potkeycategories
+        test$rank<-frankv(x=abs(potkeycategories[cindf[x]]),order=-1,na.last=TRUE,ties.method="first")
+        #test$val<-unlist(potkeycategories[cindf[x]])
+        #colnames(test)<-c("variableUID","rank","val")
+        test<-test[order(test$rank),]
+        test$cumul<-sapply(1:nrow(test),function(y) sum(test[1:y,cindf[x]],na.rm=TRUE))
+        test$cumrel<-test$cumul/test$cumul[nrow(test)]
+        test[,paste0(cindf[x],"key")]<-test$cumrel<=0.95
+        return(test)
     }
     
+    for(i in 1:length(cindf)){
+        potkeycategories<-rankcategories(i)
+    }
+    ro<-unlist(lapply(1:length(cindf),function(x) c(cindf[x],paste0(cindf[x],"key"))))
+    ro<-c(names(potkeycategories)[!names(potkeycategories)%in%ro],ro)
+    potkeycategories<-potkeycategories[order(potkeycategories$sector_number,potkeycategories$category),ro]
+    potkeycategories<-potkeycategories[grepl("^3",potkeycategories$sector_number),]
+    return(potkeycategories)
 }
 checkhierarchy<-function(D,sec,dig){
     #Attention - unfinished .. should be part of keysource analysis
@@ -988,6 +1012,85 @@ adddefaults<-function(line,x,D){
     return(ipcc)
 }
 
+# Join with result file from EMRT
+joinwithsolved<-function(emrtfile=NULL){
+    
+    # Reads an 'issue-file' (e.g. country outliers, growth check etc.) at the end of a review cycle
+    #       and adds the solved issues to the 'solvedissues' file
+    
+    if(is.null(emrtfile)){stop("please indicate the file to join with. note that it must be on ",issuedir)}
+    
+    solvedfile<-read.csv(file=paste0(issuedir,"solvedissues.csv"),stringsAsFactors = FALSE)
+    emrtdata<-read.csv(paste0(issuedir,emrtfile),header=TRUE,comment.char="#")
+    emrtdata<-emrtdata[emrtdata$Finalization=="resolved",]
+    emrtdata<-convert2char(emrtdata)
+    emrtdata$explanation[emrtdata$explanation==""]<-emrtdata$Conclusion[emrtdata$explanation==""]
+    #Key word 'clarified' if the 'issue' was identified by mistake
+    emrtdata<-emrtdata[emrtdata$explanation!="clarified",]
+    
+    #Adjust the headers to 'normal' ones
+    colnames(emrtdata)<-gsub("sec","sector_number",colnames(emrtdata))
+    colnames(emrtdata)<-gsub("revyear","year",colnames(emrtdata))
+    emrtdata<-filldf(emrtdata,listsolvefields)
+    
+    #!! Attention - the 'flags' can be used to see which check had been performed, e.g. for recalculations!!
+    
+    
+    #Only first time
+    sel<-solvedfile$party==""|solvedfile$party==0
+    solvedfile$party[sel]<-solvedfile$issuenr[sel]
+    
+    emrtdata<-rbind(solvedfile[,listsolvefields],emrtdata[,listsolvefields])
+    emrtdata<-emrtdata[order(emrtdata$party,emrtdata$sector_number,emrtdata$category),]
+    
+    write.csv(emrtdata,file=paste0(issuedir,"solvedissues~",curdate(),".csv"))
+    write.csv(emrtdata,file=paste0(issuedir,"solvedissues.csv"))
+}
+
+addsolved2check<-function(curcheck,check2ignore=NULL){
+    
+    # Adds already solved issues to a check so that duplication of issues can be avoided
+    # check2ignore are 'checks' (e.g. recalc) which can be ignored
+    
+    solvedfile<-read.csv(file=paste0(issuedir,"solvedissues.csv"),stringsAsFactors = FALSE)
+    #add curcheck fields
+    solvedfile<-solvedfile[,-which(colnames(solvedfile)%in%c("X"))]
+    solvedfile<-convert2char(solvedfile)
+    #curcheck<-convert2char(curcheck)
+    #colnames(solvedfile)<-gsub("year","years",colnames(solvedfile))
+    colnames(solvedfile)<-gsub("Observation","Obs",colnames(solvedfile))
+    
+    cols2join<-c("party","sector_number","category","meastype","Obs","variableUID","check","unit","gas")
+    if("explanation"%in%colnames(curcheck))cols2join<-c(cols2join,"explanation")
+    if("expldate"%in%colnames(curcheck))cols2join<-c(cols2join,"expldate")
+    miscolssolve<-cols2join[!cols2join%in%colnames(solvedfile)]
+    miscolscheck<-cols2join[!cols2join%in%colnames(curcheck)]
+    cols2join<-cols2join[!cols2join%in%miscolscheck]
+    
+    
+    #row.names(curcheck)<-c(1:nrow(curcheck))
+    #row.names(solvedfile)<-c((nrow(curcheck)+1):(nrow(curcheck)+nrow(solvedfile)))
+    #row.names(curcheck)<-NULL
+    #row.names(solvedfile)<-NULL
+    
+    curcheck<-merge(curcheck,solvedfile,by=cols2join,all=TRUE)
+    
+    if(!is.null(check2ignore)){
+        curcheck<-curcheck[!curcheck$check%in%check2ignore,]
+    }
+    cols2sort<-c("party","sector_number","category","check","correction","meastype","year","years",
+                 "resolved","explanation","Obs","question","Comments","expldate",
+                 "issuenr")
+    cols2sort<-cols2sort[cols2sort%in%colnames(curcheck)]
+    cols2sort<-c(cols2sort,colnames(curcheck)[!colnames(curcheck)%in%cols2sort])
+    miscolscheck<-cols2sort[!cols2sort%in%colnames(curcheck)]
+    miscolssolve<-cols2sort[!cols2sort%in%colnames(solvedfile)]
+    rows2order<-order(curcheck$party,curcheck$check,curcheck$sector_number,curcheck$category)
+    curcheck<-curcheck[rows2order,cols2sort]
+    curcheck<-convert2char(curcheck)
+    curcheck[is.na(curcheck)]<-""
+    return(curcheck)
+}
 export4uba<-function(allagri){
     
     dtagri<-as.data.table(allagri)
@@ -1052,6 +1155,13 @@ export4uba<-function(allagri){
     
     
 }
+
+
+savecurstatus<-function(mytext){
+    mytext<-gsub(" ","",mytext)
+    save(list=savelist,file=gsub(".RData",paste0(mytext,"_",curdate(1),".RData"),rdatallem))
+}
+
 
 
 
@@ -1330,9 +1440,12 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     
     
     t1<-growthcheck[grepl(secs,growthcheck$sector_number)&growthcheck$category%in%cats&growthcheck$meastype==meastype,]
+    
+    #Do not consider those where an explanation has been given
+    t1<-t1[t1$explanation=="",]
     #cat(secs,cats,meastype)
     nparties<-nrow(t1)
-    print(nparties)
+    if(nparties==0){return(1)}
     plotformat<-"pdf"
     pieunit<-5
     omititle<-1
@@ -1343,11 +1456,12 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     pieheight=pieunit*0.5*min(nparties,maxperpage)+omititle
     page=1
     figname<-paste0(figdir,"/",cursubm,"growth",page,"_",gsub("*","",secs),"-",meastype,".",plotformat,collapse=NULL)
+    #print(figname)
     pieresolution=300
     if(plotformat=="pdf") pdf(file=figname,width=piewidth,height=pieheight,onefile=TRUE)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=piewidth,height=pieheight,unit="in",res=pieresolution)
     if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
-    print(paste0("nparties",nparties))
+    #print(paste0("nparties=",nparties,"maxperpage=",maxperpage," npiecols=",npiecols))
     par(mfrow = c(min(nparties,maxperpage),npiecols))
     par(omi=c(0,0.2,omititle,0.2))
     par(cex.main=1.7,cex.axis=1.5,cex.lab=1.5)
@@ -1356,18 +1470,24 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     
     mcommand<-paste0("makegrowthplot(pars,sec=,\"",secs,"\",cats=c(",paste(cats,collapse=","))
     mcommand<-paste0(mcommand,"),",meastype,")")
+    mcommand<-paste0("Growth plots for ",meastype)
     print(mcommand)
     curplot<-0
     pars<-unique(as.vector(unlist(t1$party)))
     for(par in pars){
+        #print(paste0("par=",par))
         t2<-t1[t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype,]
         secsl<-unique(as.vector(unlist(t2$sector_number)))
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]
         #print(secsl)
         for(sec in secsl){
+            #print(paste0("sec=",sec))
             t2<-t1[t1$party==par&t1$sector_number==sec&t1$category%in%cats&t1$meastype==meastype,]
             catsl<-unique(as.vector(unlist(t2$category)))
+            #print(paste0("cats=",cats))
             for(cat in catsl){
+                #print(paste0("cat=",cat))
+                if(cat==0)View(t1)
                 t2<-t1[t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype,]
                 #Needed for Rice
                 clal<-unique(as.vector(unlist(t2$classification)))
@@ -1400,12 +1520,18 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
                     t4<-match(years,as.numeric(t3))
                     t4<-which(!is.na(t4))
                     
-                    mtext<-paste(par,sec,cat,meastype,sep="-")
+                    cat4header<-cat
+                    cat4header<-gsub("Emissions","Em.",cat4header)
+                    cat4header<-gsub("Applied to Soils","Appl.",cat4header)
+                    cat4header<-gsub("From Managed Soils","",cat4header)
+                    cat4header<-gsub("Soil Organic Matter","SOM",cat4header)
+                    if(nchar(cat4header)>20)cat4header<-substr(cat4header,1,20)
+                    mtext<-paste(par,sec,cat4header,meastype,sep="-")
                     #cat("\n",par,"sec=",sec,"cat=",cat,"cla=",cla,meastype,length(years),length(values))
                     plot(years,values,type="p",main=paste(mtext,": values"),pch=21,col="black",bg="black",cex=2)
                     points(years[t4],values[t4],type="p",pch=21,col="red",bg="red",cex=2.5,new=FALSE)
                     
-                    if(curplot %% maxperpage == 1) mtext(mcommand, outer = TRUE, cex = 1.5)
+                    if(curplot %% maxperpage == 1) mtext(paste0(mcommand," page ",page), outer = TRUE, cex = 1.5)
                     
                     #plot(years,growths-1,type="p",,main=paste(mtext,": 1st growth"),pch=21,col="grey20",bg="grey20",cex=2)
                     #lines(years,rep(0,length(years)))

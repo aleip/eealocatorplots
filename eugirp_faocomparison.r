@@ -247,17 +247,17 @@ selection<-selection & (curagri$category=="Cattle" | curagri$category=="Dairy Ca
 selection<-selection & (curagri$category=="Sheep" | curagri$sector_number!="3.B.2.2")
 selection<-selection & (curagri$category=="Swine" | curagri$sector_number!="3.B.2.3")
 seluids<-unique(curagri$variableUID[selection])
-t1<-extractuiddata(curagri,uid = seluids[1],c = allcountries,narm=FALSE)
+t1<-extractuiddata(curagri,uid = seluids[1],c = allcountries,narm=FALSE,noeu=TRUE)
 t1[is.na(t1)]<-0
 for(i in c(2:length(seluids))){
-    t2<-extractuiddata(curagri,uid = seluids[i],c = allcountries,narm=FALSE)
+    t2<-extractuiddata(curagri,uid = seluids[i],c = allcountries,narm=FALSE,noeu=TRUE)
     t2[is.na(t2)]<-0
     t1<-t1+t2
 }
 uid1<-newuid()
 addallagriout<-add2allagri(t1,sec="3.B.2.5 N2O Emissions per MMS",cat="Farming",gas="no gas",unit="kt N/year",
                            sou="Pasture  range and paddock",tar="",mea="NEXC",msr="Nitrogen excretion per MMS",
-                           uid1,note="pasture total not reported",DATA=curagri)
+                           uid1,note="pasture total not reported",DATA=curagri,noeu=TRUE)
 curagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 
@@ -268,17 +268,17 @@ tempagri<-curagri
 # AD in 3.F for all crops
 selectionad<-grepl("^3.F..$",curagri$sector_number) & curagri$meastype=="AD"
 seluids<-unique(curagri$variableUID[selectionad])
-adt1<-extractuiddata(curagri,uid = seluids[1],c = allcountries,narm=FALSE)
+adt1<-extractuiddata(curagri,uid = seluids[1],c = allcountries,narm=FALSE,noeu=TRUE)
 adt1[is.na(adt1)]<-0
 for(i in c(2:length(seluids))){
-    t2<-extractuiddata(curagri,uid = seluids[i],c = allcountries,narm=FALSE)
+    t2<-extractuiddata(curagri,uid = seluids[i],c = allcountries,narm=FALSE,noeu=TRUE)
     t2[is.na(t2)]<-0
     adt1<-adt1+t2
 }
 uid2<-newuid()
 addallagriout<-add2allagri(adt1,sec="3.F",cat="Farming",gas="no gas",unit="kt dm",
                            sou="",tar="",mea="NEXC",msr="Field Burning of Agricultural Residues",
-                           uid2,note="field burning AD only reported by crop",DATA=curagri)
+                           uid2,note="field burning AD only reported by crop",DATA=curagri,noeu=TRUE)
 curagri<-addallagriout[[1]]
 rowsadded<-addallagriout[[2]]
 

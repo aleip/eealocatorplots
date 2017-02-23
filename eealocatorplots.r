@@ -376,16 +376,16 @@ if(stepsdone==4){
 }
 
 
-stop("step 5 done")
-# A.3 Check for outlier errors and calculate EU weighted averages ####
+#stop("step 5 done")
+# A.3 Check for outlier errors and write outlier lists ####
 if(stepsdone==5){
     
     print("# A.3 Check for outlier errors and calculate EU weighted averages ####")
-    print(paste0("Step ",stepsdone+1,"a: Check for outlier errors on parameters"))
+    print(paste0("Step ",stepsdone+1,"a: Check for outlier errors on parameters @ ",curtime(1)))
     outcheck<-"param"
     source("eugirp_checkoutliers.r")
     #source("eugirp_ipccdefaults.r")
-    print(paste0("Step ",stepsdone+1,"b: Check for outlier errors on growth"))
+    print(paste0("Step ",stepsdone+1,"b: Check for outlier errors on growth @ ",curtime(1)))
     
     outcheck<-"growth"
     nyears<-length(years)
@@ -394,8 +394,6 @@ if(stepsdone==5){
     levels(paramcheck$gas)<-factor(signcategories$gas)
     paramcheck<-paramcheck[!paramcheck$party%in%eu,]
     paramcheck<-paramcheck[remagglevel(paramcheck,mt = 1),]
-    growthcheck<-growthcheck[!growthcheck$party%in%eu,]
-    growthcheck<-growthcheck[remagglevel(growthcheck,mt = 1),]
     
     # Ispotentialissue:
     # Method: (a) Significant issue only if the last year is included in the list of outliers
@@ -412,8 +410,8 @@ if(stepsdone==5){
     # Load IPCC default values
     paramcheck<-loadipccdefaults(paramcheck,1,nrow(paramcheck),insert="value")
     write.csv(paramcheck,file="paramcheck_ipcc.csv")
-    
-    print(paste0("Step ",stepsdone+1,"c: Write country outlier list"))
+
+    print(paste0("Step ",stepsdone+1,"c: Prepare for plot-names @ ",curtime(1)))
     rundata<-"ief"
     runfocus<-"value"
     #plotparamcheck: plotmeas is overwritten by paramcheck
@@ -422,53 +420,87 @@ if(stepsdone==5){
     paramcheck$plot<-
         paste0("=HYPERLINK(\"",
                gsub(" ","",
-                    gsub(plotsdir,"../plots/",unlist(lapply(c(1:nrow(paramcheck)),function(x) 
+                    gsub(plotsdir,"../../plots/",unlist(lapply(c(1:nrow(paramcheck)),function(x) 
                         plotname("",plotsdir,issuedir,"*",paramcheck[x,sectfields],paramcheck[x,metafields],paramcheck[x,measfields],
-                                 runfoc="1VAL",figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
+                                 paste0("nir",runfocus),figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
                "\",\"Link to plot\")")
     t<-growthcheck
     co<-c("plot",names(growthcheck))
     growthcheck$plot<-
         paste0("=HYPERLINK(\"",
                gsub(" ","",
-                    gsub(plotsdir,"../plots/",unlist(lapply(c(1:nrow(growthcheck)),function(x) 
+                    gsub(plotsdir,"../../plots/",unlist(lapply(c(1:nrow(growthcheck)),function(x) 
                         plotname("",plotsdir,issuedir,"*",growthcheck[x,sectfields],growthcheck[x,metafields],growthcheck[x,measfields],
-                                 runfoc="1VAL",figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
+                                 paste0("nir",runfocus),figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
                "\",\"Link to plot\")")
     
-    # Make growth plots to check ... improve loop!!
-    mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
-    mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
-    #temporarycommented for(mm in mainmeasures) makegrowthplot(sec="3.",meastype=mm)
     
+    print(paste0("Step ",stepsdone+1,"d: Calculate key categories @ ",curtime(1)))
+    keycategories<-keycategories()
     
-    #corfile<-paste0(filoutliers,"list_checked_GC2.csv")
-    #corrections<-read.csv(file=corfile,comment.char = "#",header=TRUE)
-    #toflag<-corrections[corrections$correction=="flag",]
-    #names(toflag)<-yearheaders(names(toflag))
-    
-    keycategories<-keysources()
+    print(paste0("Step ",stepsdone+1,"e: Prepare flags @ ",curtime()))
     test0<-matrix(rep(0,nrow(growthcheck)*length(flag4issues)),ncol=length(flag4issues),nrow=nrow(growthcheck))
     test0<-as.data.frame(test0)
     names(test0)<-flag4issues
     growthcheck<-growthcheck[,-which(names(growthcheck)=="gas")]
     growthcheck<-cbind(growthcheck,test0)
-    co<-names(growthcheck)
-    # Integrate outcome into paramcheck and to writeoutlierlist!!
-    x1<-1;x2<-10
-    x1<-nrow(paramcheck);x2<-nrow(growthcheck)
-    growthcheck<-growthcheck[growthcheck$sector_number!="3.i",]
+    # Integrate outcome into growthcheck and to writeoutlierlist!!
     x1<-1;x2<-nrow(growthcheck)
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(growthcheck[x,],"growth",x)))
     test<-Reduce(rbind,test)
     growthcheck[x1:x2,flag4issues]<-test
-    #write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
     
+    #Load now solved issues!
+    growthcheck<-addsolved2check(growthcheck,c("recalc"))
+    cog<-names(growthcheck)
     
+    test0<-matrix(rep(0,nrow(paramcheck)*length(flag4issues)),ncol=length(flag4issues),nrow=nrow(paramcheck))
+    test0<-as.data.frame(test0)
+    names(test0)<-flag4issues
+    paramcheck<-paramcheck[,-which(names(paramcheck)=="gas")]
+    paramcheck<-cbind(paramcheck,test0)
+    # Integrate outcome into paramcheck and to writeoutlierlist!!
+    x1<-1;x2<-nrow(paramcheck)
+    test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
+    test<-Reduce(rbind,test)
+    paramcheck[x1:x2,flag4issues]<-test
+
+    #Load now solved issues!
+    paramcheck<-addsolved2check(paramcheck,c("recalc"))
+    cof<-names(paramcheck)
+    
+    print(paste0("Step ",stepsdone+1,"e: Write country outlier list @ ",curtime()))
     test<-as.data.frame(test)
     names(test)<-flag4issues
     write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
+    
+    print(paste0("Step ",stepsdone+1,"f: Write outlier list @ ",curtime(1)))
     source("eugirp_writeoutlierlist.r")
+    
+    
+    stepsdone<-6
+    savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
+    save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    source("curplot.r")
+}else if(stepsdone>5){
+    print(paste0("Step 6: Check for outliers errors already done"))
+}
+
+    
+#stop("step 6 done")
+# Calculate EU weighted averages and make adem and ief plots####
+if(stepsdone==6){
+    
+    
+        # Make growth plots to check ... improve loop!!
+    
+    #temporarycommented 
+    print(paste0("Step ",stepsdone+1,"a: Making Growth plots @ ",curtime()))
+    mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
+    mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
+    for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
+    
     
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")
@@ -487,31 +519,28 @@ if(stepsdone==5){
     adddefault<-temp[[3]]
     sharesexist<-temp[[4]]
     
-    x1<-1;x2<-nrow(plotmeas)
     x1<-97;x2<-nrow(plotmeas)
-    x1<-7;x2<-7
+    x1<-1;x2<-7
+    x1<-1;x2<-nrow(plotmeas)
     for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
     for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = "range",eusubm = "EUC")}
     plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
     write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
     
     
-    stepsdone<-6
-    savelist<-c(savelist,"growthcheck","paramcheck","autocorrections","paramchecked","keycategories")
-    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    savelist<-c(savelist,"assignad2par")
+    stepsdone<-stepsdone+1
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     source("curplot.r")
     
-}else if(stepsdone>5){
-    print(paste0("Step 5: Check for outlier errors already done"))
+}else if(stepsdone>6){
+    print(paste0("Step 7: Check for outlier errors already done"))
 }
 
-stop("step 6 done")
+#stop("step 7 done")
 # C - Make checks for sector 3 ####
-checksteps<-6
-if(stepsdone==checksteps) {
+checksteps<-7
+if(stepsdone==7) {
     print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3"))
     #load(rdatmeasu)
     
@@ -527,51 +556,58 @@ if(stepsdone==checksteps) {
     #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
     #     allagri<-allagri[!allagri$variableUID==uidrem,]
     
-    keycategories<-keysources()
+    #keycategories<-keysources()
+    allagri<-allagri[!is.na(allagri$sector_number),]
     allcattle<-c("Cattle","Dairy Cattle","Non-Dairy Cattle")
     allagri$option<-""
     allagri<-unique(allagri)
     
     source("agrichecks1ADs.r")
     source("agrichecks2Nex.r")
-    
+        
     #agrichecks<-rbind(checks[names(check1)],check1,check2,check3,check4,check5)
     agrichecks<-checks
-    #agrinames<-c("test","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved,docfields)
-    agrinames<-c("test","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved)
-    names(agrichecks)<-agrinames
-    agrichecks<-agrichecks[agrichecks$party!="all",]
-    agrichecks<-filldf(agrichecks,allcheckfields)
-    climcheck<-filldf(climcheck,names(agrichecks))
-    climcheck<-climcheck[,names(agrichecks)]
-    agrichecks<-filldf(agrichecks,climcheck)
+    #Load now solved issues!
+    agrinames<-c("check","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved)
     
     print("Bind climacheck and agricheck")
+    agrichecks<-agrichecks[agrichecks$ms!="all",]
+    names(agrichecks)<-agrinames
+    climcheck<-filldf(climcheck,names(agrichecks))
+    climcheck<-climcheck[,names(agrichecks)]
+    #agrichecks<-filldf(agrichecks,climcheck)
     agrichecks<-rbind(agrichecks,climcheck)
     
+    #agrinames<-c("test","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved,docfields)
     # Integrate outcome into paramcheck and to writeoutlierlist!!
     x1<-55;x2<-56
     x1<-1;x2<-nrow(agrichecks)
-    test<-Reduce(rbind,lapply(c(x1:x2),function(x) unlist(flags4newissue(agrichecks[x,],"agri"))))
+    test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(agrichecks[x,],"agri",x)))
+    test<-Reduce(rbind,test)
+    agrichecks<-filldf(agrichecks,flag4issues,fillwith = "")
+    agrichecks<-convert2char(agrichecks)
     agrichecks[x1:x2,flag4issues]<-test
-    write.csv(agrichecks[allcheckfields4emrt],file=paste0(issuedir,"agrichecks.csv"))
+    #write.csv(agrichecks[allcheckfields4emrt],file=paste0(issuedir,"agrichecks.csv"))
     
+    agrichecks<-addsolved2check(agrichecks,c("recalc","outlier","timeseries","ne_empty","notakey"))
     
+    #agrichecks<-filldf(agrichecks,allcheckfields)
     
-    stepsdone<-checksteps+1
+    write.csv(agrichecks,file=paste0(issuedir,"agrichecks",curdate(),".csv"))
+    
+    stop()
+    stepsdone<-7+1
     savelist<-c(savelist,"checkuids","agrichecks")
     #save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     source("curplot.r")
-}else if(stepsdone>checksteps){
-    print(paste0("Step ",checksteps+1,": Sector 3 checks already done"))
+}else if(stepsdone>7){
+    print(paste0("Step 7: Sector 3 checks already done"))
 }
-stop("Step 7 done")
 
-
-
+stop("Step 8 done")
 # A.3 Determine Key categories ####
-if(stepsdone==7){
+if(stepsdone==8){
     
     # Key source categories ####
     
@@ -628,8 +664,8 @@ if(stepsdone==7){
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     source("curplot.r")
-}else if(stepsdone>5){
-    print(paste0("Step 7: Key category analysis errors already done"))
+}else if(stepsdone>8){
+    print(paste0("Step 8: Key category analysis errors already done"))
 }
 
 if(exists("paramchecked")){
@@ -715,26 +751,4 @@ if(exists("paramchecked")){
     }
 }   
 
-
-
-checksteps<-6
-if(stepsdone==checksteps) {
-    print(paste0("Step ",checksteps+1,": Make additional plots for sector 3"))
-    
-    #Attentions: for plots the identified issues need to be corrected again
-    #(the data base has not been changed, it was just corrected for EU-weighted parameters)
-    # Trend plots for AD-EM
-    
-    # IEF plots done above
-    #source("eugirpD.2_iefplots.r")
-    
-    # Trend plots for IEF
-    
-    # Country-plots for IEF
-    
-    #stepsdone<-checksteps+1
-    #source("curplot.r")
-}else if(stepsdone>checksteps){
-    print(paste0("Step ",checksteps+1,": All Sector-3 plots already done"))
-}
 

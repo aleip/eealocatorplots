@@ -3,11 +3,16 @@
 #vignette('RSelenium-basics')
 
 options(warnings=0)
-RSelenium::startServer(dir = "RSelenium",log = FALSE)
+#RSelenium::startServer(dir = "RSelenium",log = FALSE)
 require(RSelenium)
 #rsDriver(port = 4567L, browser = "chrome", version = "latest", chromever = "latest",
 #         geckover = "latest", iedrver = NULL, phantomver = "2.1.1",
 #         verbose = TRUE, check = TRUE)
+
+#20170223 - Selenium Server doesn't start any more from R 
+#         --> Start it manually with 
+# java -jar RSelenium/selenium-server-standalone-3.1.0.jar -port 4567
+# launch it with bat-file
 
 
 ### LOGIN ####
@@ -19,6 +24,7 @@ loginemrt<-function(remDr,issue=""){
     psw<-"0112rkf4"
     
     remDr$navigate(paste0(urlemrt,login))
+    Sys.sleep(0.5)
     webelem<-remDr$findElement('id', '__ac_name')
     webelem$clearElement()
     webelem$sendKeysToElement(list(usr))
@@ -26,6 +32,7 @@ loginemrt<-function(remDr,issue=""){
     webelem$clearElement()
     webelem$sendKeysToElement(list(psw))
     webelem$submitElement()
+    Sys.sleep(0.5)
     remDr$navigate(paste0(urlemrt,issue))
     
 }
@@ -51,12 +58,13 @@ emrt<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
     #startServer(args = c("-Dwebdriver.chrome.driver=RSelenium/chromedriver.exe"), dir = "RSelenium", log = FALSE, invisible = FALSE)
     
-    remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
+    #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
+    remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
     #remDr<-remoteDriver(browserName = "chrome")
     
     # New
-    rD<-rsDriver(port = 4444L, browser = "firefox",verbose = FALSE)
-    remDr<-rD$client
+    #rD<-rsDriver(port = 4567L, browser = "firefox",verbose = FALSE)
+    #remDr<-rD$client
     remDr$open()
     loginemrt(remDr)
     return(remDr)
@@ -97,6 +105,7 @@ openissue<-function(remDr,issue,phase=""){
     path<-paste0(urlemrt,year,"/",issue,phase)
     cat(path)
     curissue<-remDr$navigate(path)
+    Sys.sleep(1)
     return(curissue)
 }
 
@@ -286,6 +295,7 @@ addtext<-function(mytext){
 approvequestionandsend<-function(remDr,issue,where=NULL){
     curissue<-openissue(remDr,issue)
     sent<-clickstandardbutton(btext = "Approve question and send")
+    Sys.sleep(1)
     return(sent)
 }
 
@@ -814,6 +824,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
         childs<-webelem$findChildElements('class', 'clickableRow')
         for(i in c(1:length(childs))){
             issues[length(issues)+1]<-strsplit(as.character(childs[[i]]$getElementText()),"\n")[[1]][1]
+            print(issues[length(issues)])
         }
         
         # More...
@@ -821,6 +832,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
         childs<-webelem$findChildElements('class', 'next')
         if(length(childs)>0) {
             childs[[1]]$clickElement()
+            Sys.sleep(1)
         }else{
             more<-0
         }
@@ -838,7 +850,7 @@ approveandsendissues<-function(revyear=2017,focus="",details=0){
 }
 
 
-selectissuesandwritedetails<-function(revyear=2016,focus="",details=0){
+selectissuesandwritedetails<-function(revyear=2017,focus="",details=0){
     remDr<-emrt()
     filter<-"workflow"
     criterion<-"answered"
@@ -1105,6 +1117,13 @@ nissues<-vector()
 
 
 stop()
+#Approve and send issues added by Sector Expert
+remDr<-emrt()
+curissues<-listofselectedissues(remDr,revyear = curyear,filter = "workflow",criterion = "quality")
+approved<-sapply(1:1,function(x) approvequestionandsend(remDr = remDr,issue = curissues[x]))
+approved<-sapply(3:length(curissues),function(x) approvequestionandsend(remDr = remDr,issue = curissues[x]))
+
+
 # For adding test issue
 observation<-"This is a test to submit issue via R"
 party<-'Germany'

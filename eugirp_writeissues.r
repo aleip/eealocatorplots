@@ -11,7 +11,10 @@ writeissuelist<-function(D,file){
     if(trendoutlmethod==2)writeLines(whisksexpl,con)
     writeLines(colexpl2, con)
     writeLines(colexpl3, con)
-    writeLines("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. 1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified",con)
+    writeLines("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. ",
+               "1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified. ",
+               "rellim: relaxing upper and lower limit by 10% or more for 3.B - issue OK but can be quickly checked. ",
+               "cattle: problem likely related for Dairy/Non-dairy cattle, thus duplication. ",con)
     write.csv(D,con)
     close(con)
     
@@ -92,7 +95,7 @@ observationagri<-function(line){
     observationsec<-line$sector_number
     observationcat<-line$category
     observationyrs<-paste(line$years,collapse=",")
-    test<-line$test
+    test<-line$check
     val1<-line$val1
     val2<-line$val2
     
@@ -104,7 +107,7 @@ observationagri<-function(line){
     if(test=="NexTOT"){
         issue<-paste("Check: Total manure excreted per animal type versus the sum of manure excretion over the MMS. ")
         if(grepl("total",line$obs)) question<-paste0("No total N excretion is reported.")
-        if(grepl("val1 ",line$obs)) questino<-paste0("Sum of manure excretion over the MMS is different from Total N excretion (",line$obs," - ",line$range,")")
+        if(grepl("val1 ",line$obs)) question<-paste0("Sum of manure excretion over the MMS is different from Total N excretion (",line$obs," - ",line$range,")")
         question<-paste0(question,"Please include values for total N excretion for all animal types in your next submission. ")
         extraline<-"# Note: countries which do not report both 'Nitrogen excretion per MMS' and 'Total N excreted' are not identified"
     }
@@ -134,7 +137,7 @@ observationagri<-function(line){
         }
         if(grepl("val1 is fac ",line$obs)) {
             question<-paste0("The results for the N2O-IEF differ between two calculation methods.")
-            question<-paste0(question,"Please justify the reason for the discrepancy and/or correct in your next submission.")
+            question<-paste0(question,"Please justify the reason for the discrepancy and/or correct in your next submission. ")
             #"Please compare the values reported under 'IEFN1' and 'IEFN2'! ")
             question<-paste0(question,"IEFN1 is calculated as the weighted average of the IEF for the MMS (IEF_MMS) and the N excreted to the MMS (IEFN1=SUM(IEF_MMS * NEXC_MMS)/TNECX). ",
                              "IEFN2 is calculated as from total (direct) Emissions and Total N excreted (IEFN2=EM/TNEXC*28/44). ",
@@ -282,23 +285,31 @@ identifygas<-function(sector){
     if(sec=="3.C") gas<-"CH4"
     if(sec=="3.D.1") gas<-"N2O"
     if(sec=="3.D.2") gas<-"N2O"
-    if(sec=="3.F") gas<-"CH4"
+    if(sec=="3.F") gas<-"CH4-N2O"
     if(sec=="3.G") gas<-"CO2"
     if(sec=="3.H") gas<-"CO2"
     if(sec=="3.I") gas<-"CO2"
     if(sec=="3.i") gas<-"CO2"
+    if(sec=="3.J") gas<-"CO2"
     
     return(gas)
 }
 
 keysourcecat<-function(line){
     prt<-line$party
+    
+    if(nchar(prt)>3){prt<-"EUC"}
     sec<-getshortsector(line$sector_number)
+    uid<-line$variableUID
     if(grepl("^\\.",sec)) sec<-"3.A"
     gas<-identifygas(sec)
-    keyeu<-keycategories$keylevel[keycategories$party=="EUC" & keycategories$category==sec & keycategories$gas==gas]
-    keyms<-keycategories$keylevel[keycategories$party==prt & keycategories$category==sec & keycategories$gas==gas]
-    if(length(keyms)==0)keyms<-0
+    #print(prt)
+    #print(line$sector_number)
+    #save(line,file="line")
+    keyline<-keycategories[sapply(1:nrow(keycategories),function(x) grepl(keycategories$sector_number[x],line$sector_number)),]
+    keyeu<-as.logical(sum(keyline[,paste0("EUC","key")]))
+    keyms<-as.logical(sum(keyline[,paste0(prt,"key")]))
+    #if(length(keyms)==0)keyms<-0
     #print(sec)
     #print(gas)
     #print(prt)
@@ -344,11 +355,15 @@ keyflags<-function(line,check){
     #print(paste0("key4=",key4))
     #print(paste0("key5=",key5))
     #print(paste0("key6=",key6))
-    return(list(key1,key2,key3,key4,key5,key6))
+    allflags<-list(key1,key2,key3,key4,key5,key6)
+    #print(length(allflags))
+    return(allflags)
 }
 
 flags4newissue<-function(line,check,x){
+    #print(x)
     country<-country4sub[country4sub$code2==as.character(line$party),"long"]
+    if(length(country)==0)country<-as.character(line$party)
     if(check=="outlier") {
         observation<-observationoutlier(line)
         question<-questionoutlier(line)
@@ -397,6 +412,7 @@ flags4newissue<-function(line,check,x){
             curymin<-min(cury)
             curymax<-max(cury)
             yrs<-paste0(curymin,"-",curymax)
+            if(length(cury)==1)yrs<-cury
         }
     }
     if(check=="agri"){
@@ -406,8 +422,12 @@ flags4newissue<-function(line,check,x){
             if(line$meastype%in%c("AD","AREA","POP")){par<-"Activity Data"}else{par<-"Other"}
     }
     flags<-keyflags(line,check)
-    
+    #print(length(flags))
     #cat(x,"(",length(unlist(list(country,observation,question,revyear,sector,gas,yrs,par,flags))),") ")
+    #print(length(question)+length(revyear)+length(par))
+    #print(length(observation)+length(gas)+length(yrs))
+    #print(length(country))
+    #print(length(sector))
     return(list(country,observation,question,revyear,sector,gas,yrs,par,flags))
 }
 
@@ -548,15 +568,15 @@ reportchecks1<-function(check,data,x){
                     "method","source","notation",
                     "1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013",
                     "classification","target","type","option","variableUID")
-    checkfields<-c("test","val1","val2","sec","cat","obs","ms","yr","fac","val")
+    checkfields<-c("check","val1","val2","sec","cat","obs","ms","yr","fac","val")
+    names(check)<-gsub("test","check",names(check))
     n<-nrow(check)
-    
     
     #resolve countries
     c<-as.character(check$ms)
     y<-check$yr
-    s<-check$sec
-    cat<-check$cat
+    s<-as.character(check$sec)
+    cat<-as.character(check$cat)
     
     if(grepl("all",c) & grepl("all",y)){
         # If all countries and years are concerned: general problem, 
@@ -578,9 +598,10 @@ reportchecks1<-function(check,data,x){
         
         observation<-paste(check[,checkfields],collapse="-")
         question<-" Question: Please correct/provide the missing information in your next submission."
-        issue<-gsub(" ","",check$test)
-        if(check$test=="NexTOT"){
-            issue<-paste("Issue: Test ",check$test," (check of total manure excreted per animal type versus the sum of manure excretion over the MMS). ")
+        issue<-gsub(" ","",check$check)
+        print(check$check)
+        if(check$check=="NexTOT"){
+            issue<-paste("Issue: Test ",check$check," (check of total manure excreted per animal type versus the sum of manure excretion over the MMS). ")
             if(grepl("total",check$obs)) observation<-paste0("Observation: No total N excretion is reported for animal type ",check$cat)
             if(grepl("val1 ",check$obs)) observation<-paste0("Observation: Sum of manure excretion over the MMS is different from Total N excretion for animal type ",check$cat," (",check$obs," - ",check$range,")")
             question<-paste0("Question: Please include values for total N excretion for all animal types in your next submission. See file for further information.")
@@ -588,8 +609,8 @@ reportchecks1<-function(check,data,x){
             
             selection<-selection & data$gas=="no gas" & (data$meastype=="EM" | data$meastype=="NEXC") 
         }
-        if(check$test=="NexRATE"){
-            issue<-paste("Issue: Test ",check$test," (check of the sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
+        if(check$check=="NexRATE"){
+            issue<-paste("Issue: Test ",check$check," (check of the sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
             animaltypes<-"animal type "
             if(length(cats)>1) animaltypes<-"animal types "
             animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
@@ -608,15 +629,15 @@ reportchecks1<-function(check,data,x){
                                   (data$gas%in%c("no gas","")))
         }
         
-        if(grepl("N in ",check$test)){
+        if(grepl("N in ",check$check)){
             selection<-selection
         }
-        if(grepl("N2O-IEF in ",check$test)){
+        if(grepl("N2O-IEF in ",check$check)){
             selection<-(selection | (data$sector_number=="3.B.2.5 N2O Emissions per MMS" & data$meastype=="IEF"))
         }
         
-        if(grepl("N2O-NIEF",check$test)){
-            issue<-paste("Issue: Test ",check$test," (check the N2O-IEF calculated with two different methods (see below)). ")
+        if(grepl("N2O-NIEF",check$check)){
+            issue<-paste("Issue: Test ",check$check," (check the N2O-IEF calculated with two different methods (see below)). ")
             animaltypes<-"animal type "
             if(length(cats)>1) animaltypes<-"animal types "
             animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
@@ -651,8 +672,8 @@ reportchecks1<-function(check,data,x){
                               "#")
         }
 
-        if(grepl("CLIMA",check$test)){
-            issue<-paste("Issue: Test ",check$test," (check that the allocation over all climate regions and MMS (Tier 2) sums up to 100). ")
+        if(grepl("CLIMA",check$check)){
+            issue<-paste("Issue: Test ",check$check," (check that the allocation over all climate regions and MMS (Tier 2) sums up to 100). ")
             animaltypes<-"animal type "
             if(length(cats)>1) animaltypes<-"animal types "
             animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
@@ -663,7 +684,7 @@ reportchecks1<-function(check,data,x){
             selection<-selection  & data$meastype=="CLIMA"
         }
         
-        if(check$test=="CPP and SO def IEFs"){
+        if(check$check=="CPP and SO def IEFs"){
             issue<-paste("Issue: Compare the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) ",
                          "with default IEFs EF3RPR_CPP for Cattle - Pigs and Poultry (0.02) and",
                          "EF3RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure",
@@ -685,33 +706,33 @@ reportchecks1<-function(check,data,x){
         
         selw<-selection & (data$party %in% c)
         selc<-selection & (data$party %in% selp)
-        checkw<-data[selw & data$party != "EU28",reportfields]
-        checke<-data[selw & data$party == "EU28",reportfields]
+        checkw<-data[selw & ! data$party %in% eu,reportfields]
+        checke<-data[selw &   data$party %in% eu,reportfields]
         checkc<-data[selc,reportfields]
         checkw<-checkw[order(checkw$party,checkw$category,checkw$notation,checkw$measure,checkw$source),]
-        if(check$test=="N2O-NIEF") checkw<-checkw[order(checkw$category,checkw$meastype,checkw$party,checkw$notation,checkw$measure,checkw$source),]
+        if(check$check=="N2O-NIEF") checkw<-checkw[order(checkw$category,checkw$meastype,checkw$party,checkw$notation,checkw$measure,checkw$source),]
         checke<-checke[order(checke$party,checke$category,checke$notation,checke$measure,checke$source),]
         checkc<-checkc[order(checkc$party,checkc$category,checkc$notation,checkc$measure,checkc$source),]
         
         if(exists("checkw")>0){
             
-            checkdir<-paste0("agricheck_",check$test)
+            checkdir<-paste0("agricheck_",check$check)
             checkdit<-paste0(issuedir,checkdir)
             if (! file.exists(checkdit)){dir.create(file.path(checkdit),showWarnings=FALSE)}
             
             for(cc in c) {
-                checkfile<-gsub(" ","",paste0(check$test,"_",check$val1,"_vs_",check$val2,"_",check$obs,s,cat,"_",x,".csv"))
-                checkfile<-gsub(" ","",paste0(check$test,"_",paste(cc,collapse="_"),"_",s,cat,"_",check$obs,".csv"))
-                if(check$test=="NexRATE") checkfile<-gsub(" ","",paste0(check$test,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
-                if(check$test=="N2O-NIEF") checkfile<-gsub(" ","",paste0(check$test,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
-                if(check$test=="CLIMA") checkfile<-gsub(" ","",paste0(check$test,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
+                checkfile<-gsub(" ","",paste0(check$check,"_",check$val1,"_vs_",check$val2,"_",check$obs,s,cat,"_",x,".csv"))
+                checkfile<-gsub(" ","",paste0(check$check,"_",paste(cc,collapse="_"),"_",s,cat,"_",check$obs,".csv"))
+                if(check$check=="NexRATE") checkfile<-gsub(" ","",paste0(check$check,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
+                if(check$check=="N2O-NIEF") checkfile<-gsub(" ","",paste0(check$check,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
+                if(check$check=="CLIMA") checkfile<-gsub(" ","",paste0(check$check,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
                     
                 con <- file(paste0(checkdit,"/",checkfile), open="wt")
                 writeLines(paste0("# ",issue), con)
                 writeLines(paste0("# ",observation), con)
                 writeLines(paste0("# ",question,"\n#"), con)
                 if(exists("extraline")) writeLines(extraline, con)
-                if(check$test=="N2O-NIEF"){
+                if(check$check=="N2O-NIEF"){
                     testcat<-"Dairy Cattle"
                     testcat<-"Poultry"
                     testsec<-"3.B.2.4.7"
@@ -724,13 +745,14 @@ reportchecks1<-function(check,data,x){
                     cat(paste0("\n#Example for ",testy," and ",testcat,": Total manure handled: ", round(t4,1)," kg N/yr. "),file=con)
                     
                     t5<-data[data$meastype=="EM"&data$gas=="N2O"&data$sector_number==testsec&data$party==cc&data$category==testcat,testy]
-                    cat(paste0("Total direct N2O emissions: ", round(t5,1)," kg N2O/yr. "),file=con)
+                    cat(paste0("Total direct N2O emissions: ", round(t5,5)," kg N2O/yr. "),file=con)
                     cat(paste0("Emission factor wrt handled manure: ", round(t5/t4,6)," kg N2O/kg N handled (IEFN2=",round(t5/t4*28/44,6)," kg N2O-N/kg N handled). "),file=con)
                     
                     t6<-0
                     for (s in directsys){
                         t7<-data[data$source==s&data$meastype=="IEF"&data$sector_number=="3.B.2.5 N2O Emissions per MMS"&
                                      data$unit=="kg N2O/kg N handled"&data$party==cc,testy]
+                        #print(t7)
                         if(is.numeric(t7))t7r<-round(t7,4)
                         #if(paste0("x",t7,"x")!="xx") {t7=0}
                         #if(paste0("x",t7,"x")!="xNOx") {t7=0}
@@ -757,8 +779,8 @@ reportchecks1<-function(check,data,x){
                 } #else 
                 writeLines(paste0("#\n#"), con)
                 writeLines(paste0(",",paste(names(checkw),collapse=",")),con)
-                for(cc in c[!c=="EU28"]) {
-                    if(check$test=="CPP and SO def IEFs"){
+                for(cc in c[!c%in%eu]) {
+                    if(check$check=="CPP and SO def IEFs"){
                         #selection<-data$sector_number=="3.D.1.3" & data$party==cc
                         curtab<-checkw[checkw$party==cc & checkw$category==cat,]
                         write.table(curtab,sep=",",col.names=FALSE,con)
@@ -782,7 +804,7 @@ reportchecks1<-function(check,data,x){
                         }
                     }
                 }
-                if(check$test!="N2O-NIEF" & check$test!="CLIMA"){
+                if(check$check!="N2O-NIEF" & check$check!="CLIMA"){
                     writeLines("#\n# Comparison: other countries",con)
                     #write.csv(checkc,con)
                     for(cc in selp) {

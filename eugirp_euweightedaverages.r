@@ -124,7 +124,7 @@ parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 selection<-allagri$party%in%eu & allagri$meastype%in%meas2popweight
 calceu<-allagri[!selection,]
 if(exists("autocorrections")){
-    selection1<-autocorrections[,c("party","variableUID","autocorr")]
+    selection1<-autocorrections[!autocorrections$party%in%eu,c("party","variableUID","autocorr")]
     calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
     selection1<-!is.na(calceu$autocorr)
     correctcorrection<-function(autocorrections,party,uid){
@@ -135,8 +135,8 @@ if(exists("autocorrections")){
     t<-Reduce(rbind,lapply(c(1:sum(selection1)),function(x) 
         unlist(correctcorrection(autocorrections,selc$party[x],selc$variableUID[x]))))
     calceu[selection1,years]<-t
-    allagri<-calceu
 }
+#allagri<-calceu
 # 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
 if(exists("paramcheck")){
     corcalceu<-subset(paramcheck,select=c("party","variableUID","correction"))
@@ -153,8 +153,8 @@ if(exists("paramcheck")){
     # Do not use the 'correction==0' values for the EU average, but keep them in the data...
     calceucor[selection2,years]<-NA
     
-    allagri<-calceu
 }
+#allagri<-calceu
 
 acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
 eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
@@ -165,8 +165,12 @@ eu28wei[,"party"]<-rep(eusubm,nrow(eu28wei))
 eu28wei$notation[eu28wei$notation==0]<-""
 
 allfieldsplus<-c(allfields,"autocorr","correction")
-allagri<-rbind(allagri[,allfieldsplus],eu28wei[,allfieldsplus])
+allagri<-rbind(calceu[,allfieldsplus],eu28wei[,allfieldsplus])
 write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
 
+#Save already as this takes long time...
+save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+savelist<-unique(c(savelist,"assignad2par"))
+save(list=savelist,file=gsub(".RData",paste0("_euweightav.RData"),rdatallem))
 
 

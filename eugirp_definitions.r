@@ -8,6 +8,7 @@ quantfields<-c("25","50","70")
 #              none of them can completely be ignored, as they are important for at 
 #              least one variable
 uniquefields<-c(measfields,sectfields,metafields,"notation","variableUID","datasource")
+uniquefields<-c(measfields,sectfields,metafields,"variableUID","datasource")
 #docfields<-c("issuenr","issueflag","issuedate")
 flagnames<-c("ne","init","recalc1","recalc2","unfccc","union","psi1","ptc","notsent","tc","revised")
 flag4issues<-c("Country","Obs","question","revyear","sec","gas","invyear","par","key.ms","key.eu",flagnames)
@@ -20,9 +21,9 @@ docflags<-paste0("# Flags: 0: new issue; o1: open issue action EU; o2: open issu
 #           brought to an order 
 allfields<-c(uniquefields[!uniquefields%in%c("measure","variableUID")],"measure","party",years2keep,"variableUID")
 
-allcheckfields<-c("test","plot","value","range","rellim","years","correction",
+allcheckfields<-unique(c("test","plot","value","range","rellim","years","correction",
                   allfields,ipccfields,resolved,"cursubm",
-                  flag4issues,testfields,outlierfields)
+                  flag4issues,testfields,outlierfields))
 allcheckfields4emrt<-c("test","plot","party",sectfields,"Obs","question")
 allcheckfields4emrt<-c(allcheckfields4emrt,allcheckfields[!(allcheckfields%in%allcheckfields4emrt)])
 listoffields<-list(sectfields=sectfields,metafields=metafields,measfields=measfields,
@@ -72,9 +73,9 @@ tables4measures<-c("Allocation by climate region","Feeding situation",
                    "Digestibility of feed")
 tables4classifi<-c("Nitrogen excretion per MMS","Emissions","Implied Emission Factor","Population")
 
-checktemp<-as.data.frame(matrix(rep(0,10),nrow=1,ncol=10))
 checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
-
+checktemp<-as.data.frame(matrix(vector(),nrow=1,ncol=10,dimnames=list(c(),checkname)))
+names(checktemp)<-checkname
 signthreshold<-0.0005 #min of 0.05% of national total
 gases<-c("CH4","CO2","N2O","Aggregate GHGs","NMVOC")
 # Values from Third Assessment Report 2001 http://www.grida.no/publications/other/ipcc_tar/?src=/climate/ipcc_tar/wg1/212.htm

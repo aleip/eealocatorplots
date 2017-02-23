@@ -27,6 +27,7 @@ if(curunit=="MJ/head/day"){textunit<-"[ MJ " ~~ head^{-1}  ~~ day^{-1} ~"]"} els
 if(curunit=="kg N2O-N/kg N"){textunit<-expression(" [kg N"[2]*"O (kg N)"^'-1'*']')} else
 if(curunit=="kg N2O/kg N handled"){textunit<-expression(" [kg N"[2]*"O (kg N handled)"^'-1'*']')} else
 if(curunit=="kg N2O/kg N"){textunit<-expression(" [kg N"[2]*"O (kg N)"^'-1'*']')} else
+if(curunit=="kg N2O-N/ha"){textunit<-expression(" [kg N"[2]*"O (ha)"^'-1'*']')} else
 if(curunit=="kg N2O/head/year"){textunit<-expression("[ kg N"[2]*"O head"^'-1'*"year"^'-1'*']')} else
 if(curunit=="kt C"){textunit<-"[ kt C ]"} else
 if(curunit=="Mt C"){textunit<-"[ Mt C ]"} else

@@ -51,9 +51,9 @@ for (x in c(1:nrow(checkuids))){
     if(checkuids$APOP[x]!=0) checkA<-T
     if(checkuids$B1POP[x]!=0) checkB1<-T
     if(checkuids$B2POP[x]!=0) checkB2<-T
-    if(checkA)   {tmpA <-extractuiddata(allagri,checkuids$APOP[x],countries)}
-    if(checkB1)  {tmpB1<-extractuiddata(allagri,checkuids$B1POP[x],countries)}
-    if(checkB2)  {tmpB2<-extractuiddata(allagri,checkuids$B2POP[x],countries)}
+    if(checkA)   {tmpA <-extractuiddata(allagri,checkuids$APOP[x],countries,noeu = TRUE)}
+    if(checkB1)  {tmpB1<-extractuiddata(allagri,checkuids$B1POP[x],countries,noeu = TRUE)}
+    if(checkB2)  {tmpB2<-extractuiddata(allagri,checkuids$B2POP[x],countries,noeu = TRUE)}
     
     sec<-checkuids$sector_number[x]
     cat<-checkuids$category[x]
@@ -63,7 +63,8 @@ for (x in c(1:nrow(checkuids))){
         #save.image(file="A-B1.RData")
         diffmatout<-diffmatrix(checks,ncheck,A,B,"POPcheck tables","3A","3B1",sec,cat,roundn=0)
         ncheck<-diffmatout[[1]]
-        checks<-diffmatout[[2]]}
+        checks<-diffmatout[[2]]
+        }
     if(checkA & checkB2) {
         A<-tmpA;B<-tmpB2
         #save.image(file="A-B2.RData")
@@ -82,7 +83,7 @@ for (x in c(1:nrow(checkuids))){
 
 checks<-unique(checks)
 checks<-simplifytestmatrix(checks,"yr",years)
-checks<-simplifytestmatrix(checks,"ms",as.vector(unlist(allcountries)))
+#checks<-simplifytestmatrix(checks,"ms",as.vector(unlist(allcountries[!allcountries%in%eu])))
 checks<-simplifytestmatrix(checks,"val2",NULL)
 checks<-checks[order(checks$ms,checks$sec,checks$yr),checkname]
-
+checks<-checks[!grepl("Other",checks$cat),]

@@ -3,7 +3,7 @@
 # Store 'bias' in distibution of parameters: ratio of max/min (zeros excluded)
 #        -- If there is systematic mistakes in errors the bias is high
 
-identifyoutliers<-function(outlmethod,D,type){
+identifyoutliers<-function(outlmethod,D,type,ming=0.03){
     if(outlmethod==1){
         # Method 1 in outl tool: Deviation from median
         # Median absolute deviation of the absolute deviations from the median
@@ -55,7 +55,6 @@ identifyoutliers<-function(outlmethod,D,type){
     Doutllist<-Doutllist[Doutllist$value !=0,]
     
     if(type=="growth") {
-        ming<-0.03
         select<-(Doutllist$value<(1-ming) | Doutllist$value>(1+ming))
         Doutllist<-Doutllist[select,]
     }
@@ -111,7 +110,7 @@ serious<-function(P,uid,c){
     return(s)
 }
 
-outlierintimeseries<-function(paramcheckfew,x,conv=0){
+outlierintimeseries<-function(paramcheckfew,x,conv=0,allow=0.15){
     
     #convert if this is 'except' years
     if(conv==1){
@@ -126,7 +125,7 @@ outlierintimeseries<-function(paramcheckfew,x,conv=0){
     curt1<-NA;curt2<-NA
     if(curymin>1990){curt1<-abs(1-paramcheckfew[x,as.character(curymin)]/paramcheckfew[x,as.character(curymin-1)])}
     if(curymax<(invyear-2)){curt2<-abs(1-paramcheckfew[x,as.character(curymax)]/paramcheckfew[x,as.character(curymax+1)])}
-    curok<-mean(c(curt1,curt2),na.rm=TRUE)<0.15
+    curok<-mean(c(curt1,curt2),na.rm=TRUE)<allow
     curok[is.na(curok)]<-FALSE
     return(curok)
 }
@@ -144,6 +143,8 @@ crdir<-paste0(issuedir,"countryoutliers/checks");if (! file.exists(crdir)){dir.c
 # Calculate outliers (method) ####
 if(outcheck=="param"){
     # 'SERIOUS' ERRORS, LIKLY DUE TO COMMA-PROBLEM
+    param<-param[!param$party%in%eu,]
+    #comment - this is the parameter value which is unlikely <1000 but not necessarily due to 'serious' mistake?
     paramV<-param[unique(which(param[years]>1000,arr.ind = TRUE)[,1]),]
     
     paramcheck<-identifyoutliers(trendoutlmethod,param,"param")
@@ -170,29 +171,61 @@ if(outcheck=="param"){
     
     # Outliers for only a few years ... if they are part of a trend do not consider them as
     # 'country-outlier' ... they might be identified as trend-outliers
-    # Assume that those which are within 15% of their 'neighbour' point are OK
-    
+    # Assume that those which are within 10% of their 'neighbour' point are OK
+    # Note that problems flagged with 'trend' do not need to be followed-up
     paramcheckfew<-paramcheck[! grepl("all",paramcheck$years),]
-    paramcheckfewok<-unlist(lapply(c(1:nrow(paramcheckfew)),function(x) outlierintimeseries(paramcheckfew,x)))    
+    paramcheckfewok<-unlist(lapply(c(1:nrow(paramcheckfew)),function(x) outlierintimeseries(paramcheckfew,x,0,allow = 0.1)))    
     paramcheckfew$correction[paramcheckfewok]<-"trend"
+    #do not list the issues that might just be a trend
+    paramcheckfew<-paramcheckfew[!paramcheckfewok,]
     
     paramcheck<-paramcheck[grepl("all",paramcheck$years),]
     paramcheck<-rbind(paramcheck,paramcheckfew)
     
     paramcheckfew<-paramcheck[grepl("except",paramcheck$years),]
-    paramcheckfewok<-unlist(lapply(c(1:nrow(paramcheckfew)),function(x) outlierintimeseries(paramcheckfew,x,1)))    
+    paramcheckfewok<-unlist(lapply(c(1:nrow(paramcheckfew)),function(x) outlierintimeseries(paramcheckfew,x,1,allow = 0.1)))    
     paramcheckfew$correction[paramcheckfewok]<-"trend"
+    #do not list the issues that might just be a trend
+    paramcheckfew<-paramcheckfew[!paramcheckfewok,]
     
     paramcheck<-paramcheck[!grepl("except",paramcheck$years),]
     paramcheck<-rbind(paramcheck,paramcheckfew)
     
-
+    paramcheck$check<-"outlier"
+    
 }
 if(outcheck=="growth"){
-    ming<-0.03
-    growthcheck<-identifyoutliers(trendoutlmethod,growth,"growth")
+    growth<-growth[!growth$party%in%eu,]
+    growthcheck<-identifyoutliers(trendoutlmethod,growth,"growth",ming=0.20)
+    growthcheck<-growthcheck[!growthcheck$party%in%eu,]
+    growthcheck<-growthcheck[remagglevel(growthcheck,mt = 1),]
+    growthcheck<-growthcheck[growthcheck$sector_number!="3.i",]
+    growthcheck<-growthcheck[growthcheck$sector_number!="3.J",]
     
     
+    # Poultry are dependent on market fluctuations - they can be excluded from the test
+    sel<-grepl("3.A.4.7|3.B.[12].4.7",growthcheck$sector_number)&growthcheck$meastype%in%c("POP","NEXC","CLIMA")
+    growthcheck<-growthcheck[!sel,]
+
+    # Lamb/sheep are dependent on market fluctuations - they can be excluded from the test
+    sel<-grepl("3.A.2|3.B.[12].2",growthcheck$sector_number)&growthcheck$meastype%in%c("POP","NEXC","CLIMA")
+    growthcheck<-growthcheck[!sel,]
+    
+    # Field residue burning is undergoing large fluctuations
+    sel<-grepl("3.F",growthcheck$sector_number)&growthcheck$meastype%in%c("AD","AREA","PROD","FracBURN")
+    growthcheck<-growthcheck[!sel,]
+    
+    growthcheckmeastypes<-unique(growthcheck$meastype)
+    
+    #For the moment remove those meastypes which are likely to be the consequence of another AD
+    sel<-growthcheck$meastype%in%c("NEXC","Nleach","Nvol","CLIMA")
+    growthcheck<-growthcheck[!sel,]
+    
+    #For the moment remove those meastypes are of secondary interest
+    sel<-growthcheck$meastype%in%c("PREGNANT","ORGAMENDMENT","FEEDING","GEav")
+    growthcheck<-growthcheck[!sel,]
+    
+    growthcheck$check<-"timeseries"
     
 }
 

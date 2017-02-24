@@ -1,7 +1,7 @@
 #install.packages("RSelenium")
 #RSelenium::checkForServer()
 #vignette('RSelenium-basics')
-
+#methods see help(remoteDriver)
 options(warnings=0)
 #RSelenium::startServer(dir = "RSelenium",log = FALSE)
 require(RSelenium)
@@ -13,7 +13,11 @@ require(RSelenium)
 #         --> Start it manually with 
 # java -jar RSelenium/selenium-server-standalone-3.1.0.jar -port 4567
 # launch it with bat-file
+# Need also to start gecko-driver!
 
+
+
+#source("curplot.r")
 
 ### LOGIN ####
 loginemrt<-function(remDr,issue=""){
@@ -32,7 +36,7 @@ loginemrt<-function(remDr,issue=""){
     webelem$clearElement()
     webelem$sendKeysToElement(list(psw))
     webelem$submitElement()
-    Sys.sleep(0.5)
+    Sys.sleep(2)
     remDr$navigate(paste0(urlemrt,issue))
     
 }
@@ -44,6 +48,7 @@ logingema<-function(remDr,issue=""){
     psw<-"Mostoles76"
     
     remDr$navigate(paste0(urlemrt,login))
+    Sys.sleep(0.5)
     webelem<-remDr$findElement('id', '__ac_name')
     webelem$clearElement()
     webelem$sendKeysToElement(list(usr))
@@ -51,30 +56,26 @@ logingema<-function(remDr,issue=""){
     webelem$clearElement()
     webelem$sendKeysToElement(list(psw))
     webelem$submitElement()
+    Sys.sleep(2)
     remDr$navigate(paste0(urlemrt,issue))
 }
 
 emrt<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
     #startServer(args = c("-Dwebdriver.chrome.driver=RSelenium/chromedriver.exe"), dir = "RSelenium", log = FALSE, invisible = FALSE)
-    
     #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
-    #remDr<-remoteDriver(browserName = "chrome")
-    
-    # New
-    #rD<-rsDriver(port = 4567L, browser = "firefox",verbose = FALSE)
-    #remDr<-rD$client
-    remDr$open()
+    remDr$open(silent = TRUE)
     loginemrt(remDr)
-    return(remDr)
+    return(1)
 }
 emrtgema<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
-    remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
-    remDr$open()
+    #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
+    remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
+    remDr$open(silent = TRUE)
     logingema(remDr)
-    return(remDr)
+    return(1)
 }
 
 
@@ -110,9 +111,12 @@ openissue<-function(remDr,issue,phase=""){
 }
 
 #addnewissue<-function(observation,party,sector,revyear,invyear,gas,mskey,eukey,para,highlight){
-addnewissue<-function(remDr,curobs,where){
+addnewissue<-function(curobs,where=curyear,x=""){
     # Add new issue ####
     # where = "test" or "2016" or other year..
+    remDr<-emrtgema()
+    print("")
+    print(paste0("New issue nr. ",x))
     newissue<- "++add++Observation"
     
     observation<-curobs$Obs
@@ -139,17 +143,20 @@ addnewissue<-function(remDr,curobs,where){
     # webelem<-remDr$findElement('id', 'form-widgets-highlight-6') #UNFCCC Recommendation
     # webelem<-remDr$findElement('id', 'form-widgets-highlight-7') #Union Recommendation
     
+    
     remDr$navigate(paste0(urlemrt,where,"/",newissue))
-    addtext(mytext = observation)
+    addtext(remDr,mytext = observation)
     
     webelem<-remDr$findElement('id', 'form-widgets-country')
     webelem$sendKeysToElement(list(party))
     
     webelem<-remDr$findElement('id', 'form-widgets-crf_code')
+    Sys.sleep(2)
     webelem$sendKeysToElement(list(sector))
     
     webelem<-remDr$findElement('id', 'form-widgets-year')
     webelem$clearElement()
+    Sys.sleep(2)
     webelem$sendKeysToElement(list(invyear))
     
     webelem<-remDr$findElement('id', 'form-widgets-gas-0') #CH4
@@ -191,11 +198,11 @@ addnewissue<-function(remDr,curobs,where){
     webelem<-remDr$findElement('id', 'form-widgets-parameter-3') #other
     if(unlist(webelem$isElementSelected())) webelem$clickElement()
     
-    if(para=="AD"){
+    if(para=="AD" | para=="Activity Data"){
         webelem<-remDr$findElement('id', 'form-widgets-parameter-0')
-    }else if(para=="EM" | para=="Emission"){
+    }else if(para=="EM" | para=="Emissions" | para=="Emission"){
         webelem<-remDr$findElement('id', 'form-widgets-parameter-1') #EM
-    }else if(para=="IEF"){
+    }else if(para=="IEF" | grepl("Emission factor",para)){
         webelem<-remDr$findElement('id', 'form-widgets-parameter-2') #IEF
     }else{
         webelem<-remDr$findElement('id', 'form-widgets-parameter-3') #other
@@ -213,33 +220,60 @@ addnewissue<-function(remDr,curobs,where){
     webelem<-remDr$findElement('id', 'form-buttons-save')
     #webelem<-remDr$findElement('id', 'form-buttons-cancel')
     webelem$clickElement()
+    while(grepl("\\+\\+add\\+\\+",webelem$getCurrentUrl()[[1]])){
+        Sys.sleep(1)
+        cat("wait..")
+    }
     newissue<-"A"
     newissue<-strsplit(webelem$getCurrentUrl()[[1]],"\\/")[[1]][5]
     
+    waitfor<-paste0(urlemrt,where,"/",newissue,"/view#tab-qa")
+    cat(waitfor,"...")
+    while(webelem$getCurrentUrl()[[1]]!=waitfor){
+        Sys.sleep(1)
+        cat("wait..")
+    }
+    print(webelem$getCurrentUrl()[[1]])
     qok<-addquestion(remDr,newissue,question)
-    sendapproval<-clickstandardbutton(btext = "Send Question for Approval")
     
+    waitfor<-paste0(urlemrt,where,"/",newissue,"#tab-qa")
+    cat(waitfor,"...")
+    while(webelem$getCurrentUrl()[[1]]!=waitfor){
+        Sys.sleep(1)
+        cat("wait..")
+    }
+    print(webelem$getCurrentUrl()[[1]])
+    
+    sendapproval<-clickstandardbutton(remDr,btext = "Send Question for Approval")
+    #Give time to change item status and notify users
+    webelem<-remDr$findElement('class', 'documentEditable')
+    cat(" Wait item state changing ... ")
+    while(!grepl("Item state changed",webelem$getElementText())){
+        cat("wait...")
+        Sys.sleep(2)
+        webelem<-remDr$findElement('class', 'documentEditable')
+    }
+    remDr$close()
     return(newissue)
 }
 
 acknowledge<-function(remDr,issue){
     curissue<-openissue(remDr,issue)
-    clickstandardbutton(btext = "Acknowledge Answer")
+    clickstandardbutton(remDr,btext = "Acknowledge Answer")
 }
 
 addquestion<-function(remDr,issue,question){
-    
-    
+    Sys.sleep(2)
     webelem<-remDr$findElement('id', 'add-question-link')
     webelem$clickElement()
-    addtext(mytext = question)
+    addtext(remDr,mytext = question)
     webelem<-remDr$findElement('class', 'submit-widget')
     webelem$clickElement()
     
     return(1)
 }
 
-clickstandardbutton<-function(btext){
+clickstandardbutton<-function(remDr,btext){
     isPresent = length(remDr$findElements('class', 'eea-tabs-panel'))
     ok<-0
     if(isPresent>0){
@@ -280,7 +314,7 @@ clicksave<-function(){
     }
     return(1)
 }
-addtext<-function(mytext){
+addtext<-function(remDr,mytext){
     isPresent = length(remDr$findElements('id', 'form-widgets-text'))
     ok<-0
     if(isPresent>0){
@@ -294,7 +328,7 @@ addtext<-function(mytext){
 
 approvequestionandsend<-function(remDr,issue,where=NULL){
     curissue<-openissue(remDr,issue)
-    sent<-clickstandardbutton(btext = "Approve question and send")
+    sent<-clickstandardbutton(remDr,btext = "Approve question and send")
     Sys.sleep(1)
     return(sent)
 }
@@ -302,17 +336,17 @@ approvequestionandsend<-function(remDr,issue,where=NULL){
 followupissue<-function(line){
     curissue<-line$issuenr
     openissue(remDr,curissue)
-    clickstandardbutton("Add follow up question")
-    addtext(mytext = line$communication)
+    clickstandardbutton(remDr,"Add follow up question")
+    addtext(remDr,mytext = line$communication)
     clicksave()
-    sent<-clickstandardbutton("Send Question for Approval")
+    sent<-clickstandardbutton(remDr,"Send Question for Approval")
     return(list(curissue,sent))
 }
 onlysendforapproval<-function(line){
     #curissue<-line$issuenr
     curissue<-line
     openissue(remDr,curissue)
-    sent<-clickstandardbutton("Send Question for Approval")
+    sent<-clickstandardbutton(remDr,"Send Question for Approval")
     return(list(curissue,sent))
 }
 
@@ -340,44 +374,75 @@ convert2char<-function(DF,cols=NULL){
     }
     return(DF)
 }
-addnewissuecomplete<-function(newobs,x1=NULL,x2=NULL,where="test"){
-   
+
+preparefileforissueupload<-function(newissuefile="",revyear=curyear){
     #Add new issue as Sector Expert (Gema)
     #and send to country as Quality Expert (Adrian)
-    newissuefile<-paste0(issuedir,"/issues_mergedGRC-GC.csv")
+    #newissuefile<-paste0(issuedir,"/issues_mergedGRC-GC.csv")
+    #newissuefile<-paste0(issuedir,"/issues_mergedGRC-GC.csv")
+    #newissuefile<-paste0(issuedir,"/timeseries/checks20170123growthcheck-GC_al.csv")
+    
     newissuefile<-read.csv(newissuefile,comment.char = "#",stringsAsFactors=FALSE)
     
-    newissuefields<-c("Obs","Country","sec","invyear","revyear","gas","key.ms","key.eu","par",flagnames,"question")
+    newissuefile$revyear<-revyear
+    newissuefile$sec<-sapply(1:nrow(newissuefile),function(x) emrtsector(newissuefile$sector_number[x]))
+    newissuefile$Country<-sapply(1:nrow(newissuefile),function(x) country4sub[country4sub==newissuefile$party[x],"name"])
+    determinepar<-function(meast){
+        if(meast=="EM"){par<-"Emission"}else 
+        if(meast=="IEF"){par<-"Emission factor"}else
+        if(meast%in%c("AD","AREA","POP")){par<-"Activity Data"}else{par<-"Other"}
+    }
+    newissuefile$par<-sapply(1:nrow(newissuefile),function(x) determinepar(newissuefile$meastype[x]))
+    
+    newissuefields<-c("resolved","Obs","Country","party","sec","invyear","revyear","gas","key.ms","key.eu","par",flagnames,"question","question_type")
     missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
+    
     if("Obs"%in%missfields & sum(grepl("Observ",names(newissuefile)))) newissuefile$Obs<-newissuefile[,which(grepl("Observ",names(newissuefile)))]
     if("Country"%in%missfields & sum(grepl("party",names(newissuefile)))) {
         newissuefile$Country<-unlist(lapply(c(1:nrow(newissuefile)),function(x) countriesl[which(countries2==newissuefile$party[x])]))
     }
     missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
     
+    
+    #If question_type is defined (for timeseries issues) copy to question
+    if("question_type"%in%names(newissuefile)){
+        newissuefile$question<-sapply(1:nrow(newissuefile),function(x) if(newissuefile$question_type[x]!=""){newissuefile$question_type[x]}else{newissuefile$question[x]})
+        newissuefile<-newissuefile[,-which(names(newissuefile)=="question_type")]
+        newissuefile<-newissuefile[newissuefile$question!="",]
+    }
+    missfields<-missfields[!missfields=="question_type"]
+    newissuefields<-newissuefields[!newissuefields=="question_type"]
+    
     if(length(missfields>0))stop(paste0("missing fields: ",paste(missfields,collapse="-")))
     
     newobs<-newissuefile[,newissuefields]
+    newobs<-newobs[newobs$Obs!="",]
     
+    #Keep only flag 0 (new significant issue) and 4 (follow-up of previously unresolved issue)
+    newobs<-newobs[newobs$resolved%in%c(0,4),]
+    
+    
+    return(newobs)
+}
+
+addnewissuecomplete<-function(newobs,x1=NULL,x2=NULL,where="test"){
     if(is.null(x1)) x1<-1
     if(is.null(x2)) x2<-nrow(newobs)
     
     #Log-in as Gema
-    remDr<-emrtgema()
-    newissues<-unlist(lapply(c(x1:x2),function(x) addnewissue(remDr,newobs[x,],where)))
-    newissues<-as.data.frame(newissues)
-    newissues[,sectfields]<-newobs[x1:x2,sectfields]
-    newissues[,measfields]<-newobs[x1:x2,measfields]
-    newissues[,flag4issues]<-newobs[x1:x2,flag4issues]
-    newissues$x<-c(x1:x2)
-    write.csv(newissues,file=paste0(issuedir,"issues",format(Sys.time(), "%Y%m%d-%H%M"),".csv"))
+    newissues<-unlist(lapply(c(x1:x2),function(x) addnewissue(newobs[x,],where,x=x)))
     
     #Log-in as Adrian
     remDr<-emrt()
-    sent<-unlist(lapply(c(1:nrow(newissues)),function(x) approvequestionandsend(remDr,newissues$newissues[x],where)))
-    newissues$sent<-sent
-    write.csv(newissues,file=paste0(issuedir,"issues",format(Sys.time(), "%Y%m%d-%H%M"),".csv"))
-    return(newissues)
+    curissues<-listofselectedissues(remDr,revyear = curyear,filter = "workflow",criterion = "quality")
+    cat("to be approved:",curissues)
+    approved<-sapply(1:length(curissues),function(x) approvequestionandsend(remDr = remDr,issue = curissues[x]))
+    cat("approved:",approved)
+    #sent<-unlist(lapply(c(1:nrow(newissues)),function(x) approvequestionandsend(remDr,newissues$newissues[x],where)))
+    #newissues$sent<-sent
+    #write.csv(newissues,file=paste0(issuedir,"issues",format(Sys.time(), "%Y%m%d-%H%M"),".csv"))
+    #return(newissues)
+    return(curissues)
     
 }
 
@@ -810,6 +875,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
             if(filter[i]=="workflow"){
                 if(criterion[i]=="quality"){crit<-"LRQE"}
                 if(criterion[i]=="sector"){crit<-"SRRE"}
+                if(criterion[i]=="country"){crit<-"MSC"}
                 addfilter[i]<-paste0("wfStatus=",crit)
             }
             if(filter[i]=="step"){addfilter[i]<-paste0("step=",criterion[i])}
@@ -849,15 +915,13 @@ approveandsendissues<-function(revyear=2017,focus="",details=0){
     
 }
 
-
-selectissuesandwritedetails<-function(revyear=2017,focus="",details=0){
+selectissuesandwritedetails<-function(revyear=2017,filter="workflow",criterion="answered",focus="",details=0){
     remDr<-emrt()
-    filter<-"workflow"
-    criterion<-"answered"
     if(is.null(filter)){crit<-"all"}else{crit<-paste(criterion,collapse="-")}
     if(focus=="answers"){filter<-"workflow";criterion<-"answered"}
     if(focus=="approve"){filter<-"workflow";criterion<-"quality"}
     if(focus=="forwarded"){filter<-"step";criterion<-"step2"}
+    if(focus=="newissues"){filter<-"workflow";criterion<-"country"}
     
     openissues<-listofselectedissues(remDr,revyear,filter,criterion)
     openissues<-sort(openissues)
@@ -1037,7 +1101,7 @@ resolvedissues<-function(){
         curissue<-line$issuenr
         todo<-tolower(line$Finalization)
         openissue(remDr,curissue)
-        clickstandardbutton("Add Conclusions")
+        clickstandardbutton(remDr,"Add Conclusions")
         webelem<-remDr$findElement('id', 'form-widgets-closing_reason')
         if(todo=="resolved") webelem$sendKeysToElement(list("Resolved"))
         if(todo=="unresolved") webelem$sendKeysToElement(list("Unresolved"))
@@ -1052,9 +1116,9 @@ resolvedissues<-function(){
         }else{
             mytext<-paste0(mytext)
         }
-        addtext(mytext)
+        addtext(remDr,mytext)
         clicksave()
-        sent1<-clickstandardbutton("Request finalisation of the observation")
+        sent1<-clickstandardbutton(remDr,"Request finalisation of the observation")
         sent2<-clicksubmitbutton("Request finalisation of the observation")
         return(list(curissue,sent2))
     }
@@ -1063,10 +1127,10 @@ resolvedissues<-function(){
         todo<-tolower(line$Finalization)
         openissue(remDr,curissue)
         if(todo=="resolved") {
-            clickstandardbutton("Confirm finishing observation")
-            sent1<-clickstandardbutton("Confirm finishing observation")
+            clickstandardbutton(remDr,"Confirm finishing observation")
+            sent1<-clickstandardbutton(remDr,"Confirm finishing observation")
         }
-        if(todo%in%c("unresolved","partly resolved")) clickstandardbutton("Hand over to Team 2")
+        if(todo%in%c("unresolved","partly resolved")) clickstandardbutton(remDr,"Hand over to Team 2")
         return(1)
     }
     
@@ -1120,9 +1184,13 @@ stop()
 #Approve and send issues added by Sector Expert
 remDr<-emrt()
 curissues<-listofselectedissues(remDr,revyear = curyear,filter = "workflow",criterion = "quality")
+approved<-sapply(1:length(curissues),function(x) approvequestionandsend(remDr = remDr,issue = curissues[x]))
 approved<-sapply(1:1,function(x) approvequestionandsend(remDr = remDr,issue = curissues[x]))
-approved<-sapply(3:length(curissues),function(x) approvequestionandsend(remDr = remDr,issue = curissues[x]))
 
+# Add recalculationissues
+issuefile<-paste0(issuedir,"recalculation/Recalculations20170223.csv")
+newobs<-preparefileforissueupload(issuefile)
+test<-addnewissuecomplete(newobs = newobs,x1=1,x2=1,where=curyear)
 
 # For adding test issue
 observation<-"This is a test to submit issue via R"

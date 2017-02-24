@@ -83,7 +83,7 @@ questionrecalc<-function(line){
 observationgrowth<-function(line){
     
     observationsec<-line$sector_number
-    observationmea<-paste0(line$measure," (",line$meastype,")")
+    observationmea<-paste0(line$measure," (",line$meastype,", ",line$category,")")
     observationyrs<-paste(line$years,collapse=",")
     
     observation<-paste0(observationsec," - ",observationmea,": ","Irregularities in the time series have been been identified. Years flagged: ",observationyrs)
@@ -359,6 +359,23 @@ keyflags<-function(line,check){
     #print(length(allflags))
     return(allflags)
 }
+emrtsector<-function(sectornumber){
+    if(grepl("^3.A",sectornumber)){sector<-"3A Enteric Fermentation"}else
+    if(grepl("^3.B",sectornumber)){sector<-"3B Manure Management"}else
+    if(grepl("^3.C",sectornumber)){sector<-"3C Rice Cultivation"}else
+    if(grepl("^3.D.1",sectornumber)){sector<-"3D1 Direct N2O from managed soils"}else
+    if(grepl("^3.D.2",sectornumber)){sector<-"3D2 Indirect N2O from managed soils"}else
+    if(grepl("^3.E",sectornumber)){sector<-"3E Prescribed burning of Savannas"}else
+    if(grepl("^3.F",sectornumber)){sector<-"3F Fiend burning of agricultural residues"}else
+    if(grepl("^3.G",sectornumber)){sector<-"3H Liming"}else
+    if(grepl("^3.H",sectornumber)){sector<-"3H Urea application"}else
+    if(grepl("^3.I",sectornumber)){sector<-"3I Other Carbon-containing fertilizers"}else
+    if(grepl("^3.J",sectornumber)){sector<-"3J Other"}else
+    if(grepl("^3.G",sectornumber)){sector<-"3G Liming"}else{sector<-"3 Agriculture"}
+    
+    return(sector)
+    
+}
 
 flags4newissue<-function(line,check,x){
     #print(x)
@@ -381,18 +398,7 @@ flags4newissue<-function(line,check,x){
         question<-questionrecalc(line)
     }
     revyear<-invyear
-    if(grepl("^3.A",line$sector_number)){sector<-"3A Enteric Fermentation"}else
-    if(grepl("^3.B",line$sector_number)){sector<-"3B Manure Management"}else
-    if(grepl("^3.C",line$sector_number)){sector<-"3C Rice Cultivation"}else
-    if(grepl("^3.D.1",line$sector_number)){sector<-"3D1 Direct N2O from managed soils"}else
-    if(grepl("^3.D.2",line$sector_number)){sector<-"3D2 Indirect N2O from managed soils"}else
-    if(grepl("^3.E",line$sector_number)){sector<-"3E Prescribed burning of Savannas"}else
-    if(grepl("^3.F",line$sector_number)){sector<-"3F Fiend burning of agricultural residues"}else
-    if(grepl("^3.G",line$sector_number)){sector<-"3H Liming"}else
-    if(grepl("^3.H",line$sector_number)){sector<-"3H Urea application"}else
-    if(grepl("^3.I",line$sector_number)){sector<-"3I Other Carbon-containing fertilizers"}else
-    if(grepl("^3.J",line$sector_number)){sector<-"3J Other"}else
-    if(grepl("^3.G",line$sector_number)){sector<-"3G Liming"}else{sector<-"3 Agriculture"}
+    sector<-emrtsector(line$sector_number)
     gas<-identifygas(line$sector_number)
     if(line$years=="all" | line$years==""){
         yrs<-paste0("1990-",lastyear)

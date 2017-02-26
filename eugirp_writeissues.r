@@ -367,11 +367,11 @@ emrtsector<-function(sectornumber){
     if(grepl("^3.D.2",sectornumber)){sector<-"3D2 Indirect N2O from managed soils"}else
     if(grepl("^3.E",sectornumber)){sector<-"3E Prescribed burning of Savannas"}else
     if(grepl("^3.F",sectornumber)){sector<-"3F Fiend burning of agricultural residues"}else
-    if(grepl("^3.G",sectornumber)){sector<-"3H Liming"}else
+    if(grepl("^3.G",sectornumber)){sector<-"3G Liming"}else
     if(grepl("^3.H",sectornumber)){sector<-"3H Urea application"}else
     if(grepl("^3.I",sectornumber)){sector<-"3I Other Carbon-containing fertilizers"}else
     if(grepl("^3.J",sectornumber)){sector<-"3J Other"}else
-    if(grepl("^3.G",sectornumber)){sector<-"3G Liming"}else{sector<-"3 Agriculture"}
+    {sector<-"3 Agriculture"}
     
     return(sector)
     

@@ -54,9 +54,15 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
                                              & M$target==tar]))
         #print(measOK)
         if(length(measOK)==0) {
-            tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
-            print(tms)
-            stop()
+            cat<-gsub("yrs","years",cat)
+            measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+                                                 & M$sector_number==sec & M$category==cat 
+                                                 & M$target==tar]))
+            if(length(measOK)==0) {
+                tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+                print(tms)
+                stop()
+            }
         }
     }
     

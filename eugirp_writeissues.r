@@ -11,10 +11,10 @@ writeissuelist<-function(D,file){
     if(trendoutlmethod==2)writeLines(whisksexpl,con)
     writeLines(colexpl2, con)
     writeLines(colexpl3, con)
-    writeLines("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. ",
-               "1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified. ",
-               "rellim: relaxing upper and lower limit by 10% or more for 3.B - issue OK but can be quickly checked. ",
-               "cattle: problem likely related for Dairy/Non-dairy cattle, thus duplication. ",con)
+    writeLines(paste0("#\n#Note for column: correction: 0: value assumed to be a mistake. it is exlcuded from the calculation of the EU weighted average to not bias the EU-value and requires clarification. ",
+                      "1: value is assumed to be not an outlier despite the criteria (e.g. milk production). empty: to be clarified. ",
+                      "rellim: relaxing upper and lower limit by 10% or more for 3.B - issue OK but can be quickly checked. ",
+                      "cattle: problem likely related for Dairy/Non-dairy cattle, thus duplication. "),con)
     write.csv(D,con)
     close(con)
     
@@ -92,96 +92,175 @@ observationgrowth<-function(line){
 }
 observationagri<-function(line){
     
+    if(!"range"%in%names(line)) line$range<-line$fac
+    
+    
     observationsec<-line$sector_number
-    observationcat<-line$category
+    if(!"sector_number"%in%names(line)) observationsec<-line$sec
+    observationsec<-as.character(observationsec)
+    observationsecs<-strsplit(observationsec,",")[[1]]
+    
+    observationcat<-as.character(line$category)
+    if(!"category"%in%names(line)) observationcat<-as.character(line$cat)
+    observationcats<-strsplit(observationcat,",")[[1]]
+    if(length(observationcats)<4){
+        #observationcat<-gsub("_"," ",paste(observationcats,collapse=" and "))
+        observationcats<-gsub("_"," ",observationcats)
+    }else{
+        observationcat<-"Various"
+    }
+    if(length(observationsecs)<4){
+        #observationsec<-gsub("_"," ",paste(observationcats,collapse=" and "))
+        observationsecs<-gsub("_"," ",observationsecs)
+    }else{
+        observationsec<-"Various"
+    }
+    observation<-paste0(paste(observationsecs," (",observationcats,")",collapse=" and "),": ")
+    
+    
     observationyrs<-paste(line$years,collapse=",")
+    if(!"years"%in%names(line)) observationyrs<-line$yr
+    
     test<-line$check
     val1<-line$val1
     val2<-line$val2
     
     
-    observation<-paste0(observationsec," (",observationcat,"): ")
     question<-""
     issue<-""
+    advice<-""
+    
     
     if(test=="NexTOT"){
-        issue<-paste("Check: Total manure excreted per animal type versus the sum of manure excretion over the MMS. ")
-        if(grepl("total",line$obs)) question<-paste0("No total N excretion is reported.")
-        if(grepl("val1 ",line$obs)) question<-paste0("Sum of manure excretion over the MMS is different from Total N excretion (",line$obs," - ",line$range,")")
-        question<-paste0(question,"Please include values for total N excretion for all animal types in your next submission. ")
-        extraline<-"# Note: countries which do not report both 'Nitrogen excretion per MMS' and 'Total N excreted' are not identified"
+        question<-paste("Test: ",line$check," (check of total manure excreted per animal type versus the sum of manure excretion over the MMS). ")
+        if(grepl("total",line$obs)) issue<-paste0("No total N excretion is reported for animal type ",line$cat)
+        if(grepl("val1 ",line$obs)) issue<-paste0("Sum of manure excretion over the MMS is different from Total N excretion for animal type ",line$cat," (",line$obs," - ",line$range,")")
+        advice<-paste0("Please include values for total N excretion for all animal types in your next submission. See file for further information.")
     }
     if(test=="NexRATE"){
-        issue<-paste("Check: Sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
-        #animaltypes<-"animal type "
-        #if(length(cats)>1) animaltypes<-"animal types "
-        #animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
+        question<-paste("Test: ",line$check," (check of the sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
+        animaltypes<-"animal type "
         if(grepl("not reported",line$obs)) {
-            question<-paste0("No N excretion rate is reported.")
-            question<-paste0(question,"Please include values for the N excretion rate all animal types in your next submission.")
+            issue<-paste0("No N excretion rate is reported for ",observationcat)
+            advice<-paste0("Question: Please include values for the N excretion rate all animal types in your next submission. See file for further information.")
         }
         if(grepl("val1 is fac ",line$obs)) {
-            question<-paste0("Sum of manure excretion over the MMS is different from POP/1000 x N-rate (",line$range,")")
-            question<-paste0(question,"Please justify the reason for the discrepancy and/or correct in your next submission.")
-            #"Please compare measures 'Total N excreted'-meastype 'EM' with meastype 'TNEXC2'! ")
+            issue<-paste0("Sum of manure excretion over the MMS is different from POP/1000 x N-rate for ",animaltypes," (",line$range,")")
+            advice<-paste0("Please justify the reason for the discrepancy and/or correct in your next submission for ",animaltypes,". See file for further information.",
+                             "Please compare measures 'Total N excreted'-meastype 'EM' with meastype 'TNEXC2'! ")
         }
     }
+    if(grepl("N2O-IEF in ",test)){
+        question<-paste0("Calculate IEF from N available and N2O emissions. ")
+    }
+    if(grepl("N in ",test)){
+        question<-paste0("Test: Sum of N handled in MMS over animal type vs. total N handled. ")
+        issue<-paste0("Total N managed in MMS reported in '3.B.2.5 N2O Emissions per MMS' does not match with the sum of the values reported over the animal types. ")
+        advice<-paste0("Please justify the reason for the discrepancy and/or correct in your next submission. ")
+    }
     if(grepl("N2O-NIEF",test)){
-        issue<-paste("Check: calculation of N2O-IEF. ")
+        question<-paste("Test: calculation of N2O-IEF. ")
         #animaltypes<-"animal type "
         #if(length(cats)>1) animaltypes<-"animal types "
         #animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
         if(grepl("not reported",line$obs)) {
-            question<-paste0("Missing information. ")
-            question<-paste0(question,"Please complete the CRF table with the missing information.")
+            issue<-paste0("Missing information. ")
+            advice<-paste0("Please complete the CRF table with the missing information.")
         }
         if(grepl("val1 is fac ",line$obs)) {
-            question<-paste0("The results for the N2O-IEF differ between two calculation methods.")
-            question<-paste0(question,"Please justify the reason for the discrepancy and/or correct in your next submission. ")
+            issue<-paste0("The results for the N2O-IEF differ between two calculation methods. ")
+            advice<-paste0("Please justify the reason for the discrepancy and/or correct in your next submission. ")
             #"Please compare the values reported under 'IEFN1' and 'IEFN2'! ")
-            question<-paste0(question,"IEFN1 is calculated as the weighted average of the IEF for the MMS (IEF_MMS) and the N excreted to the MMS (IEFN1=SUM(IEF_MMS * NEXC_MMS)/TNECX). ",
+            advice<-paste0(advice,"See file for further information. Compare the values reported under 'IEFN1' and 'IEFN2'! ")
+            advice<-paste0(advice,"IEFN1 is calculated as the weighted average of the IEF for the MMS (IEF_MMS) and the N excreted to the MMS (IEFN1=SUM(IEF_MMS * NEXC_MMS)/TNEXC). ",
                              "IEFN2 is calculated as from total (direct) Emissions and Total N excreted (IEFN2=EM/TNEXC*28/44). ",
                              "IEF_MMS is calculated from Total N handled per MMS and Direct N2O emissions per MMS (IEF_MMS=EM_MMS/N_MMS*28/44). ",
                              "--> A difference in IEFN1 and IEFN2 indicates ",
-                             "that either the use of IEF_MMS that are different for different animal types (e.g. different sub-systems, w/o natural crust etc. In this case please provide an explanation!! ",
+                             "that either the use of IEF_MMS that are different for different animal types (e.g. different sub-systems - w/o natural crust etc. In this case please provide an explanation! ",
                              "Otherwise this indicates an error in the calculation. In this case please provide a correction.")
         }
     }
     
     if(grepl("CLIMA",test)){
-        issue<-paste("Check: Allocation over all climate regions and MMS (Tier 2) sums up to 100). ")
+        question<-paste("Test: CLIMA. ")
         #animaltypes<-"animal type "
         #if(length(cats)>1) animaltypes<-"animal types "
         #animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
         
-        question<-paste0("The allocation over all climate regions and MMS (Tier 2) sums does not sum up to 100 (",line$range,"). ")
-        question<-paste0(question,"Please correct in your next submission. ",
+        issue<-paste0("The allocation over all climate regions and MMS (Tier 2) sums does not sum up to 100 for ",line$cat," (",line$range,")")
+        advice<-paste0(question,"Please correct in your next submission. ",
                          "Note that the values need to be in percent (not fraction)! ")
     }
     
     if(test=="CPP and SO def IEFs"){
-        issue<-paste("Check: Compare the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) ",
+        question<-paste("Test: Compare the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) ",
                      "with default IEFs EF3RPR_CPP for Cattle - Pigs and Poultry (0.02) and",
                      "EF3RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure",
                      "deposited by the two animal groups. ")
-        animaltypes<-paste0(paste(s,cat,collapse=" and "))
+        #animaltypes<-paste0(paste(s,cat,collapse=" and "))
         if(grepl("not reported",line$obs)) {
-            question<-paste0("Missing information to perform the test for ",animaltypes)
-            question<-paste0(question,"Please complete the CRF table with the missing information.")
+            issue<-paste0("Missing information to perform the test for ",observationcat)
+            advice<-paste0(question,"Please complete the CRF table with the missing information.")
         }
         if(grepl("val1 is fac ",line$obs)) {
-            question<-paste0("The results for the N2O-IEF differ (",line$range,", rounding to 3 digits)")
-            question<-paste0(question,"Please justify the reason for the discrepancy and/or correct in your next submission.")
+            issue<-paste0("The results for the N2O-IEF differ (",line$range,", rounding to 3 digits)")
+            advice<-paste0(question,"Please justify the reason for the discrepancy and/or correct in your next submission.")
         }
     }
+    if(grepl("Manure_grazing",test)){
+        question<-paste("Test: Compare the Manure 'managed' in Pasture Range and Paddock in 3.B.2",
+                     "with AD in 3.D.1.3 (Urine and Dung Deposited by Grazing Animals). ",
+                     "According to IPCC equation 11.5 the annual amount of urine and dung N deposited on pasture range and paddock and by grazing animals (FRPR) ",
+                     "is calculated from the fraction deposited on PRP without subtracting any volatilization or leaching losses. ",
+                     "The sum of FRPR over all animal types should therefore equal the AD in category 3.D.1.3. ",
+                     "Please compare 'NEXC' from category 3.B.2.5 with 'AD' from category 3.D.1.3. ")
+        issue<-paste0("Inconsistent data between manure on RPR in 3.B.2 and AD for grazing animals in 3.D.1.3 (",line$range,"). ")
+        advice<-paste0("Please justify the difference in the values reported or correct in accordance with the IPCC guidelines. ")
+    }
+    if(grepl(" loss ratio",test)){
+        if(line$obs=="Nvol is not reported"){
+            question<-paste("Test: Fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure.",
+                         "According to IPCC Table 10.22 most of the Lost-fractions are between 20% and 45% of N in managed manure. ",
+                         "")
+            issue<-paste0("No N volatilization is reported.")
+            advice<-paste0("Please report N volatilization in category 3.B.2 in accordance with the IPCC guidelines. ")
+        }else{
+            rmax<-max(unlist(strsplit(gsub("range: ","",line$range),split="-")))
+            rmin<-min(unlist(strsplit(gsub("range: ","",line$range),split="-")))
+            if(rmin>=0.45){rte<-" high"}else if(rmax<=0.2){rte<-" low"}else{rte<-""}
+            cat(rmax,rmin,rte,"\n")
+            question<-paste("Test: Fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure.",
+                         "According to IPCC Table 10.22 most of the Lost-fractions are between 20% and 45% of N in managed manure. ",
+                         "We identified N losses that are higher than 45% or lower than 20%. ")
+            issue<-paste0("Fraction of N lost in MMS (via volatilization of NH3+NOx) out of range (",line$range,").")
+            advice<-paste0("Please justify the",rte," N volatilization rates reported or correct in accordance with the IPCC guidelines. ",
+                             "Check the calculated fraction 'Nlossratio' that is obtained from 'Nvol' (not the factor 1000000 in the unit) and managed 'NEXC'.")
+        }
+    }
+    if(grepl("N application ratio",test)){
+        facv<-if(is.numeric(line$range)){round(line$range,3)}else{line$range}
+        question<-paste("Test: Compare the Manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Aninmal manure applied to soil (3D12a).",
+                     "Please compare 'AD' in sector 3.D.1.2.a with 'NEXC' minus 'Nvol' plus 'Nleach' in sector 3.B.2.5 Emissions per MMS and the calculated fraction 'FracNavapp'. ")
+        issue<-paste0("The amount of N applied with animal manure in 3.D.1.2.a is large as compared to N managed in MMS minus N lost as NH3+NOx or leaching (inverse ratio ",facv,"). ")
+        advice<-paste0("Please justify the difference in the values reported or correct in accordance with the IPCC guidelines. ",
+                         "According to IPCC equation 11.4 FAM is calculted from NMMS_Avb as calculated in Equation 10.34. ",
+                         "NMMS_Avb is obtained from N managed in MMS and not lost (FracLOSSMS) according to Table 10.23 plus any addition of bedding material. ",
+                         "The loss fractions in Table 10.23 include also losses of N2 which are not included in the indirect emissions-volatilizations. ",
+                         "Therefore FAM is expected to be smaller than N managed in MMS minus N lost as NH3+NOx+leaching unless bedding material has been accounted for. ",
+                         "In case of crop residues as bedding material care has to be taken to avoid double counting. ")
+    }
+    
     if(observationyrs!="")observationyrs<-paste0(" Years: ",observationyrs)
+    question<-paste0(observation,question,issue,advice)
     observation<-paste0(observation,issue,observationyrs)
     return(list(observation,question))
 }
 questionoutlier<-function(line){
 
     # Start question
-    question<-paste0("The value of the outlier is with ", rounddigit(line$value)," (mean of outlier years) ",
+    observationsec<-paste(line$sector_number,line$category,observationyrs,sep=" - ")
+    observationmea<-paste0(line$measure," (",line$meastype,", ",observationsec,")")
+    question<-paste0("The value of the outlier for the ",observationmea,"is with ", rounddigit(line$value)," (mean of outlier years) ",
                      rounddigit(line$value/line$media), " times the median value reported from all countries and ")
     if(line$value>line$ulim)question<-paste0(question,round(line$value/line$ulim,1)," times the calculated upper limit.")
     if(line$value<line$llim)question<-paste0(question,round(line$value/line$llim,1)," times the calculated lower limit.")
@@ -365,6 +444,7 @@ emrtsector<-function(sectornumber){
     if(grepl("^3.C",sectornumber)){sector<-"3C Rice Cultivation"}else
     if(grepl("^3.D.1",sectornumber)){sector<-"3D1 Direct N2O from managed soils"}else
     if(grepl("^3.D.2",sectornumber)){sector<-"3D2 Indirect N2O from managed soils"}else
+    if(grepl("^3.D",sectornumber)){sector<-"3D Agricultural soils"}else
     if(grepl("^3.E",sectornumber)){sector<-"3E Prescribed burning of Savannas"}else
     if(grepl("^3.F",sectornumber)){sector<-"3F Fiend burning of agricultural residues"}else
     if(grepl("^3.G",sectornumber)){sector<-"3G Liming"}else
@@ -583,7 +663,7 @@ reportchecks1<-function(check,data,x){
     y<-check$yr
     s<-as.character(check$sec)
     cat<-as.character(check$cat)
-    
+    print(cat)
     if(grepl("all",c) & grepl("all",y)){
         # If all countries and years are concerned: general problem, 
         # no individual issue needs to be written
@@ -595,69 +675,39 @@ reportchecks1<-function(check,data,x){
         if(grepl("all",c)){c<-allcountries}else{c<-unlist(strsplit(as.character(c)," "))}
         
         #selection<-data$sector_number==s & data$category==cat
-        cats<-gsub("_"," ",strsplit(cat,split = " ")[[1]])
-        secs<-strsplit(s,split = " ")[[1]]
+        cats<-gsub("_"," ",strsplit(cat,split = ",")[[1]])
+        secs<-gsub("_"," ",strsplit(s,split = " ")[[1]])
         selection<-data$sector_number%in%secs & data$category%in%cats
 
-        selp<-as.vector(unique(unlist(data$party[selection])))
-        selp<-selp[!selp%in%c]
         
         observation<-paste(check[,checkfields],collapse="-")
         question<-" Question: Please correct/provide the missing information in your next submission."
+        observation<-observationagri(check)[[1]]
+        question<-observationagri(check)[[2]]
         issue<-gsub(" ","",check$check)
-        print(check$check)
+        #print(check$check)
         if(check$check=="NexTOT"){
-            issue<-paste("Issue: Test ",check$check," (check of total manure excreted per animal type versus the sum of manure excretion over the MMS). ")
-            if(grepl("total",check$obs)) observation<-paste0("Observation: No total N excretion is reported for animal type ",check$cat)
-            if(grepl("val1 ",check$obs)) observation<-paste0("Observation: Sum of manure excretion over the MMS is different from Total N excretion for animal type ",check$cat," (",check$obs," - ",check$range,")")
-            question<-paste0("Question: Please include values for total N excretion for all animal types in your next submission. See file for further information.")
             extraline<-"# Note: countries which do not report both 'Nitrogen excretion per MMS' and 'Total N excreted' are not identified"
-            
             selection<-selection & data$gas=="no gas" & (data$meastype=="EM" | data$meastype=="NEXC") 
         }
         if(check$check=="NexRATE"){
-            issue<-paste("Issue: Test ",check$check," (check of the sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
-            animaltypes<-"animal type "
-            if(length(cats)>1) animaltypes<-"animal types "
-            animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
-            if(grepl("not reported",check$obs)) {
-                observation<-paste0("Observation: No N excretion rate is reported for ",animaltypes)
-                question<-paste0("Question: Please include values for the N excretion rate all animal types in your next submission. See file for further information.")
-            }
-            if(grepl("val1 is fac ",check$obs)) {
-                observation<-paste0("Observation: Sum of manure excretion over the MMS is different from POP/1000 x N-rate for ",animaltypes," (",check$range,")")
-                question<-paste0("Question: Please justify the reason for the discrepancy and/or correct in your next submission. See file for further information.",
-                                 "Please compare measures 'Total N excreted'-meastype 'EM' with meastype 'TNEXC2'! ")
-            }
-            selection<-(selection | 
-                             (data$sector_number%in%gsub("3.B.2","3.A",secs) & data$category%in%cats)
+            selection<-( 
+                             (grepl("3.B.2|3.A",data$sector_number) & data$category%in%cats)
                          ) & (data$meastype%in%c("POP","NRATE","TNEXC2","EM") & 
                                   (data$gas%in%c("no gas","")))
         }
         
         if(grepl("N in ",check$check)){
-            selection<-selection
+            mms<-manureSystems[which(manureSysshrt==gsub("N in ","",check$check))]
+            selection<-(data$sector_number%in%secs & data$meastype=="NEXC")| 
+                (grepl("3.B.2",data$sector_number)&data$source==mms&data$cat%in%mainanimals)
         }
+
         if(grepl("N2O-IEF in ",check$check)){
-            selection<-(selection | (data$sector_number=="3.B.2.5 N2O Emissions per MMS" & data$meastype=="IEF"))
+            selection<-((data$sector_number=="3.B.2.5 N2O Emissions per MMS" & data$meastype=="IEF"))
         }
         
         if(grepl("N2O-NIEF",check$check)){
-            issue<-paste("Issue: Test ",check$check," (check the N2O-IEF calculated with two different methods (see below)). ")
-            animaltypes<-"animal type "
-            if(length(cats)>1) animaltypes<-"animal types "
-            animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
-            if(grepl("not reported",check$obs)) {
-                observation<-paste0("Observation: Missing information to perform the test for ",animaltypes)
-                question<-paste0("Question: Please complete the CRF table with the missing information.")
-            }
-            if(grepl("val1 is fac ",check$obs)) {
-                observation<-paste0("Observation: The results for the N2O-IEF differ for ",animaltypes," (",check$range,")")
-                question<-paste0("Question: Please justify the reason for the discrepancy and/or correct in your next submission. See file for further information.",
-                                 "Please compare the values reported under 'IEFN1' and 'IEFN2'! ")
-            }
-
-            
             directsys<-manureSystems[!manureSystems%in%c("Pasture  range and paddock","Burned for fuel or as waste")]
             #print(paste0("1. ",sec,"-",sum(selection),unique(unlist(data$source[selection]))))
             #selsys<-directsys[directsys%in%unique(unlist(data$source[selection]))]
@@ -669,7 +719,7 @@ reportchecks1<-function(check,data,x){
             #print(selsys)
             
             extraline<-paste0("# Please compare IEFN1 with IEFN2.\n",
-                              "# IEFN1 is calculated as the weighted average of the IEF for the MMS (IEF_MMS) and the N excreted to the MMS, referred to Total N excreted (IEFN1=SUM(IEF_MMS * NEXC_MMS)/TNECX\n",
+                              "# IEFN1 is calculated as the weighted average of the IEF for the MMS (IEF_MMS) and the N excreted to the MMS, referred to Total N excreted (IEFN1=SUM(IEF_MMS * NEXC_MMS)/TNEXC\n",
                               "# IEFN2 is calculated as from total (direct) Emissions and Total N excreted. IEFN2=EM/TNEXC*28/44\n",
                               "# IEF_MMS is calculated from Total N handled per MMS and Direct N2O emissions per MMS (IEF_MMS=EM_MMS/N_MMS*28/44\n",
                               "# --> A difference in IEFN1 and IEFN2 indicates \n",
@@ -679,37 +729,33 @@ reportchecks1<-function(check,data,x){
         }
 
         if(grepl("CLIMA",check$check)){
-            issue<-paste("Issue: Test ",check$check," (check that the allocation over all climate regions and MMS (Tier 2) sums up to 100). ")
-            animaltypes<-"animal type "
-            if(length(cats)>1) animaltypes<-"animal types "
-            animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
-            
-            observation<-paste0("Observation: The allocation over all climate regions and MMS (Tier 2) sums does not sum up to 100 for ",animaltypes," (",check$range,")")
-            question<-paste0("Question: Please correct in your next submission. See file for further information.",
-                             "Note that the values need to be in percent (not fraction)! ")
-            selection<-selection  & data$meastype=="CLIMA"
+            print(cats)
+            selection<-data$meastype=="CLIMA"&data$category%in%cats
         }
         
         if(check$check=="CPP and SO def IEFs"){
-            issue<-paste("Issue: Compare the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) ",
-                         "with default IEFs EF3RPR_CPP for Cattle - Pigs and Poultry (0.02) and",
-                         "EF3RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure",
-                         "deposited by the two animal groups.")
-            animaltypes<-paste0(paste(s,cat,collapse=" and "))
-            if(grepl("not reported",check$obs)) {
-                observation<-paste0("Observation: Missing information to perform the test for ",animaltypes)
-                question<-paste0("Question: Please complete the CRF table with the missing information.")
-            }
             if(grepl("val1 is fac ",check$obs)) {
-                observation<-paste0("Observation: The results for the N2O-IEF differ (",check$range,", rounding to 3 digits)")
-                question<-paste0("Question: Please justify the reason for the discrepancy and/or correct in your next submission.")
-                question<-paste0(question," Years: ",y)
+                extraline<-"# Please compare the values for 'IEF' and 'EF3_default' below. The calculated fractions of manure from CPP and SO are given in 'FracPRP_CPP' and 'FracPRP_SO'. "
             }
-            selection<-data$sector_number==s & data$category==cat
-            selp<-as.vector(unique(unlist(data$party[selection])))
-            selp<-selp[!selp%in%c]
+            selection<-data$sector_number==s #& data$category==cat
+        }
+        if(grepl("Manure_grazing",check$check)){
+            selection<-data$sector_number%in%secs | (data$source=="Pasture range and paddock")
+        }
+        if(grepl(" loss ratio",check$check)){
+            selection<-grepl("3.B.2.5",data$sector_number) & data$meastype%in%c("Nvol","Nlea","Nlossratio","NEXC")
+        }
+        if(grepl("N application ratio",check$check)){
+            facv<-if(is.numeric(check$fac)){round(check$fac,3)}else{check$fac}
+            selection1<-data$sector_number==secs&data$meastype%in%c("AD","FracNavapp")
+            selection2<-data$sector_number=="3.B.2.5 N2O Emissions per MMS"&data$meastype%in%c("NEXC","FracLiqOther")
+            selection3<-data$sector_number=="3.B.2.5"&data$meastype%in%c("Nvol","Nleach")
+            selection<-selection1|selection2|selection3
         }
         
+        selp<-as.vector(unique(unlist(data$party[selection])))
+        selp<-selp[!selp%in%c]
+        selp<-selp[!selp%in%eu]
         selw<-selection & (data$party %in% c)
         selc<-selection & (data$party %in% selp)
         checkw<-data[selw & ! data$party %in% eu,reportfields]
@@ -734,9 +780,9 @@ reportchecks1<-function(check,data,x){
                 if(check$check=="CLIMA") checkfile<-gsub(" ","",paste0(check$check,"_",paste(cc,collapse="_"),"_",check$obs,".csv"))
                     
                 con <- file(paste0(checkdit,"/",checkfile), open="wt")
-                writeLines(paste0("# ",issue), con)
-                writeLines(paste0("# ",observation), con)
-                writeLines(paste0("# ",question,"\n#"), con)
+                writeLines(paste0("# Issue: ",issue), con)
+                writeLines(paste0("# Observation: ",observation), con)
+                writeLines(paste0("# Question: ",question,"\n#"), con)
                 if(exists("extraline")) writeLines(extraline, con)
                 if(check$check=="N2O-NIEF"){
                     testcat<-"Dairy Cattle"
@@ -768,7 +814,7 @@ reportchecks1<-function(check,data,x){
                             cat(paste0("Share of manure N handled in ",s," ",round(100*sum(t8)/t4,1),"%. "),file=con)
                         }
                         t6<-t6+sum(t8)/t4*sum(t7)
-                        print(paste0(cc,s,t6))
+                        #print(paste0(cc,s,t6))
                     }
                     cat(paste0("Weighted N2O emission factor ",round(t6,6)," kg N2O/kg N handled (IEFN1=",round(t6*28/44,6)," kg N2O-N/kg N handled) ."),file=con)
                     cat(paste0("The two emission factors are different. Do you use different emission factors for MMS for different animal types?\n\n"),file=con)
@@ -788,14 +834,17 @@ reportchecks1<-function(check,data,x){
                 for(cc in c[!c%in%eu]) {
                     if(check$check=="CPP and SO def IEFs"){
                         #selection<-data$sector_number=="3.D.1.3" & data$party==cc
-                        curtab<-checkw[checkw$party==cc & checkw$category==cat,]
+                        curtab<-checkw[checkw$party==cc,]
                         write.table(curtab,sep=",",col.names=FALSE,con)
                         writeLines("#",con)
-                    }else{
+                    }else {
                         writeLines("# Relevant data for the identified animal types",con)
                         
                         catsok<-0
                         if(length(cats)>1) {catsok<-1} else if(cats!="Various"){catsok<-1}
+                        if(check$check%in%c("Manure_grazing","N application ratio")){catsok<-0}
+                        if(grepl("N in ",check$check)){catsok<-0}
+                        #cat(cats,catsok)
                         if(catsok==1){
                             for(cat in cats){
                                 curtab<-checkw[checkw$party==cc & checkw$category==cat,]
@@ -810,6 +859,8 @@ reportchecks1<-function(check,data,x){
                         }
                     }
                 }
+                
+                ## Comparison with other countries
                 if(check$check!="N2O-NIEF" & check$check!="CLIMA"){
                     writeLines("#\n# Comparison: other countries",con)
                     #write.csv(checkc,con)

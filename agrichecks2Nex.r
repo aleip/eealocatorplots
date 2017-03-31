@@ -147,8 +147,9 @@ if(nrow(check2)>1 & !is.na(check2$val[1])){
     check2b<-check2
     
     check2<-check2b
-    #check2<-simplifytestmatrix(check2,c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
-    check2<-simplifytestmatrix(check2,c("yr","fac","val"),list(years,"range",""))
+    check2$cat<-gsub(" ","_",check2$cat)
+    check2<-simplifytestmatrix(check2,c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
+    #check2<-simplifytestmatrix(check2,c("yr","fac","val"),list(years,"range",""))
     check2<-check2[order(check2$ms,check2$sec,check2$yr),names(check2)]
     check2<-Reduce(rbind,lapply(c(1:nrow(check2)),function(x) Reduce(cbind,reportchecks1(check=check2[x,checkname],data=allagri,x))))
     check2<-as.data.frame(check2)
@@ -184,10 +185,14 @@ for(j in manureSysshrt[!manureSysshrt %in% "pasture"]){
     diffmatout<-diffmatrix(check3,ncheck3,tmp1,tmp2,test,"sum(animals)","total",sec,cat,roundn=0)
     ncheck3<-diffmatout[[1]]
     check3<-diffmatout[[2]]
+    check3b<-check3
 }
 if(nrow(check3)>1 & !is.na(check3$val[1])){
     #check3<-simplifytestmatrix(check3,c("yr","fac","val"),list(years,"range",0))
     #check3<-simplifytestmatrix(check3,"ms",allcountries[!allcountries%in%eu])
+    check3<-check3b
+    check3$cat<-gsub(" ","_",check3$cat)
+    check3$sec<-gsub(" ","_",check3$sec)
     check3$cat[is.na(check3$cat)]<-0
     #check3<-simplifytestmatrix(check3,c("ms","yr","fac","val"),list(allcountries[!allcountries%in%eu],years,"range",""))
     check3<-simplifytestmatrix(check3,c("yr","fac","val"),list(years,"range",""))
@@ -245,10 +250,11 @@ for(j in c(1:length(manureSystems))){
         allagri<-addallagriout[[1]]
         rowsadded<-addallagriout[[2]]
         if(rowsadded>0) checkuids[icheck,curief]<-uid
+        check4b<-check4
     }
 }
 if(nrow(check4)>1 & !is.na(check4$val[1])){
-    check4b<-check4
+    check4<-check4b
     check4$fac[is.na(check4$fac)]<-0
     check4<-simplifytestmatrix(check4,c("yr","fac","val"),list(years,"range",0))
     #check4<-simplifytestmatrix(check4,"ms",allcountries[!allcountries%in%eu])
@@ -334,9 +340,10 @@ for(i in c(1:nrow(checkuids))){
 check5b<-check5
 if(nrow(check5)>1 & !is.na(check5$val[1])){
     check5<-check5b
+    check5$cat<-gsub(" ","_",check5$cat)
     #check5<-simplifytestmatrix(check5,c("ms","yr","fac","val"),list(allcountries[!allcountries%in%eu],years,"range",""))
-    #check5<-simplifytestmatrix(check5,c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
-    check5<-simplifytestmatrix(check5,c("yr","fac","val"),list(years,"range",""))
+    check5<-simplifytestmatrix(check5,c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
+    #check5<-simplifytestmatrix(check5,c("yr","fac","val"),list(years,"range",""))
     check5<-check5[order(check5$sec,check5$cat,check5$ms,check5$yr),names(check5)]
     check5<-Reduce(rbind,lapply(c(1:nrow(check5)),function(x) Reduce(cbind,reportchecks1(check=check5[x,checkname],data=allagri,x))))
     check5<-as.data.frame(check5)
@@ -344,7 +351,7 @@ if(nrow(check5)>1 & !is.na(check5$val[1])){
     checks<-rbind(checks,check5)
 }
 
-# Check 6: sum of climate allocations ####
+# climcheck: sum of climate allocations ####
 climfields<-c("sector_number","category","classification","option","party")
 allclimate<-allagri[allagri$meastype=="CLIMA",c(climfields,"target","source",years)]
 allclimate<-allclimate[!allclimate$party%in%eu,]
@@ -362,28 +369,17 @@ names(climcheck)[1:5]<-c("sec","cat","classification","option","ms")
 climcheck$check<-"CLIMA"
 climcheck[,c("val","val1","val2","yr")]<-""
 climcheck$obs<-"sum alloc over mms and climate not 100"
-climcheck$fac<-apply(climcheck[,years],1,mean)
-#climcheck<-simplifytestmatrix(climcheck,c("sec","cat"),list(0,0))
+climcheck$fac<-apply(climcheck[,years],1,mean,na.rm=TRUE)
+climcheck$test<-climcheck$check
 climcheck<-climcheck[order(climcheck$sec,climcheck$cat,climcheck$ms,climcheck$yr),names(climcheck)]
-ms<-climcheck$ms
-checkname<-gsub("test","check",checkname)
-climcheck[,checkname]<-Reduce(rbind,lapply(c(1:nrow(climcheck)),function(x) Reduce(cbind,reportchecks1(check=climcheck[x,checkname],data=allagri,x))))
+climyears<-which(climcheck[,years]!=round(100,1),arr.ind = TRUE)
+climcheck$yr<-sapply(1:nrow(climcheck),function(x) unlist(reportyears(years[climyears[climyears[,1]==x,2]],years)))
+
+climcheck$cat<-gsub(" ","_",climcheck$cat)
+climcheckb<-climcheck
+climcheck<-climcheckb
+climcheck<-simplifytestmatrix(climcheck[,checkname],c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
+climcheck<-Reduce(rbind,lapply(c(1:nrow(climcheck)),function(x) Reduce(cbind,reportchecks1(check=climcheck[x,checkname],data=allagri,x))))
 climcheck<-as.data.frame(climcheck)
-climcheck$ms<-ms
-
-climcheck[,c("sector_number","category","party","years","range","plot")]<-climcheck[,c("sec","cat","ms","yr","fac","val")]
-climcheck<-climcheck[,-which(names(climcheck)%in%c("sec","cat","ms","yr","fac","val"))]
-
-#names(check6)<-checkname
-#checks<-rbind(checks,check6)
-
-
-# Write out list of issues ####
-checks$correction<-1
-checks[,resolved]<-""
-#checks[,docfields]<-""
-sel<-grepl("agrichecks",checks$val)
-checks$val<-paste0("=HYPERLINK(\"",checks$val,"\")")
-#call<-names(checks)
-#c<-c(call[1:which(call=="val")],"correction",resolved,docfields,call[(which(call=="val")+1):length(call)])
-#checks<-checks[,c]
+names(climcheck)<-checkname
+checks<-rbind(checks,climcheck)

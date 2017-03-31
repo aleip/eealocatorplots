@@ -27,7 +27,7 @@ eusel<-curemissions$party==eusubm
 alltrend<-cbind(curemissions[!eusel,],curemissions[!eusel,lastyear]/curemissions[!eusel,firstyear])
 names(alltrend)<-c(names(curemissions),"trend")
 sel<-alltrend$trend==0 & !is.na(alltrend$trend)
-alltrend[sel,lastyear]<-alltrend[alltrend$trend==0,years[nyears-1]]
+if(sum(sel)>0)alltrend[sel,lastyear]<-alltrend[alltrend$trend==0,years[nyears-1]]
 alltrend$diff<-alltrend[,lastyear]-alltrend[,firstyear]
 alltrend<-alltrend[order(alltrend$diff),]
 alltrend<-arrange(alltrend,diff)

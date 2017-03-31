@@ -1,5 +1,6 @@
 selmeasure<-"Emissions"
 curemissions<-agriemissions[agriemissions$sector_number==cursec&agriemissions$category==curcat&agriemissions$measure==selmeasure,]
+curemissions<-curemissions[curemissions$gas!="NMVOC",]
 select<-curemissions$sector_number=="3.D.1.1" | curemissions$sector_number=="3.D.1.2" 
 if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$type[select])
 select<-curemissions$sector_number=="3.D.2.1" | curemissions$sector_number=="3.D.2.2" 

@@ -80,12 +80,18 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
         select<-!grepl("^5",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
         plotmeas<-plotmeas[select,]
     }
+    # ADEM plots
     # Keep all uids which are defined in agrigen,agrimix and agridet
     # ... also stored in *RData file, defines appropriate level of detail
     # ... NOTE: for CAPRI this might not be sufficient, as Swine is not further sub-divided.
-    agriuids<-unique(c(as.character(agridet$variableUID),as.character(agrimix$variableUID),as.character(agrigen$variableUID)))
-    select<-!grepl("^3",plotmeas$sector_number) | plotmeas$variableUID%in%agriuids
-    plotmeas<-plotmeas[select,]
+    # IEF plots 
+    # The plots are needed also at the highest disaggregated level, as outliers might be
+    # generated or removed if aggregated due to AD share changes.
+    if(rundata=="adem"){
+        agriuids<-unique(c(as.character(agridet$variableUID),as.character(agrimix$variableUID),as.character(agrigen$variableUID)))
+        select<-!grepl("^3",plotmeas$sector_number) | plotmeas$variableUID%in%agriuids
+        plotmeas<-plotmeas[select,]
+    }
     plotmeas<-plotmeas[order(plotmeas$sector_number,plotmeas$category),]
     if(plotparamcheck==1){plotmeas<-paramcheck}
     plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
@@ -292,6 +298,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
         eu28<-plotmatr[nrow(plotmatr),]
         plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
+        if(sum(plotmatr,na.rm=TRUE)==0){return(list(plotted,ploteuvals,plotinitialized,multisource))}
         if(rundata=="adem"){
             temp<-plotmatr
             temp[temp<=0]<-NA
@@ -1306,7 +1313,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
         }
         
         if(length(textorder)>0){
-            curmax=50
+            curmax=48
             curcex=0.7
             text2write<-multilines(textorder,curmax)
             if(length(text2write)>6){

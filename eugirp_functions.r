@@ -7,11 +7,12 @@ viewlast<-function(n,allagri=allagri){View(allagri[(nrow(allagri)-n):nrow(allagr
 newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
     paste("EUGIRP",substr(cursubm,3,nchar(cursubm)),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
     sector<-substring(paste0(gsub(" ","",gsub("\\.","",gsub("\\^","",sector))),"0000"),1,5) #5
-    categ<-substring(paste0(gsub(" ","",gsub("-","",categ)),"00000"),1,5) #5
+    categ1<-gsub(" ","",gsub("-","",categ))
+    categ<-substring(paste0(substring(categ1,1,4),substring(categ1,nchar(categ1)-3,nchar(categ1)),"00000"),1,8) #8
     meast<-substring(paste0(meast,"00000"),1,3)                           #3
     units<-substring(paste0((gsub(" ","",gsub("\\/","",gsub("\\^","",units)))),"00000"),1,6) #6
-    sourc<-substring(paste0(gsub(" ","",gsub("-","",sourc)),"00000"),1,3) #3
-    targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #3
+    sourc<-substring(paste0(gsub(" ","",gsub("-","",sourc)),"00000"),1,2) #2
+    targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #1
     gasun<-substring(paste0(gasun,"0"),1,2)                               #2
     optio<-if(optio!=""){substring(optio,nchar(optio),nchar(optio))}else{"0"}   #1
     metho<-substring(paste0(gsub(" ","",gsub("-","",metho)),"00000"),1,3) #3
@@ -457,6 +458,11 @@ diffmatrix<-function(checks=NULL,ncheck=1,A=NULL,B=NULL,test=NULL,val1=NULL,val2
                 obs<-paste0(val2," is not reported")
                 val<-""
                 fac<-0
+            }else if(B[rn,cn]==999){
+                obs<-paste0(val1," is identified")
+                val<-""
+                fac<-round(A[rn,cn],roundn)
+                
             }else{
                 #check order of mag of quotient
                 quotord<-round(quotient,0)
@@ -523,9 +529,9 @@ reportyears<-function(checkyx,compare){
                 if(checkname=="sec" & curn>2){
                     ret<-substr(curcheckyx[1],1,nchar(curcheckyx[1])-2)
                 }
-                if(checkname=="cat" & curn>2){
-                    ret<-"Various"
-                }
+                #if(checkname=="cat" & curn>2){
+                #    ret<-"Various"
+                #}
             }else if(compare[[docheck]]=="range"){
                 curcheckyx<-as.numeric(curcheckyx)
                 rmin<-min(curcheckyx,na.rm=TRUE)

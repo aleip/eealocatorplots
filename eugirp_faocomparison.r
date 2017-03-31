@@ -1,5 +1,5 @@
-source("curplot.r")
-faodir<-"../../../../../google/literature/manuscripts/carmona_faostatunfccccomparison/faodata/"
+#source("curplot.r")
+#faodir<-"../../../../../google/literature/manuscripts/carmona_faostatunfccccomparison/faodata/"
 
 faocategs<-c("Burning_crop_residues","Burning_Savanna","Crop_residues",
              "Cultivated_Organic_Soils","Energy","Enteric_Fermentation",

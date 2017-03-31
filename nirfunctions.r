@@ -348,7 +348,7 @@ text2trend<-function(fig="",option=0){
     sent2c<-paste0(" indicating the countries contributing most to ",eusubml," total. ")
     
     sent2d<-paste0("The figure represents the trend in ",curgas," ",firstlow(curmeasure),
-                   if(curmea!="POP"){paste0(" from ",gsub(" n "," N ",tolower(curseclong)))},
+                   if(curmea!="POP" & cursec!="3.D.2.2"){paste0(" from ",gsub(" n "," N ",tolower(curseclong)))},
                    " for the different Member States along the inventory period. ")
     sent2<-paste0(sent2a,sent2b,sent2c,sent2d)
     if(cursec=="3.A.1"&curmea=="EM"&curcat=="Dairy Cattle"){

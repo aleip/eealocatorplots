@@ -19,7 +19,7 @@ outlierfields<-c("llim","ulim","min","mean","p25","median","p75","max")
 docflags<-paste0("# Flags: 0: new issue; o1: open issue action EU; o2: open issue action MS; o3: open pending (to be checked); cn: closed no issue; cs: closed solved; cu: closed unsolved - new issue opened; csr: closed solved - repopened for TERT recommendation")
 #allfields: all fields including year and party, 
 #           brought to an order 
-allfields<-c(uniquefields[!uniquefields%in%c("measure","variableUID")],"measure","party",years2keep,"variableUID")
+allfields<-c(uniquefields[!uniquefields%in%c("measure","variableUID")],"measure","party",years2keep,"variableUID","notation")
 
 allcheckfields<-unique(c("test","plot","value","range","rellim","years","correction",
                   allfields,ipccfields,resolved,"cursubm",
@@ -154,3 +154,8 @@ countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","
 eunames<-as.data.frame("EU28")
 names(eunames)<-"EUA"
 eunames$EUC<-"EU28+ISL"
+
+
+
+## Parameters ###
+ming<-0.20

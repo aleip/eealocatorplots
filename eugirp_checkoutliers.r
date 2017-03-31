@@ -196,7 +196,7 @@ if(outcheck=="param"){
 }
 if(outcheck=="growth"){
     growth<-growth[!growth$party%in%eu,]
-    growthcheck<-identifyoutliers(trendoutlmethod,growth,"growth",ming=0.20)
+    growthcheck<-identifyoutliers(trendoutlmethod,growth,"growth",ming=ming)
     growthcheck<-growthcheck[!growthcheck$party%in%eu,]
     growthcheck<-growthcheck[remagglevel(growthcheck,mt = 1),]
     growthcheck<-growthcheck[growthcheck$sector_number!="3.i",]

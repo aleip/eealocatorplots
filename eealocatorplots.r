@@ -50,6 +50,7 @@ if(stepsdone==1){
     # Remove UK (use GB) and remove Island ####
     
     alldata$datasource<-"nir"
+    alldata$notation<-""
     source("eugirpA.2_meastype.r")
     
     # Deal with other animals and animal types without sector number
@@ -190,7 +191,7 @@ if(stepsdone==2){
 
 #stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
-#emplotsdone<-1
+#emplotsdone<-0
 #doemissionplots<-TRUE
 if(stepsdone>2){
     if(doemissionplots==TRUE){
@@ -214,8 +215,8 @@ if(stepsdone>2){
             source("corr20170127.r")
             
             x1<-368;x2<-nrow(plotmeas)
-            x1<-154;x2<-nrow(plotmeas)
             x1<-1;x2<-154
+            x1<-1;x2<-nrow(plotmeas)
             for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
             plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
             write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
@@ -444,6 +445,7 @@ if(stepsdone==5){
     names(test0)<-flag4issues
     growthcheck<-growthcheck[,-which(names(growthcheck)=="gas")]
     growthcheck<-cbind(growthcheck,test0)
+    growthcheck$party<-as.character(growthcheck$party)
     # Integrate outcome into growthcheck and to writeoutlierlist!!
     x1<-1;x2<-nrow(growthcheck)
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(growthcheck[x,],"growth",x)))
@@ -459,6 +461,7 @@ if(stepsdone==5){
     names(test0)<-flag4issues
     paramcheck<-paramcheck[,-which(names(paramcheck)=="gas")]
     paramcheck<-cbind(paramcheck,test0)
+    paramcheck$party<-as.character(paramcheck$party)
     # Integrate outcome into paramcheck and to writeoutlierlist!!
     x1<-1;x2<-nrow(paramcheck)
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
@@ -541,7 +544,7 @@ if(stepsdone==6){
 # C - Make checks for sector 3 ####
 checksteps<-7
 if(stepsdone==7) {
-    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3"))
+    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3 - Set 1"))
     #load(rdatmeasu)
     
     # source("tmp_otherlivestockearlier.r")
@@ -564,7 +567,15 @@ if(stepsdone==7) {
     
     source("agrichecks1ADs.r")
     source("agrichecks2Nex.r")
-        
+    source("agrichecks3.r")
+    source("eugirp_checklulucf.r")
+    
+    # Write out list of issues ####
+    checks$correction<-1
+    checks[,resolved]<-""
+    sel<-grepl("agrichecks",checks$val)
+    checks$val<-paste0("=HYPERLINK(\"",checks$val,"\")")
+     
     #agrichecks<-rbind(checks[names(check1)],check1,check2,check3,check4,check5)
     agrichecks<-checks
     #Load now solved issues!
@@ -573,11 +584,11 @@ if(stepsdone==7) {
     print("Bind climacheck and agricheck")
     agrichecks<-agrichecks[agrichecks$ms!="all",]
     names(agrichecks)<-agrinames
-    climcheck<-filldf(climcheck,names(agrichecks))
-    climcheck<-climcheck[,names(agrichecks)]
+    #climcheck<-filldf(climcheck,names(agrichecks))
+    #climcheck<-climcheck[,names(agrichecks)]
     #agrichecks<-filldf(agrichecks,climcheck)
-    agrichecks<-rbind(agrichecks,climcheck)
-    
+    #agrichecks<-rbind(agrichecks,climcheck)
+    agrichecks$party<-as.character(agrichecks$party)
     #agrinames<-c("test","val1","val2","obs","sector_number","category","party","years","range","plot","correction",resolved,docfields)
     # Integrate outcome into paramcheck and to writeoutlierlist!!
     x1<-55;x2<-56
@@ -595,79 +606,27 @@ if(stepsdone==7) {
     
     write.csv(agrichecks,file=paste0(issuedir,"agrichecks",curdate(),".csv"))
     
-    stop()
     stepsdone<-7+1
     savelist<-c(savelist,"checkuids","agrichecks")
     #save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    save(list=savelist,file=rdatallem)
     source("curplot.r")
 }else if(stepsdone>7){
-    print(paste0("Step 7: Sector 3 checks already done"))
+    print(paste0("Step 7: Sector 3 checks 1 already done"))
 }
 
 stop("Step 8 done")
-# A.3 Determine Key categories ####
-if(stepsdone==8){
+checksteps<-7
+if(stepsdone==8) {
+    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3 - Set 2"))
+    source("agrichecks3.r")
     
-    # Key source categories ####
-    
-    print(paste0("Step ",stepsdone+1,": Key source category analysis (unfinished)"))
-    # Make sure that the categories listed are complete but not redundant!!
-    # if necessary, do some tests!
-    # Check at the end if the totals are OK
-    keycats<-read.table("keycategories.txt")
-    keycats<-as.vector(keycats$V1)
-    
-    select<-alldata$variableUID%in%keycats
-    keycategories<-alldata[select,]
-    
-    
-    alldata$digit<-nchar(alldata$sector_number)-nchar(gsub("\\.","",alldata$sector_number))
-    allsectors<-unique(subset(alldata,select=c("sector_number","digit")))
-    allemissions<-alldata[alldata$meastype=="EM"&alldata$digit!=0,]
-    allemissions<-allemissions[!grepl("Aggregate",allemissions$gas),]
-    
-    allsectors$digit<-nchar(allsectors$sector_number)-nchar(gsub("\\.","",allsectors$sector_number))
-    allsectors$digit<-nchar(allsectors$sector_number)
-    select<-grepl(" $",allagri$sector_number)
-    allagri$sector_number[select]<-(gsub("\\.$","",allagri$sector_number[select]))
-    
-    
-    #select<-allmethods$variableUID%in%keycats
-    #keymethods<-allmethods[select,]
-    #agrimethods<-allmethods[grepl("^3",allmethods$sector_number),]
-    #agrimethods<-agrimethods[agrimethods$notation!="NA",]
-    
-    # Convert all emissions into CO2eq
-    select<-keycategories$gas=="CH4"
-    keycategories[select,years]<-keycategories[select,years]*gwps[1]
-    select<-keycategories$gas=="N2O"
-    keycategories[select,years]<-keycategories[select,years]*gwps[3]
-    
-    # Define reference total 
-    select<-alldata$gas=="Aggregate GHGs" & grepl("^[1-6].$",alldata$sector_number)
-    select<-select | alldata$gas=="Aggregate GHGs" & grepl("Total",alldata$sector_number)
-    totem<-alldata[select,]
-    
-    # Rank all emissions according to their contribution to total
-    # (convert emissions into share of total)
-    
-    # Calculate cumulative share
-    
-    
-    # Assign yes/no if cumulative share is above/below threshold
-    
-    
-    print(paste0("Step ",checksteps,": Save results"))
-    stepsdone<-7
-    savelist<-c(savelist,"keycategories","totem")
-    save(list=savelist,file=rdatallem)
-    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    source("curplot.r")
 }else if(stepsdone>8){
-    print(paste0("Step 8: Key category analysis errors already done"))
+    print(paste0("Step 7: Sector 3 checks 2 already done"))
 }
 
+# A.3 Determine Key categories ####
 if(exists("paramchecked")){
     
     #paramchecked<-1

@@ -4,6 +4,8 @@
 #          Check: ratio should be small. Flag if ratio > 10%
 ninlulucf<-(alldata[alldata$sector_number=="4."&alldata$category=="Direct N2O Emissions from N inputs"&alldata$meastype=="AD",])
 ninlulucf<-subset(ninlulucf,select=c("party",years))
+ninlulucf[is.na(ninlulucf)]<-0
+ninlulucf[,years]<-as.numeric(as.matrix(ninlulucf[,years]))
 minfinagri<-allagri[allagri$meastype=="AD"&(allagri$sector_number=="3.D.1.1" |allagri$sector_number=="3.D.1.2")&allagri$party%in%as.vector(ninlulucf$party),]
 minfinagri<-subset(minfinagri,select=c("party",years))
 minfinagri<-aggregate(minfinagri[,years],by = list(minfinagri$party),sum)
@@ -33,7 +35,7 @@ ninlulucfratio<-function(v1,v2,x){
     
 nratio<-ninlulucf
 nratio[,years]<-Reduce(rbind,lapply(c(1:nrow(ninlulucf)),function(x) 
-    (ninlulucfratio(ninlulucf[x,years]/1000000,minfinagri[x,years]))
+    (ninlulucfratio(ninlulucf[x,years]/1000000,minfinagri[x,years],x))
     ))
 nratioflag<-nratio[,years]>0.1
 
@@ -45,6 +47,7 @@ nratioflag<-nratio[,years]>0.1
 orgsoilincropland<-(alldata[alldata$sector_number=="4.B"&alldata$measure=="Area of organic soil",])
 orgsoilingrassland<-(alldata[alldata$sector_number=="4.C"&alldata$measure=="Area of organic soil",])
 tmp<-rbind(orgsoilincropland,orgsoilingrassland)
+tmp[,years]<-as.numeric(as.matrix(tmp[,years]))
 orgsoilinlulucf<-aggregate(tmp[,years],by=list(tmp$party),sum)
 names(orgsoilinlulucf)<-c("party",years)
 orgsoilinagri<-allagri[grepl("3.D",allagri$sector_number)&allagri$meastype=="AREA",]
@@ -62,6 +65,8 @@ sratio<-sratio[,c("party",years)]
 # Check: Caluclate the C/N ratio and flag those which are very different from default (to be checked)
 ktcreleasedmineral<-alldata[grepl("4.B.1",alldata$sector_number)&alldata$measure=="Net carbon stock change in soils"&alldata$type=="Mineral soils",]
 kgnmineralised<-allagri[grepl("3.D.1.5",allagri$sector_number)&allagri$meastype=="AD",]
+ktcreleasedmineral[,years]<-as.numeric(as.matrix(ktcreleasedmineral[,years]))
+kgnmineralised[,years]<-as.numeric(as.matrix(kgnmineralised[,years]))
 
 cnratio<-Reduce(rbind,lapply(as.vector(unlist(countries)),function(x) 
     ninlulucfratio(ktcreleasedmineral[ktcreleasedmineral$party==x,years],kgnmineralised[kgnmineralised$party==x,years],x)
@@ -70,6 +75,7 @@ cnratio$party<-countries$party
 names(cnratio)<-c(years,"party")
 cnratio<-cnratio[,c("party",years)]
 
+if (! file.exists(paste0(invloc,"/checks/lulucf"))){dir.create(file.path(paste0(invloc,"/checks/lulucf")),showWarnings=FALSE)}
 write.csv(nratio,file=paste0(invloc,"/checks/lulucf/ratioNinlulucf_vs_ninagri.csv"))
 write.csv(sratio,file=paste0(invloc,"/checks/lulucf/ratioOrgsoilsinlulucf_vs_Orgsoilsinagri.csv"))
 write.csv(cnratio,file=paste0(invloc,"/checks/lulucf/CNratioCinlulucf_vs_Ninagri.csv"))

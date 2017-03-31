@@ -3,6 +3,7 @@ focus=none
 focus=3d
 focus=faonir
 focus=last
+focus=none
 focus=all
 includeoverview=1
 
@@ -24,7 +25,7 @@ elif [ $focus == "all" ]; then
 #	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd ${unc} nirfaocomparison.Rmd> nir${focus}out.Rmd
 	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd  nir3uncertainty.Rmd nir3workshops.Rmd nir3verification.Rmd nirfaocomparison.Rmd> nir${focus}out.Rmd
 elif [ $focus == "none" ]; then
-	cat nir0.Rmd > nir/nir${focus}out.Rmd
+	cat nir0.Rmd > nir${focus}out.Rmd
 else #focus: 3a,3b1,3b2,3d
 	cat nir0.Rmd nir${focus}.Rmd > nir${focus}out.Rmd
 fi
@@ -32,20 +33,27 @@ fi
 #. nirknit.bash nir${focus}out
 
 # Generate markdown file
-/cygdrive/c/Program\ Files/R/R-3.1.2/bin/Rscript -e "library(knitr);knit('nir${focus}out.Rmd')"
+rexe="/x/Program\ Files/R/R-3.3.1/bin/x64/Rscript.exe"
+#Attention to have the path to the Rscript.exe in the PATH
+rexe="Rscript.exe"
+wexe="/c/Program Files/Microsoft Office/Office16/WINWORD.EXE"
+pexe="pandoc"
+
+${rexe} -e "library(knitr);knit('nir${focus}out.Rmd')"
 
 test -e nir${focus}out.Rmd && {
-#. nirpandoc.bash nir${focus}out
+	#. nirpandoc.bash nir${focus}out
 
-# Attention! This kills all word documents!!
-taskkill.exe /IM WINWORD.EXE
+	# Attention! This kills all word documents!!
+	test "x$(tasklist | grep WINWORD)" == "x" || taskkill.exe -IM WINWORD.EXE
 
-# Convert to word
-/cygdrive/c/Program\ Files/RStudio/bin/pandoc/pandoc nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
+	# Convert to word
+	#/cygdrive/c/Program\ Files/RStudio/bin/pandoc/pandoc nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
+	${pexe} nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
 
-mv nir${focus}out* nir/
+	mv nir${focus}out* nir/
 
-# Open word
-test -e nir/nir${focus}out.docx && /cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Office/Office14/WINWORD.EXE nir/nir${focus}out.docx &
+	# Open word
+	test -e nir/nir${focus}out.docx && /c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE nir/nir${focus}out.docx &
 
 }

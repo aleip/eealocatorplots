@@ -18,21 +18,21 @@ Regarding the handling of manure in the different Member States, `r figs(paste0(
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![](../2016/plots/20160420agrimixeu3.B.2.jpg)
+![](../../../../../google/projects/ecir/plots/20170317agrimixeu3.B.2.jpg)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![](../2016/plots/20160420emissionshare_3.B.2.jpg)
+![](../../../../../google/projects/ecir/plots/20170317emissionshare_3.B.2.jpg)
 
 `r figs(paste0("fig","3.B.2.5","sharems"),display="full")`
 
-![](../2016/plots/20160420emissionshare_3.B.2.5.jpg)
+![](../../../../../google/projects/ecir/plots/20170317emissionshare_3.B.2.5.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B2ManureManagementotalGHGN2O.jpg)
+![](../2016/eureport/20170317/Table3B2ManureManagementotalGHGN2O.jpg)
 
 
 #### Trends in Emissions and Activity Data
@@ -50,7 +50,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec,"
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B2Farming-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B2Farming-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 
 ```{r 3B21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -72,15 +72,15 @@ figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastye
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B21CattleN2O.jpg)
+![](../2016/eureport/20170317/Table3B21CattleN2O.jpg)
 
 `r figs(paste0("fig3B211","trend",curmea),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig3B212","trend",curmea),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 ```{r 3B21pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 curmea<-"POP"
@@ -115,11 +115,11 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B25ManureManagementN2O.jpg)
+![](../2016/eureport/20170317/Table3B25ManureManagementN2O.jpg)
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
 
 
 ```{r 3B24em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -146,7 +146,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B24OtherLivestockN2O.jpg)
+![](../2016/eureport/20170317/Table3B24OtherLivestockN2O.jpg)
 
 
 ```{r 3B247em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -189,15 +189,15 @@ Other activity data related to this emission category are:
 
 `r figs(paste0("fig","3.B.2.4","trend","EM"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B24OtherLivestock-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B24OtherLivestock-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig","3.B.2.4.7","trend","EM"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B247Poultry-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B247Poultry-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 `r figs(paste0("fig",cursec,"trend","POP"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3A47Poultry-EntericFermentationPOP-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A47Poultry-EntericFermentationPOP-nirvalue.jpg) 
 
 
 #### Implied EFs  and Methodological Issues
@@ -243,7 +243,7 @@ tabs("tabB211ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB211trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 
 `r tabs("tabB211ief",display="full")`
@@ -264,7 +264,7 @@ tabs("tabB211NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB211trendNRATE",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 
 `r tabs("tabB211NRATE",display="full")`
@@ -285,7 +285,7 @@ tabs("tabB212ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB212trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB212ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -305,7 +305,7 @@ tabs("tabB212NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB212trendNRATE",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 `r tabs("tabB212NRATE",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -325,7 +325,7 @@ tabs("tabB247ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB247trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B247Poultry-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B247Poultry-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB247ief",display="full")`
 
@@ -347,7 +347,7 @@ tabs("tabB247NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB247trendNRATE",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B247Poultry-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B247Poultry-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 `r tabs("tabB247NRATE",display="full")`
 
@@ -368,7 +368,7 @@ tabs("tabB25ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB25trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B25Farming-IndirectN2OEmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B25Farming-IndirectN2OEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB25ief",display="full")`
 

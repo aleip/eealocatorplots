@@ -40,7 +40,7 @@ seltype<-"Total (without LULUCF)" #without indirect
 lastyear<-years[length(years)]
 lastyear2<-years[length(years)-1]
 firstyear<-years[1]
-
+alltotals[,years]<-apply(alltotals[,years],2,as.numeric)
 totalghg<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &
                         alltotals$gas=="Aggregate GHGs",]
 totalch4<-alltotals[alltotals$type==seltype &alltotals$classification==selclass &

@@ -67,7 +67,7 @@ emrt<-function(){
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
     remDr$open(silent = TRUE)
     loginemrt(remDr)
-    return(1)
+    return(remDr)
 }
 emrtgema<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
@@ -75,7 +75,7 @@ emrtgema<-function(){
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
     remDr$open(silent = TRUE)
     logingema(remDr)
-    return(1)
+    return(remDr)
 }
 
 
@@ -250,7 +250,7 @@ addnewissue<-function(curobs,where=curyear,x=""){
     cat(" Wait item state changing ... ")
     while(!grepl("Item state changed",webelem$getElementText())){
         cat("wait...")
-        Sys.sleep(2)
+        Sys.sleep(10)
         webelem<-remDr$findElement('class', 'documentEditable')
     }
     remDr$close()
@@ -293,7 +293,7 @@ clickstandardbutton<-function(remDr,btext){
     return(ok)
     
 }
-clicksubmitbutton<-function(btext){
+clicksubmitbutton<-function(remDr,btext){
     isPresent = length(remDr$findElements('class', 'submit-widget'))
     ok<-0
     if(isPresent==1){
@@ -301,10 +301,14 @@ clicksubmitbutton<-function(btext){
         webelem$clickElement()
         ok<-1
     }
+    if(isPresent>1){
+        webelem<-remDr$findElements('class', 'submit-widget')
+        webelem$clickElement()
+        ok<-1
+    }
     return(ok)
-    
 }
-clicksave<-function(){
+clicksave<-function(remDr){
     isPresent = length(remDr$findElements('id', 'form-buttons-save'))
     ok<-0
     if(isPresent>0){
@@ -329,17 +333,44 @@ addtext<-function(remDr,mytext){
 approvequestionandsend<-function(remDr,issue,where=NULL){
     curissue<-openissue(remDr,issue)
     sent<-clickstandardbutton(remDr,btext = "Approve question and send")
-    Sys.sleep(1)
+    Sys.sleep(3)
     return(sent)
 }
 
-followupissue<-function(line){
+followupissue<-function(x,line){
+    remDr<-emrtgema()
     curissue<-line$issuenr
+    #https://emrt.eea.europa.eu/2017/BE-3A-2017-0005#tab-qa
+    print(paste0("issue ",x,": ",curissue))
+    print(line$communication)
     openissue(remDr,curissue)
+    
+    #https://emrt.eea.europa.eu/2017/BE-3A-2017-0005/question-1/++add++Comment
     clickstandardbutton(remDr,"Add follow up question")
+    Sys.sleep(2)
+    while(!grepl("\\+\\+add\\+\\+",remDr$getCurrentUrl()[[1]])){
+        Sys.sleep(1)
+        cat("wait..")
+    }
+    
     addtext(remDr,mytext = line$communication)
-    clicksave()
+    
+    #There are two 'submit-widget' buttons but the second is not visible, so difficult to handle
+    #clicksubmitbutton(remDr,"Add question")
+    #webelem<-remDr$findElement('class', 'submit-widget')
+    #webelem$clickElement()
+    Sys.sleep(1)
+    clicksave(remDr)
+    Sys.sleep(2)
+    while(grepl("\\+\\+add\\+\\+",remDr$getCurrentUrl()[[1]])){
+        #print(remDr$getCurrentUrl()[[1]])
+        Sys.sleep(1)
+        cat("wait..")
+    }
+    
     sent<-clickstandardbutton(remDr,"Send Question for Approval")
+    Sys.sleep(5)
+    remDr$close()
     return(list(curissue,sent))
 }
 onlysendforapproval<-function(line){
@@ -375,56 +406,6 @@ convert2char<-function(DF,cols=NULL){
     return(DF)
 }
 
-preparefileforissueupload<-function(newissuefile="",revyear=curyear){
-    #Add new issue as Sector Expert (Gema)
-    #and send to country as Quality Expert (Adrian)
-    #newissuefile<-paste0(issuedir,"/issues_mergedGRC-GC.csv")
-    #newissuefile<-paste0(issuedir,"/issues_mergedGRC-GC.csv")
-    #newissuefile<-paste0(issuedir,"/timeseries/checks20170123growthcheck-GC_al.csv")
-    
-    newissuefile<-read.csv(newissuefile,comment.char = "#",stringsAsFactors=FALSE)
-    
-    newissuefile$revyear<-revyear
-    newissuefile$sec<-sapply(1:nrow(newissuefile),function(x) emrtsector(newissuefile$sector_number[x]))
-    newissuefile$Country<-sapply(1:nrow(newissuefile),function(x) country4sub[country4sub==newissuefile$party[x],"name"])
-    determinepar<-function(meast){
-        if(meast=="EM"){par<-"Emission"}else 
-        if(meast=="IEF"){par<-"Emission factor"}else
-        if(meast%in%c("AD","AREA","POP")){par<-"Activity Data"}else{par<-"Other"}
-    }
-    newissuefile$par<-sapply(1:nrow(newissuefile),function(x) determinepar(newissuefile$meastype[x]))
-    
-    newissuefields<-c("resolved","Obs","Country","party","sec","invyear","revyear","gas","key.ms","key.eu","par",flagnames,"question","question_type")
-    missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
-    
-    if("Obs"%in%missfields & sum(grepl("Observ",names(newissuefile)))) newissuefile$Obs<-newissuefile[,which(grepl("Observ",names(newissuefile)))]
-    if("Country"%in%missfields & sum(grepl("party",names(newissuefile)))) {
-        newissuefile$Country<-unlist(lapply(c(1:nrow(newissuefile)),function(x) countriesl[which(countries2==newissuefile$party[x])]))
-    }
-    missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
-    
-    
-    #If question_type is defined (for timeseries issues) copy to question
-    if("question_type"%in%names(newissuefile)){
-        newissuefile$question<-sapply(1:nrow(newissuefile),function(x) if(newissuefile$question_type[x]!=""){newissuefile$question_type[x]}else{newissuefile$question[x]})
-        newissuefile<-newissuefile[,-which(names(newissuefile)=="question_type")]
-        newissuefile<-newissuefile[newissuefile$question!="",]
-    }
-    missfields<-missfields[!missfields=="question_type"]
-    newissuefields<-newissuefields[!newissuefields=="question_type"]
-    
-    if(length(missfields>0))stop(paste0("missing fields: ",paste(missfields,collapse="-")))
-    
-    newobs<-newissuefile[,newissuefields]
-    newobs<-newobs[newobs$Obs!="",]
-    
-    #Keep only flag 0 (new significant issue) and 4 (follow-up of previously unresolved issue)
-    newobs<-newobs[newobs$resolved%in%c(0,4),]
-    
-    
-    return(newobs)
-}
-
 addnewissuecomplete<-function(newobs,x1=NULL,x2=NULL,where="test"){
     if(is.null(x1)) x1<-1
     if(is.null(x2)) x2<-nrow(newobs)
@@ -432,6 +413,7 @@ addnewissuecomplete<-function(newobs,x1=NULL,x2=NULL,where="test"){
     #Log-in as Gema
     newissues<-unlist(lapply(c(x1:x2),function(x) addnewissue(newobs[x,],where,x=x)))
     
+    print("New issues added - now approve")
     #Log-in as Adrian
     remDr<-emrt()
     curissues<-listofselectedissues(remDr,revyear = curyear,filter = "workflow",criterion = "quality")
@@ -876,6 +858,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
                 if(criterion[i]=="quality"){crit<-"LRQE"}
                 if(criterion[i]=="sector"){crit<-"SRRE"}
                 if(criterion[i]=="country"){crit<-"MSC"}
+                if(criterion[i]=="finalised"){crit<-"finalised"}
                 addfilter[i]<-paste0("wfStatus=",crit)
             }
             if(filter[i]=="step"){addfilter[i]<-paste0("step=",criterion[i])}
@@ -898,7 +881,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
         childs<-webelem$findChildElements('class', 'next')
         if(length(childs)>0) {
             childs[[1]]$clickElement()
-            Sys.sleep(1)
+            Sys.sleep(5)
         }else{
             more<-0
         }
@@ -909,11 +892,79 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
 
 # FIRST LEVEL FUNCTIONS ####
 # First Checks - select issues to be approved, approve and send to MS
-approveandsendissues<-function(revyear=2017,focus="",details=0){
+preparefileforissueupload<-function(newissuefile="",revyear=curyear){
+    #Add new issue as Sector Expert (Gema)
+
+    # Flags determined automatically: 'par' (Activity Data, Emission, Other)
+    #                                 'Country' 
+    
+    newissuefile<-paste0(issuedir,newissuefile)
+    newissuefile<-read.csv(newissuefile,comment.char = "#",stringsAsFactors=FALSE)
+    
+    newissuefile$revyear<-revyear
+    newissuefile$sec<-sapply(1:nrow(newissuefile),function(x) emrtsector(newissuefile$sector_number[x]))
+    newissuefile$Country<-sapply(1:nrow(newissuefile),function(x) country4sub[country4sub==newissuefile$party[x],"name"])
+    determinepar<-function(meast){
+        if(meast=="EM"){par<-"Emission"}else 
+            if(meast=="IEF"){par<-"Emission factor"}else
+                if(meast%in%c("AD","AREA","POP")){par<-"Activity Data"}else{par<-"Other"}
+    }
+    newissuefile$par<-sapply(1:nrow(newissuefile),function(x) determinepar(newissuefile$meastype[x]))
+    
+    newissuefields<-c("resolved","Obs","Country","party","sec","invyear","revyear","gas","key.ms","key.eu","par",flagnames,"question","question_type")
+    missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
+    
+    if("Obs"%in%missfields & sum(grepl("Observ",names(newissuefile)))) newissuefile$Obs<-newissuefile[,which(grepl("Observ",names(newissuefile)))]
+    newissuefile$party[grepl("UK|GB",newissuefile$party)]<-"GB"
+    newissuefile$Country<-unlist(lapply(c(1:nrow(newissuefile)),function(x) countriesl[which(countries2==newissuefile$party[x])]))
+    newissuefile$Country[grepl("United Kingdom",newissuefile$Country)]<-"United Kingdom"
+    #if("Country"%in%missfields & sum(grepl("party",names(newissuefile)))) {
+    #}
+    missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
+    
+    
+    #If question_type is defined (for timeseries issues) copy to question
+    if("question_type"%in%names(newissuefile)){
+        newissuefile$question<-sapply(1:nrow(newissuefile),function(x) if(newissuefile$question_type[x]!=""){newissuefile$question_type[x]}else{newissuefile$question[x]})
+        newissuefile<-newissuefile[,-which(names(newissuefile)=="question_type")]
+        newissuefile<-newissuefile[newissuefile$question!="",]
+    }
+    missfields<-missfields[!missfields=="question_type"]
+    newissuefields<-newissuefields[!newissuefields=="question_type"]
+    
+    if(length(missfields>0))stop(paste0("missing fields: ",paste(missfields,collapse="-")))
+    
+    newobs<-newissuefile[,newissuefields]
+    newobs<-newobs[newobs$Obs!="",]
+    
+    #Keep only flag 0 (new significant issue) and 4 (follow-up of previously unresolved issue)
+    newobs<-newobs[newobs$resolved%in%c(0,4),]
+    
+    
+    return(newobs)
+}
+
+approveandsendissues<-function(revyear=curyear,focus="",details=0){
     remDr<-emrt()
     filter<-"workflow"
-    
+    criterion<-"quality"
+    issues<-listofselectedissues(remDr = remDr,revyear = revyear,filter = filter,criterion = criterion)
+    approved<-sapply(2:length(issues),function(x) approvequestionandsend(remDr = remDr,issue = issues[x]))
 }
+
+retrievecountryresponses<-function(revyear=curyear,focus="",details=0){
+    remDr<-emrt()
+    filter<-"workflow"
+    criterion<-"finalised"
+    
+    issues<-listofselectedissues(remDr = remDr,revyear = curyear,filter = filter,criterion = criterion)
+    answers<-sapply(1:length(issues),function(x) getquestionanswers(remDr,issue=issues[x])[[4]])
+    response<-sapply(1:length(answers),function(x) strsplit(answers[x],"LR; 2 ")[[1]][2])
+    response<-gsub(";Edit Key Flags","",response)
+    issuesan<-as.data.frame(issues)
+    issuesan$answer<-response
+}
+
 
 selectissuesandwritedetails<-function(revyear=2017,filter="workflow",criterion="answered",focus="",details=0){
     remDr<-emrt()

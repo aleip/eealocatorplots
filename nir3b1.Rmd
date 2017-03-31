@@ -16,17 +16,17 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![](../2016/plots/20160420agrimixeu3.B.1.jpg)
+![](../../../../../google/projects/ecir/plots/20170317agrimixeu3.B.1.jpg)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![](../2016/plots/20160420emissionshare_3.B.1.jpg)
+![](../../../../../google/projects/ecir/plots/20170317emissionshare_3.B.1.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B1ManureManagementtotalCH4.jpg)
+![](../2016/eureport/20170317/Table3B1ManureManagementtotalCH4.jpg)
 
 
 #### Trends in Emissions and Activity Data
@@ -45,7 +45,7 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 
 `r figs(paste0("fig",cursec,"trendem"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B1Farming-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B1Farming-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b11em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -67,15 +67,15 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B11CattleCH4.jpg)
+![](../2016/eureport/20170317/Table3B11CattleCH4.jpg)
 
 `r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B11DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B11DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B11Non-DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B11Non-DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b11pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -111,11 +111,11 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![](../2016/eureport/20160420/Table3B13SwineCH4.jpg)
+![](../2016/eureport/20170317/Table3B13SwineCH4.jpg)
 
 `r figs(paste0("fig",cursec,"trendem"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B13Swine-CH4EmissionsCH4EM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B13Swine-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b13ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -135,7 +135,7 @@ data is discussed here.
 
 `r figs(paste0("fig",cursec,"trendad"),display="full")`
 
-![](../2016/plots/20160420/valueadem/3B13Swine-CH4EmissionsPOP-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B13Swine-CH4EmissionsPOP-nirvalue.jpg) 
 
 #### Implied EFs  and methodological issues
 
@@ -178,7 +178,7 @@ tabs("tabB111ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B11DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B11DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
 
 
 `r tabs("tabB111ief",display="full")`
@@ -199,7 +199,7 @@ tabs("tabB111MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendMASS",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B11DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B11DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
 
 
 `r tabs("tabB111MASS",display="full")`
@@ -220,7 +220,7 @@ tabs("tabB111VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendVSEXC",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
 
 
 `r tabs("tabB111VSEXC",display="full")`
@@ -242,7 +242,7 @@ tabs("tabB112ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B11Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B11Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB112ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -262,7 +262,7 @@ tabs("tabB112MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendMASS",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B11Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B11Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
 
 `r tabs("tabB112MASS",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -282,7 +282,7 @@ tabs("tabB112VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendVSEXC",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B11Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B11Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
 
 `r tabs("tabB112VSEXC",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -303,7 +303,7 @@ tabs("tabB13ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB13trendief",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B13Swine-CH4EmissionsIEF-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B13Swine-CH4EmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB13ief",display="full")`
 
@@ -325,7 +325,7 @@ tabs("tabB13MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB13trendMASS",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B13Swine-CH4EmissionsMASS-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B13Swine-CH4EmissionsMASS-nirrange.jpg) 
 
 `r tabs("tabB13MASS",display="full")`
 
@@ -346,7 +346,7 @@ tabs("tabB13VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB13trendVSEXC",display="full")`
 
-![](../2016/plots/20160420/rangeief/3B13Swine-CH4EmissionsVSEXC-nirrange.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B13Swine-CH4EmissionsVSEXC-nirrange.jpg) 
 
 `r tabs("tabB13VSEXC",display="full")`
 

@@ -10,7 +10,7 @@ figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
 figs(paste0("fig","3.B.2.5","sharems"),sharemsfigurecaption(eukp,"3.B.2.5",lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
-`r curgas` emissions from source category `r curcattext` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`.
+`r text2shareeu()`. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`.
 
 `r text2sharems(sec=cursec)`
 
@@ -31,6 +31,8 @@ Regarding the handling of manure in the different Member States, `r figs(paste0(
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r pander(emfirstlast))`&nbsp;
 
 ![](../2016/eureport/20170317/Table3B2ManureManagementotalGHGN2O.jpg)
 
@@ -65,7 +67,7 @@ figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastye
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represent the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+`r text2shareeu()`. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represent the trend in N2O emissions from manure management for the different Member States along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
@@ -107,7 +109,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+`r text2shareeu()`.
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
@@ -139,7 +141,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r curgas` `r firstlow(capmeasure(curmeasure))` are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharen2o)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions.
+`r text2shareeu()`.
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
@@ -353,23 +355,41 @@ tabs("tabB247NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r pander(splittable(curtable,2))`&nbsp;
 
-```{r 3B25ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+```{r 3B25iefa,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3.B.2.5"
 curseclong<-"Manure Management"
 curcat<-"Farming"
 curmea<-"IEF"
+curmeasure<-"Atmospheric"
 source("nircatdata2.r")
-figs("figB25trendief",trendiefcaption(eukp,curcattext,lastyear))
+#figs("figB25trendief",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabB25ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+`r text2ief(fig=figs("figB25trendief",display="cite"),tab=tabs("tabB25ief",display="cite"))`
+
+`r tabs("tabB25ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B25iefb,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"IEF"
+curmeasure<-"leaching"
+source("nircatdata2.r")
+figs("figB25btrendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB25bief",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
 `r text2ief(fig=figs("figB25trendief",display="cite"),tab=tabs("tabB25ief",display="cite"))`
 
-`r figs("figB25trendief",display="full")`
+`r figs("figB25btrendief",display="full")`
 
 ![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B25Farming-IndirectN2OEmissionsIEF-nirrange.jpg) 
 
-`r tabs("tabB25ief",display="full")`
+`r tabs("tabB25bief",display="full")`
 
 `r pander(splittable(curtable,2))`&nbsp;

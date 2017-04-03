@@ -154,23 +154,25 @@ source("nircatdata.r")
 
 In the year `r lastyear`, `r curgas[c(1,3)]` and `r curgas[2]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,1)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,1)` of total `r eukp` CH4, N2O, and CO2 emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively.<br>
 
-Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4)`,  `r percent(eusharen2o)` and `r percent(eushareco2)` total `r eukp` GHG emissions. They make `r percent(eushareagrich4ghg,1)`, `r percent(eushareagrin2oghg,1)` and `r percent(eushareagrico2ghg,1)` of total agricultural emissions.
+Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r percent(eusharen2ototal,d=1)` and `r percent(eushareco2total,d=1)` to total `r eukp` GHG emissions. They make `r percent(eushareagrich4ghg,1)`, `r percent(eushareagrin2oghg,1)` and `r percent(eushareagrico2ghg,1)` of total agricultural emissions.
 
-`r figs("figtrendem",display="cite")` shows the development of total GHG emissions from agriculture from `r firstyear` to `r lastyear` and the `r trendstrength(sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` `r deorincrease(1-sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` in `r eukp`. The decrease was most pronounced for `r curgas[which(curtrend==min(curtrend))]` with a decrease of `r percent(1-curtrend[which(curtrend==min(curtrend))],1)`, followed by `r curgas[rank(curtrend,1)[2]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[2]],1)` and `r curgas[rank(curtrend,1)[3]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[3]],1)`
+`r figs("figtrendem",display="cite")` shows the development of total GHG emissions from agriculture from `r round(euagritotalghg[firstyear]/1000,0)` in `r firstyear` to `r round(euagritotalghg[lastyear]/1000,0)` in `r lastyear` and the `r trendstrength(sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` `r deorincrease(1-sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` in `r eukp`. The decrease was most pronounced for `r curgas[which(curtrend==min(curtrend))]` with a decrease of `r percent(1-curtrend[which(curtrend==min(curtrend))],1)`, followed by `r curgas[rank(curtrend,1)[2]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[2]],1)` and `r curgas[rank(curtrend,1)[3]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[3]],1)`. The decrease was most pronounced in the first decade with a total reduction of `r percent(1-euagritotalghg["2000"]/euagritotalghg[firstyear],d=1)` between 1990 and 2000, a further decrease by between 2000 and 2005, while remaining constant since 2005 (change `r percent(euagritotalghg[lastyear]/euagritotalghg["2005"]-1,d=1)`).
 
-`r figs("figshares",display="cite")` shows that largest reductions occurred in the largest key sources CH4 from *3.A.1: Cattle* and N2O from *3.D.1: Direct emissions from managed soils*. The main reasons for this are decreasing use of fertiliser and manure and declining cattle numbers in most Member States.
+`r figs("figshares",display="cite")` shows that largest reductions occurred in the largest key sources CH4 from *3.A.1: Cattle* and N2O from *3.D.1: Direct emissions from managed soils*. The main reasons for this are decreasing use of fertiliser and manure and declining cattle numbers in most Member States. `r figs("figsharesb",display="cite")` shows the distribution of agricultural GHG emissions among the different source categories for the year `r lastyear`. 
+
+
 
 `r figs("figtrendem",display="full")`
 
-![](../2016/eureport/figs/Sector_3timeline.jpg)
+![](../2017/eureport/figs/Sector_3timeline.jpg)
 
 `r figs("figshares",display="full")`
 
-![](../2016/eureport/figs/Absolutechangeinsector3columns.jpg)
+![](../2017/eureport/figs/Absolutechangeinsector3columns.jpg)
 
 `r figs("figsharesb",display="full")`
 
-![](../2016/eureport/figs/Shareoflargestkeycategorysources2014piechart.jpg)
+![](../2017/eureport/figs/Shareoflargestkeycategorysources2014piechart.jpg)
 
 
 

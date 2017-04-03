@@ -33,6 +33,7 @@ if("Aggregate GHGs" %in% curgas) {
 
 if("CH4" %in% curgas) {
     eusharech4<-curemissions[eusel & curemissions$gas=="CH4",lastyear]/eutotalch4[lastyear]
+    eusharech4total<-curemissions[eusel & curemissions$gas=="CH4",lastyear]/eutotalghg[lastyear]
     eushareagrich4<-curemissions[eusel & curemissions$gas=="CH4",lastyear]/euagritotalch4[lastyear]
     eushareagrich4ghg<-curemissions[eusel & curemissions$gas=="CH4",lastyear]/euagritotalghg[lastyear]
 }else{
@@ -42,6 +43,7 @@ if("CH4" %in% curgas) {
 }
 if("N2O" %in% curgas) {
     eusharen2o<-curemissions[eusel & curemissions$gas=="N2O",lastyear]/eutotaln2o[lastyear]
+    eusharen2ototal<-curemissions[eusel & curemissions$gas=="N2O",lastyear]/eutotalghg[lastyear]
     eushareagrin2o<-curemissions[eusel & curemissions$gas=="N2O",lastyear]/euagritotaln2o[lastyear]
     eushareagrin2oghg<-curemissions[eusel & curemissions$gas=="N2O",lastyear]/euagritotalghg[lastyear]
 }else{
@@ -51,6 +53,7 @@ if("N2O" %in% curgas) {
 }
 if("CO2" %in% curgas) {
     eushareco2<-curemissions[eusel & curemissions$gas=="CO2",lastyear]/eutotalco2[lastyear]
+    eushareco2total<-curemissions[eusel & curemissions$gas=="CO2",lastyear]/eutotalghg[lastyear]
     eushareagrico2<-curemissions[eusel & curemissions$gas=="CO2",lastyear]/euagritotalco2[lastyear]
     eushareagrico2ghg<-curemissions[eusel & curemissions$gas=="CO2",lastyear]/euagritotalghg[lastyear]
 }else{
@@ -58,6 +61,9 @@ if("CO2" %in% curgas) {
     eushareagrico2<-0
     eushareagrico2ghg<-0
 }
+eusharencgg<-eusharech4+eusharen2o
+eushareagrincgg<-eushareagrich4+eushareagrin2o
+eushareagrincggghg<-eushareagrich4ghg+eushareagrin2oghg
 
 curtrend<-curemissions[eusel,lastyear]/curemissions[eusel,firstyear]
 curtrendabs<-curemissions[eusel,lastyear]-curemissions[eusel,firstyear]
@@ -114,5 +120,30 @@ if(sum(select)>0) subcateg$category[select]<-as.character(subcateg$type[select])
 select<-subcateg$sector_number=="3.D.2.1" | subcateg$sector_number=="3.D.2.2" 
 if(sum(select)>0) subcateg$category[select]<-as.character(subcateg$target[select])
 
+curheaders<-c(firstyear,lastyear,"GHGfirst","GHGlast")
+curemissions$party<-as.character(curemissions$party)
+emfirstlast<-curemissions[,c("party",firstyear,lastyear)]
+emfirstlast[,"GHGfirst"]<-emfirstlast[,firstyear]
+emfirstlast[,"GHGlast"]<-emfirstlast[,lastyear]
+tmpis<-emfirstlast[emfirstlast$party=="IS",]
+emfirstlast<-emfirstlast[emfirstlast$party!="IS",]
+tmpeu<-emfirstlast[emfirstlast$party=="EUC",]
+emfirstlast<-emfirstlast[emfirstlast$party%in%countriesnoeu,]
+tmpeunois<-tmpeu
+tmpeunois[,curheaders]<-apply(emfirstlast[,curheaders],2,sum,na.rm=TRUE)
+tmpis$party<-"Iceland"
+tmpeunois$party<-"EU-28"
+tmpeu$party<-"EU-28 + ISL"
 
+emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) country4sub$name[country4sub$code2==emfirstlast$party[x]])
+emfirstlast<-emfirstlast[order(emfirstlast$party),]
+emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis,tmpeu)
+emfirstlast[,curheaders]<-round(emfirstlast[,curheaders],0)
+names(emfirstlast)<-c("Member States",
+                      paste0("GHG emissions in ",firstyear," (kt CO2 equivalents)"),
+                      paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
+                      paste0(curgas," emissions in ",firstyear," (kt CO2 equivalents)"),
+                      paste0(curgas," emissions in ",lastyear," (kt CO2 equivalents)"))
+row.names(emfirstlast)<-NULL
+emphasize.strong.rows(which(grepl("EU",emfirstlast[,"Member States"])))
 

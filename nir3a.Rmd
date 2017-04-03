@@ -11,8 +11,8 @@ figs("fig3.Asharems",sharemsfigurecaption(eukp,cursec,lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 
-`r curgas` emissions from source category *`r cursec` Enteric Fermentation* are `r percent(eushareghg,1)` of total `r eukp` GHG emissions and `r percent(eusharech4)` of total `r eukp` `r curgas` emissions. They make `r percent(eushareagrighg,1)` of total agricultural emissions. It is thus the largest GHG source in agriculture and the largest source of `r curgas` emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`) and `r subcateg$sector_number[2]` (`r subcateg$category[2]`) as shown in `r figs("fig3.Ashare",display="cite")`.
-`r text2sharems(sec=cursec)`
+`r text2shareeu()`. It is thus the largest GHG source in agriculture and the largest source of `r curgas` emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`) and `r subcateg$sector_number[2]` (`r subcateg$category[2]`) as shown in `r figs("fig3.Ashare",display="cite")`.
+`r text2sharems(sec=cursec,curcolor='blue')`
 
 
 `r figs("fig3.Ashare",display="full")`
@@ -40,6 +40,8 @@ names(curtab)<-c("Member State",
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r pander(emfirstlast))`&nbsp;
 
 ![](../2016/eureport/20170317/Table3AEntericFermentation.jpg)
 
@@ -265,7 +267,7 @@ tabs("tabA11geav",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2ief(fig=figs("figA11trendgeav",display="cite"),tab=tabs("tabA11geav",display="cite"))` Data from Luxembourg are reported in a different unit and are therefore not included in this comparison.
+`r text2ief(fig=figs("figA11trendgeav",display="cite"),tab=tabs("tabA11geav",display="cite"))`
 
 `r figs("figA11trendgeav",display="full")`
 

@@ -132,13 +132,13 @@ observationagri<-function(line){
     
     
     if(test=="NexTOT"){
-        question<-paste("Test: ",line$check," (check of total manure excreted per animal type versus the sum of manure excretion over the MMS). ")
+        question<-paste("Check ",line$check," (check of total manure excreted per animal type versus the sum of manure excretion over the MMS). ")
         if(grepl("total",line$obs)) issue<-paste0("No total N excretion is reported for animal type ",line$cat)
         if(grepl("val1 ",line$obs)) issue<-paste0("Sum of manure excretion over the MMS is different from Total N excretion for animal type ",line$cat," (",line$obs," - ",line$range,")")
         advice<-paste0("Please include values for total N excretion for all animal types in your next submission. See file for further information.")
     }
     if(test=="NexRATE"){
-        question<-paste("Test: ",line$check," (check of the sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
+        question<-paste("Check ",line$check," (check of the sum of manure excreted over the MMS per animal type versus the N-excretion rate multiplied by the animal population (heads)). ")
         animaltypes<-"animal type "
         if(grepl("not reported",line$obs)) {
             issue<-paste0("No N excretion rate is reported for ",observationcat)
@@ -154,12 +154,12 @@ observationagri<-function(line){
         question<-paste0("Calculate IEF from N available and N2O emissions. ")
     }
     if(grepl("N in ",test)){
-        question<-paste0("Test: Sum of N handled in MMS over animal type vs. total N handled. ")
+        question<-paste0("Compare the sum of N handled in MMS over animal type vs. total N handled. ")
         issue<-paste0("Total N managed in MMS reported in '3.B.2.5 N2O Emissions per MMS' does not match with the sum of the values reported over the animal types. ")
         advice<-paste0("Please justify the reason for the discrepancy and/or correct in your next submission. ")
     }
     if(grepl("N2O-NIEF",test)){
-        question<-paste("Test: calculation of N2O-IEF. ")
+        question<-paste("Calculation of N2O-IEF. ")
         #animaltypes<-"animal type "
         #if(length(cats)>1) animaltypes<-"animal types "
         #animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
@@ -182,7 +182,7 @@ observationagri<-function(line){
     }
     
     if(grepl("CLIMA",test)){
-        question<-paste("Test: CLIMA. ")
+        question<-paste("CLIMA-allocation. ")
         #animaltypes<-"animal type "
         #if(length(cats)>1) animaltypes<-"animal types "
         #animaltypes<-paste0(animaltypes,paste(secs,cats,collapse=" and "))
@@ -193,7 +193,7 @@ observationagri<-function(line){
     }
     
     if(test=="CPP and SO def IEFs"){
-        question<-paste("Test: Compare the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) ",
+        question<-paste("Compare the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) ",
                      "with default IEFs EF3RPR_CPP for Cattle - Pigs and Poultry (0.02) and",
                      "EF3RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure",
                      "deposited by the two animal groups. ")
@@ -208,7 +208,7 @@ observationagri<-function(line){
         }
     }
     if(grepl("Manure_grazing",test)){
-        question<-paste("Test: Compare the Manure 'managed' in Pasture Range and Paddock in 3.B.2",
+        question<-paste("Compare the Manure 'managed' in Pasture Range and Paddock in 3.B.2",
                      "with AD in 3.D.1.3 (Urine and Dung Deposited by Grazing Animals). ",
                      "According to IPCC equation 11.5 the annual amount of urine and dung N deposited on pasture range and paddock and by grazing animals (FRPR) ",
                      "is calculated from the fraction deposited on PRP without subtracting any volatilization or leaching losses. ",
@@ -219,7 +219,7 @@ observationagri<-function(line){
     }
     if(grepl(" loss ratio",test)){
         if(line$obs=="Nvol is not reported"){
-            question<-paste("Test: Fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure.",
+            question<-paste("Fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure.",
                          "According to IPCC Table 10.22 most of the Lost-fractions are between 20% and 45% of N in managed manure. ",
                          "")
             issue<-paste0("No N volatilization is reported.")
@@ -229,7 +229,7 @@ observationagri<-function(line){
             rmin<-min(unlist(strsplit(gsub("range: ","",line$range),split="-")))
             if(rmin>=0.45){rte<-" high"}else if(rmax<=0.2){rte<-" low"}else{rte<-""}
             cat(rmax,rmin,rte,"\n")
-            question<-paste("Test: Fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure.",
+            question<-paste("Fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure.",
                          "According to IPCC Table 10.22 most of the Lost-fractions are between 20% and 45% of N in managed manure. ",
                          "We identified N losses that are higher than 45% or lower than 20%. ")
             issue<-paste0("Fraction of N lost in MMS (via volatilization of NH3+NOx) out of range (",line$range,").")
@@ -239,7 +239,7 @@ observationagri<-function(line){
     }
     if(grepl("N application ratio",test)){
         facv<-if(is.numeric(line$range)){round(line$range,3)}else{line$range}
-        question<-paste("Test: Compare the Manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Aninmal manure applied to soil (3D12a).",
+        question<-paste("Compare the Manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Aninmal manure applied to soil (3D12a).",
                      "Please compare 'AD' in sector 3.D.1.2.a with 'NEXC' minus 'Nvol' plus 'Nleach' in sector 3.B.2.5 Emissions per MMS and the calculated fraction 'FracNavapp'. ")
         issue<-paste0("The amount of N applied with animal manure in 3.D.1.2.a is large as compared to N managed in MMS minus N lost as NH3+NOx or leaching (inverse ratio ",facv,"). ")
         advice<-paste0("Please justify the difference in the values reported or correct in accordance with the IPCC guidelines. ",

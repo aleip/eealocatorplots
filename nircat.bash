@@ -1,10 +1,10 @@
 focus=3d2
 focus=none
-focus=3d
 focus=faonir
 focus=last
 focus=none
 focus=all
+focus=3a
 includeoverview=1
 
 if [ x${1}x != "xx" ] ; then focus=$1 ; fi

@@ -149,8 +149,8 @@ laender<-function(pp){
 }
 percent<-function(x,d=0){
     #Return as percentage but increase digits for small number <<1
-    rd<-abs(min(0-d,unlist(ceiling(log10(x)))))
-    p<-paste0(round(100*x,rd),"%")
+    rd<-abs(min(0-d,unlist(ceiling(log10(abs(x))))))
+    p<-paste0(round(sign(x)*100*abs(x),rd),"%")
     return(p)
 }
 
@@ -183,6 +183,7 @@ curcatlong<-function(curcat,cursec=cursec){
 }
 curmeasurenew<-function(curmeasure){
     if(curmeasure=="Atmospheric deposition"){if(curmea=="IEF")curmeasure<-"Implied emission factor"}
+    if(curmeasure=="Nitrogen leaching and run-off"){if(curmea=="IEF")curmeasure<-"Implied emission factor"}
     curmeasure<-gsub(" to cropland and grassland","",curmeasure)
     if(grepl("from application of ",curmeasure)){curmeasure<-firstup(gsub("N input from ","",curmeasure))}
     if(grepl("N input from ",curmeasure)){curmeasure<-gsub("input from","from applied",curmeasure)}
@@ -290,7 +291,7 @@ text2mscontr<-function(sec=cursec){
                  " by Member State ",if("IS" %in% allcountries){"plus Iceland "},
                  "and the total EU-28",if("IS" %in% allcountries){" and EU-28+ISL"},
                  " for the first and the last year of the inventory (",firstyear," and ",lastyear,").",
-                 " Values are given in kt CO2-eq.",
+                 " Values are given in kt CO2-eq. ",
                  if(cursec=="3.A"){"In this category GHG and CH4 columns have the same values, as no other greenhouse gases are produced in the enteric fermentation process."})
     
     sen2<-paste0(" Between 1990 and ",lastyear,", ",curgas," emission in this source category ",
@@ -309,7 +310,15 @@ text2mscontr<-function(sec=cursec){
     
     return(paste0(sen1,sen2,sen3,sen4))
 }
-text2sharems<-function(sec=cursec){
+text2shareeu<-function(){
+    sent1<-paste0(curgas," ",firstlow(capmeasure(curmeasure))," are ",
+                  percent(eushareghg,1)," of total ",eukp," GHG emissions and ",
+                  percent(eusharencgg)," of total ",eukp," ",curgas," emissions. They make ",
+                  percent(eushareagrighg,1)," of total agricultural emissions or ",
+                  percent(eushareagrincgg)," of total agricultural ",curgas," emissions.")
+    return(sent1)
+}
+text2sharems<-function(sec=cursec,curcolor='grey'){
  
     text<-paste0("Regarding the origin of emissions in the different Member States, ",
                  figs(paste0("fig",cursec,"sharems"),display="cite"),
@@ -321,7 +330,7 @@ text2sharems<-function(sec=cursec){
                  if(grepl("A|B",cursec)){"livestock category"}else{"emission source"},
                  " in all Member States and in the ",eusubml,".",
                  " Each bar represents the total emissions of a country in the current emission category, ",
-                 "where different shades of grey correspond to the emitting ",
+                 "where different shades of ",curcolor," correspond to the emitting ",
                  if(grepl("A|B",cursec)){"animal types"}else{"sub-categories"},".")
     return(text)
     
@@ -352,7 +361,7 @@ text2trend<-function(fig="",option=0){
                    " for the different Member States along the inventory period. ")
     sent2<-paste0(sent2a,sent2b,sent2c,sent2d)
     if(cursec=="3.A.1"&curmea=="EM"&curcat=="Dairy Cattle"){
-        sent2<-paste0(sent2,"Each bar shows the emissions accumulated by the different Member States in a specific year, in kt, where every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total. ")
+        sent2<-paste0(sent2,"Each bar shows the emissions in kt accumulated by the different Member States in a specific year. Every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total. ")
     }
     if(fig==""){sent2<-""}
     
@@ -392,7 +401,7 @@ text2trend<-function(fig="",option=0){
     if(increasen>0){
         if(increasen>increasencnt){
             if(increasencnt>2){
-                temp<-paste0("The ",singular(increasencnt,"countries",2)," with the largest increases ",singular(decreasencnt,"were",0)," ")
+                temp<-paste0("The ",singular(increasencnt,"countries",2)," with the largest increases ",singular(increasencnt,"were",0)," ")
             }else{
                 temp<-"Largest increases occurred in "
             }
@@ -453,8 +462,8 @@ text2ief<-function(fig="",tab=""){
             sent4<-paste0("The reported ",tolower(what)," in ",lastyear," was at the level of ",firstyear," in ",singular(stablen,"countries",1)," and ")
             addother<-"other "
         }else{
-            sent4<-""
-            addother<-what
+            sent4<-paste0("The reported ",tolower(what))
+            addother<-""
         }
         if(decreasen==0 & increasen>0){
             sent4<-paste0(sent4," increased in all ",addother,singular(increasen,"countries",2),". ")}
@@ -482,7 +491,7 @@ text2ief<-function(fig="",tab=""){
         if(increasencnt==1){amean<-" an"}else{amean<-" a mean"}
         if(increasen>increasencnt){
             if(increasencnt>2){
-                temp<-paste0("The ",singular(increasencnt,"countries",2)," with the largest increases ",singular(increasencnt,"were",0),", ")
+                temp<-paste0("The ",singular(increasencnt,"countries",2)," with the largest increases ",singular(increasencnt,"were",0)," ")
             }else{
                 temp<-paste0("The largest ",singular(increasencnt,"increases",0)," occurred in ")
             }

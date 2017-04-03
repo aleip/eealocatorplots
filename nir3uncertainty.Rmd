@@ -36,10 +36,10 @@ Over the time, several sections were added describing specific QA/QC and verific
 
 
 
-#### Major changes for the 2015 submissions`
+#### Major changes for the 2015 submissions
 The  submission in the year 2015 the QA/QC system brought a complete revision of the approach taken for the EU GHG inventory report in general and for the agriculture chapter in particular, driven by the need to adapt to new CRF software, increased number of countries to describe, and a series of new communication software products (e.g. EEA review tool, EU-GIRP). For this purpose, the EU GHG inventory was thoroughly revised. While this was true for the whole EU GHG inventory, this was particularly true for the agriculture sector. The following specific issues with regard to the GHG inventory in the agriculture sector were identified to require improvements:
 
-* The chapter contained many information and details which could not be kept after the increase of the number of countries to be covered. Many methodological details included in the agriculture chapter EU-GHG inventory report 2014 did not have a significant relevance for EU total emissions and thus &apos;diluted&apos; the relevant information provided. Even though the chapter was consistently structured, some details that were added (e.g. as response to reviews) lead to an overall imbalance of the information provided.
+* Focusing of the agriculture chapter in the EU-GHG inventory report on key categories and factors and parameters which have a significant relevance for EU total emissions. 
 
 * The agricultural chapter applied a specific methodology to calculate "Tier levels" and aggregated uncertainties to more accurately account for correlation between the uncertainty estimates of the individual countries. The methodology was developed for the EU GHG inventory and published in peer-reviewed literature[^leip2010]. While this method was shown to provide additional insight for the uncertainty assessment of the EU GHG inventory, it was of no practical relevance for the overall GHG inventory, as a different method was used for other sectors. It was therefore decided to be not continued.
 
@@ -47,18 +47,18 @@ The  submission in the year 2015 the QA/QC system brought a complete revision of
 
 * Streamlining with other sector chapters was improved, not the least by using of harmonized plots to present trend-data at EU level while also showing data from those countries contributing most to EU values
 
-* Due to the quantities of data to be processed some remaining inconsistencies in the agriculture chapter of the EU GHG inventory report persisted, despite the highly automated procedures[^prezi] and considerably efforts made to detect remaining inconsistencies. The newly implemented data processing system should help avoiding further inconsistencies.
+* The &apos;writing&apos; of the agriculture chapter of the EU-GHG inventory report has been highly automated[^prezi]. The process is directly based on the data submitted by the countries and are calculated &apos;on the fly&apos; no quantitative data are introduced &apos;manually&apos;. This allows to provide a report with quantitative information avoiding inconsistencies with the CRF data.
 
-In the current submission, therefore, a new system has been developed and introduced as describe in the section QA/QC system in the agriculture sector
+The newly developed system is described in the section QA/QC system in the agriculture sector.
 
 [^leip2010]: &#09;Leip, A., 2010. Quantitative quality assessment of the greenhouse gas inventory for agriculture in Europe. Clim. Change. 103, 245-261. doi:http://dx.doi.org/10.1007/s10584-010-9915-5.
 [^eugirp]: &#09;EU-GIRP: EU-Greenhouse gas Inventory Reporting and Plots, see https://github.com/aleip/eealocatorplots.git
 [^prezi]: &#09;For an overview of the QA/QC system of the agriculture sector for the 2013 GHG inventory see presentation given for the ICR2013 at https://prezi.com/f1d3elxzd4qn/20131002_icr_agri/
 
-#### Main improvements in `r as.numeric(lastyear)+2`
-For the 2016 submission, the system implemented in 2015 was further developed, providing now some additional &apos;checks&apos; that identify issues requiring clarification or justification. Particular attention was paid this year to &apos;country outlier&apos; and &apos;time series&apos; checks.
+#### Main improvements since 2016
+Since the 2016 submission, the system implemented in 2015 was further developed, providing now some additional &apos;checks&apos; that identify issues requiring clarification or justification. Particular attention is paid to &apos;country outlier&apos; and &apos;time series&apos; checks, as well as to a series of specific checks for the agriculture sector focusing on consistency of the data reported and on the completeness of background data which are important for transparency.
 
-Furthermore, chapters comparing GHG emissions and activity data reported by countries with data from the FAO-STAT data base and the CAPRI model are included again. 
+Furthermore, chapters comparing GHG emissions and activity data reported by countries with data from the FAO-STAT data base and the CAPRI model are included. 
 
 
 #### Further improvements
@@ -103,6 +103,10 @@ The checks include:
 * * Check of the reported IEF per MMS with the total N excreted and the reported emissions
 * * Calculation and evaluation of the IEF in category 3.B.2 by animal type and in relation to the total N excreted
 * * Check that the sum of manure allocated to climate regions adds up to 100% over all MMS and climate regions
+* * Check that compares the Manure 'managed' in Pasture Range and Paddock in category 3.B.2 with AD in 3.D.1.3 (Urine and Dung Deposited by Grazing Animals). The sum of FRPR over all animal types should therefore equal the AD in category 3.D.1.3.
+* * Comparison of the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) with default IEFs EF3_RPR_CPP for Cattle - Pigs and Poultry (0.02) and, EF3_RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure deposited by the two animal groups.
+* * Comparison of the fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure. According to IPCC Table 10.22 most of the Lost-fractions are between 20% and 45% of N in managed manure and N loss ratios are identified that are higher than 45% or lower than 20%.
+* * Comparison of the manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Animal manure applied to soil (3D12a). Manure available for application is obtained from N managed in MMS and not lost (FracLOSSMS) according to Table 10.23 plus any addition of bedding material. The loss fractions in Table 10.23 include also losses of N2 which are not included in the indirect emissions-volatilizations. Therefore FAM is expected to be smaller than N managed in MMS minus N lost as NH3+NOx+leaching unless bedding material has been accounted for. In case of crop residues as bedding material care has to be taken to avoid double counting.
 
 * **Recalculation**: Countries were asked for justifications of recalculations of more than 0.5% of national total emissions (excluding LULUCF) and above or below the mean recalculations across all MS &#177;1.5 standard deviations.  
 

@@ -136,6 +136,7 @@ loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
     plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,multisource,adddefault)        
     if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted)
+    #if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,multisource,plotted)
     graphics.off()
 }
 plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfoc,
@@ -268,6 +269,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     #print("prepareplot")
     curuid<-plotmeas$variableUID[imeas]
     #runfoc<-paste0(runfoc,)
+    print(runfocus)
     runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
     figname<-plotname(paste0(unique(plotdata$datasource),collapse=""),plotsdir,issuedir,runid,plotmeas[imeas,sectfields],plotmeas[imeas,metafields],plotmeas[imeas,measfields],
                       runfocus,figdate,plotformat,rundata,cursubm,plotparamcheck=0)
@@ -286,7 +288,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     nothers<-NULL
     acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
     acountryminus<-acountry[!acountry%in%eu]
-    eukp<-eunames[,eusubm]
+    #eukp<-eunames[,eusubm]
     
     tmin<-NULL
     tmax<-NULL
@@ -335,7 +337,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         autocorr<-paste(autocorr,collapse=", ")
         if(autocorr!="") autocorr<-paste0("Data correction: ",autocorr)
         serious<-which(acountryminus%in%plotdatacur$party[plotdatacur$correction==0])
-        plotdatacur<-plotdatacur[plotdatacur$correction!=0|plotdatacur$party%in%eu,]
+        if(dsource=="nir")plotdatacur<-plotdatacur[plotdatacur$correction!=0|plotdatacur$party%in%eu,]
         if(length(serious)==0)serious=""
         if(dsource!="nir") serious<-""
         if(nrow(plotdatacur)>0){
@@ -363,7 +365,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                 #return(list(plotted,eu28fin,euquant,finnames,finshares,eu28,eu28pos,eu28neg,sharesexist=0,textorder))
                 #plotmade<-makeemplot(curuid,plotdata,plotmatr,"value",rundata,"EU28",plotparamcheck=0,runid,dsource,multisource)
                 
-                plotcoun<-as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eu)])))
+                plotcoun<-unique(as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eu)]))))
                 
                 #print(curuid)
                 #print(plotcoun)
@@ -920,7 +922,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     # Retrieve ordering info
     acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
     acountry<-acountry[!acountry%in%eu]
-    eukp<-eunames[,eusubm]
+    #eukp<-eunames[,eusubm]
     
     relavs<-plotted[[2]][[5]]
     relav<-as.data.frame(matrix(rep(NA,length(acountry)*(nplots+1)),ncol=(nplots+1),nrow=length(acountry)))
@@ -1063,7 +1065,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
         eu28fin<-as.matrix(subset(eu28fins,select=which(names(eu28fins)%in%c(paste0(years,".",iplot)))))
         topn<-unlist(topns[[iplot]])
         topno<-unlist(topnos[[iplot]])
-        
+        print(iplot)
         sourctitshort<-toupper(multisource[iplot])
         
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -1313,8 +1315,8 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
         }
         
         if(length(textorder)>0){
-            curmax=48
-            curcex=0.7
+            curmax=46
+            curcex=0.65
             text2write<-multilines(textorder,curmax)
             if(length(text2write)>6){
                 curmax=58
@@ -1371,7 +1373,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     #text(0,par("cin")[2],adj=0,mfooter1,cex=0.8)
     #text(0,0,adj=0,mfooter2,cex=0.8)
     #print(mtexttitle0)
-    plottitle(mtexttitle0,plotted,eukp)
+    plottitle(mtexttitle0,plotted,multisource)
     
     #stop("Stop after x-axis")
     
@@ -1408,7 +1410,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     
 }
 
-plottitle<-function(mtexttitle0="x",plotted,eukp){
+plottitle<-function(mtexttitle0="x",plotted,multisource){
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     #  TITLE ############################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -1474,9 +1476,10 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     test<-dcast(test,party ~ datasource,value.var="toplot")
     
     test$reldiff<-(test$fao/test$nir-1)*100
-    test$relimpr<-abs((test$fao-test$nir)/test$nir[test$party=="EU28"])*100
+    test$relimpr<-abs((test$fao-test$nir)/test$nir[test$party=="EUC"])*100
     
     test<-test[test$party!="EU28",]
+    test<-test[test$party!="EUC",]
     test<-test[test$party!="IC",]
     test<-test[test$party!="IS",]
     #test<-test[test$party!="CY",]
@@ -1484,8 +1487,7 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     
     test<-test[order(test$relimpr,na.last=FALSE),]
     
-    testc<-sapply(test$party,function(x) countriesl[which(countries2==x)])
-    
+    testc<-sapply(test$party,function(x) countries4plot[which(countries2==x)])
     
     datasource<-names(test)[!names(test)=="party"]
     bspace=1.3
@@ -1500,18 +1502,18 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     #
     barplot(test[,multisource[1]],horiz=TRUE,space=bspace1,beside=TRUE,col=cols[1],
             axes=T,
-            names.arg=sapply(test[,"party"],function(x) countriesl[which(countries2==x)]),
+            names.arg=sapply(test[,"party"],function(x) countries4plot[which(countries2==x)]),
             las=1,cex.names=0.8)
     barplot(test[,multisource[2]],horiz=TRUE,space=bspace2,beside=TRUE,col=cols[2],add=T)
     
     barplot(test[,"reldiff"],horiz=TRUE,space=bspace2,beside=TRUE,col=cols[4],
             axes=T,
-            names.arg=sapply(test[,"party"],function(x) countriesl[which(countries2==x)]),
+            names.arg=sapply(test[,"party"],function(x) countries4plot[which(countries2==x)]),
             las=1,cex.names=0.8)
     
     barplot(test[,"relimpr"],horiz=TRUE,space=bspace1,beside=TRUE,col=cols[3],
             axes=T,
-            names.arg=sapply(test[,"party"],function(x) countriesl[which(countries2==x)]),
+            names.arg=sapply(test[,"party"],function(x) countries4plot[which(countries2==x)]),
             las=1,cex.names=0.8)
     # Title
     runsect<-data.frame(lapply(unique(pmeas[,sectfields]),as.character))
@@ -1529,8 +1531,10 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     ystt<-par()$omd[3]
     yhea<-par()$omd[4]
     pconv<-plotinitialized[[4]]
-    plottitle(mtexttitle0,plotted)
 
+    plottitle(mtexttitle0,plotted,multisource)
+    print(multisource)
+    
     abbcex<-1.4*pconv
     tline<-0.25
     ra<-0.005
@@ -1546,7 +1550,6 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     #rect(boxxl,boxyb,boxxr,boxyt,col="white") 
     rect(ra+rp,0.9-2*tline-recside,ra+rp+recside/2,0.9-2*tline+recside,col=cols[1]) 
     rect(ra+rp,0.9-3*tline-recside,ra+rp+recside/2,0.9-3*tline+recside,col=cols[2]) 
-    
     text(2*ra+rp+recside/2,0.9-2*tline,adj=0,toupper(multisource[1]),cex=abbcex)
     text(2*ra+rp+recside/2,0.9-3*tline,adj=0,toupper(multisource[2]),cex=abbcex)
     

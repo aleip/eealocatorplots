@@ -113,6 +113,7 @@ countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany"
               "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBE=EU territory)","Greece","Croatia","Hungary","Ireland",
               "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
               "Portugal","Romania","Sweden","Slovenia","Slovakia")
+countries4plot<-gsub("United Kingdom.*","United Kingdom",countriesl)
 
 country4sub<-as.data.frame(c(countries2,eu))
 country4sub$countries3<-c(countries3,eu)
@@ -154,7 +155,7 @@ countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","
 eunames<-as.data.frame("EU28")
 names(eunames)<-"EUA"
 eunames$EUC<-"EU28+ISL"
-
+eukp<-eunames[,eusubm]
 
 
 ## Parameters ###

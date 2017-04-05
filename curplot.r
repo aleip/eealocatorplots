@@ -72,6 +72,7 @@ figdate<-format(Sys.time(), "%Y%m%d")
 issuedir<-paste0(invloc,"/checks/")
 plotsdir<-paste0(invloc,"/plots/test/")
 plotsdir<-paste0(invloc,"/plots/")
+faodir<-paste0(invloc,"/faocomparison/")
 if (! file.exists(issuedir)){dir.create(file.path(issuedir),showWarnings=FALSE)}
 rdatallem <- paste0(csvfil,"_clean.RData")
 rdatmeasu <- paste0(csvfil,"_measures.RData")

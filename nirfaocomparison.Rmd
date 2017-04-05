@@ -1,7 +1,7 @@
 #### Comparison of activity data in the FAO GHG database on the national inventory reports
 
 ```{r nirfaopop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-load(file=paste0(invloc,"/eealocator/eealocator_20160322_clean_plotmeasademnir-fao.RData"))
+load(file=paste0(csvfil,"_clean_plotmeasademnir-fao.RData"))
 multisource<-unique(plotdata$datasource)
 multiref<-as.vector(sapply(multisource,function(x) 
     if(x=="nir"){"UNFCCC"}else if(x=="fao") {"FAO"}else if(x=="capri"){CAPRI}))
@@ -43,7 +43,7 @@ sel<-plotdata$category=="Dairy Cattle"
 plotdata$sector_number[sel]<-paste0(plotdata$sector_number[sel],".1")
 sel<-plotdata$category=="Non-Dairy Cattle"
 plotdata$sector_number[sel]<-paste0(plotdata$sector_number[sel],".1")
-sel<-plotdata$measure=="Emissions"&plotdata$party=="EU28"
+sel<-plotdata$measure=="Emissions"&plotdata$party==eusubm
 compsecs<-unique(agrigen$sector_number)
 compsecs<-compsecs[grepl("[ABCDF]",compsecs)]
 compsecs<-compsecs[!compsecs=="3.D.1"]
@@ -58,8 +58,14 @@ curtable<-curtable[order(curtable$sector_number),]
 
 convertfields<-c("gas","unit",years)
 curtable[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(curtable)),function(x) Reduce(cbind,convert2co2eq(curtable[x,convertfields]))))
+curtable<-curtable[curtable$gas!="NMVOC",]
+curtemp<-curtable
+curtemp[curtemp==0]<-NA
+curtemp<-(apply(curtemp[,years],2,mean))
+curtemp<-curtemp[!is.na(curtemp)]
+yearsavailable<-(as.numeric(names(curtemp)))
 
-compyears<-years[1:(length(years)-2)]
+compyears<-as.character(yearsavailable)
 comprange<-paste0(compyears[1]," to ",compyears[length(compyears)])
 comprange2<-paste0("(",compyears[1],"-",compyears[length(compyears)],")")
 curtable$comp<-apply(curtable[,compyears],1,mean,na.rm=TRUE)
@@ -67,7 +73,7 @@ curtable$what<-sapply(1:nrow(curtable),function(x)
     seccatsou(curtable$sector_number[x],curtable$category[x],curtable$classification[x],
               curtable$target[x],curtable$type[x]))
 curtable$what<-as.character(curtable$what)
-curtable<-dcast(curtable,what + gas ~ datasource,value.var="comp")
+curtable<-dcast(curtable,what + gas ~ datasource,value.var="comp",fun.aggregate=sum)
 comptots<-apply(curtable[,c("fao","nir")],2,sum,na.rm=TRUE)
 curtable$shfao<-curtable$fao/comptots["fao"]
 curtable$shnir<-curtable$nir/comptots["nir"]
@@ -114,40 +120,40 @@ First of all, we show in `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),di
 
 `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
 
 `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3A1DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3A1DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
 
 
 `r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3A1Non-DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3A1Non-DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
 
 
 `r figs(paste0("comp1",cursec,"Sheep",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3A2Sheep-EntericFermentationPOP-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A2Sheep-EntericFermentationPOP-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Sheep",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3A2Sheep-EntericFermentationPOP-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3A2Sheep-EntericFermentationPOP-nirfaocompare.jpg) 
 
 `r figs(paste0("comp1",cursec,"Swine",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3A3Swine-EntericFermentationPOP-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A3Swine-EntericFermentationPOP-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Swine",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3A3Swine-EntericFermentationPOP-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3A3Swine-EntericFermentationPOP-nirfaocompare.jpg) 
 
 
 ```{r nirfaonex,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -170,49 +176,49 @@ In addition to population data, nitrogen excretion data is another parameter wit
 
 `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
 
 `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3B21DairyCattle-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3B21DairyCattle-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
 
 
 `r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
 
 
 `r figs(paste0("comp1",cursec,"Sheep",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B22Sheep-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B22Sheep-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Sheep",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3B22Sheep-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3B22Sheep-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
 
 `r figs(paste0("comp1",cursec,"Swine",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B23Swine-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B23Swine-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Swine",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3B23Swine-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3B23Swine-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
 
 `r figs(paste0("comp1",cursec,"Poultry",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Poultry",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
 
 
 ```{r nirfaoarea,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -230,12 +236,12 @@ Regarding CH4 emissions from rice cultivation, the related activity data is the 
 
 `r figs(paste0("comp1",cursec,"Rice",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3CFarming-RiceCultivationAREA-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3CFarming-RiceCultivationAREA-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Rice",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3CFarming-RiceCultivationAREA-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3CFarming-RiceCultivationAREA-nirfaocompare.jpg) 
 
 
 ##### Cultivation of histosols
@@ -244,12 +250,12 @@ Focusing on the area of cultivated organic soils, we can see in `r figs(paste0("
 
 `r figs(paste0("comp1",cursec,"Histosols",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D16CultivationofOrganicSoils-AgriculturalSoilsAREA-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3D16CultivationofOrganicSoils-AgriculturalSoilsAREA-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"Histosols",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3D16CultivationofOrganicSoils-AgriculturalSoilsAREA-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3D16CultivationofOrganicSoils-AgriculturalSoilsAREA-nirfaocompare.jpg) 
 
 ```{r nirfaoninput,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 curmea<-"AD"
@@ -272,30 +278,30 @@ Finally, we compare UNFCC and FAOSTAT data on N from crop residues applied to so
 
 `r figs(paste0("comp1",cursec,"min",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"min",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaocompare.jpg) 
 
 `r figs(paste0("comp1",cursec,"man",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaovalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaovalue.jpg) 
 
 
 `r figs(paste0("comp2",cursec,"man",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaocompare.jpg) 
 
 `r figs(paste0("comp1",cursec,"cres",curmea),display="full")`
 
-![](../2016/plots/20160322/valueadem/3D14CropResidues-AgriculturalSoilsN2OEM-nirfaovalue.jpg)
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3D14CropResidues-AgriculturalSoilsN2OEM-nirfaovalue.jpg)
 
 
 `r figs(paste0("comp2",cursec,"cres",curmea),display="full")`
 
-![](../2016/plots/20160322/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
 
 ## Sector-specific recalculations, including changes in response of to the review process and impact on emission trend
 

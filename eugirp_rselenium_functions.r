@@ -3,6 +3,7 @@
 #vignette('RSelenium-basics')
 #methods see help(remoteDriver)
 options(warnings=0)
+options(warn=0)
 #RSelenium::startServer(dir = "RSelenium",log = FALSE)
 require(RSelenium)
 #rsDriver(port = 4567L, browser = "chrome", version = "latest", chromever = "latest",
@@ -631,8 +632,10 @@ getquestionanswers<-function(remDr,issue){
         communication2<-unlist(strsplit(communication,"Sent on: "))
         communication2<-unlist(strsplit(communication2,"Updated on: "))
         #communication3<-unlist(strsplit(communication2,"from "))
-        communication3<-communication2
+        communication3<-gsub("\\nEdit Key Flags","",communication2)
+        communication3<-gsub("\\nInternal comments on question between experts/reviewers/QE/LR","",communication3)
         communication4<-unlist(strsplit(communication3,"\\n"))
+        communication4<-communication4[!communication4==""]
         communication4<-communication4[!communication4==""]
         
         #Determine start of comment:
@@ -648,8 +651,7 @@ getquestionanswers<-function(remDr,issue){
         comwhen<-vector(length=ncomments)
         comwhat<-vector(length=ncomments)
         
-        
-        for(i in c(1:ncomments)){
+        for(i in c(1:(ncomments))){
             comfrom[i]<-communication4[okdate[i]]
             comwhen[i]<-issuedate(communication4[okdate[i]+1])
             if(i<ncomments){imax<-okdate[i+1]-1}else(imax<-length(communication4))
@@ -658,11 +660,16 @@ getquestionanswers<-function(remDr,issue){
         comfroms<-paste(c(1:ncomments),comfrom,collapse="; ")
         comfroms<-gsub("from expert\\/reviewer to Member State  ","EU_1",comfroms)
         comfroms<-gsub("  from Member State to expert\\/reviewer","MS",comfroms)
-        print(comfroms)
         comwhens<-paste(c(1:ncomments),comwhen,collapse="; ")
-        comwhats<-paste(c(1:ncomments),comwhat,collapse="; ")
+        if(ncomments>2){
+            comwhats<-paste(c(1:ncomments),comwhat,collapse="; ")
+        }else{
+            comwhats<-""
+        }
+        question<-paste0(gsub(" *from ","",comfrom[1])," on ",comwhen[1],": ",comwhat[1])
+        lastanswer<-paste0(gsub(" *from ","",comfrom[ncomments])," on ",comwhen[ncomments],": ",comwhat[ncomments])
     }
-    return(list(ncomments,comfroms,comwhens,comwhats))                              
+    return(list(ncomments,question,lastanswer,comfroms,comwhens,comwhats))                              
 }
 
 # Retrieve info from Conclusion Phase 1
@@ -859,6 +866,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
                 if(criterion[i]=="sector"){crit<-"SRRE"}
                 if(criterion[i]=="country"){crit<-"MSC"}
                 if(criterion[i]=="finalised"){crit<-"finalised"}
+                if(criterion[i]=="answered"){crit<-"answered"}
                 addfilter[i]<-paste0("wfStatus=",crit)
             }
             if(filter[i]=="step"){addfilter[i]<-paste0("step=",criterion[i])}
@@ -952,17 +960,19 @@ approveandsendissues<-function(revyear=curyear,focus="",details=0){
     approved<-sapply(2:length(issues),function(x) approvequestionandsend(remDr = remDr,issue = issues[x]))
 }
 
-retrievecountryresponses<-function(revyear=curyear,focus="",details=0){
-    remDr<-emrt()
-    filter<-"workflow"
-    criterion<-"finalised"
-    
-    issues<-listofselectedissues(remDr = remDr,revyear = curyear,filter = filter,criterion = criterion)
+retrievecountryresponses<-function(issues,remDr=remDr){
+    #remDr<-emrt()
+    #filter<-"workflow"
+    #criterion<-"finalised"
+    #issues<-listofselectedissues(remDr = remDr,revyear = curyear,filter = filter,criterion = criterion)
+    history<-sapply(1:length(issues),function(x) getquestionanswers(remDr,issue=issues[x])[[3]])
+    ncomments<-sapply(1:length(issues),function(x) length(strsplit(history[1],";")[[1]]))
     answers<-sapply(1:length(issues),function(x) getquestionanswers(remDr,issue=issues[x])[[4]])
     response<-sapply(1:length(answers),function(x) strsplit(answers[x],"LR; 2 ")[[1]][2])
     response<-gsub(";Edit Key Flags","",response)
     issuesan<-as.data.frame(issues)
     issuesan$answer<-response
+    
 }
 
 

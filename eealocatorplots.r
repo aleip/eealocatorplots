@@ -616,15 +616,20 @@ if(stepsdone==7) {
     print(paste0("Step 7: Sector 3 checks 1 already done"))
 }
 
-stop("Step 8 done")
-checksteps<-7
+#stop("Step 8 done")
 if(stepsdone==8) {
-    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3 - Set 2"))
-    source("agrichecks3.r")
-    
+    print(paste0("Step ",checksteps+1,": Comparison with FAO"))
+    source("eugirp_faocomparison.r")
+    stepsdone<-9
+    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    save(list=savelist,file=rdatallem)
+    source("curplot.r")
 }else if(stepsdone>8){
-    print(paste0("Step 7: Sector 3 checks 2 already done"))
+    print(paste0("Step 7: Comparison with FAO already done"))
 }
+stop("Step 9 done")
+
+
 
 # A.3 Determine Key categories ####
 if(exists("paramchecked")){

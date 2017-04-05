@@ -50,10 +50,10 @@ convert2char<-function(DF,cols=NULL){
 }
 convert2num<-function(DF,cols=NULL){
     
-        for(i in 1:length(cols)) {
-            curcol<-which(names(DF)==cols[i])
-            DF[,curcol]<-as.numeric(DF[,curcol])
-        }
+    for(i in 1:length(cols)) {
+        curcol<-which(names(DF)==cols[i])
+        DF[,curcol]<-as.numeric(DF[,curcol])
+    }
     return(DF)
 }
 filldf<-function(DF,cols=allcheckfields,fillwith=0){
@@ -73,7 +73,7 @@ last<-function(years){last<-years[length(years)]}
 curdate<-function(){format(Sys.time(), "%Y%m%d")}
 curtime<-function(secs=FALSE){
     if(secs){format(Sys.time(), "%Y%m%d-%H%M%S")
-        }else{format(Sys.time(), "%Y%m%d-%H%M")}}
+    }else{format(Sys.time(), "%Y%m%d-%H%M")}}
 rounddigit<-function(val){
     sig<-val/abs(val)
     n<-log10(abs(val))
@@ -136,8 +136,8 @@ getuid<-function(mode=1,ok=1,x=1,sec="*",cat="*",met="*",cla="*",sou="*",tar="*"
     curuids<-getuidr$variableUID
     #print(curuids)
     if(ngetuidr>1){View(allagri[allagri$variableUID%in%curuids,]);
-                   ngetuidr<-paste0(ngetuidr,": ",paste(unlist(as.vector(paste0("xx",curuids,"yy"))),collapse=","))
-                   stop(ngetuidr)}
+        ngetuidr<-paste0(ngetuidr,": ",paste(unlist(as.vector(paste0("xx",curuids,"yy"))),collapse=","))
+        stop(ngetuidr)}
     if(ngetuidr==1){ngetuidr<-unlist(as.vector(curuids))}
     return(ngetuidr)
 }
@@ -238,36 +238,41 @@ sumovercountries<-function(D,uid,y,c){
 
 eu28sums<-function(A,aeu=eu){
     A[,years]<-apply(A[,years],2,function(x) as.numeric(x))
+    afields<-names(A)
     agrimeas<-unique(subset(A,select=allfields[!allfields %in% c("notation","party",years,"option")]))
     agri2sum<-agrimeas[agrimeas$meastype %in% meas2sum,]
     removeeu28<-A$meastype %in% meas2sum & A$party%in%c("EU28",aeu,excludeparty)
     A<-A[!removeeu28,]
-    A<-A[,allfields]
-    
-    for(i in 1:length(aeu)){
-        print(paste0("Calculate sum for ",aeu[i]))
-        eu28sum<-as.data.frame(matrix(rep(0,ncol(A)*nrow(agri2sum)),
-                                      ncol=ncol(A),nrow=nrow(agri2sum)))
-        names(eu28sum)<-names(A)
-        eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
-        acountry<-as.character(country4sub[country4sub[,aeu[i]]==1,"code2"])
-        acountry<-acountry[!acountry%in%eu]
-        # remove unwanted countries
-        B<-A[A$party%in%acountry,]
-        # calculate the sum over remaining countries
-        C<-B[,c(years,"variableUID")]
-        D<-aggregate(C[,years],by=list(C$variableUID),sum,na.rm=TRUE)
-        # get other columns back
-        E<-unique(B[,names(B[!names(B)%in%c(years,"party","notation")])])
-        eu28sum<-merge(E,D,by.x="variableUID",by.y="Group.1")
-        eu28sum$notation<-"eugirp"
-        eu28sum$party<-aeu[i]
-        
-        # sort to standard
-        eu28sum<-eu28sum[,allfields]
-
-        A<-rbind(A,eu28sum)
-    
+    #A<-A[,allfields]
+    if("datasource"%in%afields){multisource<-unique(A$datasource)}else{multisource<-"nir"}
+    for(loopsource in multisource){
+        for(i in 1:length(aeu)){
+            print(paste0("Calculate sum for ",aeu[i]))
+            eu28sum<-as.data.frame(matrix(rep(0,ncol(A)*nrow(agri2sum)),
+                                          ncol=ncol(A),nrow=nrow(agri2sum)))
+            names(eu28sum)<-names(A)
+            eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
+            acountry<-as.character(country4sub[country4sub[,aeu[i]]==1,"code2"])
+            acountry<-acountry[!acountry%in%eu]
+            # remove unwanted countries
+            B<-A[A$party%in%acountry,]
+            if("datasource"%in%afields){B<-B[B$datasource==loopsource,];print(loopsource)}
+            # calculate the sum over remaining countries
+            C<-B[,c(years,"variableUID")]
+            D<-aggregate(C[,years],by=list(C$variableUID),sum,na.rm=TRUE)
+            # get other columns back
+            E<-unique(B[,names(B[!names(B)%in%c(years,"party","notation")])])
+            eu28sum<-merge(E,D,by.x="variableUID",by.y="Group.1")
+            eu28sum$notation<-"eugirp"
+            eu28sum$party<-aeu[i]
+            
+            # sort to standard
+            #eu28sum<-eu28sum[,allfields]
+            eu28sum<-filldf(DF = eu28sum,afields)
+            
+            A<-rbind(A,eu28sum)
+            
+        }
     }
     return(A)
 }
@@ -387,7 +392,11 @@ fillbyvariableUID<-function(DF=allagri,col,uid){
     #cval<-as.character(unique(DF[DF$variableUID==uid,col]))
     f<-function(DF,col,uid){
         cval<-unique(as.character(DF[DF$variableUID==uid,col]))
+        cval<-cval[!cval=="eugirp"]
+        cval<-cval[!grepl("NE - values for .*are missing",cval)]
         if(length(cval)==0) cval=""
+        #print(length(cval))
+        if(length(cval)>1) print(cval)
         return(cval)
     }
     cval<-unlist(lapply(1:length(col),function(x) f(DF,col[x],uid)))
@@ -772,7 +781,7 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
             relmedian<-line$value/median
             share<-mean(S[selection,"maxshare"])
         }
-    
+        
         if(meas%in%c("PREGNANT","MILK","ORGAMENDMENT","DM","RatioResCrop","WEIGHT","YIELD")){
             note<-"measure excluded"
         }else if(meas%in%c("MCF")){
@@ -1122,9 +1131,9 @@ export4uba<-function(allagri){
     t3as1<-t3as1[order(party,gas,meastype,sector_number,category)]
     write.csv(t3as1,file=paste0(invloc,"/eealocator/tablet3as1_",cursubm,"~",curdate(),".csv"))
     View(t3as1)
-
+    
     t3as2<-dtagri[grepl("EUC|EUA",party)&
-                      meastype%in%c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE")&
+                      meastype%in%c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE","DIGEST")&
                       #meastype%in%c("GE")&
                       grepl("3.A",sector_number)&
                       category%in%c(livestock,otherlivestock)&
@@ -1134,27 +1143,27 @@ export4uba<-function(allagri){
     t3as2<-t3as2[order(party,gas,meastype,sector_number,category)]
     write.csv(t3as2,file=paste0(invloc,"/eealocator/tablet3as2_",cursubm,"~",curdate(),".csv"))
     View(t3as2)
-
+    
     t3bas1<-dtagri[grepl("EUC|EUA",party)&
-                      meastype%in%c("POP","MASS","VSEXC","B0","EM")&
-                      #meastype%in%c("GE")&
-                      grepl("3.B.1",sector_number)&
-                      category%in%c(livestock,otherlivestock)&
-                      gas%in%c("CH4","no gas"),
-                  col2show,
-                  with=FALSE]
+                       meastype%in%c("POP","MASS","VSEXC","B0","EM")&
+                       #meastype%in%c("GE")&
+                       grepl("3.B.1",sector_number)&
+                       category%in%c(livestock,otherlivestock)&
+                       gas%in%c("CH4","no gas"),
+                   col2show,
+                   with=FALSE]
     t3bas1<-t3bas1[order(party,gas,meastype,sector_number,category)]
     write.csv(t3bas1,file=paste0(invloc,"/eealocator/tablett3bas1_",cursubm,"~",curdate(),".csv"))
     View(t3bas1)
-
+    
     t3bb<-dtagri[grepl("EUC|EUA",party)&
-                      meastype%in%c("POP","NRATE","NEXC","WEIGHT","EM")&
-                      #meastype%in%c("GE")&
-                      grepl("3.B.2",sector_number)&
-                      category%in%c(livestock,otherlivestock)&
-                      gas%in%c("CH4","no gas"),
-                  c(col2show),
-                  with=FALSE]
+                     meastype%in%c("POP","NRATE","NEXC","WEIGHT","EM")&
+                     #meastype%in%c("GE")&
+                     grepl("3.B.2",sector_number)&
+                     category%in%c(livestock,otherlivestock)&
+                     gas%in%c("CH4","no gas"),
+                 c(col2show),
+                 with=FALSE]
     t3bb<-t3bb[order(party,gas,meastype,source,sector_number,category)]
     write.csv(t3bb,file=paste0(invloc,"/eealocator/tablett3bb_",cursubm,"~",curdate(),".csv"))
     View(t3bb)
@@ -1398,7 +1407,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
         dfm[is.na(dfm)]<-0
         dfl<-paste(dfm$sector_number,dfm$gas,sep="-")
     }
-
+    
     dmt<-as.vector(apply(dfm[,3:ncol(dfm)],2,sum))
     
     dfms<-rbind(sapply(1:nrow(dfm),function(x) dfm[x,3:ncol(dfm)]/dmt))
@@ -1410,7 +1419,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
-
+    
     par(mar=c(4,4,1,7), xpd=TRUE)
     par(cex=0.7)
     curcols<-grey.colors(length(dfl))
@@ -1551,7 +1560,7 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
         }
     }
     graphics.off()
-
+    
 }
 
 

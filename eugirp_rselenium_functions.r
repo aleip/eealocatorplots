@@ -39,7 +39,10 @@ loginemrt<-function(remDr,issue=""){
     webelem$submitElement()
     Sys.sleep(2)
     remDr$navigate(paste0(urlemrt,issue))
-    
+    while(remDr$getCurrentUrl()[[1]]!=urlemrt){
+        Sys.sleep(1)
+        cat("wait..")
+    }
 }
 logingema<-function(remDr,issue=""){
     
@@ -57,8 +60,13 @@ logingema<-function(remDr,issue=""){
     webelem$clearElement()
     webelem$sendKeysToElement(list(psw))
     webelem$submitElement()
-    Sys.sleep(2)
+    waitpageload(remDr,"login_form")
     remDr$navigate(paste0(urlemrt,issue))
+    while(remDr$getCurrentUrl()[[1]]!=urlemrt){
+        Sys.sleep(1)
+        cat("wait..")
+    }
+    return(1)
 }
 
 emrt<-function(){
@@ -67,7 +75,7 @@ emrt<-function(){
     #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
     remDr$open(silent = TRUE)
-    loginemrt(remDr)
+    loginemrt(remDr,issue="")
     return(remDr)
 }
 emrtgema<-function(){
@@ -75,7 +83,8 @@ emrtgema<-function(){
     #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
     remDr$open(silent = TRUE)
-    logingema(remDr)
+    logingema(remDr,issue="")
+    cat(" logged in as Gema ...")
     return(remDr)
 }
 
@@ -274,7 +283,30 @@ addquestion<-function(remDr,issue,question){
     return(1)
 }
 
-clickstandardbutton<-function(remDr,btext){
+waitnotification<-function(remDr,waittext){
+    #Give time to change item status and notify users
+    webelem<-remDr$findElement('class', 'documentEditable')
+    cat(" Wait item state changing ... ")
+    while(!grepl(waittext,webelem$getElementText())){
+        cat("wait...")
+        Sys.sleep(10)
+        webelem<-remDr$findElement('class', 'documentEditable')
+    }
+    return(1)
+}
+
+waitpageload<-function(remDr,waitonurl){
+    if(waitonurl!=""){
+        while(!grepl(waitonurl,remDr$getCurrentUrl()[[1]])){
+            Sys.sleep(1)
+            cat("wait..")
+        }
+        cat(remDr$getCurrentUrl()[[1]])
+        Sys.sleep(1)
+    }
+    return(1)
+}
+clickstandardbutton<-function(remDr,btext,waitonurl=""){
     isPresent = length(remDr$findElements('class', 'eea-tabs-panel'))
     ok<-0
     if(isPresent>0){
@@ -291,6 +323,8 @@ clickstandardbutton<-function(remDr,btext){
             }
         }
     }
+    if(waitonurl!=""){waitpageload(remDr = remDr,waitonurl = waitonurl)}
+    
     return(ok)
     
 }
@@ -429,94 +463,99 @@ addnewissuecomplete<-function(newobs,x1=NULL,x2=NULL,where="test"){
     
 }
 
-resolveissue<-function(remDr,x,line,do=""){
+resolveissue<-function(x,line,do="",step2="FALSE"){
     issue <- line$issuenr
-    note <- line$note
-    expl <- line$next.
-    if(do=="") do   <- line$next.
-    issueflags = line[,flagnames]
+    note <- line$comments
+    #expl <- line$conclusion
+    if(do=="") do   <- line$conclusion
+    #issueflags = line[,flagnames]
+    cat("\n\n")
     cat(x,": ",issue)
-    cat(issue,"-",note,"-",do,"-",expl,"-")
     
+    remDr<-emrtgema()
+    cat("- note:",note)
     curissue<-openissue(remDr,issue)
+    cat(" - do",do)
     
-    team2<-FALSE
-    if(do=="Follow up" & line$sig==1){team2<-TRUE}
-    if(do=="Not resolved"){team2<-TRUE}
-    if(note=="No response"){expl<-note;note<-""}
-    
-    # Add Conclusion
-    clickbutton<-"Add Conclusions"
-    webelem<-remDr$findElements('class', 'defaultWFButton')
-    
-    if(length(webelem)==0){
-        cat("No default button available!\n")
-        return("to be checked")
-    }
-    cat("\n")
-    
-    text<-webelem[[1]]$getElementText()
-    if(text==clickbutton) webelem[[1]]$clickElement()
-    
-    # Select reason: issue is resolved
-    webelem<-remDr$findElement('id','form-widgets-closing_reason')
-    
-    if(do=="Resolved") {webelem$sendKeysToElement(list("resolved: issue dropped or clarified"))}
-    if(do=="partly" | do=="Explained"){
-        webelem$sendKeysToElement(list("partly resolved: maybe recommendation, but not forwarded to 2nd step review"))
-    }
-    if((do=="Follow up" & !team2)){
-        webelem$sendKeysToElement(list("unresolved: maybe recommendation, but not forwarded to 2nd step review"))
-    }
-    if(team2){
-        webelem$sendKeysToElement(list("significant issue: hand over to 2nd step"))
-    }
-    
-    webelem<-remDr$findElement('id','form-widgets-text')
-    
-    if(do=="Resolved" | do=="Follow up" | do=="Not resolved") {webelem$sendKeysToElement(list(expl))}
-    if(do=="partly"){webelem$sendKeysToElement(list(note))}
-    if(do=="Explained"){webelem$sendKeysToElement(list("Explanation provided."))}
-    
-    
-    # Select highlights
-    for (i in c(0:7)){
-        webelem<-remDr$findElement('id', paste0('form-widgets-highlight-',i))
-        if(unlist(webelem$isElementSelected())) webelem$clickElement()
-    }
-    for(i in which(issueflags==1)){
-        if(issueflags[i]==1){
-            webelem<-remDr$findElement('id', paste0('form-widgets-highlight-',i-1))
-            webelem$clickElement()
+    #check if it is already closed
+    webelem<-remDr$findElement('id','content-core')
+    if(grepl("Conclusions Step 1",webelem$getElementText())){
+        cat(" already closed!")
+    }else {
+        
+        if(grepl("Acknowledge Answer",webelem$getElementText())){
+            clickstandardbutton(remDr,"Acknowledge Answer")
+            Sys.sleep(10)
+            
         }
+        
+        #if(note=="No response"){expl<-note;note<-""}
+        
+        # Add Conclusion
+        clickstandardbutton(remDr,"Add Conclusions",waitonurl = "\\+\\+add\\+\\+Conclusion")
+        cat(" - expl",expl,"-")
+        
+        # when at site /++add++Conclusion
+        # Select reason: issue is resolved
+        webelem<-remDr$findElement('id','form-widgets-closing_reason')
+        
+        if(grepl("[pP]artly",do)){webelem$sendKeysToElement(list("Partly resolved"))}else
+            if(grepl("[uU]nresolved",do)){webelem$sendKeysToElement(list("Unresolved"))}else
+                if(grepl("[rR]esolved",do)) {webelem$sendKeysToElement(list("Resolved"))}
+        
+        webelem<-remDr$findElement('id','form-widgets-text')
+        webelem$sendKeysToElement(list(note))
+        
+        #if(do=="Resolved" | do=="Follow up" | do=="Not resolved") {webelem$sendKeysToElement(list(expl))}
+        #if(do=="partly"){webelem$sendKeysToElement(list(note))}
+        #if(do=="Explained"){webelem$sendKeysToElement(list("Explanation provided."))}
+        
+        
+        # Select highlights
+        #for (i in c(0:7)){
+        #    webelem<-remDr$findElement('id', paste0('form-widgets-highlight-',i))
+        #    if(unlist(webelem$isElementSelected())) webelem$clickElement()
+        #}
+        #for(i in which(issueflags==1)){
+        #    if(issueflags[i]==1){
+        #        webelem<-remDr$findElement('id', paste0('form-widgets-highlight-',i-1))
+        #        webelem$clickElement()
+        #    }
+        #}
+        
+        # Save
+        clicksave(remDr=remDr)
+        waitpageload(remDr,waitonurl = "tab-conclusions")
+        # when at #tab-conclusions
+        clickbutton<-"Request finalisation of the observation"
+        clickstandardbutton(remDr,clickbutton,waitonurl = "request-finish-observation")
+        
+        # when at request-finish-observation
+        webelem<-remDr$findElement('id','form-widgets-comments')
+        webelem$sendKeysToElement(list(""))
+        clickbutton<-"Request finalisation of the observation"
+        webelem<-remDr$findElement('class', 'defaultWFButton')
+        webelem$clickElement()
+        waitnotification(remDr,waittext = "Users have been notified by e-mail")
+        
+        remDr$close()
+        
+        # Confirm closing observation
+        remDr<-emrt()
+        curissue<-openissue(remDr,issue)
+        
+        clickbutton<-"Confirm finishing observation"
+        clickbuttonnr<-1
+        if(step2){
+            clickbutton<-"Hand over to Team 2"
+            clickbuttonnr<-2
+        }
+        webelem<-remDr$findElements('class', 'defaultWFButton')[[clickbuttonnr]]
+        text<-webelem$getElementText()
+        if(text==clickbutton) webelem$clickElement()
+        Sys.sleep(5)
+        remDr$close()
     }
-    
-    # Save
-    webelem<-remDr$findElement('id','form-buttons-save')
-    webelem$clickElement()
-    
-    clickbutton<-"Request finalisation of the observation"
-    webelem<-remDr$findElement('class', 'defaultWFButton')
-    text<-webelem$getElementText()
-    if(text==clickbutton) webelem$clickElement()
-    
-    webelem<-remDr$findElement('id','form-widgets-comments')
-    if(do=="Explained" | do=="Follow up"){webelem$sendKeysToElement(list(note))}
-    
-    clickbutton<-"Request finalisation of the observation"
-    webelem<-remDr$findElement('class', 'defaultWFButton')
-    webelem$clickElement()
-    
-    clickbutton<-"Confirm finishing observation"
-    clickbuttonnr<-1
-    if(team2){
-        clickbutton<-"Hand over to Team 2"
-        clickbuttonnr<-2
-    }
-    webelem<-remDr$findElements('class', 'defaultWFButton')[[clickbuttonnr]]
-    text<-webelem$getElementText()
-    if(text==clickbutton) webelem$clickElement()
-    
     return("resolved")
     
 }
@@ -624,6 +663,7 @@ getobsdetails<-function(remDr,issue){
 
 # Retrieve question and answer communication from an issue
 getquestionanswers<-function(remDr,issue){
+    cat("\n")
     curissue<-openissue(remDr,issue,"#tab-qa")
     webelem<-remDr$findElement('class', 'eea-tabs-panels')
     communication<-webelem$getElementText()[[1]]
@@ -650,26 +690,31 @@ getquestionanswers<-function(remDr,issue){
         comfrom<-vector(length=ncomments)
         comwhen<-vector(length=ncomments)
         comwhat<-vector(length=ncomments)
+        comfile<-vector(length=ncomments)
+        comtot<-vector(length=ncomments)
         
         for(i in c(1:(ncomments))){
             comfrom[i]<-communication4[okdate[i]]
+            comfrom[i]<-gsub("expert\\/reviewer to Member State","",comfrom[i])
+            comfrom[i]<-gsub("Member State to expert\\/reviewer","MS",comfrom[i])
             comwhen[i]<-issuedate(communication4[okdate[i]+1])
             if(i<ncomments){imax<-okdate[i+1]-1}else(imax<-length(communication4))
             comwhat[i]<-paste(communication4[(okdate[i]+2):imax],collapse=";")
+            comfile[i]<-strsplit(comwhat[i],";Files:;")[[1]][2]
+            if(is.na(comfile[i])) comfile[i]<-""
+            comwhat[i]<-strsplit(comwhat[i],";Files:;")[[1]][1]
+            
+            comtot[i]<-paste0(gsub(" *from ","",comfrom[i])," on ",comwhen[i],": ",comwhat[i])
         }
-        comfroms<-paste(c(1:ncomments),comfrom,collapse="; ")
-        comfroms<-gsub("from expert\\/reviewer to Member State  ","EU_1",comfroms)
-        comfroms<-gsub("  from Member State to expert\\/reviewer","MS",comfroms)
-        comwhens<-paste(c(1:ncomments),comwhen,collapse="; ")
+        comfile<-comfile[comfile!=""]
+        if(length(comfile)>0){comfiles<-paste(comfile,collapse="; ")}else{comfiles<-""}
         if(ncomments>2){
-            comwhats<-paste(c(1:ncomments),comwhat,collapse="; ")
+            comfroms<-paste(comtot[2:(ncomments-1)],collapse="; ")
         }else{
             comwhats<-""
         }
-        question<-paste0(gsub(" *from ","",comfrom[1])," on ",comwhen[1],": ",comwhat[1])
-        lastanswer<-paste0(gsub(" *from ","",comfrom[ncomments])," on ",comwhen[ncomments],": ",comwhat[ncomments])
     }
-    return(list(ncomments,question,lastanswer,comfroms,comwhens,comwhats))                              
+    return(list(ncomments,comfiles,comwhen[1],comtot[1],comwhen[ncomments],comtot[ncomments],comfroms))                              
 }
 
 # Retrieve info from Conclusion Phase 1
@@ -902,7 +947,7 @@ listofselectedissues<-function(remDr,revyear,filter=NULL,criterion=NULL){
 # First Checks - select issues to be approved, approve and send to MS
 preparefileforissueupload<-function(newissuefile="",revyear=curyear){
     #Add new issue as Sector Expert (Gema)
-
+    
     # Flags determined automatically: 'par' (Activity Data, Emission, Other)
     #                                 'Country' 
     
@@ -1033,7 +1078,7 @@ mergeanswerswithissues<-function(issuedetails){
         if(check!="unit") sel<-grepl(paste0(sec," -"),issuedetails$Observation) & grepl(par,issuedetails$issuenr) 
         if(check=="unit") sel<-grepl(par,issuedetails$issuenr) 
         if(check=="agric") sel<-grepl(paste0(sec," "),issuedetails$Observation) & grepl(par,issuedetails$issuenr) 
-            
+        
         if(check%in%c("coutl","recalc")) sel<-sel & grepl(paste0("- ",cat),issuedetails$Observation)
         if(check%in%c("agric")) sel<-sel & grepl(paste0("\\(",cat),issuedetails$Observation)
         if(check%in%c("times")) sel<-sel & grepl(paste0("- ",msr," \\("),issuedetails$Observation)
@@ -1077,8 +1122,8 @@ mergeanswerswithissues<-function(issuedetails){
     listissues<-convert2char(listissues)
     listissues$comment<-paste0(listissues$comment,listissues$gemacomments,listissues$note)
     listissues<-listissues[,-which(names(listissues)%in%c(obsnames,"issueflag","issuedate",
-                                                    "gas","ref2006","ref1997","communication","gemacomments",
-                                                    "followup"))]
+                                                          "gas","ref2006","ref1997","communication","gemacomments",
+                                                          "followup"))]
     names(issuedetails)[which(names(issuedetails)=="issue")]<-"issuenr"
     listissues$check<-"outlier"
     
@@ -1086,12 +1131,12 @@ mergeanswerswithissues<-function(issuedetails){
     outliers<-issuedetails[grepl("outlier",issuedetails$Observation),]
     isscoutl<-merge(outliers,listissues,by=c("issuenr"),all.x=TRUE)
     isscoutl<-isscoutl[,-which(names(isscoutl)%in%c("X.x","X.y"))]
-
+    
     # NE and empty cell checks
     issne<-read.csv(paste0(issuedir,"nechecks/","necheck20160216_JS.csv"),comment.char = "#")
     issne$check<-"ne_empty"
     issne<-merge(issuedetails,issne[,-which(names(issne)%in%c("party","gas","source","target","method","option","type"))],by="issuenr")
-
+    
     # Unitchecks
     issunit<-read.csv(paste0(issuedir,"autocorrections/","unitchecks20160224.csv"),comment.char = "#")
     issunit$check<-"unit"
@@ -1119,7 +1164,7 @@ mergeanswerswithissues<-function(issuedetails){
     isstimes<-merge(timesculations,listissues,by=c("issuenr"),all.x=TRUE)
     isstimes<-isstimes[,-which(names(isstimes)%in%c("X.x","X.y"))]
     isstimes$check<-"timeseries"
-
+    
     # Agri-checks
     listissues<-read.csv(paste0(issuedir,"agrichecks/","agrichecks_gc.csv"),comment.char = "#")
     listissues$issuenr<-unlist(lapply(1:nrow(listissues),function(x) getissuenr(x,listissues[x,],"agric")))
@@ -1218,7 +1263,7 @@ resolvedissues<-function(){
     #x2<-49
     #x2<-nrow(issues2resolve)
     resolved1<-Reduce(rbind,lapply(c(x1:x2),function(x) unlist(finalise(issues2deal[x,]))))
-
+    
 }
 
 

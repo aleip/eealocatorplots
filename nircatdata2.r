@@ -11,13 +11,13 @@ if(curmea=="Milk") curemissions[curemissions$party=="LU",years]<-NA
 euemissions<-curemissions[curemissions$party==eusubm,]
 curgas<-as.character(euemissions$gas)
 if(curgas=="no gas"){if(grepl("3.A|3.B.1|3.C",cursec)){curgas<-"CH4"}else if(grepl("3.D|3.B.2",cursec)){curgas<-"N2O"}}
+curcat<-curcatnew(curcat)
+curcattext<-curcatlong(curcat,cursec)
 curmeasure<-curmeasurenew(as.character(euemissions$measure))
 curunit<-as.character(euemissions$unit)
 if(curmea=="Milk") curunit<-"kg/head/day"
 curclas<-as.character(euemissions$classification)
 
-curcat<-curcatnew(curcat)
-curcattext<-curcatlong(curcat,cursec)
 
 curtrend<-euemissions[lastyear]/euemissions[firstyear]
 curtrendabs<-euemissions[lastyear]-euemissions[firstyear]
@@ -112,6 +112,8 @@ curtable[,selyears]<-format(curtable[,selyears],digits=2)
 sel<-curtable$party==eusubml
 #eumsubm<-eum[which(eu==eusubm)]
 #curtable$party[curtable$party==eusubm]<-eum[which(eu==eusubm)]
+
+##test
 curtable[curtable$party==eusubml,]<-paste0("**",gsub(" ","",curtable[curtable$party==eusubml,]),"**")
 if(grepl("NA",curtable[sel,firstyear])&grepl("NA",curtable[sel,lastyear])) curtable<-curtable[!sel,]
 for(yy in selyears){

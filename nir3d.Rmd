@@ -24,7 +24,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast))`&nbsp;
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
 
 ![](../2016/eureport/20170317/Table3D1DirectN2OEmissions.jpg)
 

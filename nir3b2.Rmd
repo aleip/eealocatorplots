@@ -10,7 +10,7 @@ figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
 figs(paste0("fig","3.B.2.5","sharems"),sharemsfigurecaption(eukp,"3.B.2.5",lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
-`r text2shareeu()`. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`.
+`r text2shareeu()`. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`, but substantial emisssions are also reported for Swine, and Poultry.
 
 `r text2sharems(sec=cursec)`
 
@@ -32,7 +32,7 @@ Regarding the handling of manure in the different Member States, `r figs(paste0(
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast))`&nbsp;
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
 
 ![](../2016/eureport/20170317/Table3B2ManureManagementotalGHGN2O.jpg)
 
@@ -96,32 +96,30 @@ Other activity data is:
 
 * N-allocation by MMS. 
 
-
-
-```{r 3B25em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.2.5"
-curseclong<-"Manure Management - Indirect Emissions"
-curcat<-"Farming"
+```{r 3B243em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
 curmea<-"EM"
 source("nircatdata.r")
-tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+
+subcategssel<-grepl("3.B.2.3.",agridet$sector_number) & agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas==curgas
+subcategdet<-agridet[subcategssel,]
+subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
+nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
+
 figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`.
+`r text2shareeu()`. `r figs(paste0("fig3B23","trend",curmea),display="cite")` shows the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figure represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
-`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+`r text2trend(fig="",option=1)`
 
+`r figs(paste0("fig3.B.2.3","trend",curmea),display="full")`
 
-`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
-
-![](../2016/eureport/20170317/Table3B25ManureManagementN2O.jpg)
-
-`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
-
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B23Swine-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 
 ```{r 3B24em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -206,6 +204,32 @@ Other activity data related to this emission category are:
 
 In this section we discuss the implied emission factor for the main animal types.
 Furthermore, we present data on the nitrogen excretion rate for the different animal types.
+
+```{r 3B25em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management - Indirect Emissions"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()`.
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../2016/eureport/20170317/Table3B25ManureManagementN2O.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../../../../../google/projects/ecir/plots/20170317/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
+
 
 
 
@@ -310,6 +334,46 @@ tabs("tabB212NRATE",paratablecaption(eukp,curcattext,lastyear))
 ![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 `r tabs("tabB212NRATE",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B23ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB23trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB23ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB23trendief",display="cite"),tab=tabs("tabB23ief",display="cite"))`
+
+`r figs("figB23trendief",display="full")`
+
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B23Swine-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB23ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B23NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB23trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB23NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB23trendNRATE",display="cite"),tab=tabs("tabB23NRATE",display="cite"))`
+
+`r figs("figB23trendNRATE",display="full")`
+
+![](../../../../../google/projects/ecir/plots/20170317/rangeief/3B23Swine-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+
+`r tabs("tabB23NRATE",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B247ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}

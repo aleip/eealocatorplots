@@ -41,6 +41,9 @@ yearheaders<-function(curhead){
     curhead[sel]<-years
     return(curhead)
 }
+
+range()
+
 convert2char<-function(DF,cols=NULL){
     
     if(is.null(cols)){

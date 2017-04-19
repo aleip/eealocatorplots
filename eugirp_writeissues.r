@@ -425,7 +425,7 @@ keyflags<-function(line,check){
     #phase of checks
     checks<-c("ne","init","recalc1","recalc2")
     key2<-rep(0,4)
-    if(check%in%c("init","outlier","growth","agri"))check<-"init"
+    #if(check%in%c("init","outlier","growth","agri"))check<-"init"
     key2[which(checks==check)]<-1
 
     #print(paste0("key1=",key1))

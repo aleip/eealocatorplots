@@ -131,7 +131,7 @@ tmpeu<-emfirstlast[emfirstlast$party=="EUC",]
 emfirstlast<-emfirstlast[emfirstlast$party%in%countriesnoeu,]
 tmpeunois<-tmpeu
 tmpeunois[,curheaders]<-apply(emfirstlast[,curheaders],2,sum,na.rm=TRUE)
-tmpis$party<-"Iceland"
+if(nrow(tmpis)>0)tmpis$party<-"Iceland"
 tmpeunois$party<-"EU-28"
 tmpeu$party<-"EU-28 + ISL"
 
@@ -139,11 +139,12 @@ emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) country4sub$name[count
 emfirstlast<-emfirstlast[order(emfirstlast$party),]
 emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis,tmpeu)
 emfirstlast[,curheaders]<-round(emfirstlast[,curheaders],0)
-names(emfirstlast)<-c("Member States",
-                      paste0("GHG emissions in ",firstyear," (kt CO2 equivalents)"),
-                      paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
-                      paste0(curgas," emissions in ",firstyear," (kt CO2 equivalents)"),
-                      paste0(curgas," emissions in ",lastyear," (kt CO2 equivalents)"))
-row.names(emfirstlast)<-NULL
-emphasize.strong.rows(which(grepl("EU",emfirstlast[,"Member States"])))
+if(length(curgas)==1){
+    names(emfirstlast)<-c("Member States",
+                          paste0("GHG emissions in ",firstyear," (kt CO2 equivalents)"),
+                          paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
+                          paste0(curgas," emissions in ",firstyear," (kt CO2 equivalents)"),
+                          paste0(curgas," emissions in ",lastyear," (kt CO2 equivalents)"))
+    row.names(emfirstlast)<-NULL
+}
 

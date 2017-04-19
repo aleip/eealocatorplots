@@ -39,6 +39,15 @@ singular<-function(n,words,option=1){
     return(text1)
     
 }
+vector2words<-function(curvector){
+    
+    n<-length(curvector)
+    w<-paste(curvector[1:(n-1)],collapse=", ")
+    w<-paste0(w,", and ",curvector[n])
+    return(w)
+    
+}
+
 firstlow<-function(c){
     nc<-nchar(c)
     cnew<-c
@@ -115,7 +124,7 @@ absval<-function(curch,d=0){
     if(curunit=="")funit<-curunit
     if(curch>1000){
         if(curunit=="kt CO2 equivalent"){funit<-" Mt CO2-eq"}
-        if(curunit=="1000s"){funit<-" mio heads"}
+        if(curunit=="1000s"){funit<-" million heads"}
     }else{
         if(curunit=="kt CO2 equivalent"){funit<-" kt CO2-eq"}
         if(curunit=="1000s"){funit<-" thousand heads"}
@@ -177,7 +186,8 @@ curcatlong<-function(curcat,cursec=cursec){
     if(grepl("3.D.AI.1",cursec)){curcattext<-"3.D.2.1 - Indirect emissions from Atmospheric Deposition"}
     if(grepl("3.D.AI.2",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Atmospheric Deposition"}
     if(grepl("3.D.AI.3",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Nitrogen Leaching and Run-off"}
-    if(cursec=="3.B.2.5"){curcattext<-"3.B.2.5 - Indirect N2O emissions from manure management"}
+    if(cursec=="3.B.2.5" & curmeasure=="leaching"){curcattext<-"3.B.2.5 - Indirect N2O emissions from leaching from manure management"}
+    if(cursec=="3.B.2.5" & curmeasure=="Atmospheric"){curcattext<-"3.B.2.5 - Indirect N2O emissions from manure management"}
     curcattext<-paste0("*",gsub(" $","",curcattext),"*")
     return(curcattext)
 }
@@ -244,6 +254,7 @@ sharemsfigurecaption<-function(eusubml,sec=cursec,lastyear){
     print(cap)
     return(cap)
 }
+
 msconttablecaption<-function(){
     cap<-paste0("&#09;",curcattext,": Member States&apos; contributions to total GHG and ",paste(curgas,collapse=", ")," emissions")
     return(cap)
@@ -288,7 +299,7 @@ text2mscontr<-function(sec=cursec){
                  sec," *",curseclong,
                  #if(curcat%in%c("Other Livestock","Cattle","Swine","Sheep")){paste0(" - ",tolower(curcat))},
                  "* are shown in ",tabs(paste0("tab",sec,"mscontr"),display="cite"),
-                 " by Member State ",if("IS" %in% allcountries){"plus Iceland "},
+                 " by Member State ",if("IS" %in% allcountries){"plus Iceland, "},
                  "and the total EU-28",if("IS" %in% allcountries){" and EU-28+ISL"},
                  " for the first and the last year of the inventory (",firstyear," and ",lastyear,").",
                  " Values are given in kt CO2-eq. ",
@@ -314,10 +325,11 @@ text2shareeu<-function(){
     sent1<-paste0(curgas," ",firstlow(capmeasure(curmeasure))," are ",
                   percent(eushareghg,1)," of total ",eukp," GHG emissions and ",
                   percent(eusharencgg)," of total ",eukp," ",curgas," emissions. They make ",
-                  percent(eushareagrighg,1)," of total agricultural emissions or ",
+                  percent(eushareagrighg,1)," of total agricultural emissions and ",
                   percent(eushareagrincgg)," of total agricultural ",curgas," emissions.")
     return(sent1)
 }
+
 text2sharems<-function(sec=cursec,curcolor='grey'){
  
     text<-paste0("Regarding the origin of emissions in the different Member States, ",
@@ -445,7 +457,6 @@ text2ief<-function(fig="",tab=""){
     # The IEF decreased in 5 countries and increased in 22 countries. 
     if(decreasen>0 & increasen>0){
         if(curmea%in%c("IEF","FracGASF","FracGASM")){sent4<-paste0("The ",what)}else{sent4<-firstup(what)}
-        print(what)
         if(grepl("VS",what))sent4<-what
         sent4<-paste0(sent4," decreased in ",singular(decreasen,"countries",1)," and increased in ",singular(increasen,"countries",1),". ")
         if(stablen>0){sent4<-paste0(sent4,"It was in ",lastyear," at the level of ",firstyear," in ",singular(stablen,"countries",1),". ")}
@@ -466,9 +477,9 @@ text2ief<-function(fig="",tab=""){
             addother<-""
         }
         if(decreasen==0 & increasen>0){
-            sent4<-paste0(sent4," increased in all ",addother,singular(increasen,"countries",2),". ")}
+            sent4<-paste0(sent4," increased in all reporting ",addother,singular(increasen,"countries",2),". ")}
         if(decreasen>0 & increasen==0){
-            sent4<-paste0(sent4," decreased in all ",addother,singular(decreasen,"countries",2),". ")}
+            sent4<-paste0(sent4," decreased in all reporting ",addother,singular(decreasen,"countries",2),". ")}
     }
 
     
@@ -498,7 +509,8 @@ text2ief<-function(fig="",tab=""){
         }else{temp<-paste0("Increases occurred in ");if(increasencnt==1){temp<-paste0("There was an increase in ")}}
         sent6<-paste0(temp,laender(increasecnt)," with",amean," absolute value of ",absval(increasemcnt),". ")
     }else{sent6<-""}
-
+    #print(paste0(sent1,sent2,sent3,sent4,sent5,sent6))
+    
     
     return(paste0(sent1,sent2,sent3,sent4,sent5,sent6))
 }

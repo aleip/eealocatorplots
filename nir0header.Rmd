@@ -1,9 +1,22 @@
+```{r yaml,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+# YAML header below
+# requires one emply line before and must start with --- and end with --- or ...
+# see http://pandoc.org/MANUAL.html#extension-yaml_metadata_block
+# see https://en.wikipedia.org/wiki/YAML
+# and example https://gist.github.com/bowsersenior/979804
+```
+
 ---
 output:
   word_document:
     fig_caption: yes
     fig_width: 3
   html_document: default
+
+foldertext:
+  cursubm: 20170317
+  ecirfolder: '../../../../../google/projects/ecir'
+
 ---
     
 ```{r setdata,results='hide',warning=FALSE,message=FALSE,echo=FALSE}

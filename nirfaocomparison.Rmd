@@ -64,6 +64,7 @@ curtemp[curtemp==0]<-NA
 curtemp<-(apply(curtemp[,years],2,mean))
 curtemp<-curtemp[!is.na(curtemp)]
 yearsavailable<-(as.numeric(names(curtemp)))
+faoyears<-as.character(yearsavailable)
 
 compyears<-as.character(yearsavailable)
 comprange<-paste0(compyears[1]," to ",compyears[length(compyears)])
@@ -165,11 +166,11 @@ We can see that it decreased strongly in EU-KP by 40% or 15.9 mio heads in the p
 
 `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
+![](#{foldertext.ecirfolder}/plots/#{foldertext.cursubm}/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
 
 `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/compareadem/3A1DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
+![](../../../../../google/projects/ecir/plots/#{foldertext.cursubm}/compareadem/3A1DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
 
 
 `r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="full")`

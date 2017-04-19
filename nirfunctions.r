@@ -514,3 +514,4 @@ text2ief<-function(fig="",tab=""){
     
     return(paste0(sent1,sent2,sent3,sent4,sent5,sent6))
 }
+

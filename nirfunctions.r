@@ -179,15 +179,15 @@ curcatlong<-function(curcat,cursec=cursec){
     # curcattext: combination of sector and category (e.g. 3.A.1 Cattle)
     curcattext<-paste0(cursec," - ",curcat)
     if(grepl("3.D.1",cursec)){curcattext<-paste0(cursec," - ",curcat," ",curseclong)}
-    if(curmeasure=="Atmospheric deposition"){curcattext<-paste0(cursec," - ",curmeasure," from ",curcat)}
+    if(unique(curmeasure)=="Atmospheric deposition"){curcattext<-paste0(cursec," - ",curmeasure," from ",curcat)}
     if(cursec=="3.D.1.1" | cursec=="3.D.1.2"){curcattext<-gsub("Managed Soils",curseclong,curcattext)}
     if(cursec=="3.D.2.1" | cursec=="3.D.2.2"){curcattext<-paste0(cursec," - Indirect N2O Emissions from ",curseclong)}
     if(cursec=="3.D.1.3"){curcattext<-paste0(cursec," - ",curcat)}
     if(grepl("3.D.AI.1",cursec)){curcattext<-"3.D.2.1 - Indirect emissions from Atmospheric Deposition"}
     if(grepl("3.D.AI.2",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Atmospheric Deposition"}
     if(grepl("3.D.AI.3",cursec)){curcattext<-"3.D.2.2 - Indirect emissions from Nitrogen Leaching and Run-off"}
-    if(cursec=="3.B.2.5" & curmeasure=="leaching"){curcattext<-"3.B.2.5 - Indirect N2O emissions from leaching from manure management"}
-    if(cursec=="3.B.2.5" & curmeasure=="Atmospheric"){curcattext<-"3.B.2.5 - Indirect N2O emissions from manure management"}
+    if(cursec=="3.B.2.5" & unique(curmeasure)=="leaching"){curcattext<-"3.B.2.5 - Indirect N2O emissions from leaching from manure management"}
+    if(cursec=="3.B.2.5" & unique(curmeasure)=="Atmospheric"){curcattext<-"3.B.2.5 - Indirect N2O emissions from manure management"}
     curcattext<-paste0("*",gsub(" $","",curcattext),"*")
     return(curcattext)
 }

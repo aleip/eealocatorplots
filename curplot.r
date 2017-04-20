@@ -14,9 +14,11 @@
 
 require(ggplot2) #for graphics
 require(reshape2) #required for melt function - for outls
-require(dplyr) #for pipes and many data manipulation functions
-require(data.table)
+#require(dplyr) #for pipes and many data manipulation functions
+#require(data.table)
+require(dtplyr)
 require(knitr)
+require(Matrix)
 require(compare)
 require(RColorBrewer)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)

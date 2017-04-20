@@ -22,6 +22,7 @@ foldertext:
 ```{r setdata,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 source("curplot.r")
 source("nirfunctions.r")
+source("nircomparisonfunctions.r")
 library(captioner)
 library(pander)
 library(dplyr)

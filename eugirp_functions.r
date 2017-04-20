@@ -77,11 +77,12 @@ curdate<-function(){format(Sys.time(), "%Y%m%d")}
 curtime<-function(secs=FALSE){
     if(secs){format(Sys.time(), "%Y%m%d-%H%M%S")
     }else{format(Sys.time(), "%Y%m%d-%H%M")}}
-rounddigit<-function(val){
+
+rounddigit<-function(val,showdig=2){
     sig<-val/abs(val)
     n<-log10(abs(val))
     
-    digs<-2-min(2,floor(n))
+    digs<-showdig-min(showdig,floor(n))
     valn<-round(val,digs)
     return(valn)
 }

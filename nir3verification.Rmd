@@ -34,39 +34,3 @@ For the submission in the year 2014, this section had been updated and is availa
 
 [^allocation]: &#09;ftp://mars.jrc.ec.europa.eu/Afoludata/Public/363_eughginventory2014/koeble_leip2014.livestockallocation.pdf
 
-#### Comparison of Cultivated Organic Soil at the FAO GHG database and JRC calculations
-
-```{r histosols,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-figs("fighist","&#09;Area of cultivated organic soils based on two studies and the values given in the National Inventory Reports (2013) for the year 2006")
-```
-
-A comparison of the area of cultivated organic soils as reported by the FAO, in the national IRs with calculations done at the JRC has been performed by JRC in October 2013.
-
-The FAO (FAO, 2103) provides area of cultivated organic soils on country level. The analysis is based on the Harmonized World Soil Database - HWSD - (FAO/IIASA/ISRIC/ISSCAS/JRC, 2009) and the Global Land Cover data set for the year 2000 (GLC2000). 
-
-At JRC the area of cultivated organic soils for the single countries in EU27 has been derived from overlaying the HWSD with the CORINE Land Use/Cover data set - CLC2006 (EEA, 2011) for the year 2006 (for some countries 2000). Both data sets have been resampled to a 1km by 1km raster cell size.
-
-Definition of organic soils as given in IPCC (2006) based on FAO (1998): 
-Soils are organic if they satisfy the requirements 1 and 2, or 1 and 3 below (FAO, 1998): 
-
-#. Thickness of 10 cm or more. A horizon less than 20 cm thick must have 12 percent or more organic carbon when mixed to a depth of 20 cm; 
-#.	If the soil is never saturated with water for more than a few days, and contains more than 20 percent (by weight) organic carbon (about 35 percent organic matter); 
-#.	If the soil is subject to water saturation episodes and has either: (i) at least 12 percent (by weight) organic carbon (about 20 percent organic matter) if it has no clay; or (ii) at least 18 percent (by weight) organic carbon (about 30 percent organic matter) if it has 60 percent or more clay; or (iii) an intermediate, proportional amount of organic carbon for intermediate amounts of clay (FAO, 1998).
-
-FAO gave larger area of organic soils cultivated compared to JRC results for all countries except Germany `r figs("fighist",display="cite")`. This was mainly due to different source data sets for delineation of cropland area and the assumptions regarding the land use classification.
-
-In the JRC approach Soil Typological Units (STU) of the HWSD are defined as 'organic soils' 
-
-(#) if the topsoil organic carbon content is > 18% or 
-(#) if the topsoil organic carbon content is higher than the topsoil clay content * 0.1 + 12. All STUs in the EU27 of the HWSD which have been classified as 'organic soils' showed an organic carbon content of >30%, thus de facto only criterion (1) was applied.
-
-To delineate 'cropland area' in the land use/cover map, FAO considers pure cropland classes as well as mixed cropland/other land use classes. For the latter, assumptions were made on the share of cropland within these mixed classes. However,  the JRC approach takes assumes that in case of mixed land use classes the probability of the different land uses happening on organic soils are not the same, in contract to the approach of the FAO, which distribute land cover proportionally.  As some crops do not grow well on organic soils it might occur that the land uses are not distributed equally on the mineral and organic soil but that 100% of the forest is grown an organic soil and the crops are cultivated only on mineral soils.
-
-In the JRC analysis mixed land use classes are not taken into account as the shares of cropland within these classes are given as ranges in the legend of CORINE. The cropland/other land use shares in the mixed land use classes might also vary between regions. Thus, by excluding mixed land use classes, the estimate of cropland area on organic soils can be considered as conservative compared to the FAO approach.
-
-
-`r figs("fighist",display="full")`
-
-![](../2016/eureport/cropland_on_organic_soils_eu27.png)
-
-

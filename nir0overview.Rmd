@@ -25,16 +25,16 @@ Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r 
 
 `r figs("figtrendem",display="full")`
 
-`r print("Please add figure here!!")
+`r print("Please add figure here!!")`
 
 `r figs("figshares",display="full")`
 
-`r print("Please add figure here!!")
+`r print("Please add figure here!!")`
 ![](../2017/eureport/figs/Absolutechangeinsector3columns.jpg)
 
 `r figs("figsharesb",display="full")`
 
-`r print("Please add figure here!!")
+`r print("Please add figure here!!")`
 ![](../2017/eureport/figs/Shareoflargestkeycategorysources2014piechart.jpg)
 
 

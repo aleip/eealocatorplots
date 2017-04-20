@@ -315,7 +315,6 @@ if(stepsdone==3){
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    save(checksteps,file="checksteps.RData")
     source("curplot.r")
 }else if(stepsdone>3){
     print("Step 4: Trends and growth rates already calculated")

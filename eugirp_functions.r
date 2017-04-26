@@ -43,8 +43,6 @@ yearheaders<-function(curhead){
     return(curhead)
 }
 
-range()
-
 convert2char<-function(DF,cols=NULL){
     
     if(is.null(cols)){
@@ -1209,9 +1207,10 @@ MHmakeRandomString <- function(n=1, lenght=12)
 
 # FUNCTIONS REQUIRED FOR PLOTTING #####
 
-plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri){
+plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri,export=FALSE){
     
     #if(is.null(pr)){return("no country indicated")}
+    graphics.off()
     if(is.null(mt)){return("no meastype")}
     
     sel<-rep(1,nrow(DF))
@@ -1234,17 +1233,53 @@ plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri){
     }
     View(time_series)
     write.csv(time_series,file="time_series.csv")
-    if(nrow(time_series)>1){
-        plot(years,time_series[1,years],ylim=c(timemin,timemax),ylab=timelabel)
-        for(i in c(2:nrow(time_series))){
-            #print(paste(i,time_series[i,"party"]))
-            points(years,as.data.frame(time_series)[i,years],pch=i%%26)
+    
+    okplot<-function(){
+        if(nrow(time_series)>1){
+            plot(years,time_series[1,years],ylim=c(timemin,timemax),ylab=timelabel)
+            for(i in c(2:nrow(time_series))){
+                #print(paste(i,time_series[i,"party"]))
+                points(years,as.data.frame(time_series)[i,years],pch=i%%26)
+            }
+        }else{
+            plot(years,as.data.frame(time_series)[1,years],ylim=c(timemin,timemax),ylab=timelabel)
+            #plot(years,as.data.frame(time_series)[1,years],ylim=c(min(time_series,na.rm=TRUE),max(time_series,na.rm=TRUE)))
         }
-    }else{
-        plot(years,as.data.frame(time_series)[1,years],ylim=c(timemin,timemax),ylab=timelabel)
-        #plot(years,as.data.frame(time_series)[1,years],ylim=c(min(time_series,na.rm=TRUE),max(time_series,na.rm=TRUE)))
+        if(nrow(time_series)>1) legend(x="topleft",ncol=5,legend=timelegend$leg,pch=seq(1,nrow(time_series))%%26)
     }
-    if(nrow(time_series)>1) legend(x="topleft",ncol=5,legend=timelegend$leg,pch=seq(1,nrow(time_series))%%26)
+    if(export==TRUE){
+        graphics.off()
+        plotformat<-"jpg"
+        pwidth=3*2
+        pheight=4
+        pfont<-1.6*pheight/6
+        presolution=1000
+        figdir<-paste0(gsub("checks","plots",issuedir),"/trend")
+        if (! file.exists(gsub("/$","",figdir))){
+            dir.create(file.path(figdir))
+            #    setwd(file.path(mainDir, figdate))
+        }
+        #par(new=TRUE)
+        cts<-paste(ct,collaps="-")
+        mts<-paste(mt,collaps="-")
+        figname<-paste0(plotsdir,"/trend/",pr,"_",sc,cts,"_",mts,".",plotformat,collapse=NULL)
+        
+        if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
+        if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
+        if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
+        #Attention: par must be set AFTER device is open, otherwise opens another!
+        #Otherwise: figure margins too wide
+        par(mar=c(2,4,2,1)) #bot,lef,top,rig
+        par(omd=c(0.4,0.4,0,0))
+        par(omi=c(0,0,0,0))
+        par(oma=c(0,0,0,0))
+        par(cex=0.5)
+        okplot()
+        graphics.off()
+    }
+    okplot()
+    
+    
 }
 
 mtexttit<-function(runsect,runmeta,runmeas){

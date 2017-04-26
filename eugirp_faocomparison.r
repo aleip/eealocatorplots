@@ -245,6 +245,7 @@ if(!file.exists(faofile)){
         selection<-faodata$category=="Cattle"
         faodata<-faodata[!selection,]
         temp9<-faodata
+        
     }
     
     #faomeasures<-unique(faodata[,-which(names(faodata)%in%faoyears)])
@@ -260,6 +261,15 @@ if(!file.exists(faofile)){
     faodata<-faodata[,names(allagri)]
     faodata<-convert2char(faodata)
     
+    # Merge 3.D.1.1. activity data
+    # Until 2001 category: Consumption then Consumption in nutrients
+    selection<-faodata$sector_number=="3.D.1.1" & faodata$meastype=="AD"
+    d111<-faodata[selection,]
+    faodata<-faodata[!selection,]
+    d111agg<-aggregate(d111[,years],by = list(d111$party),sum,na.rm=TRUE)
+    d111agg<-unique(merge(d111[,-which(names(d111)%in%years)],d111agg,by.x="party",by.y="Group.1",all.x=TRUE))
+    faodata<-rbind(faodata,d111agg[,names(faodata)])
+    temp10<-faodata
     
     ### Fill some data in allagri
     curagri<-allagri

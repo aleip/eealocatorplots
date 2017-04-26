@@ -269,7 +269,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     #print("prepareplot")
     curuid<-plotmeas$variableUID[imeas]
     #runfoc<-paste0(runfoc,)
-    print(runfocus)
+    #print(runfocus)
     runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
     figname<-plotname(paste0(unique(plotdata$datasource),collapse=""),plotsdir,issuedir,runid,plotmeas[imeas,sectfields],plotmeas[imeas,metafields],plotmeas[imeas,measfields],
                       runfocus,figdate,plotformat,rundata,cursubm,plotparamcheck=0)
@@ -293,6 +293,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     tmin<-NULL
     tmax<-NULL
     tmag<-NULL
+    if("fao" %in% multisource) plotyears<-years[apply(plotdata[plotdata$datasource=="fao",years],2,sum,na.rm=TRUE)==0]
     for(dsource in multisource){
         # Determine y-axis for ADEM plots
         isource<-which(dsource==multisource)
@@ -543,6 +544,10 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #eugirp_funnirplots.r
                     #return(list(tmin,tmax))
                     #plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource)
+                    eu28fin[,plotyears]<-0
+                    eu28pos[plotyears]<-0
+                    eu28neg[plotyears]<-0
+                    eu28[plotyears]<-0
                     plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious)
                 }
                 #print(finshares)
@@ -603,6 +608,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     runmatrix<-eu28fin
     curmatrix<-eu28fin
     ncountries<-nrow(eu28fin)
+    plotyears<-names(eu28)
     
     if (runfocus=="value"){runfoc<-"1VAL"}
     if (runfocus=="trend"){runfoc<-"2TRD"}
@@ -1065,7 +1071,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
         eu28fin<-as.matrix(subset(eu28fins,select=which(names(eu28fins)%in%c(paste0(years,".",iplot)))))
         topn<-unlist(topns[[iplot]])
         topno<-unlist(topnos[[iplot]])
-        print(iplot)
+        #print(iplot)
         sourctitshort<-toupper(multisource[iplot])
         
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -1533,7 +1539,7 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     pconv<-plotinitialized[[4]]
 
     plottitle(mtexttitle0,plotted,multisource)
-    print(multisource)
+    #print(multisource)
     
     abbcex<-1.4*pconv
     tline<-0.25

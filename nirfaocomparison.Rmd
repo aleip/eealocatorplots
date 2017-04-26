@@ -27,15 +27,6 @@ figs(paste0("comp1",cursec,"Poultry",curmea),compademplots(eukp,cursec,"Poultry"
 figs(paste0("comp2",cursec,"Poultry",curmea),compareplots(eukp,cursec,"Poulry"))
 ```
 
-The Food and Agriculture Organization of the United Nations (FAO) has developed a database of 
-greenhouse gas emissions, contained in FAOSTAT, which provides estimations  of the emissions of 
-main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these 
-emissions for the period 1990-2010. The data base can be consulted at the following link:
-
-http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E 
-
-Emissions are specified for the different agricultural sub-domains, estimated by FAO following Tier 1 approach from the 2006 IPCC Guidelines for National GHG Inventories (IPCC, 2006), using activity data provided by countries and default emission factors by IPCC. The data provided by FAO does not necessarily match the numbers reported by countries to the UNFCCC in their national inventory reports.
-
 
 ```{r nirfaooverview,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 sel<-plotdata$category=="Dairy Cattle"
@@ -65,10 +56,14 @@ curtemp<-curtemp[!is.na(curtemp)]
 yearsavailable<-(as.numeric(names(curtemp)))
 faoyears<-as.character(yearsavailable)
 faolast<-faoyears[length(faoyears)]
-compyears<-as.character(yearsavailable)
-comprange<-paste0(compyears[1]," to ",compyears[length(compyears)])
-comprange2<-paste0("(",compyears[1],"-",compyears[length(compyears)],")")
-curtable$comp<-apply(curtable[,compyears],1,mean,na.rm=TRUE)
+
+#For some years not all countries report: check for the example of Enteric Fermentation
+cntmissing<-apply(as.data.frame(is.na(filter(plotdata,sector_number=="3.A",meastype=="EM")[,faoyears])),2,sum)
+cntthere<-faoyears[which(cntmissing==0)]
+
+comprange<-paste0(cntthere[1]," to ",cntthere[length(cntthere)])
+comprange2<-paste0("(",cntthere[1],"-",cntthere[length(cntthere)],")")
+curtable$comp<-apply(curtable[,cntthere],1,mean,na.rm=TRUE)
 curtable$what<-sapply(1:nrow(curtable),function(x) 
     seccatsou(curtable$sector_number[x],curtable$category[x],curtable$classification[x],
               curtable$target[x],curtable$type[x]))
@@ -93,8 +88,6 @@ panderOptions('round',c(0,1,0,1))
 panderOptions('digits',c(5,3,5,3))
 panderOptions('table.style','rmarkdown')
 pander(curtable[,3:6],emphasize.strong.cols=1:2,graph.background=grey)
-tabs("nirfaotab",paste0("GHG emissions from the agricultural sector by emission source category, in kt CO2-eq/year and % of total emissions, for the whole EU-28 (+Iceland??) for the years",comprange,", according to FAOSTAT database and to the UNFCCC data reported by countries (NIR)."))
-# see http://rapporter.github.io/pander/
 
 
 curdiffs<-curtable[,c(1:3,5)]
@@ -111,12 +104,25 @@ curdiffs$diff<-round(curdiffs$diff,0)
 
 ```
 
-The FAOSTAT database is intended primarily as a service to help member countries assess and report their emissions, as well as a useful international benchmark. The FAOSTAT Emissions data are disseminated publicly to facilitate continuous feedback from member countries. `r tabs("nirfaotab",display='cite')` presents total GHG emissions of the agricultural sector by emission source category for the whole EU-28+Iceland and year 2014 (last year available in FAOSTAT). It compares emission values and the share of emissions by category in FAOSTAT database vs. UNFCCC values reported by countries in their National Inventory Reports (NIR).
+The Food and Agriculture Organization of the United Nations (FAO) has developed a database of greenhouse gas emissions, contained in FAOSTAT, which provides estimations  of the emissions of main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these emissions that generally cover ther period 1990-`r faOlast`. The data base can be consulted at the following link:
+
+http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E 
+
+Emissions are specified for the different agricultural sub-domains, estimated by FAO following Tier 1 approach from the 2006 IPCC Guidelines for National GHG Inventories (IPCC, 2006), using activity data provided by countries and default emission factors by IPCC. The data provided by FAO does not necessarily match the numbers reported by countries to the UNFCCC in their national inventory reports.
+
+The FAOSTAT database is intended primarily as a service to help member countries assess and report their emissions, as well as a useful international benchmark.  FAOSTAT emissions data are disseminated publicly to facilitate continuous feedback from member countries. `r tabs("nirfaotab",display='cite')` presents total GHG emissions of the agricultural sector by emission source category for the whole EU-28+Iceland and year `r faolast` (last year available in FAOSTAT). It compares emission values and the share of emissions by category in FAOSTAT database vs. UNFCCC values reported by countries in their National Inventory Reports (NIR).
+
+```{r nirfaotabexp,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+# EU values for FAO are calculated as average of country-sums.
+# As some countries do not report for early years ()
+tabs("nirfaotab",paste0("GHG emissions from the agricultural sector by emission source category, in kt CO2-eq/year and % of total emissions, for the whole EU-28+ISL, averaged over the years ",comprange,", for which reported data from all countries are availabel in both the FAOSTAT and the UNFCCC data bases are available."))
+# see http://rapporter.github.io/pander/
+```
 
 `r tabs("nirfaotab",display='full')`
 `r pander(curtable,emphasize.strong.cols=1:2,emphasize.verbatim.rows=2:4,round=c(0,0,0,1,0,1),digits=c(0,0,3,5,3,5))`&nbsp;
 
-Comparing both databases, we can see that UNFCCC reports higher total emissions than FAOSTAT (`r round(sum(curtable[1:(nrow(curtable)-1),3])/1000,1)` versus `r round(sum(curtable[1:(nrow(curtable)-1),5])/1000,1)`) Mt CO2-eq yr-1, but that difference is lower and with different sign if we remove from the UNFCCC total emissions the amount corresponding to 3.D.1.5, 3.G, 3.H and 3.I categories, which are not reported in FAOSTAT (`r round(sum(curdiffs[,3])/1000,1)` versus `r round(sum(curdiffs[,4])/1000,1)`) Mt CO2-eq yr-1. Looking at the individual emission categories, we can also identify differences between the two databases, which can be due to different reasons: 
+Comparing both databases, we can see that UNFCCC reports higher total emissions than FAOSTAT (`r round(sum(curtable[1:(nrow(curtable)-1),3])/1000,1)` versus `r round(sum(curtable[1:(nrow(curtable)-1),5])/1000,1)`) Mt CO2-eq yr-1, but that difference is lower and with different sign if we remove from the UNFCCC total emissions the amount corresponding to 3.D.1.5, 3.G, 3.H and 3.I categories, which are not calculated in FAOSTAT (`r round(sum(curdiffs[,3])/1000,1)` versus `r round(sum(curdiffs[,4])/1000,1)`) Mt CO2-eq yr-1. Looking at the individual emission categories, we can also identify differences between the two databases, which can be due to different reasons: 
 
 1. Differences in the methodology used for the estimation of emissions. While countries apply tier 1 to tier 3 approaches, depending on the emission category, FAOSTAT estimations are based on a tier 1 approach, using always default emission factors. 
 2. The use of different activity data, coming from different sources or suffering different processing after data collection.
@@ -135,21 +141,19 @@ The largest three differences in relative terms are
 * `r checkcurdif("reldiff",2)` and 
 * `r checkcurdif("reldiff",3)`. 
 
-The three most important source categories both in absolute and relative difference are `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[1],])`, `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[2],])` and `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[3],])`.
+The three source categories with the hightest absolute and relative differences are `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[1],])`, `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[2],])` and `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[3],])`.
 
 In the next sections, we will focus on the comparison of activity data, trying to find out if the differences found in both databases can explain the differences in emissions, analyzing the trends of livestock population, fertilizer use and cultivated area along the inventory years (1990-`r faolast`).
 
-We will employ two types of figures throughout this section. `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` shows the trend of `r eukp` for both NIR and FAO, similar to the Figures used also in Section 5.2. The upper panel of the figure shows the trend in the data from NIR, and the lower panel shows the trend in the FAO data. The 10 most important countries are plotted explicitly with the pattern used also in the previous sections. The share of AD in the last reported year given next to the legend, and all other countries lumped together into the category 'Other'. This category contains only the 'other' countries with respect to the data base, thus the countries could be different for NIR and FAO.
+We will employ two types of figures throughout this section. Figure of the type as in `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` show the trend of `r eukp` for both NIR and FAO, similar to the Figures used also in Section 5.2. The upper panel of the figure shows the trend in the data from NIR, and the lower panel shows the trend in the FAO data. The 10 most important countries are plotted explicitly with the pattern used also in the previous sections. The share of AD in the last reported year given next to the legend, and all other countries lumped together into the category 'Other'. This category contains only the 'other' countries with respect to the data base, thus the countries could be different for NIR and FAO.
 
-`r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` is a figure showing three different perspectives on the comparison of the two data sets, using the average of data for the years 1990-`r faolast`: the chart on the left side shows the reported values in absolute units for both NIR and FAO; the chart in the middle shows the relative difference between both data sets, calculated as (FAO-NIR)/NIR. Thus, positive values indicate that the value from FAO are larger than the value from NIR, and negative values indicate that the values from NIR are larger. Large relative differences indicate a problem in data reporting by the countries, but is not necessarily an indication that this has a large impact for the overall total EU emissions. Therefore, the chart on the right side shows the importance of the difference observed in each countries, as compared to the `r eukp` total: (FAO~country~-NIR~country~)/NIR~EU~.
+Figures of the type as in `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="cite")` show three different perspectives on the comparison of the two data sets, using the average of data for the years 1990-`r faolast`: the chart on the left side shows the reported values in absolute units for both NIR and FAO; the chart in the middle shows the relative difference between both data sets, calculated as (FAO-NIR)/NIR. Thus, positive values indicate that the value from FAO are larger than the value from NIR, and negative values indicate that the values from NIR are larger. Large relative differences indicate a problem in data reporting by the countries, but is not necessarily an indication that this has a large impact for the overall total EU emissions. Therefore, the chart on the right side shows the importance of the difference observed in each countries, as compared to the `r eukp` total: (FAO~country~-NIR~country~)/NIR~EU~.
 
 
 ##### Animal populations 
-Trends of population data in the two data sets and a comparison of average data in the period 1990 to `r faolast` are shown for Dairy Cattle (`r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="cite")`), Non-Dairy Cattle (`r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="cite")`), Sheep (`r figs(paste0("comp1",cursec,"Sheep",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Sheep",curmea),display="cite")`), Swine (`r figs(paste0("comp1",cursec,"Swine",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Swine",curmea),display="cite")`) and Poultry (`r figs(paste0("comp1",cursec,"Poultry",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Poultry",curmea),display="cite")`). The trend in the NIR data are discussed in detail in Section 5.2.
+Trends of population data in the two data sets and a comparison of average data in the period 1990 to `r faolast` are shown for dairy Cattle (`r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="cite")`), non-dairy Cattle (`r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="cite")`), sheep (`r figs(paste0("comp1",cursec,"Sheep",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Sheep",curmea),display="cite")`), swine (`r figs(paste0("comp1",cursec,"Swine",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Swine",curmea),display="cite")`) and poultry (`r figs(paste0("comp1",cursec,"Poultry",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Poultry",curmea),display="cite")`). The trends in the NIR data are discussed in detail in Section 5.2.
 
 `r eutotdiff(makecurdiff("POP","Dairy Cattle","3.A"))`
-
-** xxxTODOxxx This is the first of a series of text-blocks which are all the same (or similar, depending on the data). could you have a look if you find the info ok or too much or too little? wording to change? i thought that possibly a  more calculations could be done e/g/ ratio NIR/FAO ... could give an indication if the differences are consistent or if there are abrupt changes. for N excretion and N input to soils we could/should maybe add a paragraph where we analyse the importance across animal types/N sources, what do you think? if you agree, could you propose one example text which i would try to program (so you don't have to calculate the exact numbers but indicate which numbers you think would be interesting?**
 
 `r eutotdiff(makecurdiff("POP","Non-Dairy Cattle","3.A"))`
 
@@ -166,8 +170,6 @@ curdiff<-makecurdiff("POP","Poultry","3.A")
 ```
 `r eutotdiff(curdiff)`
 
-
-`r text2trend(fig=figs(paste0("comp1",cursec,"trend",curmea),display="cite"))`
 
 `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
 
@@ -232,7 +234,7 @@ figs(paste0("comp2",cursec,"Poultry",curmea),compareplots(eukp,cursec,"Poulry"))
 ```
 ##### Nitrogen excretion
 
-In addition to population data, nitrogen excretion data is another parameter with a high influence on emissions, notably on N2O emissions from manure in various emission categories. FAOSTAT calculates N excretion based on default typical animal mass and nitrogen excretion per animal mass unit, while UNFCCC provides national data, calculated with different methodologies. `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` through `r figs(paste0("comp2",cursec,"Poultry",curmea),display="cite")` compare UNFCCC vs. FAOSTAT data related to N excretion rate for the main livestock categories: dairy cattle, non-dairy cattle, sheep, swine and poultry. We can see that, for most livestock categories, FAOSTAT presents lower values, being these differences highest for sheep. Only for Swine, approximately half of the countries are reporting higher values in their NIR than FAOSTAT.
+In addition to population data, nitrogen excretion data is another parameter with a high influence on emissions, notably on N2O emissions from manure in various emission categories. FAOSTAT calculates N excretion based on default typical animal mass and nitrogen excretion per animal mass unit, while UNFCCC provides national data, calculated with different methodologies. `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` through `r figs(paste0("comp2",cursec,"Poultry",curmea),display="cite")` compare UNFCCC vs. FAOSTAT data related to N excretion rate for the main livestock categories: dairy cattle, non-dairy cattle, sheep, swine and poultry. 
 
 
 `r eutotdiff(makecurdiff("EM","Dairy Cattle","3.B.2"))`
@@ -291,6 +293,19 @@ In addition to population data, nitrogen excretion data is another parameter wit
 `r figs(paste0("comp2",cursec,"Poultry",curmea),display="full")`
 
 ![]($eugirpplots$/$cursubm$/compareadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+
+```{r nirfaonexsum,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+avallrel<-allcompar(curmeastype = "EM",cursec = "3.B.2")
+compcats<-c(livestock,"Poultry")
+avallrel<-avallrel[avallrel$category%in%compcats,]
+maxcat<-which(abs(avallrel$mean)==max(abs(avallrel$mean)))
+
+alldiffs<-rankalldiffs(curmeastype = "EM",cursec = "3.B.2")
+
+```
+
+Comparing N excretion from the different livestock categories between the two databases, we can see that, for most of them, FAOSTAT presents lower values, being these differences highest for (`r tolower(avallrel$category[maxcat])` (`r avallrel$mean[maxcat]`) the EU28+ISL average). Only for swine, approximately half of the countries are reporting higher values in their NIR than FAOSTAT. Individual differences by country for dairy cattle range from -50 to 5%, with a much more defined decrease time trend in the NIR data and differences between databases getting smaller along time for the EU28+ISL totals. For most the countries NIR values are larger, being Greece the only country with larger numbers in FAO (5%). Germany holds the highest difference share in absolute values (4% of total EU28+ISL), followed by France and the Netherlands (3.2 and 3.0%, respectively). Similarly, for N excretion from non-dairy cattle most countries present higher values in the NIR, where data is also (but more smoothly) decreasing in time and decreasing differences with FAO, which shows more stable values. Differences in individual countries range from -40 to 50% (Romania) for the average of the time series. Compared to EU28+ISL totals, France is, by far, responsible for the highest share in the total differences FAO-NIR (10% of the total), followed by United Kingdom (4%) and Ireland (3%). Not only differences for the EU totals but also for individual countries are highest for sheep, always bigger in the NIR database and ranging from nearly 0% in Romania to around 80% in many of the countries. Countries with the highest shares of Nex are also the responsible for the highest shares of total EU differences between databases: France, UK, Italy and Greece (15, 15, 14 and 12% of total EU28+ISL differences, respectively). N excretion from swine also shows a decreasing trend in the UNFCCC database, while FAO data is more stable in time. For the individual countries, differences in the average values along the total period range from -30% in the Czech Republic to 40% in Croatia and Luxemburg. Regarding their contribution to total EU28+ISL differences, Poland is in the first place with 2%, followed by Romania (1.8%). The contribution to the total differences is more equally distributed than in previous livestock categories. Regarding poultry, total N excretion for EU28+ISL is slightly increasing in time in FAO database and more irregularly fluctuating according to NIR data, but it is also lower in FAO, both for EU totals and for most of the countries. Individual country differences range from -40% in Romania and Slovakia to 85% in Luxemburg. Regarding country contribution to total EU differences, the biggest share corresponds to Romania with 7%, followed by Poland with 3.5%, and United Kingdom with 3%. Only for non-dairy cattle there is one country clearly dominating the differences in EU28+ISL N excretion, while the other livestock categories do not have one only main contributor.
+
 
 
 ```{r nirfaoarea,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -383,11 +398,10 @@ figs(paste0("comp2",cursec,"cres",curmea),compareplots(eukp,cursec,"Crop residue
 ```
 ##### Nitrogen input to agricultural soils
 
-Nitrogen input to agricutlural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
+Nitrogen input to agricultural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
 
 
-`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` **Note that the data can only be compared for the years 1990-2001 as later data were not available in the FAO data base. xxxTODOxxx Gema: could you maybe check why this is the case or if they were somehow 'lost on the way'??**
-
+`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
 
 `r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`
 
@@ -421,6 +435,8 @@ Nitrogen input to agricutlural soils is an important factor both direct and indi
 `r figs(paste0("comp2",cursec,"cres",curmea),display="full")`
 
 ![]($eugirpplots$/$cursubm$/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
+
+From the three nitrogen sources analysed above, all three present higher total values in the NIR data, but differences are highest in synthetic fertilisers applied. Time trends are quite smooth in the first two cases, with some sudden steps in crop residues applied to soils, which are probably due to climatic reasons and captured by both databases.
 
 ##### Conclusion
 

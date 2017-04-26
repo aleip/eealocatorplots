@@ -24,13 +24,9 @@ print("Check 7: NH3 and NOx volatilized")
 
 
 # Approach: generate List with matrices
-# 
-#
 #         Managed          Pasture          Other            
-# 
 # CPP     manure[[1]][[1]] manure[[1]][[2]] manure[[1]][[3]] 
 # SO      manure[[2]][[1]] manure[[2]][[2]] manure[[2]][[3]] 
-#
 #
 
 tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE)
@@ -257,11 +253,6 @@ if(nrow(check8)>1 & check8$val[1]!=0){
     names(check8c)<-checkname
     checks<-rbind(checks,check8c)
 }
-
-
-
-
-
 
 #xxx ... Calculate share liquid/slurry where Nlosstot = Nloss (Talbe 10.23 vs 10.22)
 #xxx If this share is < 50% then a value <1.1 is unlikely, otherwise use 1.0 as threshold

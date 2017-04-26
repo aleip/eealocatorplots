@@ -281,7 +281,7 @@ paratablecaption<-function(eusubml,sec=cursec,lastyear){
     return(cap)
 }
 compademplots<-function(eusubml,sec=cursec,cat=curcat){
-    cap<-paste0("&#09;",sec,": Comparison of ",cat," ",firstlow(curmeasure)," in the ",eusubml,
+    cap<-paste0("&#09;",sec,": Comparison of ",tolower(cat)," ",firstlow(curmeasure)," in the ",eusubml,
                 " and range of values reported by countries in the ",multiref[1]," and the ",multiref[2],".")
     return(cap)
 }

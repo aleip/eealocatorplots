@@ -23,6 +23,7 @@ newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
 }
 firstup<-function(string){
     rstring<-tolower(string)
+    rstring<-gsub(" n "," N ",rstring)
     rstring<-paste0(toupper(substr(rstring,0,1)),substr(rstring,2,nchar(rstring)))
 }
 uidall<-function(D,uid){D[D$variableUID%in%uid,]}

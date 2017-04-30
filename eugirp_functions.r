@@ -239,10 +239,13 @@ sumovercountries<-function(D,uid,y,c){
     return(s)
 }
 
-eu28sums<-function(A,aeu=eu){
+eu28sums<-function(A,aeu=eu,years=years){
     A[,years]<-apply(A[,years],2,function(x) as.numeric(x))
     afields<-names(A)
-    agrimeas<-unique(subset(A,select=allfields[!allfields %in% c("notation","party",years,"option")]))
+    #cat(years,allfields)
+    notselect<-allfields[!allfields %in% c("notation","party",years,"option")]
+    notselect<-notselect[!grepl("^[12]",notselect)]
+    agrimeas<-unique(subset(A,select=notselect))
     agri2sum<-agrimeas[agrimeas$meastype %in% meas2sum,]
     removeeu28<-A$meastype %in% meas2sum & A$party%in%c("EU28",aeu,excludeparty)
     A<-A[!removeeu28,]
@@ -250,7 +253,7 @@ eu28sums<-function(A,aeu=eu){
     if("datasource"%in%afields){multisource<-unique(A$datasource)}else{multisource<-"nir"}
     for(loopsource in multisource){
         for(i in 1:length(aeu)){
-            print(paste0("Calculate sum for ",aeu[i]))
+            cat("\nCalculate sum for ",aeu[i]," ")
             eu28sum<-as.data.frame(matrix(rep(0,ncol(A)*nrow(agri2sum)),
                                           ncol=ncol(A),nrow=nrow(agri2sum)))
             names(eu28sum)<-names(A)
@@ -259,7 +262,8 @@ eu28sums<-function(A,aeu=eu){
             acountry<-acountry[!acountry%in%eu]
             # remove unwanted countries
             B<-A[A$party%in%acountry,]
-            if("datasource"%in%afields){B<-B[B$datasource==loopsource,];print(loopsource)}
+            if("datasource"%in%afields){B<-B[B$datasource==loopsource,]
+                                        cat(loopsource," ... ")}
             # calculate the sum over remaining countries
             C<-B[,c(years,"variableUID")]
             D<-aggregate(C[,years],by=list(C$variableUID),sum,na.rm=TRUE)
@@ -272,7 +276,9 @@ eu28sums<-function(A,aeu=eu){
             # sort to standard
             #eu28sum<-eu28sum[,allfields]
             eu28sum<-filldf(DF = eu28sum,afields)
-            
+            #print(names(A))
+            #print(names(eu28sum))
+            eu28sum<-eu28sum[,names(A)]
             A<-rbind(A,eu28sum)
             
         }
@@ -414,9 +420,8 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE){
     names(c)<-"party"
     #DF<-droplevels(DF)
     #if(length(levels(DF$variableUID))<length(levels(uid))) levels(DF$variableUID)<-levels(uid)
-    tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years)])
+    tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years2keep)])
     tmp1<-tmp1[! is.na(tmp1$party),]
-    
     ntmp<-nrow(tmp1)
     tmp1<-merge(c,tmp1,by="party",all=TRUE,sort=TRUE)
     tmp1<-tmp1[tmp1$party %in% c$party,]
@@ -425,8 +430,7 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE){
     x<-tmp1[order(tmp1$party),]
     tmp1<-x[!(x$party %in% eucountries),]
     if(!noeu){tmp1<-rbind(tmp1,x[ (x$party %in% eucountries),])}
-    
-    tmp1<-tmp1[,years]
+    tmp1<-tmp1[,as.character(years2keep)]
     if(narm) tmp1[is.na(tmp1)]<-0
     tmp1<-as.matrix(tmp1)
     return(tmp1)

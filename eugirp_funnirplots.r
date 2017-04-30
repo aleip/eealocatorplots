@@ -19,18 +19,22 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
 
     plotdata$datasource<-"nir"
     plotdata<-convert2char(plotdata)
-    
+    #Remove years that are not in capinv data
+    if("capri"%in%datasource & "nir"%in%datasource)plotdata<-plotdata[,names(capinv)]
     if("capri"%in%datasource & "nir"%in%datasource)plotdata<-rbind(plotdata,capinv)
     if("capri"%in%datasource & !("nir"%in%datasource))plotdata<-capinv
     if("fao"%in%datasource & "nir"%in%datasource)plotdata<-rbind(plotdata,faodata)
     if("fao"%in%datasource & !("nir"%in%datasource))plotdata<-faodata
-    
+    #years2remove<-years[!years%in%years2keep]
+    #plotdata<-plotdata[,-which(names(plotdata)%in%years2remove)]
     #remove also remove redundant options ABC which is not needed for plots (redundant for CATTLE parents)...
     plotdata$option<-""
     plotdata<-unique(plotdata)
     plotdata<-plotdata[!plotdata$party%in%excludeparty,]
+    #View(plotdata)
     
     plotmeas<-unique(subset(plotdata,select=allfields[!allfields %in% c("notation","party",years)]))
+    #plotmeas<-unique(plotdata[,allfields[!allfields %in% c("notation","party",years)]])
     if(rundata=="adem") plotmeas<-plotmeas[plotmeas$meastype %in% meas2sum,]
     if(rundata=="ief") plotmeas<-plotmeas[plotmeas$meastype %in% c(meas2popweight,meas2mcf,meas2clima),]
     
@@ -45,13 +49,12 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     #    gcCount(plotmeas$sector_number[x],".")<3}))
     #plotmeas<-plotmeas[plotselect,]
     
-    if(restrictsector!=""){
-        if(is.vector(restrictsector)){
-            select <- plotmeas$sector_number%in%restrictsector
-            plotmeas<-plotmeas[select,]
-        } else
-            # Restrict to sector and sub-sectors
-            select <- grepl(restrictsector,plotmeas$sector_number)
+    if(length(restrictsector)>1){
+        select <- plotmeas$sector_number%in%restrictsector
+        plotmeas<-plotmeas[select,]
+    }else if(restrictsector!=""){
+        # Restrict to sector and sub-sectors
+        select <- grepl(restrictsector,plotmeas$sector_number)
         plotmeas<-plotmeas[select,]
     }
     if(restrictcategory!=""){
@@ -98,13 +101,15 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     plotdata<-plotdata[order(plotdata$sector_number,plotdata$category),]
     
     # Remove rows where countries report zero (or NA) for the whole time period
+    years<-as.character(years2keep)
     plotdata[,years]<-apply(plotdata[,years],2,function(x) as.numeric(x))
     plotdata<-plotdata[apply(plotdata[,years],1,sum,na.rm=TRUE)!=0,]
+    years2keep<-as.character(years2keep)
     if(rundata=="adem"){
         acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code2"])
         acountry<-acountry[!acountry%in%eu]
         plotdata<-plotdata[plotdata$party%in%acountry,]
-        plotdata<-eu28sums(A = plotdata,aeu = subcountries)
+        plotdata<-eu28sums(A = plotdata,aeu = subcountries,years=years2keep)
     }
         
     
@@ -126,7 +131,6 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     measOK<-measOK[!is.na(measOK$ok),]
     plotmeas<-measOK[measOK$ok,]
     #plotmeas<-plotmeas[measOK$ok,]
-    
     save(plotmeas,plotdata,rundata,sharesexist,adddefault,datasource,file=gsub(".RData",paste0("_plotmeas",rundata,paste(datasource,collapse="-"),".RData"),rdatallem))
     return(list(plotdata,plotmeas,adddefault,sharesexist))
 }
@@ -152,10 +156,11 @@ plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfo
     fnammethod<-paste0(fnammethod,runmeastype)
     #print(fnammethod)
     figdir<-paste0(plotsdir,"/",cursubm,"/sec",substr(runsector,start = 1,stop = 1))
-    if (! file.exists(figdir)){dir.create(file.path(paste0(plotsdir,"/",cursubm)),showWarnings = FALSE )}
+    if (! file.exists(paste0(plotsdir,"/",cursubm))){dir.create(file.path(paste0(plotsdir,"/",cursubm)),showWarnings = FALSE )}
+    #cat("\nfigdir1: ",figdir)
     if(substr(runsector,start = 1,stop = 1)=="3") {
         if (! file.exists(figdir)){dir.create(file.path(paste0(plotsdir,"/",cursubm)),showWarnings = FALSE )}
-        figdir<-paste0(plotsdir,cursubm,"/",runfocus,rundata)
+        figdir<-paste0(plotsdir,"/",cursubm,"/",runfocus,rundata)
     }
     
     #if(grepl("fao",dsource)) figdir<-paste0(invloc,"/fao/plots")
@@ -173,6 +178,7 @@ plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfo
     if(rundata=="ief")figname<-figname<-paste0(figdir,"/",fnammethod,"-",dsource,runfoc,rundata,"_",runid,".",plotformat,collapse=NULL)
     if(rundata=="ief")figname<-figname<-paste0(figdir,"/",fnammethod,"-",dsource,runfoc,rundata,".",plotformat,collapse=NULL)
     figname<-figname<-paste0(figdir,"/",fnammethod,"-",dsource,runfoc,".",plotformat,collapse=NULL)
+    #print(figname)
     return(figname)
 }
 
@@ -192,10 +198,11 @@ iniplot<-function(figname,nplots){
     # Plotting barplot, first the bars in shading, then the left-and righthand pattern
     #df.bar<-barplot(eu28fin,yaxp=c(0,8000,2000),col=mycols)
     
+    #cat("\nfigname: ",figname)
     if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
-    cat(gsub(plotsdir,"plots/",figname),": ")
+    cat(gsub(plotsdir,"",figname),": ")
     # Parameters must be set afte defining graphic (?)
     par(mfrow = c(nplots,1))
     if(runfocus=="compare") par(mfrow=c(1,3))
@@ -268,6 +275,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     
     #print("prepareplot")
     curuid<-plotmeas$variableUID[imeas]
+    years2keep<-as.character(years2keep)
     #runfoc<-paste0(runfoc,)
     #print(runfocus)
     runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
@@ -293,7 +301,8 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     tmin<-NULL
     tmax<-NULL
     tmag<-NULL
-    if("fao" %in% multisource) plotyears<-years[apply(plotdata[plotdata$datasource=="fao",years],2,sum,na.rm=TRUE)==0]
+    extrayears<-""
+    if("fao" %in% multisource) extrayears<-years[apply(plotdata[plotdata$datasource=="fao",years],2,sum,na.rm=TRUE)==0]
     for(dsource in multisource){
         # Determine y-axis for ADEM plots
         isource<-which(dsource==multisource)
@@ -327,6 +336,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
             eu28neg<-min(plotmatr,na.rm=T)
         }
     }
+    
     for(dsource in multisource){
         isource<-which(dsource==multisource)
         #print(paste0("isource=",isource,dsource,"-",paste(multisource,collapse=",")))
@@ -355,6 +365,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
             #}else if(grepl("ief",rundata)){
             save(plotdatacur,curuid,acountry,file="temp.rdata")
             plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
+            #View(plotdatacur,dsource)
             eu28<-plotmatr[nrow(plotmatr),]
             plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
             #}
@@ -392,7 +403,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     
                     # Relative value in country compared to EU value for all years
                     # This is different from trend-plots!!!
-                    rel<-abs(plotmatr[,years])
+                    rel<-abs(plotmatr[,years2keep])
                     
                     #print("# Relative value in country compared to EU value averaged over all years")
                     relav<-rowMeans(rel,na.rm=TRUE)
@@ -413,14 +424,14 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     topother<-row.names(as.matrix(tail(relavx[order(relavx,decreasing=T,na.last=T)],topno)))
                     
                     eu28main<-plotmatr[row.names(plotmatr) %in% topneu28,]
-                    eu28main<-eu28main[order(rowSums(eu28main[,years],na.rm=TRUE),decreasing=FALSE),]
-                    Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years],na.rm=TRUE)))
+                    eu28main<-eu28main[order(rowSums(eu28main[,years2keep],na.rm=TRUE),decreasing=FALSE),]
+                    Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years2keep],na.rm=TRUE)))
                     Other$party<-"Other"
                     topnnames<-eu28main$party
 
                     if(length(relavx)>length(topneu28)){eu28fin<-rbind(eu28main,Other)}else{eu28fin<-eu28main}
                     finnames<-eu28fin$party
-                    eu28fin<-as.matrix(eu28fin[,years])
+                    eu28fin<-as.matrix(eu28fin[,years2keep])
                     eu28fin[is.na(eu28fin)]<-0
                     
                     finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
@@ -436,7 +447,6 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #}
                     
                     finshares[is.na(finshares)]<-0
-                    
                     runfocus<-"value"
                     #if(isource==2)stop("funnirplots 283")
                 }else if(grepl("ief",rundata)){
@@ -544,17 +554,19 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #eugirp_funnirplots.r
                     #return(list(tmin,tmax))
                     #plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource)
-                    eu28fin[,plotyears]<-0
-                    eu28pos[plotyears]<-0
-                    eu28neg[plotyears]<-0
-                    eu28[plotyears]<-0
+                    if("fao" %in% multisource){
+                        eu28fin[,extrayears]<-0
+                        eu28pos[extrayears]<-0
+                        eu28neg[extrayears]<-0
+                        eu28[extrayears]<-0
+                    }
                     plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious)
                 }
                 #print(finshares)
                 tmp<-as.data.frame(finnames)
                 tmp$val<-finshares
-                tmp[,years]<-eu28fin
-                names(tmp)<-c("party",isource,paste0(years,".",isource))
+                tmp[,years2keep]<-eu28fin
+                names(tmp)<-c("party",isource,paste0(years2keep,".",isource))
                 #print(tmp)
                 if(isource==1){
                     autocorrs<-autocorr
@@ -577,7 +589,6 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     
                 }
                 ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss)
-                
             }else{
                 cat(" nothing to plot\n")
             }
@@ -601,7 +612,6 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     #pwidth set in function iniplot ... needs to be retrieved from current device
     pwidth=16
     pconv<-pwidth/27.94
-    
     # runcateg to be used for the plot title
     #rungas<-unique(pmeas$gas)
     
@@ -823,7 +833,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         }
         
         # Add labels (shift higher) (see http://stackoverflow.com/questions/28606339/distance-between-axis-tick-mark-and-corresponding-labels-in-r)
-        axis(1,at=df.bar,labels=years,line=-0.5,tck=-0.01,lwd=0,las=2,cex.axis=1*pconv)
+        axis(1,at=df.bar,labels=years2keep,line=-0.5,tck=-0.01,lwd=0,las=2,cex.axis=1*pconv)
         
         # Add small grey ticks on the y-axis
         axis(2,at=seq(tmin,tmax,(tmax-tmin)/tdis/5),pos=c(ypos,0),lwd=smallticks,labels=F,col.ticks="grey")
@@ -1462,7 +1472,7 @@ plottitle<-function(mtexttitle0="x",plotted,multisource){
     
 }
 
-plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
+plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2013){
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
     pmeas<-plotmeas[imeas,c(sectfields,metafields,measfields)]
@@ -1471,7 +1481,9 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     figname<-plotname(paste0(multisource,collapse=""),plotsdir,issuedir,runid,
                       plotmeas[imeas,sectfields],plotmeas[imeas,metafields],plotmeas[imeas,measfields],
                       runfocus,curdate(),plotformat,rundata,cursubm,plotparamcheck=0)
+    #cat(figname)
     plotinitialized<-iniplot(figname,1)
+    #cat("plot initialized")
     # Requied for plottitle only plotted[[3]] (yhea and pconv)
     plotted<-list(curuid,figname,plotinitialized,multisource)
     
@@ -1479,10 +1491,11 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2012){
     test$toplot<-apply(test[,as.character(yearsnum[yearsnum<=lyear])],1,mean,na.rm=TRUE)
     
     test<-test[,c("party","toplot","datasource")]
+    test<-unique(test)
     test<-dcast(test,party ~ datasource,value.var="toplot")
-    
-    test$reldiff<-(test$fao/test$nir-1)*100
-    test$relimpr<-abs((test$fao-test$nir)/test$nir[test$party=="EUC"])*100
+    otherdatasource<-names(test)[!names(test)%in%c("party","nir")]
+    test$reldiff<-(test[,otherdatasource]/test$nir-1)*100
+    test$relimpr<-abs((test[,otherdatasource]-test$nir)/test$nir[test$party=="EUC"])*100
     
     test<-test[test$party!="EU28",]
     test<-test[test$party!="EUC",]

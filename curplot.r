@@ -1,4 +1,3 @@
-# EU-GIRP (EU-Greenhouse gas Inventory Reporting and Plots; eealocatorplots)
 # File curplot.csv
 # File required for the EU-GIRP R script eealocatorplots.r
 # Purpose: steers the R script defining which plots need to be generated
@@ -26,6 +25,7 @@ rm(list=objects())
 
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
+mypc<-Sys.info()[4]
 if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
     adrian<-"c:/Adrian/"
 }else if(Sys.info()[4]=="D01RI1600881"){
@@ -33,7 +33,14 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
 }else{
     adrian<-"C:/Adrian/"
 }
-locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
+if(mypc=="D01RI1600881") iam="adrianjrc"
+if(mypc=="L01RI1203587") iam="adrianlaptop"
+if(mypc=="L01RI1203587") iam="testcapri"
+eugirpok<-FALSE
+if(grepl("adrian",iam)) eugirpok<-TRUE
+if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
+if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
+   
 setwd(locplots)
 searchline<-FALSE
 
@@ -59,7 +66,10 @@ invyear<-2017
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
 invloc<-paste0(adrian,"google/projects/ecir")                                               #!!!
-csvfil <- paste0("../",invyear,"/eealocator/eealocator_",cursubm)                  #!!!
+csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
+if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
+if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
+#!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)
 years2keep<-c(1990:(invyear-2))
@@ -74,6 +84,8 @@ figdate<-format(Sys.time(), "%Y%m%d")
 issuedir<-paste0(invloc,"/checks/")
 plotsdir<-paste0(invloc,"/plots/test/")
 plotsdir<-paste0(invloc,"/plots/")
+if(iam=="testcapri")plotsdir<-invloc
+plotsdir<-gsub("\\\\","/",plotsdir)
 faodir<-paste0(invloc,"/faocomparison/")
 if (! file.exists(issuedir)){dir.create(file.path(issuedir),showWarnings=FALSE)}
 rdatallem <- paste0(csvfil,"_clean.RData")

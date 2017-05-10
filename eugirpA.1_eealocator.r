@@ -9,6 +9,9 @@ if(generatealldata==1){
     # Select gases ####
     gases2keep<-c("Aggregate GHGs","CH4","no gas","CO2","N2O","NMVOC")
     select<-alldata$gas %in% gases2keep
+    othergases<-read.table("plots_sec2othergases.txt")
+    select2<-alldata$variableUID%in%unlist(othergases)
+    select<-select | select2
     alldata<-alldata[select,]
     gases<-as.character(unique(alldata$gas))
     

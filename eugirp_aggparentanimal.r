@@ -38,6 +38,7 @@ for(parent in sheepswine){
                 tarstart<-addparentanimal[selectiontar,]
                 tarstart<-tarstart[!tarstart$party=="EU28",]
                 #View(addparentanimal[selection,])
+                #save(addparentanimal,file="addparentanimal.RData")
                 countrieschilds<-unique(tarstart$party[tarstart$category%in%childs])
                 countriesparent<-unique(tarstart$party[tarstart$category%in%parent])
                 countriesmissig<-countrieschilds[!countrieschilds%in%countriesparent]
@@ -78,8 +79,8 @@ for(parent in sheepswine){
                                     tmpval[is.nan(tmpval)]<-NA
                                     tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
                                     if(ms=="PL"&at=="Other Cattle.Non-dairy cattle") 
-                                        tmppop<-unique(filter(addparentanimal,party==ms,category=="Non-Dairy Cattle",
-                                                            grepl("^3.A",sector_number),meastype=="POP"))[,years]                                    
+                                        tmppop<-unique(addparentanimal[addparentanimal$party==ms&addparentanimal$category=="Non-Dairy Cattle"&
+                                                            grepl("^3.A",addparentanimal$sector_number)&addparentanimal$meastype=="POP",years])                                    
                                     #if(curmeasty=="WEIGHT" & at=="Dairy Cattle"&ms=="GB")stop()
                                     #if(curmeasty=="WEIGHT" & at=="Non-Dairy Cattle"&ms=="HR")stop()
                                     

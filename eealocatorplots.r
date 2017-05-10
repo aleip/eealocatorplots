@@ -189,7 +189,7 @@ if(stepsdone==2){
     print("Step 3a: EU sums already calculated")
 }
 
-#stop("Third step done")
+stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-0
 #doemissionplots<-TRUE

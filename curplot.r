@@ -26,9 +26,12 @@ rm(list=objects())
 
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
-if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
+mypc<-Sys.info()[4]
+if(mypc=="D01RI1600881") iam="adrianjrc"
+if(mypc=="L01RI1203587") iam="adrianlabtop"
+if(mypc=="L01RI1203587"){ #checks machine name
     adrian<-"c:/Adrian/"
-}else if(Sys.info()[4]=="D01RI1600881"){
+}else if(mypc=="D01RI1600881"){
     adrian<-"x:/Adrian/"
 }else{
     adrian<-"C:/Adrian/"
@@ -55,6 +58,7 @@ cursubm <- "20160420"                                                       #!!!
 cursubm <- "20160810"                                                       #!!!
 cursubm <- "20170123"                                                       #!!!
 cursubm <- "20170317"                                                       #!!!
+cursubm <- "20170509"                                                       #!!!
 invyear<-2017
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.

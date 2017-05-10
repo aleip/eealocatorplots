@@ -2,13 +2,14 @@ ifil=$1
 ofil=eealocator_$(date +%Y%m%d).txt
 
 # To be adapted: ifil, direct and submission
-submission=20170317
 
 ifil=CRF_MMR_20160202.txt
 ifil=CRF_MMR_20160322.txt
 ifil=CRF_MMR_20160420.txt
 ifil=CRF_MMR_20160810.txt
-ifil=CRF_MMR_20170123.txt
+submission=20170123
+submission=20170317
+submission=20170509
 ifil=CRF_MMR_${submission}.txt
 direct=../2017/eealocator/
 

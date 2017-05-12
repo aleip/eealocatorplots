@@ -4,7 +4,7 @@ acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
 o<-order(allagri$sector_number,allagri$category)
 allagri<-allagri[o,]
 
-allagri<-eu28sums(allagri)
+allagri<-eu28sums(A = allagri,years = years)
 agriselect<-grepl("^3",allmethods$sector_number) 
 agrimethods<-allmethods[agriselect,]
 o<-order(agrimethods$sector_number,agrimethods$category)

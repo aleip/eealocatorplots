@@ -57,6 +57,7 @@ if(curunit=="10^9m^2/year"){textunit<-"[ 10"^{9} ~ "m"^{2} ~ "yr"^{-1} ~ "]"} el
 if(curunit=="m^3/kg VS"){textunit<-"[ m"^{3} ~ "(kg VS)"^{-1} ~ "]"} else
 if(curunit=="Mt"){textunit<-"[ Mt ]"} else
 if(curunit=="Mg"){textunit<-"[ Mg ]"} else
+if(curunit=="t CO2 equivalent"){textunit<-"[ t" ~ CO[2] ~ "eq ]"} else
 if(curunit=="kt CO2 equivalent"){textunit<-"[ kt" ~ CO[2] ~ "eq ]"} else
 if(curunit=="Mt CO2 equivalent"){textunit<-"[ Mt" ~ CO[2] ~ "eq ]"} else
 if(curunit=="1000s"){textunit<-"[ 1000s" ~"]"} else

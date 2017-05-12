@@ -110,19 +110,22 @@ if(stepsdone==2){
     #calceu<-rbind(alldata,eu28sum)
     print("Calculate EU-sums")
     calceu[,years]<-apply(calceu[,years],2,function(x) as.numeric(x))
-    calceu<-eu28sums(calceu,"EUC")
+    calceu<-eu28sums(calceu,"EUC",years = years)
     eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EUC",]
     agrisummeas<-measures2sum[grepl("^3",measures2sum$sector_number),]
     
     # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting
     sharecalc<-function(uid,D,E,x){
+        #print(x)
         uid<-as.vector(unlist(uid))
         alc<-c(1:length(countriesnoeu))
         coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu,narm = FALSE)
         ncoval<-coval[apply(coval,1,sum,na.rm=TRUE)!=0,]
         if(is.matrix(ncoval)){ncoval<-nrow(ncoval)}else{ncoval<-0}
         
-        euval<-as.numeric(matrix(E[E$variableUID==uid,years]))
+        euval<-E[E$variableUID==uid,years]
+        #euval<-euval[E$category[E$variableUID%in%uid]%in%c("Other Cattle.Non-dairy cattle","Other Cattle.Dairy cattle"),]
+        euval<-as.numeric(matrix(euval))
         if(ncoval>3) {
             share<-t(apply(coval, 1, "/", euval))
             v<-which(share>0.95,arr.ind=TRUE)
@@ -143,8 +146,9 @@ if(stepsdone==2){
         }else{return(NULL)}
     }
     print("Calculate calcshare")
-    calcshare<-as.data.frame(t(Reduce(cbind,lapply(c(1:nrow(agrisummeas)),function(x) 
-        Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x))))))
+    calcshare<-lapply(c(1:nrow(agrisummeas)),function(x) 
+        Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x)))
+    calcshare<-as.data.frame(t(Reduce(cbind,calcshare)))
     names(calcshare)<-c("ncountries","party","year","share","variableUID","mean","meanother")
     ademoutl<-merge(calcshare,agrisummeas,by="variableUID")
     ademoutl<-simplifytestmatrix(check = ademoutl,group = c("year","share"),compare = list(years,"range"))
@@ -189,7 +193,7 @@ if(stepsdone==2){
     print("Step 3a: EU sums already calculated")
 }
 
-stop("Third step done")
+#stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-0
 #doemissionplots<-TRUE
@@ -331,7 +335,7 @@ if(stepsdone==4){
     print(paste0("Step ",stepsdone+1,"a: Caluclate allagri for EU28"))
     allagri$datasource<-"nir"
     allagri<-allagri[allagri$party!="EU28",]
-    allagri<-eu28sums(allagri,aeu = c("EUC","EUA"))
+    allagri<-eu28sums(allagri,aeu = c("EUC","EUA"),years = years)
     allagri<-allagri[order(allagri$sector_number,allagri$category,allagri$meastype),]
     #remove option from Cattle, Dairy Cattle, Non-Dairy Cattle
     allcattle<-c("Cattle","Dairy Cattle","Non-Dairy Cattle")
@@ -445,13 +449,13 @@ if(stepsdone==5){
     growthcheck<-growthcheck[,-which(names(growthcheck)=="gas")]
     growthcheck<-cbind(growthcheck,test0)
     growthcheck$party<-as.character(growthcheck$party)
-    # Integrate outcome into growthcheck and to writeoutlierlist!!
+    print(paste0("Step ",stepsdone+1,"f: Integrate outcome into growthcheck and to writeoutlierlist @ ",curtime()))
     x1<-1;x2<-nrow(growthcheck)
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(growthcheck[x,],"growth",x)))
     test<-Reduce(rbind,test)
     growthcheck[x1:x2,flag4issues]<-test
     
-    #Load now solved issues!
+    print(paste0("Step ",stepsdone+1,"g: Load now solved issues @ ",curtime()))
     growthcheck<-addsolved2check(growthcheck,c("recalc"))
     cog<-names(growthcheck)
     
@@ -461,7 +465,8 @@ if(stepsdone==5){
     paramcheck<-paramcheck[,-which(names(paramcheck)=="gas")]
     paramcheck<-cbind(paramcheck,test0)
     paramcheck$party<-as.character(paramcheck$party)
-    # Integrate outcome into paramcheck and to writeoutlierlist!!
+    # !!
+    print(paste0("Step ",stepsdone+1,"h: Integrate outcome into paramcheck and to writeoutlierlist @ ",curtime()))
     x1<-1;x2<-nrow(paramcheck)
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
     test<-Reduce(rbind,test)
@@ -471,12 +476,12 @@ if(stepsdone==5){
     paramcheck<-addsolved2check(paramcheck,c("recalc"))
     cof<-names(paramcheck)
     
-    print(paste0("Step ",stepsdone+1,"e: Write country outlier list @ ",curtime()))
+    print(paste0("Step ",stepsdone+1,"i: Write country outlier list @ ",curtime()))
     test<-as.data.frame(test)
     names(test)<-flag4issues
     write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
     
-    print(paste0("Step ",stepsdone+1,"f: Write outlier list @ ",curtime(1)))
+    print(paste0("Step ",stepsdone+1,"j: Write outlier list @ ",curtime(1)))
     source("eugirp_writeoutlierlist.r")
     
     
@@ -494,8 +499,7 @@ if(stepsdone==5){
 # Calculate EU weighted averages and make adem and ief plots####
 if(stepsdone==6){
     
-    
-        # Make growth plots to check ... improve loop!!
+    # Make growth plots to check ... improve loop!!
     
     #temporarycommented 
     print(paste0("Step ",stepsdone+1,"a: Making Growth plots @ ",curtime()))

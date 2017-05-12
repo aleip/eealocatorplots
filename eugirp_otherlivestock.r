@@ -55,7 +55,7 @@ fillother<-function(x,tables4sect,allother){
                     if(grepl("N2O",cla)){secn<-paste0("3.B.2.",sec)}else
                     {secn<-sec}
         }
-        print(secn)
+        #print(secn)
         #print(paste(mea,cla,secn,sep="-"))
         if(length(secn)>1)print(x)
     #}

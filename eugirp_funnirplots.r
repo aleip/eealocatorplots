@@ -438,7 +438,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
                     #print("# General determination of the last available year")
                     lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
-                    finshares<-eu28fin[,years[lastyear]]/as.matrix(eu28[years[lastyear]])*100
+                    finshares<-eu28fin[,years[lastyear]]/as.numeric(eu28[years[lastyear]])*100
                     ###Necessary addition as long as capri only has values up to 2010 
                     #print("Remove capri manipulation for calculation of country shares when there are values for final year")
                     #if(dsource=="capri"){

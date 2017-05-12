@@ -415,7 +415,7 @@ text2trend<-function(fig="",option=0){
             if(increasencnt>2){
                 temp<-paste0("The ",singular(increasencnt,"countries",2)," with the largest increases ",singular(increasencnt,"were",0)," ")
             }else{
-                temp<-"Largest increases occurred in "
+                temp<-"The largest increases occurred in "
             }
         }else{temp<-paste0(firstup(curmeasure)," increased in ")}
         sent6<-paste0(temp,laender(increasecnt),", with a total absolute increase of ",absval(increasescnt),".")

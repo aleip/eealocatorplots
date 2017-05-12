@@ -9,12 +9,19 @@ curagri<-curagri[!selection,]
 #Specific cleaning
 selection<-curagri$option=="Option C"&curagri$category=="Other Cattle"
 curagri<-curagri[!selection,]
-selection<-curagri$party=="PL"&curagri$sector_number=="3.A.1"&curagri$category=="Other Cattle.Non-dairy cattle"
+
+# For Poland, the categories "Other Cattle.Non-dairy cattle" and "Other Cattle.Dairy cattle"
+#             already have all data required.
+selection<-curagri$party=="PL"&curagri$category=="Other Cattle.Non-dairy cattle"&grepl("3.A",curagri$sector_number)
+#curagri$category[selection]<-"Non-dairy Cattle"
+curagri<-curagri[!selection,]
+#selection<-curagri$party=="PL"&curagri$category=="Other Cattle.Dairy cattle"
+#curagri$category[selection]<-"Dairy Cattle"
+#curagri<-curagri[!selection,]
+
 #curagri$sector_number[selection]<-"3.B.1.1"
 #curagri$classification[selection]<-"CH4 Emissions"
-curagri<-curagri[!selection,]
-
-
+#curagri<-curagri[!selection,]
 
 # Calculate summable items for Dairy and Non-Dairy Cattle
 ssummable<-curagri$meastype%in%c("POP","EM","NEXC")
@@ -55,8 +62,10 @@ for(cat in allcattle){
     }
 }
 cattleuid<-cattleuid[order(cattleuid$sector_number,cattleuid$category),]
-
-
+#cvuid<-as.character(cattleuid$variableUID)
+#cvuidex<-sapply(1:length(cvuid),function(x) 
+#    if(grepl("Other [cC]attle.[DN]",unique(curagri$category[curagri$variableUID==cvuid[x]]))){FALSE}else{TRUE}
+#
 
 
 sdairy<-curagri$category%in%alldairy[!alldairy%in%"Dairy Cattle"]
@@ -74,9 +83,15 @@ getcatuid<-function(line,cattleuid){
         line$gas==cattleuid$gas &
         line$source==cattleuid$source
     uid<-unique(as.character(cattleuid$variableUID[selection]))
+    #One possibility is that Other cattle thing from PL
+    #if(length(unique(allagri$category[allagri$variableUID%in%uid]))) uid<-uid[!grepl("Other [cC]attle.[DN]",unique(allagri$category[allagri$variableUID%in%uid]))]    
     n<-length(uid)
-    if(n>1){print(line);print(uid);stop("There is more than one UID")}
-    if(n==0){print(line);stop("There is no UID")}
+    if(n>1){
+        View(cattleuid[selection,])
+        print(line);print(uid);stop("There is more than one UID")
+        
+        }
+    if(n==0){View(cattleuid[selection,]);print(line);stop("There is no UID")}
     return(uid)
 }
 

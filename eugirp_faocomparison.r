@@ -483,5 +483,11 @@ for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = eus
 plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
 write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
 
+runfocus<-"compare"
+x1<-2;x2<-2
+x1<-1;x2<-nrow(plotmeas)
+for(imeas in x1:x2){plotcomparison(imeas,plotmeas,plotdata,lyear = 2014)}
+plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
+write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
 
-source("eugirp_prepareplots.r")
+#source("eugirp_prepareplots.r")

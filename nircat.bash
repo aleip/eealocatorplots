@@ -3,9 +3,9 @@ focus=none
 focus=last
 focus=none
 focus=3a
-focus=all
 focus=faonir
-includeoverview=0
+focus=all
+includeoverview=1
 
 if [ x${1}x != "xx" ] ; then focus=$1 ; fi
 
@@ -41,6 +41,7 @@ mv tmp2 nir${focus}out.Rmd
 
 # Generate markdown file
 rexe="/x/Program\ Files/R/R-3.3.1/bin/x64/Rscript.exe"
+rexe="/c/Program\ Files/R/R-3.4.0/bin/x64/Rscript.exe"
 #Attention to have the path to the Rscript.exe in the PATH
 rexe="Rscript.exe"
 wexe="/c/Program Files/Microsoft Office/Office16/WINWORD.EXE"
@@ -56,7 +57,8 @@ test -e nir${focus}out.Rmd && {
 
 	# Convert to word
 	#/cygdrive/c/Program\ Files/RStudio/bin/pandoc/pandoc nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
-	${pexe} nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
+	#${pexe} nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
+	/c/Program\ Files/RStudio/bin/pandoc/pandoc nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
 
 	mv nir${focus}out* nir/
         mv nir/nir${focus}out.docx nir/nir${focus}out~$(date +%Y%m%d).docx

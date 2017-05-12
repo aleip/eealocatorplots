@@ -97,3 +97,162 @@ figure<-0
 table<-0
 ```
 
+# Agriculture (CRF Sector 3)
+
+Half the European Union's land is farmed. This fact alone highlights the importance of farming for the EU's natural environment. Farming and nature exercise a profound influence over each other. Farming has contributed over the centuries to creating and maintaining a variety of valuable semi-natural habitats. Today these shape the majority of the EU's landscapes and are home to many of the EU's richest wildlife. Farming also supports a diverse rural community that is not only a fundamental asset of European culture, but also plays an essential role in maintaining the environment in a healthy state[^dgagri].
+
+The links between the richness of the natural environment and farming practices are complex. While many valuable habitats in Europe are maintained by extensive farming, and a wide range of wild species rely on this for their survival, agricultural practices can also have an adverse impact on natural resources. Pollution of soil, water and air, fragmentation of habitats and loss of wildlife can be the result of inappropriate agricultural practices and land use.
+
+Agriculture in Europe is determined by the Common Agricultural Policy (CAP) of the European Union. The CAP dates from 1957, and its foundations are entrenched in the Treaty of Rome. Initially, the emphasis of the CAP was to increase agricultural productivity, partly for food security reasons, but also to ensure that the EU had a viable agricultural sector and that consumers had a stable supply of affordable food (Gay et al., 2005). With the MacSharry reform of 1992 several steps were taken by the EU to shift CAP subsidies away from price and market support towards direct support for farmers. This was further pursued with the Agenda 2000 reform, as signified by the shift in focus towards the maintenance and enhancement of the rural environment and the growing recognition of agriculture as a multifunctional activity. In environmental terms, the focus is on less-favoured areas and areas with environmental restrictions, and 
+on agricultural production methods designed to protect the environment and to maintain the countryside. 
+
+However price support and income payments, together with milk quotas, remained the dominant support measures. The 2003 CAP reform made further progress in the direction initiated by the Agenda 2000 reform, by aiming to make European agriculture more market oriented and giving a stronger focus to environmental protection. With the CAP reform, cross-compliance became an obligatory element of the CAP. Cross compliance links direct payments to respecting a number of statutory management requirements and to maintain all agricultural land in good agricultural and environmental conditions (EC 2003)[^ec2003-1782]. 
+
+* "Statutory management requirements" (SMR, Annex III of Regulation (EC) No 1782/2003) which are set in 19 community legislative acts on environment, food safety, animal health and welfare.
+* The obligation to maintaining land in good agricultural and environmental conditions (GAECs) and maintaining permanent pasture at level at 1.5.2004. Definitions of GAEC are specified at national or regional level and should warrant appropriate soil protection, ensure a minimum level of maintenance of soil organic matter and soil structure and avoid the deterioration of habitats.
+
+In 2013, the Council of the EU Agriculture Ministers adopted four Basic Regulations for a reformed CAP following a CAP Health Check[^healthcheck] in 2008 and a Commission Communication on the CAP towards 2020[^captowards2020] in 2011. The four legislative texts that regulate the post-2013 CAP are (i) Rural Development: Regulation 1305/2013[^1305-2013]; (ii) "Horizontal" issues such as funding and controls: Regulation 1306/2013[^1306-2013]; (iii) Direct payments for farmers: Regulation 1307/2013[^1307-2013]; (iv) Market measures: Regulation 1308/2013[^1308-2013].
+
+With the adoption of the 2013 CAP reform, the environment concerns received an enhanced  focus  being materialised by  explicitly  linking the agricultural support  to “agricultural practices beneficial to the climate and environment”  (so called  'CAP greening'). Agro-environmental indicators have been identified as useful tools to perform this task, especially since they allow for the assessment of territorial impacts. The monitoring and evaluation of CAP performance is carried out through indicators (EC 2006[^ec2006], 2001[^ec2001], 2000[^ec2000]). Green direct payments account for 30% of EU countries' direct payment budgets. Farmers receiving an area-based payment have to make use of various straightforward, non-contractual practices that benefit the environment and the climate. These require action each year. They include: 
+
+* diversifying crops; 
+* maintaining permanent grassland; and 
+* dedicating 5% of arable land to ecologically beneficial elements ('ecological focus areas'). 
+
+
+
+
+[^dgagri]: &#09;http://ec.europa.eu/agriculture/envir/index_en.htm
+[^healthcheck]: &#09;http://ec.europa.eu/agriculture/healthcheck/index_en.htm
+[^captowards2020]: &#09;https://ec.europa.eu/agriculture/cap-post-2013_en
+[^1305-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0487:0548:en:PDF  
+[^1306-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0549:0607:en:PDF 
+[^1307-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0608:0670:en:PDF 
+[^1308-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0671:0854:en:PDF 
+[^ec2003-1782]: &#09;http://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32003R1782
+[^ec2000]: &#09;EC (2000). Indicators for the Integration of Environmental Concerns into the Common Agricultural Policy. Commission of the European Communities.
+[^ec2001]: &#09;EC (2001). Statistical Information needed for Indicators to monitor the Integration of Environmental concerns into the Common Agricultural Policy. Communication from the Commission to the Council and the European Parliament. COM(2001) 144 final. Commission of the European Communities.
+[^ec2006]: &#09;EC (2006). Development of agri-environmental indicators for monitoring the integration of environmental concerns into the common agricultural policy. Communication from the Commission to the Council and the European Parliament. COM(2006) 508 final. Commission of the European Communities, Brussels.
+
+Currently, the next reform of the CAP is under discussion enabling agriculture in Europe by its modernisation and simplification to face new challenges, such related to economic prospects and care for the environment including action over climate change and maximise its contribution to the Commission's priorities and to the Sustainable Development Goals[^capmodernizationweb].
+
+[^capmodernizationweb]: &#09;https://ec.europa.eu/agriculture/consultations/cap-modernising/2017_en
+
+
+The **Nitrates Directive** (Council Directive 91/676/EEC) is the SMR with the largest impact on greenhouse gas emissions from agriculture. The directive aims at reducing and preventing water pollution caused by nitrates from agricultural sources with the goal that nitrate concentrations in groundwater will not exceed 50 mg NO~3~^-^ l^-1^ and listing codes of good practice (Annex II A) to be implemented by the farmers on a voluntary basis. Nitrate vulnerable zones (NVZ) must be designated on the basis of monitoring results which indicate that the groundwater and surface waters in these zones are or could be affected by nitrate pollution from agriculture. The action program must contain mandatory measures relating to: (i) periods when application of animal manure and fertilizers is prohibited; (ii) capacity of and facilities for storage of animal manure; and (iii) limits to the amounts of animal manure and fertilizers applied to land.
+
+The action programmes need to be implemented by farmers within NVZs on a compulsory basis. These programmes must include measures already included in Codes of Good Agricultural Practice, which become mandatory, and other measures, such as limitation of fertilizer application (mineral and organic), taking into account crop needs and all nitrogen inputs and soil nitrogen supply, with maximum amount of livestock manure to be applied. Every four years countries are require to report on nitrates concentrations in groundwaters and surface waters; eutrophication of surface waters; assessment of the impact of action programme(s) on water quality and agricultural practices; revision of NVZs and action programme(s); estimation of future trends in water quality.
+
+This has affected emissions in most countries:
+
+* In Belgium, Manure Action Plans (MAP, based on the Nitrate Directive) in Flanders affected NH3 volatilization from manure application. The first action plan in 1991 regulated the reduced preiod in which manure can be spread and foresaw low-emission techniques for the application of manure on land. The MAP2bis in 2000 focused on the reduction of the manure surplus and manure processing in order to reduce the NH3 emissions from manure application on land. Other MAP's followed, which have had a positive effect on the NH3 and N2O emissions.
+
+* In Denmark, the environmental policy has introduced a series of measures to prevent loss of nitrogen from agricultural soils to the aquatic environment. The measures include improvements to the utilisation of nitrogen in manure, a ban on manure application during autumn and winter, increasing area with winter-green fields to catch nitrogen, a maximum number of animals per hectare and maximum nitrogen application rates for agricultural crops. All farmers are obliged to do N-mineral accounting at farm and field level with the N-excretion data from FAS (Faculty of Agricultural Sciences). The N figures also include the quantities of mineral fertilizers bought and sold. Suppliers of mineral fertilizers are required to report all N sales to commercial farmers to the Plant Directorate. An active environmental policy has brought about a decrease in the N-excretion and a decrease of emission per produced animal, because of more efficient feeding. As a result of increasing requirements to reduce the nitrogen loss to the environment, the consumption of nitrogen in synthetic fertilizer has more than halved since 1990.
+
+* In the Netherlands, manure and fertiliser policy influences livestock numbers. Especially young cattle, pigs and poultry numbers decreased by the introduction of measures like buying up part of the so-called pig and poultry production rights (ceilings for total animal numbers) by the government and lowering the maximum nutrient application standards for manure and fertilizer.
+However, greater compliance to standards and requirements for animal welfare and the housing of animals may contribute to increasing emissions (so-called pollution swapping).
+
+Beside the environmentally-targeted directives, also the first pillar of the CAP (dealing with market support in contrast to pillar two covering rural development measures) had a strong impact on the greenhouse gas emissions from agriculture in Europe, namely through the milk quota system, which lead to a strong reduction of animal numbers in the dairy sector to compensate for the increasing animal performance during the last decades. The milk quota system ended in 2015.
+
+Other important policies affecting greenhouse gas emissions from agriculture, particularly by addressing the abatement of air pollution through the control of NOx and NH3 emissions include, a,pmg others:
+
+* the 1999 Gothenburg Protocol under the Convention on Long Range Transboundary Air Pollution (CLRTAP[^clrtap]) to 'Abate Acidification, Eutrophication and Ground-level Ozone', revised in 2012 setting national emission reduction commitments to be achieved by 2020 and beyond; 
+
+* the National Emission Ceilings Directive (NEC - Directive 2001/81/EC[^nec]) sets upper limits for each Member State for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
+
+* the Industrial Emission Directive (IED[^ied][^ippc]), which was established in 1996, and aims at minimizing pollution from point sources, i. e., intensive animal production facilities (pig and poultry farms, with > 2000 fattening pigs (over 30 kg); more than 750 sows or more than 40,000 head of poultry). These are required under the directive to apply control techniques for preventing NH3 emissions according to Best Available Technology (BAT).
+
+[^clrtap]: &#09;http://www.unece.org/env/lrtap/multi_h1.html
+[^nec]: &#09;http://ec.europa.eu/environment/air/pollutants/ceilings.htm  
+[^nec2016]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016L2284&from=EN
+[^ied]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32010L0075
+[^ippc]: &#09;http://ec.europa.eu/environment/industry/stationary/index.htm
+
+Another policy affecting GHG emissions, in this case through the application of sewage sludge, is the Urban Wastewater Treatment Directive[^urbanwastewater]. In the UK, the input from sewage sludge sharply increased in 2001. This is explained by a step in the UK's estimates of sewage sludge collected around 2001, linked to the Urban Wastewater Treatment Directive, which enforced that all large wastewater treatment plants use secondary treatment. This additional treatment reduces the organic load in the effluent, and to achieve this a higher proportion of the organic load in the wastewater treatment plants as sewage sludge. A similar trend is observed in Ireland, where a significant increase (over double) in the quantity of sewage sludge applied to agricultural land took place around 1998 as a result of its diversion away from disposal at solid waste disposal sites.
+
+Legislation related with animal health may also affect emissions through changes in specific parameters. That is the case of Spain, where the methane conversion factor (Ym), and therefore the implied emission factor for CH4 emissions from enteric fermentation from swine decreased in 2006, partly due to the ban of the use of growth-promoting antibiotics in animal feeding. This resulted in a radical change in feeding conditions: raw materials with lowest digestibility were removed and replaced by carbohydrates (mainly cereals). To increase higher digestibility and quality protein supply, the soybean flour 44 was systematically replaced by soybean 47 which has higher protein content. Also, affordable synthetic amino acids and digestive enzymes were systematically introduced. In addition, during the same year, the regulation on additives used in animal feeding was published, thus forcing the withdrawal of products that were being used to date, in order to make the digestion of other diet components easier.
+
+[^urbanwastewater]: &#09;http://ec.europa.eu/environment/water/water-urbanwaste/legislation/directive_en.htm
+
+Structural changes are caused also by the general development of countries. For example, in Finland, the membership in the EU resulted in changes in the economic structure followed by an increase in the average farm size and a decrease in the number of small farms (Pipatti, 2001), causing also a decrease in the livestock numbers for most animal types. Swedish agriculture has undergone radical structural changes and rationalizations over the past 50 years. One fifth of the Swedish arable land cultivated in the 1950s is no longer farmed. Closures have mainly affected small holdings and those remaining are growing larger. In 1999, some 31,000 agricultural holdings were livestock farms, 14,000 were purely crop husbandry farms, and only 5,000 were a combination of the two. Livestock farmers predominately engage in milk production and the main crops grown in Sweden are grain and fodder crops. The decrease of agricultural land area has continued since Sweden joined the European Union in 1995 and the acreages of land for hay and silage has increased. Organic farming increased from 3% of the arable land area in 1995 to 17% in 2007.
+
+In the case of Croatia, we can observe livestock population drops in 1992 due to the beginning of the Croatian War of Independence in 1991/1992, which significantly influenced animal production for most animal categories. 
+The countries which formed part of the communist block suffered structural changes when they changed regime, mainly due to privatizations. Lithuania shows an important decrease of non-dairy cattle population in 1993-1994, after the collapse of the Soviet Union and the restoration of independence in 1990, when changes in economy and significant reforms occurred. The reform included the re-establishment of private ownership and management in agriculture sector. Legislation defined dismemberment of collective farms, but they did not definitively ensure their replacement by at least equally productive private farms and corporations. The decrease in cattle population occurred also due to high costs in production, product differences in prices and lack of market for meat and milk. Similarly, Bulgaria shows a decline in cattle numbers in 1992-1995, after the communist period, due to the reforms in agricultural holdings, together with a decrease in the quantities of inorganic fertilisers. Poland, in turn, had a significant drop in cattle population since mid-1990s up to 2002 due to intentional limitations of cattle breeding related to weakening demand for beef meat. Further increase in population could be connected with the prospect of inclusion of Poland into the EU planned for 2004 and joining the common agricultural policy, with expectations for stable agricultural production. An increase in population in 2012 was probably triggered by the improved economic situation for the agricultural markets. 
+The economic situation seems to highly influence the use of fertilisers in the EU countries, especially for liming and urea fertilization. In Poland, limestone/dolomite fertiliser use dramatically decreased after 2004 as a result of a cut in their subsidies for farmers. In 2006 limestone use was lower by 40% than in previous year, despite remaining high need of soils. In Lithuania, a sharp increase of N input from application of other organic fertilizers took place in 2013, caused by changes in national circumstances when using financial resources of 2004-2006 EU ISPA/Cohesion funds Lithuania started to improve municipal solid waste management system. Also in Italy, fertiliser use was affected by the economic crisis (2009-2011), which led to a reduction in the application of all synthetic fertilisers, in particular urea. In 2012, a recovery from the sharp decline was recorded. In the same line, Slovenia reports a strong decrease in urea fertilisers in 1991 and 2008 due to the economic crisis and high prices of fertilisers.
+
+## Overview of sector
+```{r 3overview,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+figs("figtrendem",paste0("&#09;EU-28 GHG emissions for 1990-",lastyear," from CRF Sector 3: 'Agriculture' in CO2 equivalents (Mt)"))
+figs("figshares",paste0("&#09;Absolute change of GHG emissions by large key source categories 1990-",lastyear," in CO2 equivalents (Mt) in CRF Sector 3: 'Agriculture'"))
+figs("figsharesb",paste0("&#09;Distribution of agricultural GHG emissions among the different source categories for the year ",lastyear))
+```
+```{r 3,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3"
+curseclong<-"Agriculture"
+curcat<-"Farming"
+source("nircatdata.r")
+# figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
+#tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+
+In the year `r lastyear`, `r curgas[c(1,3)]` and `r curgas[2]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,1)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,1)` of total `r eukp` CH4, N2O, and CO2 emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively.<br>
+
+Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r percent(eusharen2ototal,d=1)` and `r percent(eushareco2total,d=1)` to total `r eukp` GHG emissions. They make `r percent(eushareagrich4ghg,1)`, `r percent(eushareagrin2oghg,1)` and `r percent(eushareagrico2ghg,1)` of total agricultural emissions.
+
+`r figs("figtrendem",display="cite")` shows the development of total GHG emissions from agriculture from `r round(euagritotalghg[firstyear]/1000,0)` Mt CO2-eq in `r firstyear` to `r round(euagritotalghg[lastyear]/1000,0)` Mt CO2-eq in `r lastyear` and the `r trendstrength(sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` `r deorincrease(1-sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` in `r eukp`. The decrease was most pronounced for `r curgas[which(curtrend==min(curtrend))]` with a decrease of `r percent(1-curtrend[which(curtrend==min(curtrend))],1)`, followed by `r curgas[rank(curtrend,1)[2]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[2]],1)` and `r curgas[rank(curtrend,1)[3]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[3]],1)`. The decrease was most pronounced in the first decade with a total reduction of `r percent(1-euagritotalghg["2000"]/euagritotalghg[firstyear],d=1)` between 1990 and 2000, a further decrease by between 2000 and 2005, while remaining constant since 2005 (change `r percent(euagritotalghg[lastyear]/euagritotalghg["2005"]-1,d=1)`).
+
+`r figs("figshares",display="cite")` shows that largest reductions occurred in the largest key sources CH4 from *3.A.1: Cattle* and N2O from *3.D.1: Direct emissions from managed soils*. The main reasons for this are decreasing use of fertiliser and manure and declining cattle numbers in most Member States. `r figs("figsharesb",display="cite")` shows the distribution of agricultural GHG emissions among the different source categories for the year `r lastyear`. 
+
+
+
+`r figs("figtrendem",display="full")`
+
+`r print("Please add figure here!!")`
+
+`r figs("figshares",display="full")`
+
+`r print("Please add figure here!!")`
+![](../2017/eureport/figs/Absolutechangeinsector3columns.jpg)
+
+`r figs("figsharesb",display="full")`
+
+`r print("Please add figure here!!")`
+![](../2017/eureport/figs/Shareoflargestkeycategorysources2014piechart.jpg)
+
+
+
+## Source categories and methodological issues
+
+In this section we present the information relevant for `r eukp` key source categories in the sector 3 Agriculture.
+
+Key source categories considered are: 
+
+* CH4 emissions from source category 3.A.1 - Cattle 
+* CH4 emissions from source category 3.A.2 - Sheep 
+* CH4 emissions from source category 3.B.1.1 - Cattle
+* CH4 emissions from source category 3.B.1.3 - Swine
+* N2O emissions from source category 3.B.1.1 - Cattle
+* N2O emissions from source category 3.B.1.5 - Indirect emissions
+* N2O emissions from source category 3.B.1.4 - Other Livestock (mainly Poultry)
+* N2O emissions from source category 3.D.1.1 - Direct N2O emissions from managed soils from inorganic N fertilizers
+* N2O emissions from source category 3.D.1.2 - Direct N2O emissions from managed soils from organic N fertilizers
+* N2O emissions from source category 3.D.2.1 - Indirect Emissions from Managed Soils, Atmospheric Deposition
+* N2O emissions from source category 3.D.2.2 - Indirect Emissions from Managed Soils, Nitrogen leaching and run-off
+
+Other source categories are not contributing to a key source analysis at `r eukp` level and are therefore not further discussed here.
+
+For each of the above-mentioned source categories, data on the countries contributing most to `r eukp` emissions and to `r eukp` emissions trend are provided, as well as information on relevant activity data and IEFs and other parameters, if relevant.
+
+
+Many countries recognize that in the agriculture sector the emissions from the different categories are inherently linked and are best estimated in a comprehensive model that covers not only greenhouse gases (CH4 and N2O) in a consistent manner, but also ammonia. Estimations of ammonia emissions are required for reporting under the Convention on Long-Range Transboundary Air Pollution and are needed to estimate indirect N2O emissions. Hence, some countries have developed comprehensive models covering consistently different source categories and different gases.  
+
+* Austria: For the calculation of the losses of gaseous N species the mass-flow procedure pursuant to EMEP/CORINAIR is used. A detailed emission model for NH3, NMVOC and NOx has been integrated into the national inventory.
+* Germany: Germany uses the emission inventory model GAS-EM to calculate consistently emissions of CH4, NH3, N2O, and NO from agricultural sources. It is based on IPCC methodologies and has been developed in recent years with a comprehensive description found in Roesemann et al. (2013). Basis of the model is the feed intake which determine emissions in category 3.A and which determines N and C excretion rates relevant for category 3.B and also 3.D. Data are available at district (Landkreis, livestock characterisation, housing systems, manure management systems) and regional (Bundesland) level. N-emissions are considered within an N-flow concept (Daemmgen and Hutchings, 2005). In the N-flow concept, only remaining N in manure is transferred to storage systems, after subtraction of emissions in housing systems. Emissions are subtracted from the total N-pool.
+* Denmark: The emissions from the agricultural sector are calculated in a comprehensive agricultural model complex called IDA (Integrated Database model for Agricultural emissions). The model complex is designed in a relational data-base system (MS Access). Input data are stored in tables in one database called IDA_Backend and the calculations are carried out as queries in another linked database called IDA. This model complex is implemented in great detail and is used to cover emissions of NH3, particulate matter and greenhouse gases. Thus, there is a direct coherence between the NH3 emission and the emission of N2O. 
+Finland: Finland uses a nitrogen mass flow model (except for N-fixing, crop residue and sewage sludge) accounts for nitrogen losses as ammonia and nitrous oxide emissions during manure management in animal houses, during storage and application; the calculation method was developed in order to avoid double-counting.
+* Finland: Direct N2O emissions and deposition from manure management are calculated with a national calculation model (Grönroos et al. 2009); leaching is calculated separately. The model integrates both ammonia and nitrous oxide emissions from manure in each phase of the manure management chain and allows accounting for the effect of possible abatement measures to volatilisation. The amount of N volatilised as NH3-N and NO-N from MMS is calculated in the model separately from the application to fields (NH3-N during and after spreading).
+* The Netherlands: N-flows from animal production are assessed by the National Emission Model for Ammonia (NEMA). Results include emissions of ammonia (NH3), nitric oxide (NO), nitrous oxide (N2O) and nitrogen gas (N2) from stable and storage.
+* Slovenia: a mass balance approach which tracks nitrogen throughout the system is used to estimate N2O emissions, based on EMEP/CORINAIR (2013) methodology. The amount of N which is lost through volatilisation is estimated simultaneously with direct N2O emissions using EMEP/CORINAIR (2013) methodology. Similar mass-flow approach, based on EMEP/EEA guidelines is followed by Iceland.
+
+ 
+

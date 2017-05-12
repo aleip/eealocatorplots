@@ -19,13 +19,25 @@ writeissuelist<-function(D,file){
     close(con)
     
 }
-observationoutlier<-function(line){
-    
+
+observationyear<-function(line){
     if(line$years=="all"){
         observationyrs<-"all years"
     }else{
         observationyrs<-paste(line$years,collapse=",")
     }
+    return(observationyrs)
+}
+
+
+observationoutlier<-function(line){
+    
+    #if(line$years=="all"){
+    #    observationyrs<-"all years"
+    #}else{
+    #    observationyrs<-paste(line$years,collapse=",")
+    #}
+    observationyrs<-observationyear(line)
     observationsec<-paste(line$sector_number,line$category,observationyrs,sep=" - ")
     observationmea<-paste0(line$measure," (",line$meastype,")")
     
@@ -258,7 +270,7 @@ observationagri<-function(line){
 questionoutlier<-function(line){
 
     # Start question
-    observationsec<-paste(line$sector_number,line$category,observationyrs,sep=" - ")
+    observationsec<-paste(line$sector_number,line$category,observationyear(line),sep=" - ")
     observationmea<-paste0(line$measure," (",line$meastype,", ",observationsec,")")
     question<-paste0("The value of the outlier for the ",observationmea,"is with ", rounddigit(line$value)," (mean of outlier years) ",
                      rounddigit(line$value/line$media), " times the median value reported from all countries and ")
@@ -397,10 +409,15 @@ keysourcecat<-function(line){
     return(list(keyms,keyeu))
 }
 isphase2<-function(line){
-    oldissues<-read.csv("issues/issues2015.csv")
-    phase2<-oldissues[oldissues$Phase.2!="",c("File.Name.","In.20160202colist","Phase.2","Conclusion.comment")]
-    issue<-line$followup
-    select<-as.character(phase2$File.Name.)==issue
+    oldissuefile<-"issues/issues2015.csv"
+    if(file.exists(oldissuefile)) {
+        oldissues<-read.csv(oldissuefile)
+        phase2<-oldissues[oldissues$Phase.2!="",c("File.Name.","In.20160202colist","Phase.2","Conclusion.comment")]
+        issue<-line$followup
+        select<-as.character(phase2$File.Name.)==issue
+    }else{
+        select<-1
+    }
     return(sum(select))
 }
 
@@ -458,7 +475,7 @@ emrtsector<-function(sectornumber){
 }
 
 flags4newissue<-function(line,check,x){
-    #print(x)
+    #cat(x," ")
     country<-country4sub[country4sub$code2==as.character(line$party),"long"]
     if(length(country)==0)country<-as.character(line$party)
     if(check=="outlier") {

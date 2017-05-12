@@ -25,7 +25,7 @@ With the adoption of the 2013 CAP reform, the environment concerns received an e
 
 [^dgagri]: &#09;http://ec.europa.eu/agriculture/envir/index_en.htm
 [^healthcheck]: &#09;http://ec.europa.eu/agriculture/healthcheck/index_en.htm
-[^captowards2020]: &#09;http://ec.europa.eu/agriculture/cap-post-2013/communication/index_en.htm
+[^captowards2020]: &#09;https://ec.europa.eu/agriculture/cap-post-2013_en
 [^1305-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0487:0548:en:PDF  
 [^1306-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0549:0607:en:PDF 
 [^1307-2013]: &#09;http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0608:0670:en:PDF 
@@ -35,7 +35,7 @@ With the adoption of the 2013 CAP reform, the environment concerns received an e
 [^ec2001]: &#09;EC (2001). Statistical Information needed for Indicators to monitor the Integration of Environmental concerns into the Common Agricultural Policy. Communication from the Commission to the Council and the European Parliament. COM(2001) 144 final. Commission of the European Communities.
 [^ec2006]: &#09;EC (2006). Development of agri-environmental indicators for monitoring the integration of environmental concerns into the common agricultural policy. Communication from the Commission to the Council and the European Parliament. COM(2006) 508 final. Commission of the European Communities, Brussels.
 
-Currently, the next reform of the CAP is under discussion enabling agriculture in Europe by its modernisation and simplification to face new challenges, such related to economic prospects and care for the environment including action over climate change and maximise its contribution to the Commission's priorities and to the Sustainable Development Goals [^capmodernizationweb].
+Currently, the next reform of the CAP is under discussion enabling agriculture in Europe by its modernisation and simplification to face new challenges, such related to economic prospects and care for the environment including action over climate change and maximise its contribution to the Commission's priorities and to the Sustainable Development Goals[^capmodernizationweb].
 
 [^capmodernizationweb]: &#09;https://ec.europa.eu/agriculture/consultations/cap-modernising/2017_en
 

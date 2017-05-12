@@ -77,13 +77,13 @@ checkname<-c("test","val1","val2","obs","sec","cat","ms","yr","fac","val")
 checktemp<-as.data.frame(matrix(vector(),nrow=1,ncol=10,dimnames=list(c(),checkname)))
 names(checktemp)<-checkname
 signthreshold<-0.0005 #min of 0.05% of national total
-gases<-c("CH4","CO2","N2O","Aggregate GHGs","NMVOC")
+gases<-c("CH4","CO2","N2O","Aggregate GHGs","NMVOC","PFCs","HFCs")
 # Values from Third Assessment Report 2001 http://www.grida.no/publications/other/ipcc_tar/?src=/climate/ipcc_tar/wg1/212.htm
-gwpstar<-c(23,1,296,1,0)
+gwpstar<-c(23,1,296,1,0,1,1)
 # Values from Forth Assessment Report 2007 https://www.ipcc.ch/publications_and_data/ar4/wg1/en/ch2s2-10-2.html
-gwpsar4<-c(25,1,298,1,0)
+gwpsar4<-c(25,1,298,1,0,1,1)
 # Values from Fifth Assessment Report 2013 (page 714) https://ipcc.ch/pdf/assessment-report/ar5/wg1/WG1AR5_Chapter08_FINAL.pdf
-gwpsar5<-c(28,1,265,1,0)
+gwpsar5<-c(28,1,265,1,0,1,1)
 
 gwps<-gwpsar4
 

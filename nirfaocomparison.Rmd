@@ -104,7 +104,7 @@ curdiffs$diff<-round(curdiffs$diff,0)
 
 ```
 
-The Food and Agriculture Organization of the United Nations (FAO) has developed a database of greenhouse gas emissions, contained in FAOSTAT, which provides estimations  of the emissions of main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these emissions that generally cover ther period 1990-`r faOlast`. The data base can be consulted at the following link:
+The Food and Agriculture Organization of the United Nations (FAO) has developed a database of greenhouse gas emissions, contained in FAOSTAT, which provides estimations  of the emissions of main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these emissions that generally cover ther period 1990-`r faolast`. The data base can be consulted at the following link:
 
 http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E 
 

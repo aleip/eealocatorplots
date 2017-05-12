@@ -13,9 +13,9 @@
 
 require(ggplot2) #for graphics
 require(reshape2) #required for melt function - for outls
-#require(dplyr) #for pipes and many data manipulation functions
-#require(data.table)
-require(dtplyr)
+require(dplyr) #for pipes and many data manipulation functions
+require(data.table)
+#require(dtplyr)
 require(knitr)
 require(Matrix)
 require(compare)
@@ -101,7 +101,7 @@ eusubm<-"EUC"
 
 # Settings for plots
 # --> number of countries which are listed in the legend
-doemissionplots<-TRUE #TRUE/FALSE                                           #!!!
+doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
 plotresolution<-400   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""

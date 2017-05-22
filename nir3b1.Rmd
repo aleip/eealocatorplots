@@ -117,6 +117,7 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
 ![](../2016/eureport/20170317/Table3B13SwineCH4.jpg)
+Note that some member states are using Tier 1 and default emission factors for 3.B.1.3 category. Although this is a key category for the EU, is not a key category for all member states. For those countries using Tier 1, source category 3.B.1.3 is not a key category.
 
 `r figs(paste0("fig",cursec,"trendem"),display="full")`
 

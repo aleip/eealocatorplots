@@ -302,6 +302,7 @@ tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
 
 `r tabs("tabA11Milk",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
+Note that the Netherlands does not report milk yield in their CRF, but such data are available in their NIR (see also Annex III).
 
 [^exclLUmilk]: &#09;Note that data from Luxembourg are not included in the plot as they are reported in a different unit.
 

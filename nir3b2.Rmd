@@ -10,7 +10,7 @@ figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
 figs(paste0("fig","3.B.2.5","sharems"),sharemsfigurecaption(eukp,"3.B.2.5",lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
-`r text2shareeu()`. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`, but substantial emisssions are also reported for Swine, and Poultry.
+`r text2shareeu()`. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`, but substantial emissions are also reported for Swine, and Poultry.
 
 `r text2sharems(sec=cursec)`
 
@@ -368,6 +368,8 @@ tabs("tabB23NRATE",paratablecaption(eukp,curcattext,lastyear))
 ##### `r paste0(curcattext," - ",curmeasure)`
 
 `r text2ief(fig=figs("figB23trendNRATE",display="cite"),tab=tabs("tabB23NRATE",display="cite"))`
+
+Sweden explains the large increase by an update of nitrogen production data for sows and pigs in 2002, due to more intense swine production. The time trend also shows steps because surveys are only done biannually and small percentage differences in the survey have a significant effect on emissions, as emission factors are differing considerably between the different systems.
 
 `r figs("figB23trendNRATE",display="full")`
 

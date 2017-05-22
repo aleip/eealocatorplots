@@ -441,6 +441,7 @@ if(stepsdone==5){
     
     print(paste0("Step ",stepsdone+1,"d: Calculate key categories @ ",curtime(1)))
     keycategories<-keycategories()
+    keyeuagri<-keycateuc()
     
     print(paste0("Step ",stepsdone+1,"e: Prepare flags @ ",curtime()))
     test0<-matrix(rep(0,nrow(growthcheck)*length(flag4issues)),ncol=length(flag4issues),nrow=nrow(growthcheck))

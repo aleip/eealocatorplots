@@ -871,6 +871,51 @@ keycategories<-function(){
     potkeycategories<-potkeycategories[grepl("^3",potkeycategories$sector_number),]
     return(potkeycategories)
 }
+
+keycateuc<-function(){
+  
+  keycategories<-read.csv(paste0(issuedir,"../keycategories/EUkeycategoryanalysis_variables_JRC.csv"),stringsAsFactors = FALSE)
+  keycategories<-filter(keycategories,!grepl("Enteric|Farming|Agricultural Soils|Agricultural Residues",name))
+  keyemissions<-filter(alldata,variableUID%in%keycategories$variable_UID)
+  keyemissions[,years]<-apply(keyemissions[years],2,as.numeric)
+  keyeu<-aggregate(x=keyemissions[,years],by=list(keyemissions$variableUID),sum,na.rm=TRUE)
+  allkeyvars<-unique(keyemissions[,names(keyemissions)[!names(keyemissions)%in%c("party",years)]])
+  keyeu<-merge(allkeyvars,keyeu,by.x="variableUID",by.y="Group.1")
+  keyeu$party<-"EUC"
+  
+  agrikey<-filter(agrimix,meastype=="EM"&gas%in%c("CH4","CO2","N2O"))
+  agrikey<-filter(agrikey,!sector_number%in%c("3.A.4","3.B.1.4","3.B.2.4"))
+  agridetem<-filter(agridet,meastype=="EM"&gas%in%c("CH4","CO2","N2O"))
+  agridetemother<-filter(agridetem,grepl("3.A.4|3.B.[12].4",sector_number))
+  agrikey<-rbind(agrikey,agridetemother[,names(agrikey)])
+  
+  agrikey<-filter(agrikey,party=="EUC")
+  agrikey<-agrikey[order(agrikey$sector_number),]
+  
+  keyeu<-rbind(keyeu[names(agrikey)],agrikey)
+  keyeu<-keyeu[order(keyeu$sector_number,keyeu$category),]
+  gasf<-sapply(1:nrow(keyeu),function(x) gwps[which(gases==keyeu$gas[x])])
+  keyeu[,years]<-(keyeu[,years])*gasf
+  keyeu[keyeu$unit=="t CO2 equivalent",years]<-keyeu[keyeu$unit=="t CO2 equivalent",years]/1000
+  
+  rankcategories<-function(testkey,y){
+    testkey[,paste0(y,"rank")]<-frankv(x=abs(testkey[,y]),order=-1,na.last=TRUE,ties.method="first")
+    testkey<-testkey[order(testkey[,paste0(y,"rank")]),]
+    testkey[,paste0(y,"cumul")]<-sapply(1:nrow(testkey),function(x) sum(testkey[1:x,y],na.rm=TRUE))
+    testkey[,paste0(y,"cumrel")]<-testkey[,paste0(y,"cumul")]/testkey[nrow(testkey),paste0(y,"cumul")]
+    testkey[,paste0(y,"key")]<-testkey[,paste0(y,"cumrel")]<=0.95
+    return(testkey)
+  }
+  keyeu<-rankcategories(keyeu,"1990")
+  keyeu<-rankcategories(keyeu,lastyear)
+  keyeuagri<-filter(keyeu,grepl("^3",sector_number))
+  write.csv(keyeuagri,file=paste0(invloc,"/keycategories/keyeuagri.csv"))
+  write.csv(agrimethods,file=paste0(invloc,"/keycategories/agrimethods.csv"))
+  write.csv(agridetem,file=paste0(invloc,"/keycategories/agridetem.csv"))
+  return(keyeuagri)
+}
+
+
 checkhierarchy<-function(D,sec,dig){
     #Attention - unfinished .. should be part of keysource analysis
     Dsub1<-D[grepl(paste0("^",sec),D$sector_number)&D$digit==dig,]

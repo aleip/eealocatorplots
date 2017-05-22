@@ -3,6 +3,7 @@
 figs("figtrendem",paste0("&#09;EU-28 GHG emissions for 1990-",lastyear," from CRF Sector 3: 'Agriculture' in CO2 equivalents (Mt)"))
 figs("figshares",paste0("&#09;Absolute change of GHG emissions by large key source categories 1990-",lastyear," in CO2 equivalents (Mt) in CRF Sector 3: 'Agriculture'"))
 figs("figsharesb",paste0("&#09;Distribution of agricultural GHG emissions among the different source categories for the year ",lastyear))
+tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
 ```
 ```{r 3,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3"
@@ -45,6 +46,10 @@ In this section we present the information relevant for `r eukp` key source cate
 
 Key source categories considered are: 
 
+`r tabs("tabkeycatsshares",display="full")`
+
+**Include table with shares of higher Tier emissions**
+
 * CH4 emissions from source category 3.A.1 - Cattle 
 * CH4 emissions from source category 3.A.2 - Sheep 
 * CH4 emissions from source category 3.B.1.1 - Cattle
@@ -57,7 +62,7 @@ Key source categories considered are:
 * N2O emissions from source category 3.D.2.1 - Indirect Emissions from Managed Soils, Atmospheric Deposition
 * N2O emissions from source category 3.D.2.2 - Indirect Emissions from Managed Soils, Nitrogen leaching and run-off
 
-Other source categories are not contributing to a key source analysis at `r eukp` level and are therefore not further discussed here.
+Other source categories are not contributing to a key source analysis at `r eukp` level and are therefore not further discussed here. . Emissions from source category J - other agriculture emissions are reported only from Germany (digestion of energy crops) and the UK (emissions from liming in oversee territories and crown dependencies).
 
 For each of the above-mentioned source categories, data on the countries contributing most to `r eukp` emissions and to `r eukp` emissions trend are provided, as well as information on relevant activity data and IEFs and other parameters, if relevant.
 

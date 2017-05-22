@@ -129,7 +129,12 @@ country4sub$EUA[country4sub$code3=="ISL"]<-0
 #         Kyoto: France including Mayotte
 country4sub$EU28[country4sub$code2=="FR"]<-0
 country4sub$EUA[country4sub$code2=="FR"]<-0
+#FM not reported any more in 2017
+country4sub$EU28[country4sub$code2=="FR"]<-1
+country4sub$EUA[country4sub$code2=="FR"]<-1
 country4sub$EUC[country4sub$code2=="FM"]<-0
+country4sub$EUA[country4sub$code2=="FM"]<-0
+country4sub$EU28[country4sub$code2=="FM"]<-0
 
 #
 country4sub$EU28[country4sub$code3=="GBR"]<-0

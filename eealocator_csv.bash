@@ -10,6 +10,7 @@ ifil=CRF_MMR_20160810.txt
 submission=20170123
 submission=20170317
 submission=20170509
+submission=20171011
 ifil=CRF_MMR_${submission}.txt
 direct=../2017/eealocator/
 

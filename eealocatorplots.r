@@ -11,7 +11,7 @@
 
 # current inventory year
 if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
-    adrian<-"c:/Adrian/"
+    adrian<-"D:/Users/leipadr/adrian/"
 }else if(Sys.info()[4]=="D01RI1600881"){
     adrian<-"x:/Adrian/"
 }else{
@@ -354,14 +354,15 @@ if(stepsdone==4){
     
     #if(checksteps == "4a"){
     print(paste0("Step ",stepsdone+1,"b: Check NEs"))
-    if (! file.exists("../2016/checks/nechecks")){dir.create(file.path("../2016/checks/necheck/"))}
+    if (! file.exists(paste0(invloc,"/checks/nechecks"))){
+        dir.create(file.path(paste0(invloc,"/2016/checks/necheck/")))}
     source("eugirp_checknes.r")
     #checksteps<-"4b"
     #save(checksteps,file="checksteps.RData")
     #}
     #if(checksteps == "4b"| checksteps=="4c"){
     print(paste0("Step ",stepsdone+1,"c: Check units"))
-    if (! file.exists("../2016/checks/autocorrections")){dir.create(file.path("../2016/checks/autocorrections/"))}
+    if (! file.exists(paste0(invloc,"/checks/autocorrections"))){dir.create(file.path(paste0(invloc,"/2016/checks/autocorrections/")))}
     source("eugirp_checkunits.r")
     
     print(paste0("Step ",stepsdone+1,"d: Calculation statistics distribution for parameters and growth"))

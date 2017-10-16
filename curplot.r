@@ -27,7 +27,7 @@ rm(list=objects())
 #       current inventory year
 mypc<-Sys.info()[4]
 if(mypc=="L01RI1203587"){ #checks machine name
-    adrian<-"c:/Adrian/"
+    adrian<-"D:/Users/leipadr/adrian/"
 }else if(mypc=="D01RI1600881"){
     adrian<-"x:/Adrian/"
 }else{
@@ -64,10 +64,11 @@ cursubm <- "20170123"                                                       #!!!
 cursubm <- "20170317"                                                       #!!!
 cursubm <- "20170509"                                                       #!!!
 cursubm <- "20171011"                                                       #!!!
-invyear<-2017
+invyear<-2016
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
-invloc<-paste0(adrian,"google/projects/ecir")                                               #!!!
+invloc<-paste0(adrian,"google/projects/ecir")#!!!
+if(mypc=="L01RI1203587") invloc<-paste0("C:/Adrian/google/projects/ecir")#!!!
 csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
 if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
 if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")

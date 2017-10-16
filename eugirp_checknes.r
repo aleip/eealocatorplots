@@ -100,12 +100,11 @@ noreporting<-merge(noreporting,agrino_em[,c("variableUID","party","notation")],b
 noreporting<-noreporting[is.na(noreporting$notation),]
 noreporting<-noreporting[,namesnecheck]
 #noreporting$nyears<-""
-noreporting$notation<-"empty"
-
-
-noreporting<-noreporting[remagglevel(noreporting),]
-noreporting<-noreporting[,names(agrine_em)]
-
+if(nrow(noreporting)>0){
+    noreporting$notation<-"empty"
+    noreporting<-noreporting[remagglevel(noreporting),]
+    noreporting<-noreporting[,names(agrine_em)]
+}
 
 # temp<-allnotations
 # temp$variableUID<-as.character(temp$variableUID)

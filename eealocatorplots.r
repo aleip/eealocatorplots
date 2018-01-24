@@ -14,10 +14,13 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
     adrian<-"D:/Users/leipadr/adrian/"
 }else if(Sys.info()[4]=="D01RI1600881"){
     adrian<-"x:/Adrian/"
+}else if(mypc=="MARSBL1BHL"){
+  adrian<-"X:\\Agrienv\\ghginventory\\"
 }else{
-    adrian<-"C:/Adrian/"
+  adrian<-"C:/Adrian/"
 }
 locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
+if(mypc=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
 options(warn=0)
 source("curplot.r")

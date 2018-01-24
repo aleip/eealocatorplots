@@ -30,16 +30,20 @@ if(mypc=="L01RI1203587"){ #checks machine name
     adrian<-"D:/Users/leipadr/adrian/"
 }else if(mypc=="D01RI1600881"){
     adrian<-"x:/Adrian/"
+}else if(mypc=="MARSBL1BHL"){
+    adrian<-"X:\\Agrienv\\ghginventory\\"
 }else{
     adrian<-"C:/Adrian/"
 }
 if(mypc=="D01RI1600881") iam="adrianjrc"
 if(mypc=="L01RI1203587") iam="testcapri"
 if(mypc=="L01RI1203587") iam="adrianlaptop"
+if(mypc=="MARSBL1BHL") iam="marsbl1bhl"
 eugirpok<-FALSE
 if(grepl("adrian",iam)) eugirpok<-TRUE
 if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
 if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
+if(iam=="marsbl1bhl")locplots<-paste0(adrian,"/eealocatorplots")
    
 setwd(locplots)
 searchline<-FALSE
@@ -73,6 +77,7 @@ if(mypc=="L01RI1203587") invloc<-paste0("C:/Adrian/google/projects/ecir")#!!!
 csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
 if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
 if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
+if(iam=="marsbl1bhl")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"
 #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)

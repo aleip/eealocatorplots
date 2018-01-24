@@ -1220,7 +1220,7 @@ export4uba<-function(allagri){
     write.csv(t3bb,file=paste0(invloc,"/eealocator/tablett3bb_",cursubm,"~",curdate(),".csv"))
     View(t3bb)
     
-    
+    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/eealocator/tablett3_",cursubm,"~",curdate(),".RData"))
 }
 
 

@@ -64,7 +64,8 @@ cursubm <- "20170123"                                                       #!!!
 cursubm <- "20170317"                                                       #!!!
 cursubm <- "20170509"                                                       #!!!
 cursubm <- "20171011"                                                       #!!!
-invyear<-2016
+cursubm <- "20180122"                                                       #!!!
+invyear<-2018
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
 invloc<-paste0(adrian,"google/projects/ecir")#!!!

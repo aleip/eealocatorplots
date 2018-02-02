@@ -397,6 +397,8 @@ keysourcecat<-function(line){
     #print(prt)
     #print(line$sector_number)
     #save(line,file="line")
+    source("eugirp_functions.r")
+    keycategories <- keycategories()
     keyline<-keycategories[sapply(1:nrow(keycategories),function(x) grepl(keycategories$sector_number[x],line$sector_number)),]
     keyeu<-as.logical(sum(keyline[,paste0("EUC","key")]))
     keyms<-as.logical(sum(keyline[,paste0(prt,"key")]))
@@ -475,6 +477,7 @@ emrtsector<-function(sectornumber){
 }
 
 flags4newissue<-function(line,check,x){
+  
     #cat(x," ")
     country<-country4sub[country4sub$code2==as.character(line$party),"long"]
     if(length(country)==0)country<-as.character(line$party)
@@ -669,7 +672,7 @@ writeautoc<-function(v,A,P,mult,fn){
 reportchecks1<-function(check,data,x){
     reportfields<-c("party","sector_number","category","measure","meastype","gas","unit",
                     "method","source","notation",
-                    "1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013",
+                    years,
                     "classification","target","type","option","variableUID")
     checkfields<-c("check","val1","val2","sec","cat","obs","ms","yr","fac","val")
     names(check)<-gsub("test","check",names(check))

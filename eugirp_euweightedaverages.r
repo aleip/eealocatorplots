@@ -122,6 +122,7 @@ namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
                      "category","classification","source","target","option","variableUID","aduids")
 assignad2par<-assignad2par[,namesassignad2par]
 measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
+if(sum(duplicated(measures2wei$variableUID))>0)  measures2wei <- measures2wei[!is.na(measures2wei$meastype),]
 parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 
 # CORRECTIONS
@@ -132,9 +133,16 @@ calceu<-allagri[!selection,]
 if(exists("autocorrections")){
     selection1<-autocorrections[!autocorrections$party%in%eu,c("party","variableUID","autocorr")]
     calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
-    selection1<-!is.na(calceu$autocorr)
+    if(any(names(calceu)=="autocorr")){                       #xavi201801301
+      selection1<-!is.na(calceu$autocorr)
+    }else{                                                     #xavi201801301
+      selection1<-!is.na(calceu$autocorr.x)                    #xavi201801301
+      calceu <- calceu[ !names(calceu) %in% c("autocorr.y")]   #xavi201801301
+      names(calceu) <- sub("autocorr.x", "autocorr", names(calceu))
+    }                                                          #xavi201801301
     correctcorrection<-function(autocorrections,party,uid){
-        year<-autocorrections[autocorrections$party==party & autocorrections$variableUID==uid,years]
+        #xavi20180131: year<-autocorrections[autocorrections$party==party & autocorrections$variableUID==uid,years]
+        year<-autocorrections[autocorrections$party==party & as.character(autocorrections$variableUID)==as.character(uid),years]
         return(year)
     }
     selc<-calceu[selection1,]
@@ -150,10 +158,18 @@ if(exists("paramcheck")){
     
     # All time series which have not been identified in paramcheck are OK and receive
     # the correction-flag '1'
-    calceu$correction[is.na(calceu$correction)]<-1
-    
-    calceu$correction[calceu$meastype=="Milk"&calceu$party=="LU"]<-0
-    selection2<-calceu$correction==0
+    if(any(names(calceu)=="correction")){                                 #xavi201801301
+      calceu$correction[is.na(calceu$correction)]<-1
+      calceu$correction[calceu$meastype=="Milk"&calceu$party=="LU"]<-0
+      selection2<-calceu$correction==0
+    }else{                                                                #xavi201801301
+      calceu$correction.y[is.na(calceu$correction.y)]<-1                  #xavi201801301
+      calceu$correction.y[calceu$meastype=="Milk"&calceu$party=="LU"]<-0  #xavi201801301
+      selection2<-calceu$correction.y==0                                  #xavi201801301
+      calceu <- calceu[ !names(calceu) %in% c("correction.y")]   #xavi201801301
+      names(calceu) <- sub("correction.x", "correction", names(calceu))
+    }                                                                     #xavi201801301
+
     calceucor<-calceu
 
     # Do not use the 'correction==0' values for the EU average, but keep them in the data...

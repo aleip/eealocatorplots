@@ -3,7 +3,7 @@
 rdatfile<-paste0(csvfil,".RData")
 if(!file.exists(rdatfile)){
     print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
-    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
+    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999", quote = "")
     save(alldata,file=rdatfile)
     #}else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
     #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))

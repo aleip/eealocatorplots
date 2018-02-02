@@ -78,6 +78,7 @@ csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)
 if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
 if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
 if(iam=="marsbl1bhl")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"
+if(iam=="marsbl1bhl")invloc<-"X:\\Agrienv\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
 #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)

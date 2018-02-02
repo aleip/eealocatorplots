@@ -14,13 +14,13 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
     adrian<-"D:/Users/leipadr/adrian/"
 }else if(Sys.info()[4]=="D01RI1600881"){
     adrian<-"x:/Adrian/"
-}else if(mypc=="MARSBL1BHL"){
+}else if(Sys.info()[4]=="MARSBL1BHL"){
   adrian<-"X:\\Agrienv\\ghginventory\\"
 }else{
   adrian<-"C:/Adrian/"
 }
 locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
-if(mypc=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
+if(Sys.info()[4]=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
 options(warn=0)
 source("curplot.r")
@@ -199,7 +199,7 @@ if(stepsdone==2){
 #stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-0
-#doemissionplots<-TRUE
+doemissionplots<-FALSE
 if(stepsdone>2){
     if(doemissionplots==TRUE){
         if(emplotsdone==0){
@@ -444,6 +444,7 @@ if(stepsdone==5){
     
     
     print(paste0("Step ",stepsdone+1,"d: Calculate key categories @ ",curtime(1)))
+    source("eugirp_functions.r")
     keycategories<-keycategories()
     keyeuagri<-keycateuc()
     
@@ -473,6 +474,8 @@ if(stepsdone==5){
     # !!
     print(paste0("Step ",stepsdone+1,"h: Integrate outcome into paramcheck and to writeoutlierlist @ ",curtime()))
     x1<-1;x2<-nrow(paramcheck)
+    source("eugirp_functions.r")
+    keycategories <- keycategories()  #xavi20180131: it would be better to call keycategories() by sourcing in the function flags4newissue
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
     test<-Reduce(rbind,test)
     paramcheck[x1:x2,flag4issues]<-test
@@ -550,9 +553,9 @@ if(stepsdone==6){
 
 #stop("step 7 done")
 # C - Make checks for sector 3 ####
-checksteps<-7
+#checksteps<-7
 if(stepsdone==7) {
-    print(paste0("Step ",checksteps+1,": Make specific checks for Sector 3 - Set 1"))
+    print(paste0("Step ",stepsdone+1,": Make specific checks for Sector 3 - Set 1"))
     #load(rdatmeasu)
     
     # source("tmp_otherlivestockearlier.r")
@@ -626,7 +629,7 @@ if(stepsdone==7) {
 
 #stop("Step 8 done")
 if(stepsdone==8) {
-    print(paste0("Step ",checksteps+1,": Comparison with FAO"))
+    print(paste0("Step ",stepsdone+1,": Comparison with FAO"))
     source("eugirp_faocomparison.r")
     stepsdone<-9
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))

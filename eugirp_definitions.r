@@ -104,13 +104,14 @@ gwps<-gwpsar4
 
 countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"EE" ,"ES" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SE" ,"SI" ,"SK" )
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBR","GBK","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
 eu<-c("EUA","EUC")
 eum<-c("EU28","EU28+ISL")
 eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
 
 countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Estonia",
               "Spain","Finland","France","France incl Mayotte",
-              "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBE=EU territory)","Greece","Croatia","Hungary","Ireland",
+              "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBK=EU territory)","Greece","Croatia","Hungary","Ireland",
               "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
               "Portugal","Romania","Sweden","Slovenia","Slovakia")
 countries4plot<-gsub("United Kingdom.*","United Kingdom",countriesl)
@@ -140,6 +141,7 @@ country4sub$EU28[country4sub$code2=="FM"]<-0
 country4sub$EU28[country4sub$code3=="GBR"]<-0
 country4sub$EUA[country4sub$code3=="GBR"]<-0
 country4sub$EUC[country4sub$code3=="GBE"]<-0
+country4sub$EUC[country4sub$code3=="GBK"]<-0
 country4sub$EU28[country4sub$code3=="EUC"]<-0
 country4sub$EU28[country4sub$code3=="EUA"]<-0
 country4sub$EUA[country4sub$code3=="EU28"]<-0

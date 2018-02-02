@@ -24,7 +24,7 @@ checkuids[,pargas]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
            cat=paste0("^",checkuids$category[x],"$"))))
 mea<-"IEF";gas<-"N2O";pargas<-paste0(mea,gas)
 checkuids[,pargas]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
-    getuid(1,ok=1,,mea=mea,gas=gas,x=x,msr="Implied",
+    getuid(1,ok=1,mea=mea,gas=gas,x=x,msr="Implied",
            sec=paste0("^3.B.2",checkuids$sector_number[x],"$"),
            cat=paste0("^",checkuids$category[x],"$"))))
 
@@ -379,7 +379,8 @@ climcheck$cat<-gsub(" ","_",climcheck$cat)
 climcheckb<-climcheck
 climcheck<-climcheckb
 climcheck<-simplifytestmatrix(climcheck[,checkname],c("yr","fac","sec","cat","val"),list(years,"range",0,0,""))
-climcheck<-Reduce(rbind,lapply(c(1:nrow(climcheck)),function(x) Reduce(cbind,reportchecks1(check=climcheck[x,checkname],data=allagri,x))))
+#xavi20180202: climcheck<-Reduce(rbind,lapply(c(1:nrow(climcheck)),function(x) Reduce(cbind,reportchecks1(check=climcheck[x,checkname],data=allagri,x))))
+climcheck<-Reduce(rbind,lapply(c(1:nrow(climcheck)),function(x) Reduce(cbind,as.matrix(reportchecks1(check=climcheck[x,checkname],data=allagri,x)))))
 climcheck<-as.data.frame(climcheck)
 names(climcheck)<-checkname
 checks<-rbind(checks,climcheck)

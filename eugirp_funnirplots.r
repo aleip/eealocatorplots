@@ -1,4 +1,4 @@
-print("start eugirp_funnirplots.R")
+#print("start eugirp_funnirplots.R")
 #print(objects())
 
 
@@ -415,16 +415,47 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #print("plotmatr1")
                     save(rel,eu,acountry,plotmatr,file="rel.rdata")
                     plotmatr$party<-acountry[!acountry%in%eu]
+                    rel$party<-acountry[!acountry%in%eu]   #xavi20180126
                     #print("plotmatr2")
                     topn<-min(10,length(relavx))
                     topno<-max(0,length(relavx)-topn)
                     
                     #print("# Select the top countries with highest mean value over all years")
-                    topneu28<-row.names(as.matrix(head(relavx[order(relavx,decreasing=T,na.last=T)],topn)))
-                    topother<-row.names(as.matrix(tail(relavx[order(relavx,decreasing=T,na.last=T)],topno)))
+                    #xavi20180126: topneu28<-row.names(as.matrix(head(relavx[order(relavx,decreasing=T,na.last=T)],topn)))
+                    #xavi20180126: topother<-row.names(as.matrix(tail(relavx[order(relavx,decreasing=T,na.last=T)],topno)))
+                    #xavi20180126   #selecting top countries with higuest values for the last year
+                    #xavi20180129: topneu28_1<-row.names(as.matrix(head(relavx[order(relavx,decreasing=T,na.last=T)],topn)))
+                    #xavi20180129: topother_1<-row.names(as.matrix(tail(relavx[order(relavx,decreasing=T,na.last=T)],topno)))
                     
+                    kk <- rel[, c(ncol(rel)-1, ncol(rel))]
+                    kk1 <- kk[order(kk[,1], decreasing = TRUE),]
+                    kk2 <- kk1[!is.na(kk1[,1]),]
+                    topneu28<-row.names(head(kk2,topn))
+                    topneu28_1 <- apply(plotmatr[years2keep], 1, sum, na.rm = TRUE)
+                    topneu28_1 <- names(topneu28_1)[topneu28_1 != 0]
+                    if (length(topneu28)<10){
+                      topneu28 <- union(topneu28, topneu28_1)
+                      topneu28 <- head(topneu28, 10)
+                    } 
+                    #kk: topother<-setdiff(row.names(kk2), topneu28)
+                    topother<-setdiff(topneu28_1, topneu28)
+                      
+                    #yearWdata <- apply(rel[-c(ncol(rel))], 2, sum, na.rm = TRUE)       #xavi20180126
+                    #maxYrwData <- as.character(max(as.numeric(names(yearWdata[yearWdata!=0]))))    #xavi20180126
+                    #topneu28_2<-row.names(as.matrix(head(relavx[order(as.vector(na.omit(rel[[maxYrwData]])),decreasing=T,na.last=T)],topn))) #xavi20180126
+                    #topneu28<-as.vector(na.omit(union(topneu28_2, topneu28_1)[1:10]))
+                    #topother<-row.names(as.matrix(tail(relavx[order(as.vector(na.omit(rel[[maxYrwData]])),decreasing=T,na.last=T)],topno))) #xavi20180126
+                    #topother<-as.vector(union(topother, topother_1))
+                    #topother<-as.vector(union(topother, topneu28_1))
+                    #topother<-as.vector(union(topother, topneu28_2))
+                    #topother<-as.vector(setdiff(topother, topneu28))
+
+                    #xavi20180129: eu28main<-plotmatr[row.names(plotmatr) %in% topneu28,]
+                    #xavi20180126: eu28main<-eu28main[order(rowSums(eu28main[,years2keep],na.rm=TRUE),decreasing=FALSE),]
+                    #kk: eu28main<-plotmatr[row.names(plotmatr) %in% topneu28, c(ncol(plotmatr)-1, ncol(plotmatr))]
                     eu28main<-plotmatr[row.names(plotmatr) %in% topneu28,]
-                    eu28main<-eu28main[order(rowSums(eu28main[,years2keep],na.rm=TRUE),decreasing=FALSE),]
+                    eu28main<-eu28main[order(eu28main[years[lastyear]], decreasing = FALSE), c(years2keep,"party")]
+                    
                     Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years2keep],na.rm=TRUE)))
                     Other$party<-"Other"
                     topnnames<-eu28main$party
@@ -434,7 +465,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     eu28fin<-as.matrix(eu28fin[,years2keep])
                     eu28fin[is.na(eu28fin)]<-0
                     
-                    finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
+                    #xavi20180129: finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
                     #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
                     #print("# General determination of the last available year")
                     lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
@@ -550,6 +581,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     defaults<-NULL
                 }
                 #print(eu28fin)
+                #xavi20180129: if(!(sum(eu28fin,na.rm=TRUE)==0)) {
                 if(!(sum(eu28fin,na.rm=TRUE)==0)) {
                     #eugirp_funnirplots.r
                     #return(list(tmin,tmax))
@@ -941,22 +973,28 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     #eukp<-eunames[,eusubm]
     
     relavs<-plotted[[2]][[5]]
+    relavs2<-plotted[[2]][[1]] #xavi20180126 This is just to keep the correct order
     relav<-as.data.frame(matrix(rep(NA,length(acountry)*(nplots+1)),ncol=(nplots+1),nrow=length(acountry)))
     names(relav)<-c("party",c(1:(nplots)))
     relav$party<-acountry
     for(iplot in c(1:nplots)){
         relav[,iplot+1]<-relavs[[iplot]]
     }
-    relav<-merge(as.data.frame(finnames),relav,by.x="finnames",by.y="party",sort = FALSE)
+    #xavi20180126: relav<-merge(as.data.frame(finnames),relav,by.x="finnames",by.y="party",sort = FALSE)
+    relav<-merge(as.data.frame(finnames),relavs2[,c(1,ncol(relavs2))],by.x="finnames",by.y="party",sort = FALSE)
     autocorr<-plotted[[2]][[6]]
     serious<-plotted[[2]][[7]]
     
     #Determine order 
     relav$order<-apply(as.matrix(relav[,-1]),1,mean,na.rm=TRUE)
-    relav<-relav[order(relav$order,decreasing=FALSE),]
+    #xavi20180126: relav<-relav[order(relav$order,decreasing=FALSE),]
+    
     if(hasother=="Other"){
-        finnames<-as.data.frame(c(as.character(relav$finnames),hasother))
+        relav<-relav[order(relavs2[relavs2$party!="Other",ncol(relavs2)],decreasing=FALSE),] #xavi20180126
+        #xavi20180125: finnames<-as.data.frame(c(as.character(relav$finnames),hasother))
+        finnames<-as.data.frame(c(hasother, as.character(relav$finnames)))
     }else{
+        relav<-relav[order(relavs2[,ncol(relavs2)],decreasing=FALSE),] #xavi20180126 
         finnames<-as.data.frame(c(as.character(relav$finnames)))
     }
     names(finnames)<-"party"
@@ -1305,7 +1343,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
         }
         
         if(rundata=="adem"){
-            textorderadem1<-paste0("Countries are sorted by the average contribution to the sum of the ",eukp," value over the whole time period. ")
+            textorderadem1<-paste0("Countries are sorted by their contribution to the sum of the ",eukp," value of the last year. ")
             if(topno>0) {
                 textorderadem2<-paste0("The top ",topntext," countries are displayed. ")
                 textorderadem3<-paste0("The other ",topnotext," reporting countries with data are lumped to 'other'.")
@@ -1389,6 +1427,9 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     #text(0,par("cin")[2],adj=0,mfooter1,cex=0.8)
     #text(0,0,adj=0,mfooter2,cex=0.8)
     #print(mtexttitle0)
+    if(grepl("Other Fossil Fuels", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("Other Fossil Fuels", "Other Fuels", mtexttitle0, ignore.case = TRUE)
+    if(grepl("Other Fossil Fuel Other Fuels", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("Other Fossil Fuel Other Fuels", "Other Fuels", mtexttitle0, ignore.case = TRUE)
+    if(grepl("no classification", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("no classification", "", mtexttitle0, ignore.case = TRUE)
     plottitle(mtexttitle0,plotted,multisource)
     
     #stop("Stop after x-axis")

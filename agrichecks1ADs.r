@@ -32,7 +32,7 @@ for (cat2check in cats2check){
     parn<-paste0(gsub("3","",gsub("\\.","",cat2check)),uids2check)
     checkuids[,parn]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
         # Add "^" and "$" to sec and cat to get the exact values!
-        getuid(1,ok=1,,mea=uids2check,gas="no gas",x=x,
+        getuid(1,ok=1,mea=uids2check,gas="no gas",x=x,
                sec=paste0("^",cat2check,checkuids$sector_number[x],"$"),
                cat=paste0("^",checkuids$category[x],"$"))))
 }

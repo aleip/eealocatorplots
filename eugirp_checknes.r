@@ -69,13 +69,13 @@ agrine_em<-agrine_em[remagglevel(agrine_em),]
 agrine_em$meastype<-"EM"
 agrine_em$nyears<-""
 
-# Check if one of the notation keys is used for the year 2015
+# Check if one of the notation keys is used for the year 2016
 sel<-sapply(1:nrow(agrine_em),function(x) checkforyear(agrine_em$year[x],checkyear))
 agrine_em<-agrine_em[sel,-which(names(agrine_em)%in%c("year","meastype"))]
 
 
 
-# Add data gaps for the year 2015
+# Add data gaps for the year 2016
 noreporting<-allagri[allagri$measure=="Emissions",]
 noreporting$nyears<-apply(noreporting[years],1,function(x) sum(is.na(x))+sum(x==0,na.rm=TRUE)+sum(x=="",na.rm=TRUE))
 #noreporting<-noreporting[noreporting$nyears>0,]
@@ -90,7 +90,7 @@ agrino<-allnotations[grepl("^3",allnotations$sector_number),]
 agrino<-agrino[grepl("NO|NA|IE|NE",allnotcat3$notation),]
 agrino<-agrino[order(agrino$sector_number,agrino$category),]
 agrino_em<-agrino[agrino$measure=="Emissions",]
-# Check if one of the notation keys is used for the year 2015
+# Check if one of the notation keys is used for the year 2016
 sel<-sapply(1:nrow(agrino_em),function(x) checkforyear(agrino_em$year[x],checkyear))
 agrino_em<-agrino_em[sel,-which(names(agrino_em)=="year")]
 namesnecheck<-c("nyears",names(agrino_em))
@@ -213,7 +213,7 @@ agrino<-agrino[order(agrino$sector_number,agrino$category),]
 agrino_em<-agrino[agrino$measure=="Emissions",]
 namesnecheck<-names(agrino_em)
 
-# Check if one of the notation keys is used for the year 2015
+# Check if one of the notation keys is used for the year 2016
 sel<-sapply(1:nrow(agrino_em),function(x) checkforyear(agrino_em$year[x],checkyear))
 agrino_em<-agrino_em[sel,-which(names(agrino_em)=="year")]
 
@@ -266,7 +266,8 @@ reporting<-reporting[,-which(names(reporting)%in%years)]
 reporting$notation<-""
 reporting<-reporting[,-which(names(reporting)%in%c("datasource"))]
 reporting$value<-""
-reporting$year<-2015
+#xavi20180125: reporting$year<-2015
+reporting$year<-checkyear
 reporting<-reporting[!reporting$party%in%eu,]
 #reporting<-reporting[remagglevel(reporting),]
 reporting<-reporting[,names(agrine_em)]

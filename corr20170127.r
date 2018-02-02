@@ -1,4 +1,5 @@
 #20170127 - Corrections needed for plots
+library(data.table)  #xavi20180125: added this line
 
 #1. UK other animals
 ukotheranimals<-as.data.table(allagri[allagri$party=="UK"&grepl("A.4|B.[12].4",allagri$sector_number),])

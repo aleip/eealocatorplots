@@ -608,7 +608,6 @@ checkforyear<-function(yrstring,yr){
     return(yremrt)
     
 }
-
 simplifytestmatrix<-function(check,group,compare=0){
     # group: column which will be grouped.
     #        Note: this works also with a vector of columns
@@ -1119,15 +1118,20 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
     # Adds already solved issues to a check so that duplication of issues can be avoided
     # check2ignore are 'checks' (e.g. recalc) which can be ignored
     
-    solvedfile<-read.csv(file=paste0(issuedir,"solvedissues.csv"),stringsAsFactors = FALSE)
+    if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
+    } else {library(readxl)}
+  
+    solvedfile<-as.data.frame(read_excel(path=paste0(issuedir,"solvedissues14122017.xlsx"), sheet = 1))
+    #solvedfile_kk<-read.csv(file=paste0(issuedir,"solvedissues.csv"),stringsAsFactors = FALSE)
     #add curcheck fields
-    solvedfile<-solvedfile[,-which(colnames(solvedfile)%in%c("X"))]
+    #xavi20180131: solvedfile<-solvedfile[,-which(colnames(solvedfile)%in%c("X"))]
     solvedfile<-convert2char(solvedfile)
     #curcheck<-convert2char(curcheck)
     #colnames(solvedfile)<-gsub("year","years",colnames(solvedfile))
-    colnames(solvedfile)<-gsub("Observation","Obs",colnames(solvedfile))
+    colnames(solvedfile)<-gsub("observation","Obs",colnames(solvedfile))
     
     cols2join<-c("party","sector_number","category","meastype","Obs","variableUID","check","unit","gas")
+    cols2join<-c("party","sector_number","category","meastype","Obs","check")
     if("explanation"%in%colnames(curcheck))cols2join<-c(cols2join,"explanation")
     if("expldate"%in%colnames(curcheck))cols2join<-c(cols2join,"expldate")
     miscolssolve<-cols2join[!cols2join%in%colnames(solvedfile)]
@@ -1543,14 +1547,18 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     }
     
     
-    t1<-growthcheck[grepl(secs,growthcheck$sector_number)&growthcheck$category%in%cats&growthcheck$meastype==meastype,]
+    #xavi20180201: t1<-growthcheck[grepl(secs,growthcheck$sector_number)&growthcheck$category%in%cats&growthcheck$meastype==meastype,]
+    t1<-growthcheck[grepl(secs,growthcheck$sector_number)&growthcheck$category%in%cats&growthcheck$meastype==meastype&growthcheck$check=="timeseries",]   #xavi20180201: removing row which are not timeseries 
     
-    #Do not consider those where an explanation has been given
+    #Do not consider those where an explanation has been given  
     t1<-t1[t1$explanation=="",]
+    #Do not consider those where a comment has been given  #xavi20180201: they don't have time series data (they are already resolved)
+    t1<-t1[t1$Comments=="",]                               #xavi20180201 
     #cat(secs,cats,meastype)
     nparties<-nrow(t1)
     if(nparties==0){return(1)}
     plotformat<-"pdf"
+    #plotformat<-"jpg" #xavi20180130
     pieunit<-5
     omititle<-1
     npiecols<-3
@@ -1579,13 +1587,16 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     curplot<-0
     pars<-unique(as.vector(unlist(t1$party)))
     for(par in pars){
-        #print(paste0("par=",par))
+        print(paste0("par=",par))
+        if(par=="CY" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (why growthcheck did not "sum" the two rows?)
         t2<-t1[t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype,]
         secsl<-unique(as.vector(unlist(t2$sector_number)))
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]
         #print(secsl)
         for(sec in secsl){
-            #print(paste0("sec=",sec))
+            print(paste0("sec=",sec))
+            #if(par=="CY" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later (it has no "classification")
+            #if(par=="DK" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later
             t2<-t1[t1$party==par&t1$sector_number==sec&t1$category%in%cats&t1$meastype==meastype,]
             catsl<-unique(as.vector(unlist(t2$category)))
             #print(paste0("cats=",cats))

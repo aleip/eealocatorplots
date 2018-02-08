@@ -514,7 +514,7 @@ if(stepsdone==6){
     mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
     mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
     for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
-    
+    stop()
     
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")

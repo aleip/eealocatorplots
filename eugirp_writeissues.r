@@ -678,9 +678,11 @@ reportchecks1<-function(check,data,x){
     names(check)<-gsub("test","check",names(check))
     n<-nrow(check)
     
+    
     #resolve countries
     c<-as.character(check$ms)
     y<-check$yr
+    if(y == "all"){y2 <- years}else if(grepl("all except", y)){y2 <- unlist(strsplit(y,": "))[2] ; y2<-unlist(strsplit(y2, " "))}else{y2<-unlist(strsplit(y, " "))} 
     s<-as.character(check$sec)
     cat<-as.character(check$cat)
     print(cat)
@@ -781,10 +783,122 @@ reportchecks1<-function(check,data,x){
         checkw<-data[selw & ! data$party %in% eu,reportfields]
         checke<-data[selw &   data$party %in% eu,reportfields]
         checkc<-data[selc,reportfields]
-        checkw<-checkw[order(checkw$party,checkw$category,checkw$notation,checkw$measure,checkw$source),]
-        if(check$check=="N2O-NIEF") checkw<-checkw[order(checkw$category,checkw$meastype,checkw$party,checkw$notation,checkw$measure,checkw$source),]
+        #xavi20180207: checkw<-checkw[order(checkw$party,checkw$category,checkw$notation,checkw$measure,checkw$source),]
+        checkw<-checkw[order(checkw$category,checkw$unit),]
+        if(check$check=="NexRATE" & check$obs=="val1 is fac x val2"){
+          rw_comp <- checkw[order(checkw$category,checkw$unit),] 
+          categs <- unique(checkw$category)
+          rw_comp1 <- data.frame()
+          for (ct in categs){
+            rw_comp <- checkw[checkw$category == ct, ]
+            rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
+            rw_comp[nrow(rw_comp), "party"] <- c
+            rw_comp[nrow(rw_comp), "category"] <- ct
+            rw_comp[nrow(rw_comp), "notation"] <- paste0("Comp.")
+            rw_comp[is.na(rw_comp)]<- ""
+            rw_comp1 <- rbind(rw_comp1, rw_comp)
+          }
+          checkw <- rw_comp1 
+        }
+        
+        if(check$check=="N in burned"){
+          rw_comp <- checkw[order(checkw$sector_number,-c(checkw$source)),]
+          rw_comp[nrow(rw_comp)+1, years] <- colSums(rw_comp[-nrow(rw_comp), years])  
+          rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
+          rw_comp[, "party"] <- c
+          #rw_comp[nrow(rw_comp), "category"] <- ct
+          rw_comp[nrow(rw_comp)-1, "notation"] <- paste0("Sum ")
+          rw_comp[nrow(rw_comp), "notation"] <-   paste0("Comp.")
+          rw_comp[is.na(rw_comp)]<- ""
+          checkw <- rw_comp 
+        }
+        
+        if(check$check=="N2O-NIEF" & check$obs=="val1 is fac x val2"){
+          rw_comp <- checkw[order(checkw$category,checkw$unit),] 
+          categs <- unique(checkw$category)
+          categs <- categs[!categs%in%c("Farming")]
+          rw_comp1 <- data.frame()
+          for (ct in categs){
+            rw_comp <- checkw[checkw$category == ct, ]
+            if(nrow(rw_comp)<2) next
+            rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
+            rw_comp[nrow(rw_comp), "party"] <- c
+            rw_comp[nrow(rw_comp), "category"] <- ct
+            rw_comp[nrow(rw_comp), "notation"] <- paste0("Comp.")
+            rw_comp[is.na(rw_comp)]<- ""
+            rw_comp1 <- rbind(rw_comp1, rw_comp)
+          }
+          checkw <- rw_comp1 
+        }
+        
+        if(check$check=="CLIMA"){
+          rw_comp <- checkw[order(checkw$category,checkw$unit),] 
+          categs <- unique(checkw$category)
+          rw_comp1 <- data.frame()
+          for (ct in categs){
+            rw_comp <- checkw[checkw$category == ct, ]
+            rw_comp[nrow(rw_comp)+1, years] <- colSums(rw_comp[-nrow(rw_comp), years]) 
+            rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
+            rw_comp[, "party"] <- c
+            rw_comp[, "category"] <- ct
+            rw_comp[nrow(rw_comp), "notation"] <- paste0("Comp.")
+            rw_comp[is.na(rw_comp)]<- ""
+            rw_comp1 <- rbind(rw_comp1, rw_comp)
+          }
+          checkw <- rw_comp1 
+        }
+        
+        if(check$check=="Manure_grazing"){
+          rw_comp <- checkw[order(checkw$sector_number, checkw$meastype, decreasing = TRUE),] 
+          rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
+          rw_comp[nrow(rw_comp), "party"] <- c
+          rw_comp[nrow(rw_comp), "category"] <- "Ratio"
+          rw_comp[nrow(rw_comp), "notation"] <- paste0("Comp.")
+          rw_comp[is.na(rw_comp)]<- ""
+          checkw <- rw_comp
+        }
+        
+        if(check$check=="CPP and SO def IEFs"){
+          rw_comp <- checkw[order(checkw$party, as.numeric(checkw$meastype%in%c("IEF", "EF3_default")==TRUE)), ] #xavi: this is the optimal way to order, change previous blocks!!
+          if(length(unique(rw_comp$party))>1){
+            nrw <- nrow(rw_comp)/length(unique(rw_comp$party))
+            nrnd <- seq(nrw, nrow(rw_comp), by=nrw)
+            insr <- 0
+            rw_comp1<-data.frame()
+            for (n in nrnd){
+              rw_comp2<-rw_comp[(insr+1):n,]
+              rw_comp2[nrow(rw_comp2)+1, years] <- rw_comp2[nrow(rw_comp2)-1, years] / rw_comp2[nrow(rw_comp2), years]
+              insr <- n
+              rw_comp2[, "party"] <- unique(rw_comp2$party[!is.na(rw_comp2$party)])
+              rw_comp2[nrow(rw_comp2), "category"] <- "Ratio"
+              rw_comp2[nrow(rw_comp2), "notation"] <-   paste0("Comp.")
+              rw_comp1<-rbind(rw_comp1, rw_comp2)
+            }
+            rw_comp<-rw_comp1
+          }else{
+            rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
+            rw_comp[, "party"] <- c
+            rw_comp[nrow(rw_comp), "category"] <- "Ratio"
+            rw_comp[nrow(rw_comp), "notation"] <-   paste0("Comp.")
+          }
+          rw_comp[is.na(rw_comp)]<- ""
+          checkw <- rw_comp 
+        }
+        
+        if(check$check=="N application ratio"){
+          checkw <- checkw[order(checkw$party, as.numeric(checkw$meastype%in%c("FracNavapp")==TRUE)), ] #xavi: this is the optimal way to order, change previous blocks!!
+          
+        }
+        
+        #xavi20180207: if(check$check=="N2O-NIEF") checkw<-checkw[order(checkw$category,checkw$meastype,checkw$party,checkw$notation,checkw$measure,checkw$source),]
         checke<-checke[order(checke$party,checke$category,checke$notation,checke$measure,checke$source),]
-        checkc<-checkc[order(checkc$party,checkc$category,checkc$notation,checkc$measure,checkc$source),]
+        #xavi20180207: checkc<-checkc[order(checkc$party,checkc$category,checkc$notation,checkc$measure,checkc$source),]
+        checkc<-checkc[order(checkc$party,checkc$category,checkc$unit),]
+        if(check$check=="N in burned") checkc<-checkc[order(checkc$party,checkc$sector_number,-c(checkc$source)),]
+        if(check$check=="Manure_grazing") checkc <- checkc[order(checkc$party,checkc$sector_number, checkc$meastype, decreasing = TRUE),] 
+        if(check$check=="CPP and SO def IEFs") checkc <- checkc[order(checkc$party, as.numeric(checkc$meastype%in%c("IEF", "EF3_default")==TRUE)),] 
+        if(check$check=="N application ratio") checkc <- checkc[order(checkc$party, as.numeric(checkc$meastype%in%c("FracNavapp")==TRUE)), ]
+          
         
         if(exists("checkw")>0){
             

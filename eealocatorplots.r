@@ -514,7 +514,7 @@ if(stepsdone==6){
     mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
     mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
     for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
-    stop()
+    
     
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")
@@ -533,8 +533,8 @@ if(stepsdone==6){
     adddefault<-temp[[3]]
     sharesexist<-temp[[4]]
     
-    x1<-97;x2<-nrow(plotmeas)
-    x1<-1;x2<-7
+    x1<-942;x2<-nrow(plotmeas)
+    x1<-886;x2<-887
     x1<-1;x2<-nrow(plotmeas)
     for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
     for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = "range",eusubm = "EUC")}

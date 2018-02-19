@@ -113,3 +113,21 @@ emissionshareplot(sec = "3.B.2.5",DF = agrimix)
 emissionshareplot(sec = "3.D.1",DF = agrimix)
 emissionshareplot(sec = "3.D.2",DF = agrimix)
 
+
+# Export file for comparison with CAPRI
+agridetcapri<-agridet[agridet$meastype=="EM",]
+agridetcapri<-agridetcapri[!grepl("Buffalo|Mules|Deer|Horses|Other",agridetcapri$category),]
+agridetcapri<-agridetcapri[!agridetcapri$party=="EUC",]
+agridetcapri<-agridetcapri[agridetcapri$gas%in%c("CH4","N2O","CO2"),]
+agridet3bind<-allagri[grepl("3.B.2.5",allagri$sector_number),]
+agridet3bind<-agridet3bind[agridet3bind$measure!="Emissions",]
+agridet3bind<-agridet3bind[agridet3bind$meastype=="EM",]
+agridet3bind<-agridet3bind[grepl("Indirect",agridet3bind$classification),]
+
+con<-file(paste0(invloc,"/eealocator/agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt")
+writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
+writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
+writeLines(paste0("# Data from submission: ",cursubm),con)
+writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")),con)
+write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
+close(con)

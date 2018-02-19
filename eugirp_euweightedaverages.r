@@ -113,11 +113,11 @@ listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2po
 # Set up table with infor AD to link with parameter
 assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
 assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("meastype",calcmeas,assignad2par,meas2sum,x)))
+  selectadmeasures("meastype",calcmeas,assignad2par,meas2sum,x)))
 assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("unit",calcmeas,assignad2par,meas2sum,x)))
+  selectadmeasures("unit",calcmeas,assignad2par,meas2sum,x)))
 assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("variableUID",calcmeas,assignad2par,meas2sum,x)))
+  selectadmeasures("variableUID",calcmeas,assignad2par,meas2sum,x)))
 namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
                      "category","classification","source","target","option","variableUID","aduids")
 assignad2par<-assignad2par[,namesassignad2par]
@@ -128,7 +128,10 @@ parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 # CORRECTIONS
 
 # 1. Autocorrections have an identified reason - update the data table
-selection<-allagri$party%in%eu & allagri$meastype%in%meas2popweight
+#xavi20180216: selection<-allagri$party%in%eu & allagri$meastype%in%meas2popweight
+#              MCF should be weighted by VS excretion * share in climate zone * share in system
+#              However as long as this is not implemented add to meas2popweight as a proxy
+selection<-allagri$party%in%eu & allagri$meastype%in%c(meas2popweight,meas2mcf,meas2clima)
 calceu<-allagri[!selection,]
 if(exists("autocorrections")){
     selection1<-autocorrections[!autocorrections$party%in%eu,c("party","variableUID","autocorr")]
@@ -154,6 +157,7 @@ if(exists("autocorrections")){
 # 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
 if(exists("paramcheck")){
     corcalceu<-subset(paramcheck,select=c("party","variableUID","correction"))
+    corcalceu<-corcalceu[corcalceu$variableUID != "",]
     calceu<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
     
     # All time series which have not been identified in paramcheck are OK and receive
@@ -166,7 +170,7 @@ if(exists("paramcheck")){
       calceu$correction.y[is.na(calceu$correction.y)]<-1                  #xavi201801301
       calceu$correction.y[calceu$meastype=="Milk"&calceu$party=="LU"]<-0  #xavi201801301
       selection2<-calceu$correction.y==0                                  #xavi201801301
-      calceu <- calceu[ !names(calceu) %in% c("correction.y")]   #xavi201801301
+      calceu <- calceu[ !names(calceu) %in% c("correction.y")]            #xavi201801301
       names(calceu) <- sub("correction.x", "correction", names(calceu))
     }                                                                     #xavi201801301
 

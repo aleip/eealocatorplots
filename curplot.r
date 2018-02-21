@@ -35,6 +35,7 @@ if(mypc=="L01RI1203587"){ #checks machine name
 }else{
     adrian<-"C:/Adrian/"
 }
+if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/xavi-rp/xavi_functions/master/xavi_functions.r")
 if(mypc=="D01RI1600881") iam="adrianjrc"
 if(mypc=="L01RI1203587") iam="testcapri"
 if(mypc=="L01RI1203587") iam="adrianlaptop"

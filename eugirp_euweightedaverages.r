@@ -37,6 +37,13 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
             & M$sector_number==sec & M$category==cat & M$classification==cla 
             & M$source==sou & M$target==tar]))
     
+    if(mea == "CLIMA" & request == "meastype") measOK <- "CLIMA"   #xavi20180221 
+    if(mea == "CLIMA" & request == "unit") measOK <- "%"           #xavi20180221
+    if(mea == "CLIMA" & request == "variableUID") measOK <- uid    #xavi20180221
+    if(mea == "MCF" & request == "meastype") measOK <- "MCF"     #xavi20180221 
+    if(mea == "MCF" & request == "unit") measOK <- uni           #xavi20180221
+    if(mea == "MCF" & request == "variableUID") measOK <- uid    #xavi20180221
+    
     # In Tables 3.B. ignore source (MMS) and classification 
     if(length(measOK)==0 & grepl("^3.B",sec)){
         measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
@@ -107,11 +114,13 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
 #allagri<-alldata[grepl("^3",alldata$sector_number),]
 calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
 #measname<-as.data.frame(measname)
-measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+#xavi20180221: measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+measures2sum<-allagri[allagri$meastype %in% meas2sum,]
 listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
 
 # Set up table with infor AD to link with parameter
-assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
+#xavi20180221: assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
+assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure"))])
 assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
   selectadmeasures("meastype",calcmeas,assignad2par,meas2sum,x)))
 assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)

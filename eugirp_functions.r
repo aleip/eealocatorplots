@@ -1622,10 +1622,10 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
                         if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
                         par(mfrow = c(min(nparties,maxperpage),npiecols))
                     }
-                    t2y<-unique(t2[,paste0(years,".y")])
                     t2x<-unique(t2[,paste0(years,".x")])
-                    values<-as.vector((unlist(t2y)))
+                    t2y<-unique(t2[,paste0(years,".y")])
                     values<-as.vector((unlist(t2x)))
+                    values<-as.vector((unlist(t2y)))
                     #valuid<-as.vector(unlist(t2$variableUID))
                     #print(values)
                     #curves<-as.vector(unlist(allgcurve[allgcurve$party==par&allgcurve$variableUID==valuid,years]))

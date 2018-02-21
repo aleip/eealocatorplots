@@ -115,6 +115,8 @@ if(stepsdone==2){
     calceu[,years]<-apply(calceu[,years],2,function(x) as.numeric(x))
     calceu<-eu28sums(calceu,"EUC",years = years)
     eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EUC",]
+    calceu <- calceu[!calceu$party=="EUC",] #xavi20180219:removing EUC sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
+    calceu <- rbind(calceu, eu28sum) #xavi20180219: so that calceu keeps only EUC sums for those that can be summed (i.e. meas2sum), but all the sector n.3 (agri)
     agrisummeas<-measures2sum[grepl("^3",measures2sum$sector_number),]
     
     # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting
@@ -172,13 +174,14 @@ if(stepsdone==2){
     selection<- (grepl("^3",calceu$sector_number) & calceu$unit=="kg N/year")
     calceu$unit[selection]<-"kt N/year"
     calceu[selection,years]<-calceu[selection,years]/1000000
-    
+
     #     selection<- (calceu$unit=="t N/year")
     #     calceu$unit[selection]<-"kt N/year"
     #     calceu[selection,years]<-calceu[selection,years]/1000
     
     #save alldata before unit conversion as backup
-    save(alldata,eu28sum,file=gsub("_clean","_nounitconv",rdatallem))
+    #xavi20180219: save(alldata,eu28sum,file=gsub("_clean","_nounitconv",rdatallem))
+    save(alldata,eu28sum, calceu,file=gsub("_clean","_nounitconv",rdatallem))
     alldata<-rbind(alldata,calceu)
     o<-order(alldata$sector_number,alldata$category,alldata$meastype,alldata$classification,alldata$party)
     alldata<-alldata[o,allfields]
@@ -338,7 +341,7 @@ if(stepsdone==4){
     print(paste0("Step ",stepsdone+1,"a: Caluclate allagri for EU28"))
     allagri$datasource<-"nir"
     allagri<-allagri[allagri$party!="EU28",]
-    allagri<-eu28sums(allagri,aeu = c("EUC","EUA"),years = years)
+    #xavi20180220: allagri<-eu28sums(allagri,aeu = c("EUC","EUA"),years = years)    #xavi20180220: this is already done for EUC (I think not necessary for EUA?)
     allagri<-allagri[order(allagri$sector_number,allagri$category,allagri$meastype),]
     #remove option from Cattle, Dairy Cattle, Non-Dairy Cattle
     allcattle<-c("Cattle","Dairy Cattle","Non-Dairy Cattle")
@@ -358,14 +361,14 @@ if(stepsdone==4){
     #if(checksteps == "4a"){
     print(paste0("Step ",stepsdone+1,"b: Check NEs"))
     if (! file.exists(paste0(invloc,"/checks/nechecks"))){
-        dir.create(file.path(paste0(invloc,"/2016/checks/necheck/")))}
+        dir.create(file.path(paste0(invloc,"/checks/necheck/")))}
     source("eugirp_checknes.r")
     #checksteps<-"4b"
     #save(checksteps,file="checksteps.RData")
     #}
     #if(checksteps == "4b"| checksteps=="4c"){
     print(paste0("Step ",stepsdone+1,"c: Check units"))
-    if (! file.exists(paste0(invloc,"/checks/autocorrections"))){dir.create(file.path(paste0(invloc,"/2016/checks/autocorrections/")))}
+    if (! file.exists(paste0(invloc,"/checks/autocorrections"))){dir.create(file.path(paste0(invloc,"/checks/autocorrections/")))}
     source("eugirp_checkunits.r")
     
     print(paste0("Step ",stepsdone+1,"d: Calculation statistics distribution for parameters and growth"))
@@ -475,7 +478,7 @@ if(stepsdone==5){
     print(paste0("Step ",stepsdone+1,"h: Integrate outcome into paramcheck and to writeoutlierlist @ ",curtime()))
     x1<-1;x2<-nrow(paramcheck)
     source("eugirp_functions.r")
-    keycategories <- keycategories()  #xavi20180131: it would be better to call keycategories() by sourcing in the function flags4newissue
+    keycategories <- keycategories()  #xavi20180131
     test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
     test<-Reduce(rbind,test)
     paramcheck[x1:x2,flag4issues]<-test

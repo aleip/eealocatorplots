@@ -3,8 +3,9 @@ allagri<-alldata[agriselect,]
 acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
 o<-order(allagri$sector_number,allagri$category)
 allagri<-allagri[o,]
+allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 
-allagri<-eu28sums(A = allagri,years = years)
+#xavi20180219: allagri<-eu28sums(A = allagri,years = years)    #xavi20180219: already calculated sooner for EUC (I think EUA is not necessary)
 agriselect<-grepl("^3",allmethods$sector_number) 
 agrimethods<-allmethods[agriselect,]
 o<-order(agrimethods$sector_number,agrimethods$category)

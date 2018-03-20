@@ -203,7 +203,7 @@ if(nrow(nechecksclosed)>0){
 }
 #Leave open and append NO check
 #close(con)
-write.csv(agrishares,file=paste0(issuedir,"/nechecks/agrishares~",curdate(),".csv"))
+write.csv(agrishares,file=paste0(issuedir,"/significant/agrishares~",curdate(),".csv"))
 
 # List of Notation keys reported reported
 

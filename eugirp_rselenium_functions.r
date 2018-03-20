@@ -23,7 +23,7 @@ require(RSelenium)
 ### LOGIN ####
 loginemrt<-function(remDr,issue=""){
     
-    urlemrt <- paste0("https://emrt.eea.europa.eu/")
+    urlemrt <- paste0("https://emrt-esd.eionet.europa.eu/")
     login<-"login"
     usr<-"leipvadr"
     psw<-"0112rkf4"
@@ -46,7 +46,7 @@ loginemrt<-function(remDr,issue=""){
 }
 logingema<-function(remDr,issue=""){
     
-    urlemrt <- paste0("https://emrt.eea.europa.eu/")
+    urlemrt <- paste0("https://emrt-esd.eionet.europa.eu/")
     login<-"login"
     usr<-"carmogem"
     psw<-"Mostoles76"
@@ -74,13 +74,13 @@ emrt<-function(){
     #startServer(args = c("-Dwebdriver.chrome.driver=RSelenium/chromedriver.exe"), dir = "RSelenium", log = FALSE, invisible = FALSE)
     #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
+    #remDr<-remoteDriver(browserName = "internet explorer",remoteServerAddr = "localhost", port = 4443) #xavi: just to check with another browser
     remDr$open(silent = TRUE)
     loginemrt(remDr,issue="")
     return(remDr)
 }
 emrtgema<-function(){
     # for chrome see https://cran.r-project.org/web/packages/RSelenium/vignettes/RSelenium-saucelabs.html#id1a
-    #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4444)
     remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
     remDr$open(silent = TRUE)
     logingema(remDr,issue="")
@@ -375,12 +375,12 @@ approvequestionandsend<-function(remDr,issue,where=NULL){
 followupissue<-function(x,line){
     remDr<-emrtgema()
     curissue<-line$issuenr
-    #https://emrt.eea.europa.eu/2017/BE-3A-2017-0005#tab-qa
+    #https://emrt-esd.eionet.europa.eu/2017/BE-3A-2017-0005#tab-qa
     print(paste0("issue ",x,": ",curissue))
     print(line$communication)
     openissue(remDr,curissue)
     
-    #https://emrt.eea.europa.eu/2017/BE-3A-2017-0005/question-1/++add++Comment
+    #https://emrt-esd.eionet.europa.eu/2017/BE-3A-2017-0005/question-1/++add++Comment
     clickstandardbutton(remDr,"Add follow up question")
     Sys.sleep(2)
     while(!grepl("\\+\\+add\\+\\+",remDr$getCurrentUrl()[[1]])){
@@ -1268,10 +1268,10 @@ resolvedissues<-function(){
 
 
 
-curyear<-"2017"
-revyear<-"2017"
-urlemrttest <- paste0("https://emrt.eea.europa.eu/test/")
-urlemrt <- paste0("https://emrt.eea.europa.eu/")
+curyear<-"2018"
+revyear<-"2018"
+urlemrttest <- paste0("https://emrt-esd.eionet.europa.eu/test/")
+urlemrt <- paste0("https://emrt-esd.eionet.europa.eu/")
 
 flagnames<-c("ne","init","sig","corr","recalc1","recalc2","unfccc","union")
 flagnames<-c("ne","init","recalc1","recalc2","unfccc","union","psi1","ptc","notsent","tc","revised")

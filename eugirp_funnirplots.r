@@ -454,7 +454,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #xavi20180126: eu28main<-eu28main[order(rowSums(eu28main[,years2keep],na.rm=TRUE),decreasing=FALSE),]
                     #kk: eu28main<-plotmatr[row.names(plotmatr) %in% topneu28, c(ncol(plotmatr)-1, ncol(plotmatr))]
                     eu28main<-plotmatr[row.names(plotmatr) %in% topneu28,]
-                    eu28main<-eu28main[order(eu28main[years[lastyear]], decreasing = FALSE), c(years2keep,"party")]
+                    eu28main<-eu28main[order(eu28main[lastyear], decreasing = FALSE), c(years2keep,"party")]
                     
                     Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years2keep],na.rm=TRUE)))
                     Other$party<-"Other"

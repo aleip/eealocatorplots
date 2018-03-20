@@ -1537,7 +1537,8 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
 }
 
 makegrowthplot<-function(pars,secs,cats="",meastype){
-    figdir<-gsub("checks","plots",issuedir)
+    #figdir<-gsub("checks","plots",issuedir)
+    figdir<-paste0(issuedir, "/timeseries")
     
     #All parties for sectors and categories
     #Select sector_number via grepl
@@ -1587,8 +1588,8 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     curplot<-0
     pars<-unique(as.vector(unlist(t1$party)))
     for(par in pars){
-        print(paste0("par=",par))
-        if(par=="CY" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (why growthcheck did not "sum" the two rows?)
+        #print(paste0("par=",par))
+        #if(par=="CY" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
         t2<-t1[t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype,]
         secsl<-unique(as.vector(unlist(t2$sector_number)))
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]

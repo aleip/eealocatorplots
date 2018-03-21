@@ -1065,12 +1065,13 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
         textunit<-"Interannual" ~" growth"
     }            
     #text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=min(1.5,1.5*30/nchar(textpar)),textpar,las=3,srt=90,font=2)
-    writetext<-multilines(runmeasure,60)
+    #xavi: writetext<-multilines(runmeasure,60)
+    writetext<-multilines(runmeasure,35)
     
-    if(length(writetext)>1){newcex<-0.9*pconv}else{newcex<-min(1.5*pconv,1.0*40/nchar(writetext[1]))}
+    if(length(writetext)>1){newcex<-0.9*pconv}else{newcex<-min(1.4*pconv,1.0*40/nchar(writetext[1]))}
     text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[1],las=3,srt=90,font=1)
     if(length(writetext)>1){
-        text(0.22,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=1)
+        text(0.23,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=1)
     }
     text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
     #print(paste(curunit,textunit))

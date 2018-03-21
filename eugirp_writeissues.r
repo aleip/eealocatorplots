@@ -246,7 +246,7 @@ observationagri<-function(line){
             if(rmin>=0.45){rte<-" high"}else if(rmax<=0.2){rte<-" low"}else{rte<-""}
             cat(rmax,rmin,rte,"\n")
             question<-paste0("According to IPCC Table 10.22 most of the loss fractions of N in managed manure are between 20% and 45%. ",
-                         "We identified N losses that are ", (line$range)*100, "%, therefore ")
+                         "We identified N losses that are ", as.numeric(rmin)*100," - ", as.numeric(rmax)*100 , "%, therefore ")
             issue<-paste0("the fraction of N lost in MMS via volatilization of NH3+NOx is out of range.")
             advice<-paste0("Please justify the ",rte," N volatilization rates reported or correct in accordance with the IPCC guidelines.")
                              #,"Check the calculated fraction 'Nlossratio' that is obtained from 'Nvol' (not the factor 1000000 in the unit) and managed 'NEXC'.")

@@ -1595,8 +1595,9 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]
         #print(secsl)
         for(sec in secsl){
-            print(paste0("sec=",sec))
+            #print(paste0("sec=",sec))
             #if(par=="CY" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later (it has no "classification")
+            #if(par=="CY" & meastype == "IEF" & sec == "3.F.1.2") next  #xavi20180321: included this because there is an error that needs to be fixed later
             #if(par=="DK" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later
             t2<-t1[t1$party==par&t1$sector_number==sec&t1$category%in%cats&t1$meastype==meastype,]
             catsl<-unique(as.vector(unlist(t2$category)))

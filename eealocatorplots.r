@@ -202,7 +202,7 @@ if(stepsdone==2){
 #stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-0
-doemissionplots<-FALSE
+doemissionplots<-TRUE
 if(stepsdone>2){
     if(doemissionplots==TRUE){
         if(emplotsdone==0){

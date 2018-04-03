@@ -14,31 +14,42 @@ faosites<-c("GE","GM","GR","GY","GU","GP","GA","GV","GB","GT")
 #faocountries<-read.csv(file=paste0(invloc,"/fao/faocountries.csv"))
 faocountries<-read.csv("faocountries.csv",header = TRUE)
 faocountries<-subset(faocountries,select=-X)
+names(faocountries)[1:2] <- c("Area","Area.Code")
 faofile<-paste0(faodir,"faodata_",cursubm,".RData")
 print(file.exists(faofile))
 if(!file.exists(faofile)){
     temp = list.files(pattern="Emissions.*.csv",path=faodir)
     lastdownload<-max(as.numeric(Sys.Date()-as.Date(file.mtime(paste0(faodir,temp)))))
     print(lastdownload)
+    yr <- as.numeric(years[length(years)]) + 2
     if(lastdownload>30){
-        for (i in 1:length(faosites)){
-            print(faosites[i])
-            remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
-            remDr$open(silent = TRUE)
-            remDr$navigate(paste0("http://www.fao.org/faostat/en/#data/",faosites[i]))
-            Sys.sleep(5)
-            readline(prompt=paste0("Download 'Europe' from the Bulk Downloads on the right side.\n",
-                                   "Save the *csv file into the folder: ",faodir,".\n",
-                                   "Then press [enter] to continue."))
-            remDr$close()
-        }
+      for (i in faocontent){
+            #print(paste0("http://www.fao.org/faostat/en/#data/",faosites[i]))
+            #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
+            #remDr$open(silent = TRUE)
+            #remDr$navigate(paste0("http://www.fao.org/faostat/en/#data/",faosites[i]))
+            #Sys.sleep(5)
+            #readline(prompt=paste0("Download 'Europe' from the Bulk Downloads on the right side.\n",
+            #                       "Save the *csv file into the folder: ",faodir,".\n",
+            #                       "Then press [enter] to continue."))
+            #remDr$close()
+        print(i)
+        i1 <- gsub(" ", "_", i)
+        if(i1 == "Cultivation_of_Organic_Soils") i1 <- "Cultivated_Organic_Soils"
+        if(i1 == "Burning_-_Crop_Residues") i1 <- "Burning_crop_residues"
+        download.file(paste0("http://fenixservices.fao.org/faostat/static/bulkdownloads/Emissions_Agriculture_", i1, "_E_Europe.zip"),
+                      paste0(faodir,"Emissions_Agriculture_", i1, "_E_Europe.zip"))
+        unzip(paste0(faodir,"Emissions_Agriculture_", i1, "_E_Europe.zip"), 
+              exdir = paste0(faodir,"/", yr), overwrite = TRUE)
+        file.remove(paste0(faodir,"Emissions_Agriculture_", i1, "_E_Europe.zip"))
+      }
     }
     
     
     # Read all FAO files ####
     # See different options here http://stackoverflow.com/questions/11433432/importing-multiple-csv-files-into-r
-    temp = list.files(pattern="Emissions.*.csv",path=faodir)
-    faodata = lapply(paste0(faodir,temp), read.csv,header=TRUE)
+    temp = list.files(pattern="Emissions.*.csv",path=paste0(faodir, "/", yr))
+    faodata = lapply(paste0(faodir, "/", yr, "/", temp), read.csv,header=TRUE)
     
     # Clean up files so that they have the same number of cols (=> years) ####
     faoyears<-paste0("Y",yearsnum)
@@ -65,7 +76,8 @@ if(!file.exists(faofile)){
     
     # Clean up faodata (countries) ####
     faodata<-temp3
-    countrycode<-c("Country","Country.Code")
+    #countrycode<-c("Country","Country.Code")
+    countrycode<-c("Area","Area.Code")
     #faocountries<-unique(faodata[,countrycode])
     faodata<-merge(faocountries,faodata,by = countrycode)
     newnames<-names(faodata)[!names(faodata)%in%countrycode]
@@ -102,6 +114,7 @@ if(!file.exists(faofile)){
         View(agrisects)
         write.csv(agrisects,file=paste0(faodir,"agrisects.csv"))
     }
+    faocontinue <- 1
     if(faocontinue==1){
         faodata<-temp4
         itemlink<-read.csv(paste0(faodir,"faoitems_link.csv"))
@@ -265,10 +278,12 @@ if(!file.exists(faofile)){
     # Until 2001 category: Consumption then Consumption in nutrients
     selection<-faodata$sector_number=="3.D.1.1" & faodata$meastype=="AD"
     d111<-faodata[selection,]
-    faodata<-faodata[!selection,]
-    d111agg<-aggregate(d111[,years],by = list(d111$party),sum,na.rm=TRUE)
-    d111agg<-unique(merge(d111[,-which(names(d111)%in%years)],d111agg,by.x="party",by.y="Group.1",all.x=TRUE))
-    faodata<-rbind(faodata,d111agg[,names(faodata)])
+    if(nrow(d111)>0){
+      faodata<-faodata[!selection,]
+      d111agg<-aggregate(d111[,years],by = list(d111$party),sum,na.rm=TRUE)
+      d111agg<-unique(merge(d111[,-which(names(d111)%in%years)],d111agg,by.x="party",by.y="Group.1",all.x=TRUE))
+      faodata<-rbind(faodata,d111agg[,names(faodata)])
+    }
     temp10<-faodata
     
     ### Fill some data in allagri
@@ -358,7 +373,7 @@ if(!file.exists(faofile)){
     
     # Calculate EU28 sums
     faodata<-faodata[!faodata$party%in%eu,]
-    faodata<-eu28sums(A = faodata,aeu = eusubm)
+    faodata<-eu28sums(A = faodata,aeu = eusubm,years=years)
     faodata$datasource<-"fao"
     #faodata[faodata==0]<-NA
     faodata<-faodata[!grepl("0.00011221533645398",faodata$variableUID),]
@@ -486,7 +501,7 @@ write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/
 runfocus<-"compare"
 x1<-2;x2<-2
 x1<-1;x2<-nrow(plotmeas)
-for(imeas in x1:x2){plotcomparison(imeas,plotmeas,plotdata,lyear = 2014)}
+for(imeas in x1:x2){plotcomparison(imeas,plotmeas,plotdata,lyear = years[length(years)])}
 plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
 write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
 

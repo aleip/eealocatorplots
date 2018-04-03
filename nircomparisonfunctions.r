@@ -38,7 +38,8 @@ makecurdiff<-function(curmeastype,curcat,cursec,curgas="no gas"){
         return(curv)
     }))
     noyears<-years[!years%in%faoyears]
-    curdiff<-curdiff[,names(curdiff[names(curdiff)!=noyears])]
+    #xavi20180327: curdiff<-curdiff[,names(curdiff[names(curdiff)!=noyears])]
+    curdiff<-curdiff[,names(curdiff[!names(curdiff) %in% noyears])]
     #View(curdiff)
     return(curdiff)
 }

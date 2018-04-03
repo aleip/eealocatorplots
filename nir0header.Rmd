@@ -15,7 +15,7 @@ output:
 
 foldertext:
   cursubm: 20170317
-  ecirfolder: '../../../../../google/projects/ecir'
+  ecirfolder: '../ecir'
 
 ---
     

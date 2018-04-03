@@ -1,6 +1,7 @@
 #### Comparison of activity data in the FAO GHG database on the national inventory reports
 
 ```{r nirfaopop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+source("curplot.r")
 load(file=paste0(csvfil,"_clean_plotmeasademnir-fao.RData"))
 multisource<-unique(plotdata$datasource)
 multiref<-as.vector(sapply(multisource,function(x) 
@@ -51,7 +52,8 @@ curtable[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(curtable)),function(x) Re
 curtable<-curtable[curtable$gas!="NMVOC",]
 curtemp<-curtable
 curtemp[curtemp==0]<-NA
-curtemp<-(apply(curtemp[,years],2,mean))
+#xavi20180327: curtemp<-(apply(curtemp[,years],2,mean))
+curtemp<-(apply(curtemp[,years],2,mean, na.rm=TRUE))
 curtemp<-curtemp[!is.na(curtemp)]
 yearsavailable<-(as.numeric(names(curtemp)))
 faoyears<-as.character(yearsavailable)

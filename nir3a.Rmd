@@ -13,7 +13,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_number)&agridet$meastype=="EM"])
 ```
 
-`r text2shareeu()`. It is thus the largest GHG source in agriculture and the largest source of `r curgas` emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs("fig3.Ashare",display="cite")`. Emissions are also reported for `r subcateg$sector_number[4]` (`r subcateg$category[4]`) and `r subcateg$sector_number[5]` (`r subcateg$category[5]`). 
+`r text2shareeu()` It is thus the largest GHG source in agriculture and the largest source of `r curgas` emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs("fig3.Ashare",display="cite")`. Emissions are also reported for `r subcateg$sector_number[4]` (`r subcateg$category[4]`) and `r subcateg$sector_number[5]` (`r subcateg$category[5]`). 
 `r curgas` emissions from `r curseclong` for &#39;Other Livestock&#39; are reported for the categories `r vector2words(ooenteric)`.
 
 
@@ -22,11 +22,11 @@ ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_numb
 
 `r figs("fig3.Ashare",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317agrimixeu3.A.jpg)
+![]($eugirpplots$/$cursubm$agrimixeu3.A.jpg)
 
 `r figs("fig3.Asharems",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317emissionshare_3.A.jpg)
+![]($eugirpplots$/$cursubm$emissionshare_3.A.jpg)
 
 ```{r 3atab,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 curtab<-round(agriemissions[agriemissions$sector_number=="3.A",c(firstyear,lastyear)],0)
@@ -48,7 +48,7 @@ names(curtab)<-c("Member State",
 
 `r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
 
-![](../2016/eureport/20170317/Table3AEntericFermentation.jpg)
+![]($ubaimages$/$cursubm$/Table3AEntericFermentation.jpg)
 
 
 ```{r 3a1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -61,7 +61,7 @@ tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
 
-![](../2016/eureport/20170317/Table3A1CattleCH4.jpg)
+![]($ubaimages$/$cursubm$/Table3A1CattleCH4.jpg)
 
 
 ```{r 3a2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -74,7 +74,7 @@ tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
 
-![](../2016/eureport/20170317/Table3A2SheepCH4.jpg)
+![]($ubaimages$/$cursubm$/Table3A2SheepCH4.jpg)
 
 #### Trends in Emissions and Activity Data
 ```{r 3aadem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -91,7 +91,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3AFarming-EntericFermentationCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3AFarming-EntericFermentationCH4EM-nirvalue.jpg) 
 
 
 ```{r 3a1em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -146,19 +146,19 @@ The main driver for the decrease of CH4 emissions from enteric fermentation was 
 
 `r figs(paste0("fig","Dairy Cattle","trend","EM"),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig","Non-Dairy Cattle","trend","EM"),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1Non-DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig","Dairy Cattle","trend","POP"),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
 
 `r figs(paste0("fig","Non-Dairy Cattle","trend","POP"),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
 
 
 ```{r 3a2em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -192,11 +192,11 @@ was the decrease in animal numbers shown in `r figs(paste0("fig",cursec,"trend",
 
 `r figs(paste0("fig",cursec,"trend","EM"),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A2Sheep-EntericFermentationCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A2Sheep-EntericFermentationCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig",cursec,"trend","POP"),display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/valueadem/3A2Sheep-EntericFermentationPOP-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A2Sheep-EntericFermentationPOP-nirvalue.jpg) 
 
 #### Implied EFs  and Methodological Issues
 Information for cattle, sheep and swine are reported using national classification 
@@ -254,7 +254,7 @@ tabs("tabA11ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA11trendief",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A1DairyCattle-EntericFermentationIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationIEF-nirrange.jpg) 
 
 
 `r tabs("tabA11ief",display="full")`
@@ -275,7 +275,7 @@ tabs("tabA11geav",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA11trendgeav",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A1DairyCattle-EntericFermentationGE-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationGE-nirrange.jpg)
 
 
 `r tabs("tabA11geav",display="full")`
@@ -297,7 +297,7 @@ tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
 `r figs("figA11trendMilk",display="full")`
 
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A1DairyCattle-EntericFermentationMilk-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationMilk-nirrange.jpg) 
 
 
 `r tabs("tabA11Milk",display="full")`
@@ -321,7 +321,7 @@ tabs("tabA12ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA12trendief",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A1Non-DairyCattle-EntericFermentationIEF-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A1Non-DairyCattle-EntericFermentationIEF-nirrange.jpg)
 
 `r tabs("tabA12ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
@@ -341,7 +341,7 @@ tabs("tabA12geav",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA12trendgeav",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A1Non-DairyCattle-EntericFermentationGEav-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A1Non-DairyCattle-EntericFermentationGEav-nirrange.jpg)
 
 
 `r tabs("tabA12geav",display="full")`
@@ -362,7 +362,7 @@ tabs("tabA2ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA2trendief",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A2Sheep-EntericFermentationIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3A2Sheep-EntericFermentationIEF-nirrange.jpg) 
 
 `r tabs("tabA2ief",display="full")`
 
@@ -384,7 +384,7 @@ tabs("tabA2geav",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA2trendgeav",display="full")`
 
-![](../../../../../google/projects/ecir/plots/20170317/rangeief/3A2Sheep-EntericFermentationGEav-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A2Sheep-EntericFermentationGEav-nirrange.jpg)
 
 
 `r tabs("tabA2geav",display="full")`

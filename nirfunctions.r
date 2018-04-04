@@ -256,7 +256,7 @@ sharemsfigurecaption<-function(eusubml,sec=cursec,lastyear){
 }
 
 msconttablecaption<-function(){
-    cap<-paste0("&#09;",curcattext,": Member States&apos; contributions to total GHG and ",paste(curgas,collapse=", ")," emissions")
+    cap<-paste0("&#09;",curcattext,": Member States&apos; contributions to total EU-GHG and ",paste(curgas,collapse=", ")," emissions")
     return(cap)
 }
 trendfigurecaption<-function(eusubml,sec=cursec,lastyear){

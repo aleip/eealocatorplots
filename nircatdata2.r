@@ -14,6 +14,9 @@ if(curgas=="no gas"){if(grepl("3.A|3.B.1|3.C",cursec)){curgas<-"CH4"}else if(gre
 curcat<-curcatnew(curcat)
 curcattext<-curcatlong(curcat,cursec)
 curmeasure<-curmeasurenew(as.character(euemissions$measure))
+if(grepl("Fraction of synthetic fertilizer N ",curmeasure) ||
+   grepl("raction of livestock N excretion",curmeasure) ||
+   grepl("Fraction of N input to managed soils",curmeasure)) curmeasure<-curmea
 curunit<-as.character(euemissions$unit)
 if(curmea=="Milk") curunit<-"kg/head/day"
 curclas<-as.character(euemissions$classification)

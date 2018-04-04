@@ -168,8 +168,6 @@ Other important policies affecting greenhouse gas emissions from agriculture, pa
 [^ied]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32010L0075
 [^ippc]: &#09;http://ec.europa.eu/environment/industry/stationary/index.htm
 
-Another policy affecting GHG emissions, in this case through the application of sewage sludge, is the Urban Wastewater Treatment Directive[^urbanwastewater]. In the UK, the input from sewage sludge sharply increased in 2001. This is explained by a step in the UK's estimates of sewage sludge collected around 2001, linked to the Urban Wastewater Treatment Directive, which enforced that all large wastewater treatment plants use secondary treatment. This additional treatment reduces the organic load in the effluent, and to achieve this a higher proportion of the organic load in the wastewater treatment plants as sewage sludge. A similar trend is observed in Ireland, where a significant increase (over double) in the quantity of sewage sludge applied to agricultural land took place around 1998 as a result of its diversion away from disposal at solid waste disposal sites.
-
 Legislation related with animal health may also affect emissions through changes in specific parameters. That is the case of Spain, where the methane conversion factor (Ym), and therefore the implied emission factor for CH4 emissions from enteric fermentation from swine decreased in 2006, partly due to the ban of the use of growth-promoting antibiotics in animal feeding. This resulted in a radical change in feeding conditions: raw materials with lowest digestibility were removed and replaced by carbohydrates (mainly cereals). To increase higher digestibility and quality protein supply, the soybean flour 44 was systematically replaced by soybean 47 which has higher protein content. Also, affordable synthetic amino acids and digestive enzymes were systematically introduced. In addition, during the same year, the regulation on additives used in animal feeding was published, thus forcing the withdrawal of products that were being used to date, in order to make the digestion of other diet components easier.
 
 [^urbanwastewater]: &#09;http://ec.europa.eu/environment/water/water-urbanwaste/legislation/directive_en.htm
@@ -198,7 +196,7 @@ source("nircatdata.r")
 #tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 
-In the year `r lastyear`, `r curgas[c(1,3)]` and `r curgas[2]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,1)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,1)` of total `r eukp` CH4, N2O, and CO2 emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively.<br>
+In the year `r lastyear`, `r curgas[c(2,1)]` and `r curgas[3]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,2)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,3)` of total `r eukp` emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively.<br>
 
 Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r percent(eusharen2ototal,d=1)` and `r percent(eushareco2total,d=1)` to total `r eukp` GHG emissions. They make `r percent(eushareagrich4ghg,1)`, `r percent(eushareagrin2oghg,1)` and `r percent(eushareagrico2ghg,1)` of total agricultural emissions.
 
@@ -215,12 +213,12 @@ Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r 
 `r figs("figshares",display="full")`
 
 `r print("Please add figure here!!")`
-![](../2017/eureport/figs/Absolutechangeinsector3columns.jpg)
+![]($ubaimages$/$cursubm$/Absolutechangeinsector3columns.jpg)
 
 `r figs("figsharesb",display="full")`
 
 `r print("Please add figure here!!")`
-![](../2017/eureport/figs/Shareoflargestkeycategorysources2014piechart.jpg)
+![]($ubaimages$/$cursubm$/Shareoflargestkeycategorysources2014piechart.jpg)
 
 
 
@@ -251,7 +249,10 @@ Other source categories are not contributing to a key source analysis at `r eukp
 For each of the above-mentioned source categories, data on the countries contributing most to `r eukp` emissions and to `r eukp` emissions trend are provided, as well as information on relevant activity data and IEFs and other parameters, if relevant.
 
 
-Many countries recognize that in the agriculture sector the emissions from the different categories are inherently linked and are best estimated in a comprehensive model that covers not only greenhouse gases (CH4 and N2O) in a consistent manner, but also ammonia. Estimations of ammonia emissions are required for reporting under the Convention on Long-Range Transboundary Air Pollution and are needed to estimate indirect N2O emissions. Hence, some countries have developed comprehensive models covering consistently different source categories and different gases.  
+Many countries recognize that in the agriculture sector the emissions from the different categories are inherently linked and are best estimated in a comprehensive model that covers not only greenhouse gases (CH4 and N2O) in a consistent manner, but also ammonia. Estimations of ammonia emissions are required for reporting under the Convention on Long-Range Transboundary Air Pollution and are needed to estimate indirect N2O emissions. Hence, several countries have developed comprehensive models covering consistently different source categories and different gases.  
+
+<!--
+Comment: recommendation to not focus on individual countries as more countries have such systems and they all should be mentioned (or none)
 
 * Austria: For the calculation of the losses of gaseous N species the mass-flow procedure pursuant to EMEP/CORINAIR is used. A detailed emission model for NH3, NMVOC and NOx has been integrated into the national inventory.
 * Germany: Germany uses the emission inventory model GAS-EM to calculate consistently emissions of CH4, NH3, N2O, and NO from agricultural sources. It is based on IPCC methodologies and has been developed in recent years with a comprehensive description found in Roesemann et al. (2013). Basis of the model is the feed intake which determine emissions in category 3.A and which determines N and C excretion rates relevant for category 3.B and also 3.D. Data are available at district (Landkreis, livestock characterisation, housing systems, manure management systems) and regional (Bundesland) level. N-emissions are considered within an N-flow concept (Daemmgen and Hutchings, 2005). In the N-flow concept, only remaining N in manure is transferred to storage systems, after subtraction of emissions in housing systems. Emissions are subtracted from the total N-pool.
@@ -260,6 +261,6 @@ Finland: Finland uses a nitrogen mass flow model (except for N-fixing, crop resi
 * Finland: Direct N2O emissions and deposition from manure management are calculated with a national calculation model (Grönroos et al. 2009); leaching is calculated separately. The model integrates both ammonia and nitrous oxide emissions from manure in each phase of the manure management chain and allows accounting for the effect of possible abatement measures to volatilisation. The amount of N volatilised as NH3-N and NO-N from MMS is calculated in the model separately from the application to fields (NH3-N during and after spreading).
 * The Netherlands: N-flows from animal production are assessed by the National Emission Model for Ammonia (NEMA). Results include emissions of ammonia (NH3), nitric oxide (NO), nitrous oxide (N2O) and nitrogen gas (N2) from stable and storage.
 * Slovenia: a mass balance approach which tracks nitrogen throughout the system is used to estimate N2O emissions, based on EMEP/CORINAIR (2013) methodology. The amount of N which is lost through volatilisation is estimated simultaneously with direct N2O emissions using EMEP/CORINAIR (2013) methodology. Similar mass-flow approach, based on EMEP/EEA guidelines is followed by Iceland.
-
+-->
  
 

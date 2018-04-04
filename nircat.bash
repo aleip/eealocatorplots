@@ -1,11 +1,20 @@
 focus=3d2
 focus=none
 focus=last
-focus=3a
 focus=faonir
-focus=all
 includeoverview=1
 focus=none
+focus=3d
+focus=all
+
+# Annual things to do manually
+#================================
+# 1. Update the path to the plots for the sed-commands below (eugirpplots, ubaimages, cursubm, )
+# 2. Update in section Quality checks 
+#    -- Number of ERT recommendations
+#    -- Number of notation key issues (or leave the numbers out)
+# 3. Table 1.54 with issues (section quality check) (list, table, and text below table with date)
+
 
 if [ x${1}x != "xx" ] ; then focus=$1 ; fi
 echo $focus
@@ -32,15 +41,17 @@ fi
 
 #. nirknit.bash nir${focus}out
 
+echo Now replace the placeholders at $HOSTNAME
+echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
+sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
+sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
+sed -e 's/\$cursubm\$/20180319/g' tmp0 > tmp2
+
+mv tmp2 nir${focus}out.Rmd
 
 
 # Generate markdown file
 if [ "$HOSTNAME" = "marsbl1bhl" ]; then
-    echo Now replace the placeholders at $HOSTNAME
-    sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
-    sed -e 's/\$cursubm\$/20180319/g' tmp1 > tmp2
-
-    mv tmp2 nir${focus}out.Rmd
 
 
     rexe="/c/Program\ Files/R/R-3.4.1/bin/Rscript.exe"
@@ -52,11 +63,6 @@ if [ "$HOSTNAME" = "marsbl1bhl" ]; then
     
 
 else
-    # Now replace the placeholders
-    sed -e 's/\$eugirpplots\$/..\/..\/..\/..\/..\/google\/projects\/ecir\/plots/g' tmp0 > tmp1
-    sed -e 's/\$cursubm\$/20170317/g' tmp1 > tmp2
-
-    mv tmp2 nir${focus}out.Rmd
 
     rexe="/x/Program\ Files/R/R-3.3.1/bin/x64/Rscript.exe"
     rexe="/c/Program\ Files/R/R-3.4.0/bin/x64/Rscript.exe"
@@ -64,13 +70,14 @@ else
     rexe="Rscript.exe"
     wexe="/c/Program Files/Microsoft Office/Office16/WINWORD.EXE"
     pexe="pandoc"
+	${rexe} -e "library(knitr);knit('nir${focus}out.Rmd')"
+
 fi
 echo Rscript executable $rexe
 echo Word executable $wexe
 echo Pandoc executable $pexe
 
 
-#${rexe} -e "library(knitr);knit('nir${focus}out.Rmd')"
 
 test -e nir${focus}out.Rmd && {
 	#. nirpandoc.bash nir${focus}out
@@ -85,9 +92,9 @@ test -e nir${focus}out.Rmd && {
 	/c/Program\ Files/RStudio/bin/pandoc/pandoc nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
 
 	mv nir${focus}out* nir/
-  mv nir/nir${focus}out.docx nir/nir${focus}out~$(date +%Y%m%d).docx
+    mv nir/nir${focus}out.docx nir/nir${focus}out~$(date +%Y%m%d).docx
 
 	# Open word
-  test -e nir/nir${focus}out~$(date +%Y%m%d).docx && /c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE nir/nir${focus}out~$(date +%Y%m%d).docx &
+    test -e nir/nir${focus}out~$(date +%Y%m%d).docx && /c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE nir/nir${focus}out~$(date +%Y%m%d).docx &
 
 }

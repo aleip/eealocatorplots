@@ -233,6 +233,23 @@ Key source categories considered are:
 `r tabs("tabkeycatsshares",display="full")`
 
 **Include table with shares of higher Tier emissions**
+<!--
+Note: during agrichecks the function keycateuc calculates Level Key source categories based on the list of source categories obtained in 2017 from UBA-V. the agri-list has been changed acc to own preferences and consistent with the source categories in the NIR chapter. all emissions are ranked and cumulative emissions are calculated - based on this the L key source categories for EUC are identified for first and last year.
+
+files saved at ecir/keycategories:
+- keyeuagri.csv
+- agridetem.csv (a mix of source categories to be used with emissions)
+- agrimethods.csv
+
+Further processing has been done in excel as in \\MARSBL1BHL\Agrienv\ghginventory\ecir\keycategories\keyeuagri~20170523.xlsx
+
+- assign 'higher Tier or not' by country (1/0) in new column in sheet agrimethods
+- transfer this info into sheet agridetem
+- calculate share of higher-Tier emissions for EUC (e.g. =SUMPRODUCT(I934:I962,P934:P962)/SUM(P934:P962))
+- transfer this info into sheet keyeuagri
+- filter source categories and copy table into sheet 'Table 1'
+
+-->
 
 * CH4 emissions from source category 3.A.1 - Cattle 
 * CH4 emissions from source category 3.A.2 - Sheep 

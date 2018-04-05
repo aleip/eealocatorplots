@@ -14,6 +14,9 @@ focus=all
 #    -- Number of ERT recommendations
 #    -- Number of notation key issues (or leave the numbers out)
 # 3. Table 1.54 with issues (section quality check) (list, table, and text below table with date)
+# 4. Once the word document is created:
+#    - Open nir/niragritemplate.dotm
+#    - 
 
 
 if [ x${1}x != "xx" ] ; then focus=$1 ; fi

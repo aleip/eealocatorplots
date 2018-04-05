@@ -404,6 +404,7 @@ figs(paste0("comp2",cursec,"cres",curmea),compareplots(eukp,cursec,"Crop residue
 Nitrogen input to agricultural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
 
 ```{r tmp2hide,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+#xavi to check: remove the tmp2hide regions and the comments, there is a problem with eutotdiff
 #`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
 
 #`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`

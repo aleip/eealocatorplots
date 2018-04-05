@@ -38,6 +38,22 @@ Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r 
 `r print("Please add figure here!!")`
 ![]($ubaimages$/$cursubm$/Shareoflargestkeycategorysources2014piechart.jpg)
 
+## Emission trends
+```{r sharetrends,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+source("nircattrends.r")
+# figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
+tabs("trendtable1","This is the dummy header of Trendtable 1")
+tabs("trendtable2","This is the dummy header of Trendtable 2")
+```
+
+As shown in `r tabs("trendtable1",display="cite")` ...
+
+As shown in `r tabs("trendtable2",display="cite")` ...
+
+`r tabs("trendtable1",display="full")`
+
+`r tabs("trendtable2",display="full")`
+
 
 
 ## Source categories and methodological issues

@@ -60,7 +60,13 @@ if [ "$HOSTNAME" = "marsbl1bhl" ]; then
     
     /c/Program\ Files/R/R-3.4.1/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
 
-    
+
+elif [ "$HOSTNAME" = "l01ri1203587" ] ; then
+	echo $HOSTNAME
+    wexe="/c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE"
+    pexe="pandoc"
+	rexe="/c/Program\ Files/R/R-3.4.4/bin/Rscript.exe"
+    /c/Program\ Files/R/R-3.4.4/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
 
 else
 

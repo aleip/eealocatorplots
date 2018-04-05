@@ -1,7 +1,7 @@
 #### Comparison of activity data in the FAO GHG database on the national inventory reports
 
 ```{r nirfaopop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-source("curplot.r")
+#source("curplot.r")
 load(file=paste0(csvfil,"_clean_plotmeasademnir-fao.RData"))
 multisource<-unique(plotdata$datasource)
 multiref<-as.vector(sapply(multisource,function(x) 
@@ -112,7 +112,6 @@ http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E
 
 Emissions are specified for the different agricultural sub-domains, estimated by FAO following Tier 1 approach from the 2006 IPCC Guidelines for National GHG Inventories (IPCC, 2006), using activity data provided by countries and default emission factors by IPCC. The data provided by FAO does not necessarily match the numbers reported by countries to the UNFCCC in their national inventory reports.
 
-The FAOSTAT database is intended primarily as a service to help member countries assess and report their emissions, as well as a useful international benchmark.  FAOSTAT emissions data are disseminated publicly to facilitate continuous feedback from member countries. `r tabs("nirfaotab",display='cite')` presents total GHG emissions of the agricultural sector by emission source category for the whole EU-28+Iceland and year `r faolast` (last year available in FAOSTAT). It compares emission values and the share of emissions by category in FAOSTAT database vs. UNFCCC values reported by countries in their National Inventory Reports (NIR).
 
 ```{r nirfaotabexp,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 # EU values for FAO are calculated as average of country-sums.
@@ -120,6 +119,8 @@ The FAOSTAT database is intended primarily as a service to help member countries
 tabs("nirfaotab",paste0("GHG emissions from the agricultural sector by emission source category, in kt CO2-eq/year and % of total emissions, for the whole EU-28+ISL, averaged over the years ",comprange,", for which reported data from all countries are availabel in both the FAOSTAT and the UNFCCC data bases are available."))
 # see http://rapporter.github.io/pander/
 ```
+
+The FAOSTAT database is intended primarily as a service to help member countries assess and report their emissions, as well as a useful international benchmark.  FAOSTAT emissions data are disseminated publicly to facilitate continuous feedback from member countries. The following table presents total GHG emissions of the agricultural sector by emission source category for the whole EU-28+Iceland and year `r faolast` (last year available in FAOSTAT). It compares emission values and the share of emissions by category in FAOSTAT database vs. UNFCCC values reported by countries in their National Inventory Reports (NIR).
 
 `r tabs("nirfaotab",display='full')`
 `r pander(curtable,emphasize.strong.cols=1:2,emphasize.verbatim.rows=2:4,round=c(0,0,0,1,0,1),digits=c(0,0,3,5,3,5))`&nbsp;
@@ -402,14 +403,13 @@ figs(paste0("comp2",cursec,"cres",curmea),compareplots(eukp,cursec,"Crop residue
 
 Nitrogen input to agricultural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
 
+```{r tmp2hide,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+#`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
 
-`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
+#`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`
 
-`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`
-
-`r eutotdiff(makecurdiff("AD","Crop Residues","3.D.1.4"))`
-
-
+#`r eutotdiff(makecurdiff("AD","Crop Residues","3.D.1.4"))`
+```
 
 `r figs(paste0("comp1",cursec,"min",curmea),display="full")`
 

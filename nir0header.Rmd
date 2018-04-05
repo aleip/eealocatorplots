@@ -14,7 +14,7 @@ output:
   html_document: default
 
 foldertext:
-  cursubm: 20170317
+  cursubm: 20180319
   ecirfolder: '../ecir'
 
 ---
@@ -23,11 +23,11 @@ foldertext:
 source("curplot.r")
 source("nirfunctions.r")
 source("nircomparisonfunctions.r")
-library(captioner)
-library(pander)
-library(dplyr)
-library(png)
-library(grid)
+if(require(captioner)==FALSE){install.packages("captioner", repos = "https://cloud.r-project.org"); library(captioner)} else {library(captioner)}
+if(require(pander)==FALSE){install.packages("pander", repos = "https://cloud.r-project.org"); library(pander)} else {library(pander)}
+if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
+if(require(png)==FALSE){install.packages("png", repos = "https://cloud.r-project.org"); library(png)} else {library(png)}
+if(require(grid)==FALSE){install.packages("grid", repos = "https://cloud.r-project.org"); library(grid)} else {library(grid)}
 panderOptions('table.alignment.default', function(df)
     ifelse(sapply(df, is.numeric), 'right', 'left'))
 panderOptions('table.split.table', Inf)
@@ -39,6 +39,8 @@ panderOptions('table.style','rmarkdown')
 figs<-captioner(prefix = "Figure ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
 tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
 #for(i in c(1:5)){figs("sec","");bump(figs,2);bump(tabs,1)}
+
+
 ```
 
 ```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}

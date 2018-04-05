@@ -11,15 +11,15 @@
 #
 # All parameters that MUST be adapted by the user are indicated by an #!!! at the and of the line
 
-require(ggplot2) #for graphics
-require(reshape2) #required for melt function - for outls
-require(dplyr) #for pipes and many data manipulation functions
-require(data.table)
+if(require(ggplot2)==FALSE){install.packages("ggplot2", repos = "https://cloud.r-project.org"); library(ggplot2)} else {library(ggplot2)}
+if(require(reshape2)==FALSE){install.packages("reshape2", repos = "https://cloud.r-project.org"); library(reshape2)} else {library(reshape2)}
+if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
+if(require(data.table)==FALSE){install.packages("data.table", repos = "https://cloud.r-project.org"); library(data.table)} else {library(data.table)}
+if(require(knitr)==FALSE){install.packages("knitr", repos = "https://cloud.r-project.org"); library(knitr)} else {library(knitr)}
+if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-project.org"); library(Matrix)} else {library(Matrix)}
+if(require(compare)==FALSE){install.packages("compare", repos = "https://cloud.r-project.org"); library(compare)} else {library(compare)}
+if(require(RColorBrewer)==FALSE){install.packages("RColorBrewer", repos = "https://cloud.r-project.org"); library(RColorBrewer)} else {library(RColorBrewer)}
 #require(dtplyr)
-require(knitr)
-require(Matrix)
-require(compare)
-require(RColorBrewer)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 rm(list=objects())
 
@@ -27,7 +27,7 @@ rm(list=objects())
 #       current inventory year
 mypc<-Sys.info()[4]
 if(mypc=="L01RI1203587"){ #checks machine name
-    adrian<-"D:/Users/leipadr/adrian/"
+    adrian<-"X:/adrian/"
 }else if(mypc=="D01RI1600881"){
     adrian<-"x:/Adrian/"
 }else if(mypc=="MARSBL1BHL"){

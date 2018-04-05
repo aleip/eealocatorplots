@@ -907,7 +907,9 @@ keycateuc<-function(){
   }
   keyeu<-rankcategories(keyeu,"1990")
   keyeu<-rankcategories(keyeu,lastyear)
-  keyeuagri<-filter(keyeu,grepl("^3",sector_number))
+  keyeuagri<-keyeu
+  #keyeuagri<-filter(keyeu,grepl("^3",sector_number))
+  
   write.csv(keyeuagri,file=paste0(invloc,"/keycategories/keyeuagri.csv"))
   write.csv(agrimethods,file=paste0(invloc,"/keycategories/agrimethods.csv"))
   write.csv(agridetem,file=paste0(invloc,"/keycategories/agridetem.csv"))

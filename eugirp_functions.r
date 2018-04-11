@@ -344,7 +344,7 @@ weightovercountries<-function(D,Auid,Puid,ok,y,c){
 }
 
 euvalue<-function(todo,E,D,y,c){
-    if(todo=="sum")l<-lapply(c(1:nrow(E)),function(x) sumovercountries(D,E$variableUID[x],y,c))
+    if(todo=="sum")l<-lapply(c(1:nrow(E)),function(x) sumovercountries(D,E$variableUID[x],y,c))  #xavi20180411: I think this is no longer used. Instead, eu28sum
     if(todo=="weight"){
         
         l<-lapply(c(1:nrow(E)),function(x) weightovercountries(D,E$aduids[x],E$variableUID[x],E$adpars[x],y,c))
@@ -1165,7 +1165,6 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
     return(curcheck)
 }
 export4uba<-function(allagri){
-    
     dtagri<-as.data.table(allagri)
     col2show<-c("party","gas","meastype","source","sector_number","category",years,"variableUID")
     t3s1<-dtagri[grepl("EUC|EUA",party)&meastype=="EM"&

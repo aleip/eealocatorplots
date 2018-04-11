@@ -139,7 +139,7 @@ loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
     plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,multisource,adddefault)        
-    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted)
+    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted,multisource)
     #if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,multisource,plotted)
     graphics.off()
 }
@@ -160,7 +160,7 @@ plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfo
     #cat("\nfigdir1: ",figdir)
     if(substr(runsector,start = 1,stop = 1)=="3") {
         if (! file.exists(figdir)){dir.create(file.path(paste0(plotsdir,"/",cursubm)),showWarnings = FALSE )}
-        figdir<-paste0(plotsdir,"/",cursubm,"/",runfocus,rundata)
+        figdir<-paste0(plotsdir,"/",cursubm,"/",runfoc,rundata)
     }
     
     #if(grepl("fao",dsource)) figdir<-paste0(invloc,"/fao/plots")
@@ -678,7 +678,11 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #cntryears<-list(cntryears,eu28fin)
                     
                 }
-                ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss,topneu28_2)
+                if(exists("topneu28_2")){
+                  ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss,topneu28_2)
+                }else{
+                  ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss)
+                }
             }else{
                 cat(" nothing to plot\n")
             }
@@ -957,25 +961,32 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         title(sourctitlong,cex.main=0.5,adj=0.95)
     }
     
-    if(!is.null(defaults)){
+    del4now <- 1 #xavi20180405: for now we can avoid this because there is a problem with IPCC values (units, probably).
+                 #xavi20180405: To be fixed before May
+    if(del4now != 1){
+      if(!is.null(defaults)){
         ipccmin<-(defaults[1])
         ipccmax<-(defaults[2])
         if(ipccmin!="" & ipccmax!=""){
-            ipcctxt<-paste0("IPCC 2006 default: ",as.character(unlist(defaults[3])))
-            ipccmin<-suppressWarnings(as.numeric(as.character(unlist(defaults[1]))))
-            ipccmax<-suppressWarnings(as.numeric(as.character(unlist(defaults[2]))))
-            if(!is.na(ipccmin)){
-                lines(c(-1,0.5),rep(ipccmin,2),pch=21,col="blue",cex=1.5*pconv,lwd=2)
-                lines(c(-1,0.5),rep(ipccmax,2),pch=21,col="blue",lwd=2)
-                if((ipccmax-ipccmin)/tmag>0.01) arrows(x0=0,y0=ipccmin,x1=0,y1=ipccmax,code=3,length=0.08,angle=25,col="blue",lwd=1)
-            }
+          ipcctxt<-paste0("IPCC 2006 default: ",as.character(unlist(defaults[3])))
+          ipccmin<-suppressWarnings(as.numeric(as.character(unlist(defaults[1]))))
+          ipccmax<-suppressWarnings(as.numeric(as.character(unlist(defaults[2]))))
+          if(!is.na(ipccmin)){
+            lines(c(-1,0.5),rep(ipccmin,2),pch=21,col="blue",cex=1.5*pconv,lwd=2)
+            lines(c(-1,0.5),rep(ipccmax,2),pch=21,col="blue",lwd=2)
+            if((ipccmax-ipccmin)/tmag>0.01) arrows(x0=0,y0=ipccmin,x1=0,y1=ipccmax,code=3,length=0.08,angle=25,col="blue",lwd=1)
+          }
         }else{ipcctxt<-""}
-    }else{ipcctxt<-""}
+      }else{ipcctxt<-""}
+      
+    }else{
+      ipcctxt<-""
+    }
     
     return(list(tmin,tmax,ipcctxt))
 }
 
-plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted){
+plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted,multisource){
     #print(paste("plotlegend. ",par("usr")))
     uabs<-par("usr")[3]
     oabs<-par("usr")[4]
@@ -991,7 +1002,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     
     #Second in prepareplots return list
     allfinshares<-plotted[[2]][[1]]
-    countr_order <- plotted[[2]][[8]]
+    if(length(multisource)>1) countr_order <- plotted[[2]][[8]]
 
     #Third in prepareplots return list
     hastitle<-plotted[[3]][1]
@@ -1139,7 +1150,14 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     if(length(writetext)>1){
         text(0.23,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=1)
     }
-    text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
+    if(length(writetext)>2){
+        text(0.35,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[3],las=3,srt=90,font=1)
+    }
+    if(length(writetext)>2){
+      text(0.50,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
+    }else{
+      text(0.40,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
+    }
     #print(paste(curunit,textunit))
     #text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,curunit,las=3,srt=90,font=2)
     
@@ -1585,6 +1603,7 @@ plottitle<-function(mtexttitle0="x",plotted,multisource){
     mtexttitle0<-gsub("Managed Soils - Agricultural Soils","Agricultural Soils",mtexttitle0)
     mtexttitle0<-gsub("Organic N Fertilizers - N input","N input",mtexttitle0)
     mtexttitle0<-gsub("Inorganic N Fertilizers - N input","N input",mtexttitle0)
+    mtexttitle0<-gsub("Farming - ","",mtexttitle0)
     maxnchar<-60
     mvect<-strsplit(mtexttitle0," ")[[1]]
     maxwords<-min(length(mvect),

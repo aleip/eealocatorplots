@@ -3,7 +3,6 @@
 figs("figtrendem",paste0("&#09;EU-28 GHG emissions for 1990-",lastyear," from CRF Sector 3: 'Agriculture' in CO2 equivalents (Mt)"))
 figs("figshares",paste0("&#09;Absolute change of GHG emissions by large key source categories 1990-",lastyear," in CO2 equivalents (Mt) in CRF Sector 3: 'Agriculture'"))
 figs("figsharesb",paste0("&#09;Distribution of agricultural GHG emissions among the different source categories for the year ",lastyear))
-tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
 ```
 ```{r 3,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3"
@@ -37,6 +36,23 @@ Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r 
 
 `r print("Please add figure here!!")`
 ![]($ubaimages$/$cursubm$/Shareoflargestkeycategorysources2014piechart.jpg)
+
+## Emission trends
+```{r sharetrends,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+source("nircattrend.r")
+# figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
+tabs("trendtable1","This is the dummy header of Trendtable1")
+tabs("trendtable2","This is the dummy header of Trendtable2")
+tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
+```
+
+As shown in `r tabs("trendtable1",display="cite")` ...
+
+As shown in `r tabs("trendtable2",display="cite")` ...
+
+`r tabs("trendtable1",display="full")`
+
+`r tabs("trendtable2",display="full")`
 
 
 

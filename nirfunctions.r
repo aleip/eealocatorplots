@@ -74,6 +74,7 @@ splittable<-function(D,n=2){
         newD2<-slice(D,news:min(nrow(D),newe))
         if(nrow(newD2)<newnr)newD2[(nrow(newD2)+1):newnr,]<-newrow
         newn<-c(names(newD),"",Dhead)
+        #newn<-c(names(newD),Dhead)
         newD<-cbind(newD,newcol,newD2)
         #newD<-cbind(newD,newD2)
         names(newD)<-newn

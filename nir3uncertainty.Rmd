@@ -66,7 +66,7 @@ The  submission in the year 2015 the QA/QC system brought a complete revision of
 
 * Streamlining with other sector chapters was improved, not the least by using of harmonized plots to present trend-data at EU level while also showing data from those countries contributing most to EU values
 
-* The writing of the agriculture chapter of the EU-GHG inventory report has been highly automated[^prezi]. The process is directly based on the data submitted by the countries and are calculated on the fly thua no quantitative data are introduced &apos;manually&apos;. This allows to provide a report with quantitative information avoiding inconsistencies with the CRF data.
+* The writing of the agriculture chapter of the EU-GHG inventory report has been highly automated[^prezi]. The process is directly based on the data submitted by the countries and are calculated on the fly thus no quantitative data are introduced &apos;manually&apos;. This allows to provide a report with quantitative information avoiding inconsistencies with the CRF data.
 
 The newly developed system is described in the section QA/QC system in the agriculture sector.
 
@@ -97,11 +97,11 @@ The checks include:
 
 `r ## Update annually number of ERT recommendations`
 
-* **ERT recommendations**: Country were checked if they had implemented last years' recommendations from the ESD review. From 64 recommendations, 18 were still unresolved and therefore the issue was reopened 
+* **Recommendations**: Country were checked if they had implemented last years' recommendations from the ESD review and from the UNFCCC review. From all recommendations, 16 were still unresolved and therefore the corresponding issues were reopened.
 
-* **Check on NEs**[^checknes] and empty cells has been done by extracting all reported &apos;NE&apos;s and the empty cells, respectively, from the data base. The results were compared with the data contained in the file NE_checks_20170125.xlsx provided which also contained a list of empty cells. 
+* **Check on NEs**[^checknes] and empty cells has been done by extracting all reported &apos;NE&apos;s and the empty cells, respectively, from the data base. The results were compared with the data contained in the file NE_checks_20180122.xlsx provided which also contained a list of empty cells. 
 
-* **Notation key abuse**: we identified emission categories where a Member State reported a notation key, while 20 or more Member States reported emission estimates, in order to assess the potential over/underestimations (these also contained in NE checks in the file above).
+* **Notation keys**: we identified emission categories where a Member State reported a notation key, while 20 or more Member States reported emission estimates, in order to assess the potential over/underestimations (these also contained in NE checks in the file above).
 
 * **Outliers in activity data and emissions**: Data were checked on outliers in AD and emissions. For each source category the share of AD and emissions by the countries to total `r eukp` values were determined. A share above 95% was further assessed and in case this was not linked to a source category which is dominated by single countries (such as emissions from buffalo, which are dominated by Italy) the country was notified 
 
@@ -109,7 +109,7 @@ The checks include:
 
 * **Within-country outliers**: within-country outliers in IEFs and other parameters are detected on the basis of the distribution of the values provided[^outlier]. We used the method based on the mean values and the standard deviation. Specifically, those values were identified as outliers which were more distant from than 1.5 time the standard deviation in the data from the mean (both in positive and negative direction). As an additional criterion, the relation to the median was used. In case the value was within 10% of the median it was not considered as an outlier. This removed cases where a country uses a country-specific parameter while most countries use the default value.
 
-* **Identification of potentially significant issues**: For each of the outliers identified it was determined whether or not this could be a potentially significant issue based on the criterion of a share of 0.5% of national total GHG emissions. The 'size' of the possible over- or under-estimation was quantified comparing the reported value with an estimate using the median IEF or parameter as reported by all countries[^potsig]. All outliers were &apos;manually&apos; cross-checked and analysed. Countries were notified on the results of the analysis.
+* **Identification of potentially significant issues**: For each of the outliers identified it was determined whether or not this could be a potentially significant issue based on the criterion of a share of 0.05% of national total GHG emissions. The 'size' of the possible over- or under-estimation was quantified comparing the reported value with an estimate using the median IEF or parameter as reported by all countries[^potsig]. All outliers were &apos;manually&apos; cross-checked and analysed. Countries were notified on the results of the analysis.
 
 * **Time series outliers**: Time series outliers were detected on the basis of the same method as also used for the within-country-outlier check. Basis for the underlying distribution of data in this case, however, was not the values reported from all countries during the whole time series, but only the data reported by the country assessed. Only growth rates larger than &#177;3% could qualify as 'outliers'. However, this generated a large number of potential outliers which require further assessment. The following types of &apos;issues&apos; were identified, which might be linked either to an inconsistent time series or be the consequence of 'real' trends:
 * * *Period outphased*:	Relative constant trend with few years above/below the trend that &apos;looks plausible&apos;.
@@ -130,8 +130,8 @@ The checks include:
 * * Check that the sum of manure allocated to climate regions adds up to 100% over all MMS and climate regions
 * * Check that compares the Manure 'managed' in Pasture Range and Paddock in category 3.B.2 with AD in 3.D.1.3 (Urine and Dung Deposited by Grazing Animals). The sum of FRPR over all animal types should therefore equal the AD in category 3.D.1.3.
 * * Comparison of the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) with default IEFs EF3_RPR_CPP for Cattle - Pigs and Poultry (0.02) and, EF3_RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure deposited by the two animal groups.
-* * Comparison of the fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure. According to IPCC Table 10.22 most of the Lost-fractions are between 20% and 45% of N in managed manure and N loss ratios are identified that are higher than 45% or lower than 20%.
-* * Comparison of the manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Animal manure applied to soil (3D12a). Manure available for application is obtained from N managed in MMS and not lost (FracLOSSMS) according to Table 10.23 plus any addition of bedding material. The loss fractions in Table 10.23 include also losses of N2 which are not included in the indirect emissions-volatilizations. Therefore FAM is expected to be smaller than N managed in MMS minus N lost as NH3+NOx+leaching unless bedding material has been accounted for. In case of crop residues as bedding material care has to be taken to avoid double counting.
+* * Comparison of the fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure. According to IPCC Table 10.22 most of the loss fractions are between 20% and 45% of N in managed manure and N loss ratios are identified that are higher than 45% or lower than 20%.
+* * Comparison of the manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Animal manure applied to soil (3D12a). Manure available for application is obtained from N managed in MMS and not lost (FracLOSSMS) according to Table 10.23 plus any addition of bedding material. The loss fractions in Table 10.23 include also losses of N2, which are not included in the indirect emissions-volatilisation. Therefore, FAM is expected to be smaller than N managed in MMS minus N lost as NH3+NOx+leaching unless bedding material has been accounted for. In case of crop residues as bedding material care has to be taken to avoid double counting.
 
 * **Recalculation**: Countries were asked for justifications of recalculations of more than 0.05% of national total emissions (excluding LULUCF) for years `r firstyear` and `r lastyear`, focusing on key categories.  
 
@@ -148,18 +148,20 @@ esdrevie<-c("33%","17%","33%","17%")
 
 response<-rbind(complete,outliers,recalcul,timeseri,esdrevie)
 checkstats[,2:5]<-response
-checkdate<-"March 28, 2017"
+checkdate<-"March 29, 2018"
 tabs("checkstat",paste0("Status of issues as of ",checkdate))
 
 ```
 
-A large number of issues were identified:
+A much lower number of issues were identified, compared to last year (340 issues were identified in 2017):
 
-* 26 completeness issues (related to ‘NE’/’empty’/’notation key abuse’)
-* 59 recalculation issues
-* 49 country-outlier issues
-* 130 time trend issues
-* 76 agricheck issues
+* 12 completeness issues (related to ‘NE’/’empty’/’notation keys’)
+* 11 country-outlier issues
+* 14 recalculation issues
+* 16 time trend issues
+* 16 recommendations
+* 34 agricheck issues
+* 17 other issues (wrong units, same values reported for 2015 and 2016)
 
 `r #In 2017 agrichecks were done only in March due to time constraints. Some of the countries responded to the issues but they did not have to, given that questions were sent when it was not possible to submit new data. In this situation, none of these issues was triggered to the second step review, but we just kept record to check the issues again next year (or flag them as solved, if it is the case).`
 
@@ -169,8 +171,8 @@ The status of responses as of `r checkdate` is given in `r tabs("checkstat",disp
 
 `r pander(checkstats)`&nbsp;
 
-Completeness and recalculation issues had all been responded by `r checkdate`, being the recalculations the type of issues with the highest percentage of resolution. Most of the recalculations required just an explanation and some of them were due to mistakes which have mostly been corrected. The outliers are the type of issues with the highest share of questions still not responded, probably needing more time to justify. For the time series, there are still issues without response, but more than half of the total have already been solved. 
-Regarding the ESD recommendations, one third has already been solved and 17% have not been answered yet although these were the first issues to be asked to countries, probably because many of these issues were related to recommendations of finding better data, which sometimes the countries cannot easily solve.
+All issues had been responded by `r checkdate`, being the time series the type of issues with the highest percentage of resolution, followed by the recalculations. Most of the time series and the recalculation issues required just an explanation and some of the recalculations were due to mistakes which have mostly been corrected. The outliers are the type of issues with the highest share of questions still unresolved, probably needing more time to justify. 
+Regarding the recommendations, one third has already been resolved and 63% have not been resolved yet but countries are working on getting the necessary data for the resolution of the issues; these issues often require detailed information which sometimes the countries cannot easily obtain. Similar situation happens with the agricheck issues, for which one third have already been resolved and 41% are still open and might be solved in May resubmission.
 
 
 #### Calculation of EU background data 

@@ -145,7 +145,7 @@ data is discussed here.
 
 #### Implied EFs  and methodological issues
 
-In this section we discuss the implied emission factor for the category 3.B.1 for the main animal types.
+In this section, we discuss the implied emission factor for the category 3.B.1 for the main animal types.
 Furthermore, we present data on the typical animal mass as reported in CRF Tables 3B(a)s1
 and average volatile solid (VS) daily excretion.
 
@@ -354,7 +354,7 @@ tabs("tabB13VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 ![]($eugirpplots$/$cursubm$/rangeief/3B13Swine-CH4EmissionsVSEXC-nirrange.jpg) 
 
-`r tabs("tabB13VSEXC",display="full")`
+`r gsub("dm", "DM", tabs("tabB13VSEXC",display="full"))`
 
 `r pander(splittable(curtable,2))`
 

@@ -106,7 +106,7 @@ curdiffs$diff<-round(curdiffs$diff,0)
 
 ```
 
-The Food and Agriculture Organization of the United Nations (FAO) has developed a database of greenhouse gas emissions, contained in FAOSTAT, which provides estimations  of the emissions of main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these emissions that generally cover ther period 1990-`r faolast`. The data base can be consulted at the following link:
+The Food and Agriculture Organization of the United Nations (FAO) has developed a database of greenhouse gas emissions, contained in FAOSTAT, which provides estimations of the emissions of main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these emissions that generally cover the period 1990-`r faolast`. The data base can be consulted at the following link:
 
 http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E 
 
@@ -116,7 +116,7 @@ Emissions are specified for the different agricultural sub-domains, estimated by
 ```{r nirfaotabexp,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 # EU values for FAO are calculated as average of country-sums.
 # As some countries do not report for early years ()
-tabs("nirfaotab",paste0("GHG emissions from the agricultural sector by emission source category, in kt CO2-eq/year and % of total emissions, for the whole EU-28+ISL, averaged over the years ",comprange,", for which reported data from all countries are availabel in both the FAOSTAT and the UNFCCC data bases are available."))
+tabs("nirfaotab",paste0("GHG emissions from the agricultural sector by emission source category, in kt CO2-eq/year and % of total emissions, for the whole EU-28+ISL, averaged over the years ",comprange,", for which reported data from all countries are available in both the FAOSTAT and the UNFCCC data bases are available."))
 # see http://rapporter.github.io/pander/
 ```
 
@@ -125,20 +125,20 @@ The FAOSTAT database is intended primarily as a service to help member countries
 `r tabs("nirfaotab",display='full')`
 `r pander(curtable,emphasize.strong.cols=1:2,emphasize.verbatim.rows=2:4,round=c(0,0,0,1,0,1),digits=c(0,0,3,5,3,5))`&nbsp;
 
-Comparing both databases, we can see that UNFCCC reports higher total emissions than FAOSTAT (`r round(sum(curtable[1:(nrow(curtable)-1),3])/1000,1)` versus `r round(sum(curtable[1:(nrow(curtable)-1),5])/1000,1)`) Mt CO2-eq yr-1, but that difference is lower and with different sign if we remove from the UNFCCC total emissions the amount corresponding to 3.D.1.5, 3.G, 3.H and 3.I categories, which are not calculated in FAOSTAT (`r round(sum(curdiffs[,3])/1000,1)` versus `r round(sum(curdiffs[,4])/1000,1)`) Mt CO2-eq yr-1. Looking at the individual emission categories, we can also identify differences between the two databases, which can be due to different reasons: 
+Comparing both databases, we can see that UNFCCC reports slightly higher total emissions than FAOSTAT (`r round(sum(curtable[1:(nrow(curtable)-1),3])/1000,1)` versus `r round(sum(curtable[1:(nrow(curtable)-1),5])/1000,1)`) Mt CO2-eq yr-1, even if categories 3.D.1.5, 3.G, 3.H and 3.I are not estimated in FAOSTAT (`r round(sum(curdiffs[,3])/1000,1)` versus `r round(sum(curdiffs[,4])/1000,1)`) Mt CO2-eq yr-1. Looking at the individual emission categories, we can also identify differences between the two databases, which can be due to different reasons: 
 
 1. Differences in the methodology used for the estimation of emissions. While countries apply tier 1 to tier 3 approaches, depending on the emission category, FAOSTAT estimations are based on a tier 1 approach, using always default emission factors. 
 2. The use of different activity data, coming from different sources or suffering different processing after data collection.
 
-Comparing the estimations of FAOSTAT with the UNFCCC inventory data, we find that the biggest absolute difference corresponds to 
+Comparing the estimations of FAOSTAT with the UNFCCC inventory data, we find that the biggest absolute difference corresponds to: 
 
 * `r checkcurdif("diff",1)`, followed by 
 * `r checkcurdif("diff",2)` and 
-* `r checkcurdif("diff",3)`. 
+* `r gsub("indirect", "Indirect", checkcurdif("diff",3))`. 
 
 These three emission categories represent a significant  share of the total agricultural emissions in the NIR and FAO data bases, accounting for `r paste(range(curdiffs[1,c("relnir","relfao")]),collapse="-")`%, `r paste(range(curdiffs[2,c("relnir","relfao")]),collapse="-")`% and `r paste(range(curdiffs[3,c("relnir","relfao")]),collapse="-")`%, respectively. 
 
-The largest three differences in relative terms are 
+The largest three differences in relative terms are: 
 
 * `r checkcurdif("reldiff",1)`, followed by 
 * `r checkcurdif("reldiff",2)` and 
@@ -146,7 +146,7 @@ The largest three differences in relative terms are
 
 The three source categories with the hightest absolute and relative differences are `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[1],])`, `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[2],])` and `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[3],])`.
 
-In the next sections, we will focus on the comparison of activity data, trying to find out if the differences found in both databases can explain the differences in emissions, analyzing the trends of livestock population, fertilizer use and cultivated area along the inventory years (1990-`r faolast`).
+In the next sections, we will focus on the comparison of activity data, trying to find out if the differences found in both databases can explain the differences in emissions, analysing the trends of livestock population, fertiliser use and cultivated area along the inventory years (1990-`r faolast`).
 
 We will employ two types of figures throughout this section. Figure of the type as in `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` show the trend of `r eukp` for both NIR and FAO, similar to the Figures used also in Section 5.2. The upper panel of the figure shows the trend in the data from NIR, and the lower panel shows the trend in the FAO data. The 10 most important countries are plotted explicitly with the pattern used also in the previous sections. The share of AD in the last reported year given next to the legend, and all other countries lumped together into the category 'Other'. This category contains only the 'other' countries with respect to the data base, thus the countries could be different for NIR and FAO.
 
@@ -317,8 +317,6 @@ curmeasure<-"Area"
 cursec<-"3.C"
 figs(paste0("comp1",cursec,"Rice",curmea),compademplots(eukp,cursec,"Rice"))
 figs(paste0("comp2",cursec,"Rice",curmea),compareplots(eukp,cursec,"Rice"))
-figs(paste0("comp1",cursec,"Histosols",curmea),compademplots(eukp,cursec,"Histosols"))
-figs(paste0("comp2",cursec,"Histosols",curmea),compareplots(eukp,cursec,"Histosols"))
 ```
 ##### Rice cultivation
 
@@ -336,6 +334,71 @@ Regarding CH4 emissions from rice cultivation, the related activity data is the 
 
 ![]($eugirpplots$/$cursubm$/compareadem/3CFarming-RiceCultivationAREA-nirfaocompare.jpg) 
 
+
+
+
+```{r nirfaoninput,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"AD"
+curmeasure<-"N input"
+cursec<-"3.D"
+figs(paste0("comp1",cursec,"min",curmea),compademplots(eukp,cursec,"Inorganic N fertilizers"))
+figs(paste0("comp2",cursec,"min",curmea),compareplots(eukp,cursec,"Inorganic N fertilizers"))
+figs(paste0("comp1",cursec,"man",curmea),compademplots(eukp,cursec,"Organic N fertilizers"))
+figs(paste0("comp2",cursec,"man",curmea),compareplots(eukp,cursec,"Organic N fertilizers"))
+figs(paste0("comp1",cursec,"cres",curmea),compademplots(eukp,cursec,"Crop residues"))
+figs(paste0("comp2",cursec,"cres",curmea),compareplots(eukp,cursec,"Crop residues"))
+```
+##### Nitrogen input to agricultural soils
+
+Nitrogen input to agricultural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
+
+```{r tmp2hide,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+#xavi to check: remove the tmp2hide regions and the comments, there is a problem with eutotdiff
+#`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
+
+#`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`
+
+#`r eutotdiff(makecurdiff("AD","Crop Residues","3.D.1.4"))`
+```
+
+`r gsub("inorganic n", "Inorganic N", figs(paste0("comp1",cursec,"min",curmea),display="full"))`
+
+![]($eugirpplots$/$cursubm$/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"min",curmea),display="full")`
+
+![]($eugirpplots$/$cursubm$/compareadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaocompare.jpg) 
+
+`r gsub("organic n", "Organic N", figs(paste0("comp1",cursec,"man",curmea),display="full"))`
+
+![]($eugirpplots$/$cursubm$/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaovalue.jpg) 
+
+
+`r gsub("Organic N fertilisers N input", "N input from organic fertilisers", figs(paste0("comp2",cursec,"man",curmea),display="full"))`
+
+![]($eugirpplots$/$cursubm$/compareadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaocompare.jpg) 
+
+`r figs(paste0("comp1",cursec,"cres",curmea),display="full")`
+
+![]($eugirpplots$/$cursubm$/valueadem/3D14CropResidues-AgriculturalSoilsN2OEM-nirfaovalue.jpg)
+
+
+`r figs(paste0("comp2",cursec,"cres",curmea),display="full")`
+
+![]($eugirpplots$/$cursubm$/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
+
+From the three nitrogen sources analysed above, all three present higher total values in the NIR data, but differences are highest in synthetic fertilisers applied. Time trends are quite smooth in the first two cases, with some sudden steps in crop residues applied to soils, which are probably due to climatic reasons and captured by both databases.
+
+
+
+```{r nirfaoarea1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"Area"
+curmeasure<-"Area"
+cursec<-"3.D.1.6"
+figs(paste0("comp1",cursec,"Histosols",curmea),compademplots(eukp,cursec,"Histosols"))
+figs(paste0("comp2",cursec,"Histosols",curmea),compareplots(eukp,cursec,"Histosols"))
+```
 
 ##### Cultivation of histosols
 
@@ -388,58 +451,6 @@ In the JRC analysis mixed land use classes are not taken into account as the sha
 
 
 
-```{r nirfaoninput,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-curmea<-"AD"
-curmeasure<-"N input"
-cursec<-"3.D"
-figs(paste0("comp1",cursec,"min",curmea),compademplots(eukp,cursec,"Inorganic N fertilizers"))
-figs(paste0("comp2",cursec,"min",curmea),compareplots(eukp,cursec,"Inorganic N fertilizers"))
-figs(paste0("comp1",cursec,"man",curmea),compademplots(eukp,cursec,"Organic N fertilizers"))
-figs(paste0("comp2",cursec,"man",curmea),compareplots(eukp,cursec,"Organic N fertilizers"))
-figs(paste0("comp1",cursec,"cres",curmea),compademplots(eukp,cursec,"Crop residues"))
-figs(paste0("comp2",cursec,"cres",curmea),compareplots(eukp,cursec,"Crop residues"))
-```
-##### Nitrogen input to agricultural soils
-
-Nitrogen input to agricultural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
-
-```{r tmp2hide,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-#xavi to check: remove the tmp2hide regions and the comments, there is a problem with eutotdiff
-#`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
-
-#`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`
-
-#`r eutotdiff(makecurdiff("AD","Crop Residues","3.D.1.4"))`
-```
-
-`r figs(paste0("comp1",cursec,"min",curmea),display="full")`
-
-![]($eugirpplots$/$cursubm$/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaovalue.jpg) 
-
-
-`r figs(paste0("comp2",cursec,"min",curmea),display="full")`
-
-![]($eugirpplots$/$cursubm$/compareadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaocompare.jpg) 
-
-`r figs(paste0("comp1",cursec,"man",curmea),display="full")`
-
-![]($eugirpplots$/$cursubm$/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaovalue.jpg) 
-
-
-`r figs(paste0("comp2",cursec,"man",curmea),display="full")`
-
-![]($eugirpplots$/$cursubm$/compareadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaocompare.jpg) 
-
-`r figs(paste0("comp1",cursec,"cres",curmea),display="full")`
-
-![]($eugirpplots$/$cursubm$/valueadem/3D14CropResidues-AgriculturalSoilsN2OEM-nirfaovalue.jpg)
-
-
-`r figs(paste0("comp2",cursec,"cres",curmea),display="full")`
-
-![]($eugirpplots$/$cursubm$/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
-
-From the three nitrogen sources analysed above, all three present higher total values in the NIR data, but differences are highest in synthetic fertilisers applied. Time trends are quite smooth in the first two cases, with some sudden steps in crop residues applied to soils, which are probably due to climatic reasons and captured by both databases.
 
 ##### Conclusion
 

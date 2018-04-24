@@ -1,3 +1,5 @@
+library(plyr)
+
 faocategs<-c("Burning_crop_residues","Burning_Savanna","Crop_residues",
              "Cultivated_Organic_Soils","Energy","Enteric_Fermentation",
              "Manure_applied_to_soils","Manure_left_on_pasture",
@@ -16,12 +18,13 @@ faocountries<-read.csv("faocountries.csv",header = TRUE)
 faocountries<-subset(faocountries,select=-X)
 names(faocountries)[1:2] <- c("Area","Area.Code")
 faofile<-paste0(faodir,"faodata_",cursubm,".RData")
-print(file.exists(faofile))
-if(!file.exists(faofile)){
-    temp = list.files(pattern="Emissions.*.csv",path=faodir)
-    lastdownload<-max(as.numeric(Sys.Date()-as.Date(file.mtime(paste0(faodir,temp)))))
-    print(lastdownload)
+#print(file.exists(faofile))
+recalc_faofile <- 1
+if(!file.exists(faofile) | recalc_faofile == 1){
     yr <- as.numeric(years[length(years)]) + 2
+    temp = list.files(pattern="Emissions.*.csv",path=paste0(faodir, yr))
+    lastdownload<-max(as.numeric(Sys.Date()-as.Date(file.mtime(paste0(faodir,"/",yr,"/",temp)))))
+    #print(lastdownload)
     if(lastdownload>30){
       for (i in faocontent){
             #print(paste0("http://www.fao.org/faostat/en/#data/",faosites[i]))
@@ -33,7 +36,7 @@ if(!file.exists(faofile)){
             #                       "Save the *csv file into the folder: ",faodir,".\n",
             #                       "Then press [enter] to continue."))
             #remDr$close()
-        print(i)
+        #print(i)
         i1 <- gsub(" ", "_", i)
         if(i1 == "Cultivation_of_Organic_Soils") i1 <- "Cultivated_Organic_Soils"
         if(i1 == "Burning_-_Crop_Residues") i1 <- "Burning_crop_residues"
@@ -90,6 +93,12 @@ if(!file.exists(faofile)){
     elementcode<-c("Element","Element.Code")
     itemcode<-c("Item","Item.Code")
     
+    # 2018: Addapting "Elements" and "Items"
+    revalue(faodata$Item, c("Nutrient nitrogen N (total)" = "Nitrogen Fertilizers (N total nutrients)")) -> faodata$Item
+    revalue(faodata$Element, c("Agricultural Use" = "Consumption")) -> faodata$Element
+    revalue(faodata$Element, c("Agricultural Use in nutrients" = "Consumption in nutrients")) -> faodata$Element
+    temp4<-faodata
+
     if(createlinks){
         faodata<-temp4
         # Clean up files so that they have the same number of cols (=> elements/measures) 
@@ -415,9 +424,9 @@ if(!file.exists(faofile)){
             
         }else{
             eu28new<-unique(allagri[allagri$variableUID==iefuid,-which(names(allagri)%in%c("party",years,"datasource","correction","autocorr"))])
-            print(eu28new)
+            #print(eu28new)
             eu28new<-convert2char(eu28new)
-            print(eu28new)
+            #print(eu28new)
             eu28new$party<-eusubm
             eu28new$autocorr<-NA
             eu28new$correction<-1
@@ -455,9 +464,10 @@ if(!file.exists(faofile)){
     faodata$measure[faodata$measure=="Implied Emission Factor"]<-"Implied emission factor"
     
     save(faodata,file=paste0(faofile))
+}else{
+  print("FAO data already exists... Loading faofile")
+  load(file=faofile, verbose = TRUE)
 }
-print("Load faofile")
-load(file=faofile)
 
 # EU28 -iefs are not yet fully correct (unit!)
 faodata<-faodata[!(faodata$party==eusubm&faodata$meastype=="IEF"),]

@@ -131,7 +131,7 @@ The JRC was cooperating with EUROSTAT on a methodology to use the CAPRI model[^c
 
 The Working Group (WG) on agri-environmental indicators (AEI, February 2012) and the subsequent Standing Committee for Agricultural Statistics (CPSA, May 2012) decided to start a pilot projects on regionalising Gross Nitrogen Balance (GNB) with the CAPRI model. The objective of the pilot project is to evaluate differences between national GNB and the GNB calculated with CAPRI at the country and the NUTS2 scale. Italy, France, Germany and Hungary volunteered for this pilot project. The RegNiBal project (Regionalisation of Nitrogen Balances with the CAPRI Model - Pilot Project) started in February 2013. The overall goal was to use the CAPRI model to provide (operationally) regional GNB data to complement the national Eurostat/OECD GNBs.
 
-Four countries volunteered to share their national GNB estimates with the CAPRI team which were analyzed on differences with CAPRI estimates and recommendations were formulated to improve both national methods and the CAPRI model:
+Four countries volunteered to share their national GNB estimates with the CAPRI team which were analysed on differences with CAPRI estimates and recommendations were formulated to improve both national methods and the CAPRI model:
 
 * France
 * Germany

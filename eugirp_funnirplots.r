@@ -961,7 +961,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         title(sourctitlong,cex.main=0.5,adj=0.95)
     }
     
-    del4now <- 1 #xavi20180405: for now we can avoid this because there is a problem with IPCC values (units, probably).
+    del4now <- 0 #xavi20180405: for now we can avoid this because there is a problem with IPCC values (units, probably).
                  #xavi20180405: To be fixed before May
     if(del4now != 1){
       if(!is.null(defaults)){

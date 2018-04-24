@@ -76,11 +76,11 @@ figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastye
 
 ![]($ubaimages$/$cursubm$/Table3B21CattleN2O.jpg)
 
-`r figs(paste0("fig3B211","trend",curmea),display="full")`
+`r gsub("Cattle", "Dairy cattle", figs(paste0("fig3B211","trend",curmea),display="full"))`
 
 ![]($eugirpplots$/$cursubm$/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
-`r figs(paste0("fig3B212","trend",curmea),display="full")`
+`r gsub("Cattle", "Non-dairy cattle", figs(paste0("fig3B212","trend",curmea),display="full"))`
 
 ![]($eugirpplots$/$cursubm$/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
@@ -195,14 +195,14 @@ Other activity data related to this emission category are:
 
 ![]($eugirpplots$/$cursubm$/valueadem/3B247Poultry-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
-`r figs(paste0("fig",cursec,"trend","POP"),display="full")`
+`r gsub("in poultry", "in", figs(paste0("fig",cursec,"trend","POP"),display="full"))`
 
 ![]($eugirpplots$/$cursubm$/valueadem/3A47Poultry-EntericFermentationPOP-nirvalue.jpg) 
 
 
 #### Implied EFs  and Methodological Issues
 
-In this section we discuss the implied emission factor for the main animal types.
+In this section, we discuss the implied emission factor for the main animal types.
 Furthermore, we present data on the nitrogen excretion rate for the different animal types.
 
 ```{r 3B25em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -216,7 +216,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`.
+`r text2shareeu()`
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`

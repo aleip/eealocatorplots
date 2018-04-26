@@ -81,6 +81,7 @@ invyear<-2018
 invloc<-paste0(adrian,"google/projects/ecir")#!!!
 if(mypc=="L01RI1203587") invloc<-paste0("C:/Adrian/google/projects/ecir")#!!!
 csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
+csvfil1 <- paste0(locplots,"/../",invyear,"/eealocator/")   
 if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
 if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
 if(iam=="marsbl1bhl")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"

@@ -125,8 +125,8 @@ curemissions$party<-as.character(curemissions$party)
 emfirstlast<-curemissions[,c("party",firstyear,lastyear)]
 emfirstlast[,"GHGfirst"]<-emfirstlast[,firstyear]
 emfirstlast[,"GHGlast"]<-emfirstlast[,lastyear]
-tmpis<-emfirstlast[emfirstlast$party=="IS",]
-emfirstlast<-emfirstlast[emfirstlast$party!="IS",]
+tmpis<-emfirstlast[emfirstlast$party=="ISL",]
+emfirstlast<-emfirstlast[emfirstlast$party!="ISL",]
 tmpeu<-emfirstlast[emfirstlast$party=="EUC",]
 emfirstlast<-emfirstlast[emfirstlast$party%in%countriesnoeu,]
 tmpeunois<-tmpeu

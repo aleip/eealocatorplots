@@ -72,8 +72,8 @@ if(plottype=="emiplots") plotdata<-eu28sums(A = plotdata)
 
 
 
-#Eliminate IS
-plotdata<-plotdata[plotdata$party!="IS",]
+#Eliminate ISL
+plotdata<-plotdata[plotdata$party!="ISL",]
 #for(imeas in c(13)){
 #for(imeas in c(1449:nrow(plotmeas))){
 

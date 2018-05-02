@@ -545,7 +545,7 @@ if (rundata=="ief" && runfocus=="trend") text(0,1.00,"Average trend of country",
 if (runmeastype=="EM" && runfocus=="trend") text(0,0.96,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
 if (runmeastype=="EM" && runfocus=="trend") text(0,0.93,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
 
-#if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+IS average",cex=legcex,adj=0,font=3)
+#if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+ISL average",cex=legcex,adj=0,font=3)
 #if (rundata=="ief" && runfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
 
 mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)

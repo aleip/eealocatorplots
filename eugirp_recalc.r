@@ -36,8 +36,8 @@ allagri1<-get(paste0("allagri",oldsubm))
 allagri2<-get(paste0("allagri",newsubm))
 mergefields<-c("party",uniquefields[-which(uniquefields%in%c("variableUID","datasource"))])
 
-# compare GB with UK ... fake they are the same
-agridet1$party[agridet1$party=="UK"]<-"GB"
+# compare GBK with GBE ... fake they are the same
+agridet1$party[agridet1$party=="GBE"]<-"GBK"
 
 agridetrecalc<-merge(agridet1,agridet2,by=mergefields,all = TRUE)
 sel<-is.na(agridetrecalc$variableUID.x)

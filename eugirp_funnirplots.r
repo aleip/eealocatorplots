@@ -9,7 +9,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     if(rundata=="adem") plotparamcheck<-0
     if(rundata=="ief") plotparamcheck<-0
     
-    #Exlcudeparty is required because there are two submissions from UK: UK and GB (incl some islands...)
+    #Exlcudeparty is required because there are two submissions from GBE: GBE and GBK (incl some islands...)
     if(length(datasource)>1){
         plotdata<-allagri
     }else{
@@ -135,7 +135,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     return(list(plotdata,plotmeas,adddefault,sharesexist))
 }
 loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
-    if(plotmeas$meastype[imeas]=="Milk") plotdata[plotdata$party=="LU",years]<-NA
+    if(plotmeas$meastype[imeas]=="Milk") plotdata[plotdata$party=="LUX",years]<-NA
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
     plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,multisource,adddefault)        
@@ -356,8 +356,8 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
             # Initialize if not yet done
             if(is.null(plotinitialized)) plotinitialized<-iniplot(figname,nplots)
             #        if(dsource=="capri"){
-            #print("Attention - test delete conversion DE to CY => REMOVED")
-            #            if("DE"%in%unique(plotdatacur$party))plotdatacur[plotdatacur$party=="CY",years]<-plotdatacur[plotdatacur$party=="DE",years]
+            #print("Attention - test delete conversion DEU to CYP => REMOVED")
+            #            if("DEU"%in%unique(plotdatacur$party))plotdatacur[plotdatacur$party=="CYP",years]<-plotdatacur[plotdatacur$party=="DEU",years]
             #        }
             # Extract data: re-calculate sums for ADEM, use available EU-28 data for IEF ####
             #if(rundata=="adem"){
@@ -1393,7 +1393,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
             if (runmeastype=="EM" && runfocus=="trend") text(0,0.96,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
             if (runmeastype=="EM" && runfocus=="trend") text(0,0.93,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
             
-            #if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+IS average",cex=legcex,adj=0,font=3)
+            #if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+ISL average",cex=legcex,adj=0,font=3)
             #if (rundata=="ief" && runfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
             
             mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)
@@ -1662,9 +1662,9 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2013){
     test<-test[test$party!="EU28",]
     test<-test[test$party!="EUC",]
     test<-test[test$party!="IC",]
-    test<-test[test$party!="IS",]
-    #test<-test[test$party!="CY",]
-    #test<-test[test$party!="GB",]
+    test<-test[test$party!="ISL",]
+    #test<-test[test$party!="CYP",]
+    #test<-test[test$party!="GBK",]
     
     test<-test[order(test$relimpr,na.last=FALSE),]
     

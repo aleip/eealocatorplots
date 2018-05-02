@@ -60,10 +60,10 @@ for(parent in sheepswine){
                     selection<-tarstart$party%in%countriesmissig & tarstart$category%in%childs & tarstart$source==sour
                     agrimissing<-tarstart[selection,]
                     #View(agrimissing)
-                    #ms<-"IS"
+                    #ms<-"ISL"
                     for(ms in countriesmissig){
                         #cat(" ",ms)
-                        #if(curmeasty=="WEIGHT" & parent=="Non-Dairy Cattle"&ms=="HR")stop()
+                        #if(curmeasty=="WEIGHT" & parent=="Non-Dairy Cattle"&ms=="HRV")stop()
                         #print(paste0("4",ms))
                         seltemp<-agrimissing$party==ms
                         if(length(seltemp)>0){
@@ -85,11 +85,11 @@ for(parent in sheepswine){
                                     #print(paste0("5",at))
                                     tmpval<-agrimissing[seltemp & agrimissing$category==at,years]
                                     tmpval[is.nan(tmpval)]<-NA
-                                    if(ms=="PL"&parent=="Non-Dairy Cattle") {curat<-"Non-Dairy Cattle"}else{curat<-at}
+                                    if(ms=="POL"&parent=="Non-Dairy Cattle") {curat<-"Non-Dairy Cattle"}else{curat<-at}
                                     tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==curat & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
                                     #tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
-                                    #if(curmeasty=="WEIGHT" & at=="Dairy Cattle"&ms=="GB")stop()
-                                    #if(curmeasty=="WEIGHT" & at=="Non-Dairy Cattle"&ms=="HR")stop()
+                                    #if(curmeasty=="WEIGHT" & at=="Dairy Cattle"&ms=="GBK")stop()
+                                    #if(curmeasty=="WEIGHT" & at=="Non-Dairy Cattle"&ms=="HRV")stop()
                                     
                                     nopop<-nrow(tmppop)==0
                                     noval<-nrow(tmpval)==0
@@ -121,7 +121,7 @@ for(parent in sheepswine){
                                     newline[years]<-tmpn
                                 }
                                 addparentanimal<-rbind(addparentanimal,newline)
-                                #if(ms=="PL"&curmeasty=="IEF"&curcatego=="^3.B.1"&parent=="Non-Dairy Cattle") stop()
+                                #if(ms=="POL"&curmeasty=="IEF"&curcatego=="^3.B.1"&parent=="Non-Dairy Cattle") stop()
                             }
                         }
                     }

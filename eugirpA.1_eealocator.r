@@ -57,7 +57,7 @@ if(generatealldata==1){
     
     # Store notations in different data frame - delete from alldata ####
     print("Store allnotations")
-    notationkeys<-"[CS,NO,NE,IE,NA,D,T1,T2]"
+    notationkeys<-"[CS,NO,NE,IRL,NA,D,T1,T2]"
     allnotations<-alldata[grepl(notationkeys,alldata$notation),]
     alldata<-alldata[! grepl(notationkeys,alldata$notation),]
     allnotations<-simplifytestmatrix(allnotations,"year",years2keep)

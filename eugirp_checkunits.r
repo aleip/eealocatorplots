@@ -88,7 +88,7 @@ filnam<-paste0("corrections_",name,"_",c,".csv")
 autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
 paramdata<-writecorrection(v,paramdata,mult,name)
 
-# VEXC - VALUES MUST BE REPORTED IN (kg dm/head/day)
+# VEXC - VALUES MUST BEL REPORTED IN (kg dm/head/day)
 #        VALUES >>100 ARE LIKELY IN (kg dm/head/YEAR) - (DIVIDE BY 365)
 v<-which(paramdata$meastype=="VEXC" & paramdata[years]>100,arr.ind = TRUE)
 c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
@@ -98,7 +98,7 @@ filnam<-paste0("corrections_",name,"_",c,".csv")
 autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
 paramdata<-writecorrection(v,paramdata,mult,name)
 
-# YM - VALUE REPORTED 10 TIMES TOO HIGH (OCCURS FOR GR)
+# YM - VALUE REPORTED 10 TIMES TOO HIGH (OCCURS FOR GRC)
 v<-which((grepl("3.A.1",paramdata$sector_number) ) & 
              paramdata$meastype=="YM" & paramdata[years]>=10,arr.ind = TRUE)
 c<-paste(unique(paramdata$party[v[,1]]),collapse="-")

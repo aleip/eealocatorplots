@@ -139,8 +139,8 @@ if(today=="20170418"){
     resissuesok<-sapply(9:9,function(x) resolveissue(x,line=resissues[x,],do="",step2=FALSE))
     resissuesok<-sapply(63:nrow(resissues),function(x) resolveissue(x,line=resissues[x,],do="",step2=FALSE))
     
-    countriesvolunteer<-c("BG", "EE", "IS")
-    countrieslate<-c("CY", "HR", "MT", "SE")
+    countriesvolunteer<-c("BGR", "EST", "ISL")
+    countrieslate<-c("CYP", "HRV", "MLT", "SWE")
     countries2step2<-c(countriesvolunteer,countrieslate)
     
     # 2. not resolved issues
@@ -154,8 +154,8 @@ if(today=="20170418"){
     notresissuesok<-sapply(2:2,              function(x) resolveissue(x,line=notresnotstep2[x,],do="",step2=FALSE))
     notresissuesok<-sapply(3:nrow(resissues),function(x) resolveissue(x,line=notresnotstep2[x,],do="",step2=FALSE))
     
-    countries2step2<-countries2step2[!countries2step2=="IS"]
-    notresstep2iceland<-notresissues[notresissues$party=="IS",]
+    countries2step2<-countries2step2[!countries2step2=="ISL"]
+    notresstep2iceland<-notresissues[notresissues$party=="ISL",]
     notresicelandok<-sapply(1:nrow(notresstep2iceland),function(x) resolveissue(x,line=notresstep2iceland[x,],do="",step2=FALSE))
     
     notres2step2<-notresissues[notresissues$party%in%countries2step2,]

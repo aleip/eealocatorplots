@@ -1,6 +1,6 @@
 
 # Check 1: Table 4(I) input of mineral and organic fertilizer to lands
-#          Issue: if countries cannot separate they should report IE and report data under 3.D
+#          Issue: if countries cannot separate they should report IRL and report data under 3.D
 #          Check: ratio should be small. Flag if ratio > 10%
 ninlulucf<-(alldata[alldata$sector_number=="4."&alldata$category=="Direct N2O Emissions from N inputs"&alldata$meastype=="AD",])
 ninlulucf<-subset(ninlulucf,select=c("party",years))

@@ -173,11 +173,11 @@ if(exists("paramcheck")){
     # the correction-flag '1'
     if(any(names(calceu)=="correction")){                                 #xavi201801301
       calceu$correction[is.na(calceu$correction)]<-1
-      calceu$correction[calceu$meastype=="Milk"&calceu$party=="LU"]<-0
+      calceu$correction[calceu$meastype=="Milk"&calceu$party=="LUX"]<-0
       selection2<-calceu$correction==0
     }else{                                                                #xavi201801301
       calceu$correction.y[is.na(calceu$correction.y)]<-1                  #xavi201801301
-      calceu$correction.y[calceu$meastype=="Milk"&calceu$party=="LU"]<-0  #xavi201801301
+      calceu$correction.y[calceu$meastype=="Milk"&calceu$party=="LUX"]<-0  #xavi201801301
       selection2<-calceu$correction.y==0                                  #xavi201801301
       calceu <- calceu[ !names(calceu) %in% c("correction.y")]            #xavi201801301
       names(calceu) <- sub("correction.x", "correction", names(calceu))

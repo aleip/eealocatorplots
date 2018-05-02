@@ -360,7 +360,7 @@ allclimatedat<-allclimate[,climfields]
 allclimateagg<-aggregate(allclimateval,by=as.list(allclimatedat),function(x) sum(x))
 v<-unique(which(round(allclimateagg[,years],1)!=100,arr.ind = TRUE)[,1])
 climcheck<-allclimateagg[v,]
-climcheck<-climcheck[!(climcheck$party=="DE"&climcheck$category=="Buffalo"),]
+climcheck<-climcheck[!(climcheck$party=="DEU"&climcheck$category=="Buffalo"),]
 
 #check6<-data.frame(matrix(rep(0,ncol(checktemp)*nrow(climcheck)),ncol=ncol(checktemp),nrow=nrow(climcheck)))
 #names(check6)<-checkname

@@ -152,7 +152,7 @@ if(outcheck=="param"){
     paramcheck$correction<-unlist(lapply(c(1:nrow(paramcheck)),function(x)
         serious(paramV,paramcheck$variableUID[x],paramcheck$party[x])))
     ## Current manual changes to paramcheck
-    paramcheck$correction[paramcheck$party=="BG"&paramcheck$category=="Goats"]<-0
+    paramcheck$correction[paramcheck$party=="BGR"&paramcheck$category=="Goats"]<-0
     
     # Selection of issues if there are too many!!
     # Manure management IEFs vary largely because of different MMS --> a highly skewed distribution is OK

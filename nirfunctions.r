@@ -300,8 +300,8 @@ text2mscontr<-function(sec=cursec){
                  sec," *",curseclong,
                  #if(curcat%in%c("Other Livestock","Cattle","Swine","Sheep")){paste0(" - ",tolower(curcat))},
                  "* are shown in ",tabs(paste0("tab",sec,"mscontr"),display="cite"),
-                 " by Member State ",if("IS" %in% allcountries){"plus Iceland, "},
-                 "and the total EU-28",if("IS" %in% allcountries){" and EU-28+ISL"},
+                 " by Member State ",if("ISL" %in% allcountries){"plus Iceland, "},
+                 "and the total EU-28",if("ISL" %in% allcountries){" and EU-28+ISL"},
                  " for the first and the last year of the inventory (",firstyear," and ",lastyear,").",
                  " Values are given in kt CO2-eq. ",
                  if(cursec=="3.A"){"In this category GHG and CH4 columns have the same values, as no other greenhouse gases are produced in the enteric fermentation process."})

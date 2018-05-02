@@ -87,7 +87,7 @@ noreporting$value<-""
 
 # List of Notation keys reported reported
 agrino<-allnotations[grepl("^3",allnotations$sector_number),]
-agrino<-agrino[grepl("NO|NA|IE|NE",allnotcat3$notation),]
+agrino<-agrino[grepl("NO|NA|IRL|NE",allnotcat3$notation),]
 agrino<-agrino[order(agrino$sector_number,agrino$category),]
 agrino_em<-agrino[agrino$measure=="Emissions",]
 # Check if one of the notation keys is used for the year 2016
@@ -184,7 +184,7 @@ writeLines(paste0("######################  NE AND EMPTY CELL CHECK for the year 
                   "#"),con)
 writeLines(paste0("######################  CHECK ON THE USE OF NOTATION KEYS WHERE MOST COUNTRIES REPORT VALUES  for the year ",lastyear,"   #################################\n",
                   "#\n",
-                  "#Check on notation keys NO -NE -IE -NA for the year ",lastyear,".\n",
+                  "#Check on notation keys NO -NE -IRL -NA for the year ",lastyear,".\n",
                   "#All isues are selected which use one of the notation keys and",
                   "# - at least ",minncountries," have reported a value.",
                   "# column 'ncountriesNK' indicates the number of countries using a notation key and",
@@ -208,7 +208,7 @@ write.csv(agrishares,file=paste0(issuedir,"/significant/agrishares~",curdate(),"
 # List of Notation keys reported reported
 
 allnotcat3<-allnotations[grepl("^3",allnotations$sector_number),]
-agrino<-allnotcat3[grepl("NO|NA|IE|NE",allnotcat3$notation),]
+agrino<-allnotcat3[grepl("NO|NA|IRL|NE",allnotcat3$notation),]
 agrino<-agrino[order(agrino$sector_number,agrino$category),]
 agrino_em<-agrino[agrino$measure=="Emissions",]
 namesnecheck<-names(agrino_em)
@@ -235,10 +235,10 @@ cols2leave<-paste(names(xx)[!names(xx)%in%c("party","notation")],collapse="+")
 arrange<-as.formula(paste(cols2leave,"~ party"))
 xx<-dcast(xx,arrange,function(x) paste(x,collapse="-"),value.var="notation")
 xx<-xx[,!names(xx)%in%eu]
-#Remove "FM" is both "FM" and "FR" are present
-if(sum(names(xx)%in%c("FR","FM"))==2) xx<-xx[,!names(xx)%in%"FM"]
-#Remove "GB" is both "GB" and "UK" are present
-if(sum(names(xx)%in%c("GB","UK"))==2) xx<-xx[,!names(xx)%in%"GB"]
+#Remove "FM" is both "FM" and "FRK" are present
+if(sum(names(xx)%in%c("FRK","FM"))==2) xx<-xx[,!names(xx)%in%"FM"]
+#Remove "GBK" is both "GBK" and "GBE" are present
+if(sum(names(xx)%in%c("GBK","GBE"))==2) xx<-xx[,!names(xx)%in%"GBK"]
 xx$ncountriesNK<-apply(xx[,names(xx)%in%countries2],1,function(x) sum(x!=""))
 o<-order(xx$sector_number,xx$category)
 agrinotations<-xx[o,]
@@ -276,10 +276,10 @@ reporting<-as.data.frame(reporting)
 cols2leave<-paste(names(reporting)[!names(reporting)%in%c("party","nyears")],collapse="+")
 arrange<-as.formula(paste(cols2leave,"~ party"))
 xz<-dcast(reporting,arrange,value.var="nyears")
-#Remove "FM" is both "FM" and "FR" are present
-if(sum(names(xz)%in%c("FR","FM"))==2) xz<-xz[,!names(xz)%in%"FM"]
-#Remove "GB" is both "GB" and "UK" are present
-if(sum(names(xz)%in%c("GB","UK"))==2) xz<-xz[,!names(xz)%in%"GB"]
+#Remove "FM" is both "FM" and "FRK" are present
+if(sum(names(xz)%in%c("FRK","FM"))==2) xz<-xz[,!names(xz)%in%"FM"]
+#Remove "GBK" is both "GBK" and "GBE" are present
+if(sum(names(xz)%in%c("GBK","GBE"))==2) xz<-xz[,!names(xz)%in%"GBK"]
 xz$ncountriesValue<-apply(xz[,names(xz)%in%countries2],1,function(x) sum(!is.na(x)))
 
 
@@ -294,7 +294,7 @@ sel<-countriesNO$ncountriesValue>minncountries
 countriesx<-countriesNO[sel,]
 countriesx<-ipccdefaultexists(countriesx)
 
-#write.csv(countriesx,file="countriesNO-NA-IE.csv")
+#write.csv(countriesx,file="countriesNO-NA-IRL.csv")
 
 # Merge the two files
 # somehow 'method' generates an error in combination with all=TRUE...

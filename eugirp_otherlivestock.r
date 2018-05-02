@@ -2,7 +2,7 @@
 allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 
 #Slovakia: remove Other.swine.sine
-sel<-allagri$party=="SK"&allagri$category=="Other Swine.swine"
+sel<-allagri$party=="SVK"&allagri$category=="Other Swine.swine"
 allagri<-allagri[!sel,]
 
 #Remove end-blank in sector_number
@@ -103,7 +103,7 @@ allagri$sector_number[allagri$sector_number=="" & allagri$classification%in%msli
 #select<-grepl("general",tolower(allother$category))
 #allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
 #    paste0(assignab(allother$classification[select][x]),".3")))
-selection<-allagri$category=="General" & allagri$party=="BE" & 
+selection<-allagri$category=="General" & allagri$party=="BEL" & 
     !(allagri$meastype%in%meastb12weight | allagri$meastype%in%meastb22weight | allagri$meastype%in%measta2weight)
 allagri<-allagri[!selection,]
 selection<-allagri$category=="General"

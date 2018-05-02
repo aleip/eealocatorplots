@@ -1,5 +1,5 @@
-alldata<-alldata[alldata$party!="IS",]
-allagri<-allagri[allagri$party!="IS",]
+alldata<-alldata[alldata$party!="ISL",]
+allagri<-allagri[allagri$party!="ISL",]
 alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
 calceu<-alldata
 calceu<-eu28sums(calceu)

@@ -1,130 +1,276 @@
-setfile<-"CAPRI_NIR_Sets.csv"
-unitorder<-c("meastype","gas","unit","sector_number","category","method","classification","source","target","type","option","measure")
-avmeas<-unique(allagri[,c("variableUID",unitorder)])
+selhead<-c("variableUID",setdiff(uniquefields,c("variableUID","datasource")))
+selanimals<-c("Farming","Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine","Other Livestock")
 
-# Restrict to aggregate livetock categories
-select<-grepl("3.[AB]",avmeas$sector_number) & ! avmeas$category%in%c("Farming",livestock,"Other Livestock")
-
-avmeas<-avmeas[!select,]
-avmeas<-convert2char(avmeas)
-avmeas$metastring<-sapply(1:nrow(avmeas),function(x) paste(avmeas[x,unitorder],collapse=","))
-avmeas<-avmeas[,c("variableUID","metastring")]
-#avmeas$metastring<-gsub("Aggregate GHGs","Agg GHG",avmeas$metastring)
-#avmeas$metastring<-gsub("Liquid[ ,a-z,A-Z]*","Liquid,",avmeas$metastring)
-#avmeas$metastring<-gsub("Solid[ ,a-z,A-Z]*","Solid,",avmeas$metastring)
-#avmeas$metastring<-gsub("Pasture[ ,a-z,A-Z]*","Pasture,",avmeas$metastring)
-avmeas$metastring<-gsub(",,",",*,",avmeas$metastring)
-avmeas$metastring<-gsub(",,",",*,",avmeas$metastring)
-
-curdate<-gsub("-","",Sys.Date())
-previousset<-read.csv(setfile,header=FALSE,sep=";",quote="\"",fill=TRUE,comment.char="#",stringsAsFactors = FALSE)
-previousset<-convert2char(previousset)
-file.copy(from=setfile,to = gsub(".csv",paste0("~",curdate,".csv"),setfile),overwrite = TRUE)
-#previousset<-previousset[,c("V2","V3")]
-previousset$V4<-gsub(",\\*,\\*,\\*,\\*,\\*,",",*,*,*,*,",previousset$V4)
-previousset$V3[previousset$V3==""]<--999
-previousset$V4[previousset$V4==""]<--999
-previousset$n<-sapply(1:nrow(previousset),function(x) x)
-# First look for matching variableUIDs
-mergeset<-merge(previousset,avmeas,by.x="V1",by.y = "variableUID",all.x=TRUE,sort=FALSE)
-mergeset[is.na(mergeset)]<-""
-mergenotOK<-mergeset[mergeset$metastring=="",]
-mergenotOK<-mergenotOK[!grepl("^\\*",mergenotOK$V2),]
-
-if(curdate=="20170421"){
-    #Check original IDEAg-NG file from Sandra. 
-    #This file contains some string-elements that are manually changed 
-    #(to make it more intuitive), which make the automatic comparison difficult.
-    #Some variableUIDs are 'wrong' or have been changed
-    #Also the eugirp-algorithm has changed.
-    
-    #Need to check remaining one by one
-    curstr<-"EM,no gas,kt N/year,3.B.2.3,Swine,"
-    curuid<-"3B1A4414-A756-4FC6-9553-0E15F1D76654"
-    previousset[previousset$V2==curuid,2]<-"C0CBD1EE-FE26-4671-8D3E-EDD08C6E08DF"
-    
-    curstr<-"POP,no gas,1000s,3.B.1.3,Swine,*,Manure Management"
-    curuid<-"3CCE5B8B-8744-4710-898C-E0EC5BEDE9D1"
-    previousset[previousset$V2==curuid,2]<-"BC5A63BA-2DF1-45B8-9B58-3E3AD8C6EE61"
-    
-    curstr<-"EM,no gas,kt N/year,3.B.2.3,Swine,Pasture,Manure Management"
-    curuid<-"4D716761-7CC7-4C90-884A-55659E08CA04"
-    previousset[previousset$V2==curuid,2]<-"3FB36E10-9143-4C0C-968B-A2479C3EE2DB"
-    
-    curstr<-"EM,N2O,kt,3.B.2.3,Swine,*,Manure Management,*,*,*,*,Emissions"
-    curuid<-"AB1CC8F6-D71C-46A1-A846-B5E76E2DE3A2"
-    previousset[previousset$V2==curuid,2]<-"F56815AC-FE4F-4E37-A7D4-965970F1CF23"
-    
-    curstr<-"EM,CH4,kt,3.A.1,Cattle,*,Enteric Fermentation,*,*,*,*,Emissions"
-    curuid<-"eugirp3A100CattlEM000000000000CH0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3A100CattttleEM00000000000CH0000"
-    
-    curstr<-"POP,no gas,1000s,3.A.1,Cattle,*,Enteric Fermentation"
-    curuid<-"eugirp3A100CattlPOP00000000000no0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3A100CattttlePOP0000000000no0000"
-    
-    curstr<-"EM,CH4,kt,3.B.1.1,Cattle,*,Manure Management,*,*,*,*,Emissions"
-    curuid<-"eugirp3B110CattlEM000000000000CH0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B110CattttleEM00000000000CH0000"
-    
-    curstr<-"EM,N2O,kt,3.B.2.1,Cattle,*,Manure Management,*,*,*,*,Emissions"
-    curuid<-"eugirp3B210CattlEM000000000000N20000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B210CattttleEM00000000000N20000"
-    
-    curstr<-"EM,no gas,kt N/year,3.B.2.1,Cattle,*,Manure Management"
-    curuid<-"eugirp3B210CattlEM000000000000no0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B210CattttleEM00000000000no0000"
-    
-    curstr<-"EM,no gas,kt N/year,3.B.2.1,Cattle,Liquid,Manure Management"
-    curuid<-"eugirp3B210CattlNEX00000Liq000no0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B210CattttleNEX00000Li000no0000"
-    
-    curstr<-"EM,no gas,kt N/year,3.B.2.1,Cattle,Pasture,Manure Management"
-    curuid<-"eugirp3B210CattlNEX00000Pas000no0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B210CattttleNEX00000Pa000no0000"
-    
-    curstr<-"EM,no gas,kt N/year,3.B.2.1,Cattle,Solid,Manure Management"
-    curuid<-"eugirp3B210CattlNEX00000Sol000no0000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B210CattttleNEX00000So000no0000"
-    
-    curstr<-"NRATE,no gas,kg N/head/year,3.B.2.1,Cattle,*,Manure Management"
-    curuid<-"eugirp3B210CattlNRA00000000000N20000"
-    previousset[previousset$V2==curuid,2]<-"eugirp3B210CattttleNRA0000000000N20000"
-    
-    # Second look for matching variableUIDs
-    mergeset<-merge(previousset,avmeas,by.x="V2",by.y = "variableUID",all.x=TRUE,sort=FALSE)
-    mergeset[is.na(mergeset)]<-""
-    mergenotOK<-mergeset[mergeset$metastring=="",]
-    mergenotOK<-mergenotOK[!grepl("^\\*",mergenotOK$V2),]
-    mergenotOK<-mergenotOK[!grepl("^SET",mergenotOK$V2),]
-    mergenotOK<-mergenotOK[!grepl("^\\/",mergenotOK$V2),]
-}
-
-if(nrow(mergenotOK)!=0){
-    View(mergenotOK)
-    stop("There are still problems:")
-}
+agri4capri<-unique(allagri[,selhead])
+agri4capri[] <- lapply(agri4capri, as.character)
+agri4capri$meta<-sapply(1:nrow(agri4capri),function(x) paste(as.character(agri4capri[x,setdiff(uniquefields,c("variableUID","datasource"))]),collapse=","))
+agri4capri$meta<-gsub(",,",",*,",agri4capri$meta)
+agri4capri$meta<-gsub(",,",",*,",agri4capri$meta)
+agri4export<-agri4capri[,c("variableUID","meta")]
 
 
-mergeset<-mergeset[order(mergeset$n),]
-mergeset<-mergeset[order(mergeset$n),c("V1","V2","metastring","V3")]
-#Remove old metadata string
-#mergeOK<-mergeOK[,-which(names(mergeOK)=="V3")]
+header<-paste0("*******************************************************************************")
+header<-paste0(header,"\n$ontext")
+header<-paste0(header,"\n\n   CAPRI project")
+header<-paste0(header,"\n\n   GAMS-file   : set file created by eugirp_exportUIDs4capri.r")
+header<-paste0(header,"\n\n   @purpose    : Maps CAPRI GHG inventory output with format of the NIRs via variableUIDs")
+header<-paste0(header,"\n                 This file is part of the eugirp project and needs to run before running CAPRI - 'Map CAPRI to NIR'")
+header<-paste0(header,"\n                 See https://github.com/aleip/eealocatorplots")
+header<-paste0(header,"\n\n   @author     : Adrian Leip")
+header<-paste0(header,"\n   @date       : 2018-04-30")
+header<-paste0(header,"\n   @last update: ",format(Sys.time(), "%Y-%m-%d"))
+header<-paste0(header,"\n   @basedon    : CAPRI_NIR_Sets.gms created by S. Marquardt 2016-02")
+header<-paste0(header,"\n   @calledby   : eealocatorplots.r (step 9: FAO and CAPRI comparison)")
+header<-paste0(header,"\n\n$offtext")
+header<-paste0(header,"\n*******************************************************************************\n")
 
-sel<-mergeset$V3==-999
-mergeset$new[sel]<-mergeset$V2[sel]
-mergeset<-as.data.frame(mergeset[,c("new","V1","V2","metastring","V3")])
 
-sel<-mergeset$metastring!="" & mergeset$V1=="variableUID"
-mergeset$new[sel]<-paste0("\"",mergeset$V2[sel],"\" \"",mergeset$metastring[sel],"\"")
 
-sel<-mergeset$V3!=-999 & mergeset$V1!="variableUID"
-mergeset$new[sel]<-paste0("\"",mergeset$V2[sel],"\".(",mergeset$V3[sel],") \"",mergeset$metastring[sel],"\"")
+conf<-file("variableuid.set",open="wt")
+writeLines(header,conf)
+cong<-file("uid_to_ghg.set",open="wt")
+writeLines(header,cong)
 
-sel<-grepl("@author",mergeset$new)
-mergeset$new[sel]<-"*   @author   : Sandra Marquardt and Adrian Leip"
-sel<-grepl("@date",mergeset$new)
-mergeset$new[sel]<-paste0(mergeset$new[sel]," (SM), updated and modified 2017-04-21 (AL)")
+writeLines("******************************************************",conf)
+writeLines("*  --- Define setglobals for further calculations ",conf)
+writeLines("******************************************************",conf)
+sel<-agri4capri$measure=="Nitrogen excretion rate"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines(paste0("$SETGLOBAL NrateCattle ",agri4capri$variableUID[sel&agri4capri$category=="Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL NrateDairy ",agri4capri$variableUID[sel&agri4capri$category=="Dairy Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL NrateNDairy ",agri4capri$variableUID[sel&agri4capri$category=="Non-Dairy Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL NrateSheep ",agri4capri$variableUID[sel&agri4capri$category=="Sheep"]),conf)
+writeLines(paste0("$SETGLOBAL NrateSwine ",agri4capri$variableUID[sel&agri4capri$category=="Swine"]),conf)
 
-write.table(mergeset$new,file="CAPRI_NIR_Sets.gms",quote = FALSE,row.names = FALSE)
+sel<-agri4capri$measure=="Total N excreted"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines(paste0("\n$SETGLOBAL NexCattle ",agri4capri$variableUID[sel&agri4capri$category=="Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL NexDairy ",agri4capri$variableUID[sel&agri4capri$category=="Dairy Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL NexNDairy ",agri4capri$variableUID[sel&agri4capri$category=="Non-Dairy Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL NexSheep ",agri4capri$variableUID[sel&agri4capri$category=="Sheep"]),conf)
+writeLines(paste0("$SETGLOBAL NexSwine ",agri4capri$variableUID[sel&agri4capri$category=="Swine"]),conf)
 
+sel<-agri4capri$measure=="Population"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.A",agri4capri$sector_number)
+writeLines(paste0("\n$SETGLOBAL PopCattle ",agri4capri$variableUID[sel&agri4capri$category=="Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL PopDairy ",agri4capri$variableUID[sel&agri4capri$category=="Dairy Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL PopNDairy ",agri4capri$variableUID[sel&agri4capri$category=="Non-Dairy Cattle"]),conf)
+writeLines(paste0("$SETGLOBAL PopSheep ",agri4capri$variableUID[sel&agri4capri$category=="Sheep"]),conf)
+writeLines(paste0("$SETGLOBAL PopSwine ",agri4capri$variableUID[sel&agri4capri$category=="Swine"]),conf)
+
+sel<-agri4capri$meastype=="AD"&agri4capri$gas%in%c("no gas")&grepl("3.D",agri4capri$sector_number)
+writeLines(paste0("\n$SETGLOBAL NinSynfert ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.1.1"]),conf)
+writeLines(paste0("$SETGLOBAL NinOrgfert ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.1.2"]),conf)
+writeLines(paste0("$SETGLOBAL NinManure ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.1.2.a"]),conf)
+writeLines(paste0("$SETGLOBAL NinGrazing ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.1.3"]),conf)
+writeLines(paste0("$SETGLOBAL NinCropres ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.1.4"]),conf)
+writeLines(paste0("$SETGLOBAL NinAtmdep ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.2.1"]),conf)
+writeLines(paste0("$SETGLOBAL NinLeach ",agri4capri$variableUID[sel&agri4capri$sector_number=="3.D.2.2"]),conf)
+
+
+
+
+sel<-agri4capri$meastype=="EM"&agri4capri$gas=="Aggregate GHGs"
+writeLines("\n\nSET variableUID 'IPCC unique identifier in allagri'/\n",conf)
+writeLines("SET UID_TO_GHG(variableUID,GHGs) 'Mapping of relevant UIDs for mapping between CAPRI and NIR'/\n",cong)
+writeLines("******************************************************",conf)
+writeLines("*  --- Emissions ",conf)
+writeLines("******************************************************\n",conf)
+writeLines("*  --- Emissions in kt CO2eq\n",conf)
+writeLines("*  --- Emissions in kt CO2eq\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$sector_number=="3"],"\".(CH4ENT,CH4MAN,CH4RIC,CO2LIME,CO2UREA,N2OAPP,N2OGRA,N2OSYN,N2OHIS,N2OCRO,N2OLEA,N2OindMM,N2OindAS,N2OMAN)   \"",agri4export$meta[sel&agri4capri$sector_number=="3"],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$sector_number=="3.A"],"\".(CH4ENT)   \"",agri4export$meta[sel&agri4capri$sector_number=="3.A"],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$sector_number=="3.B"],"\".(CH4MAN,N2OMAN)   \"",agri4export$meta[sel&agri4capri$sector_number=="3.B"],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$sector_number=="3.C"],"\".(CH4RIC)   \"",agri4export$meta[sel&agri4capri$sector_number=="3.C"],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$sector_number=="3.D"],"\".(N2OSYN,N2OAPP,N2OGRA,N2OCRO,N2OHIS,N2OindAS,N2OLEA)   \"",agri4export$meta[sel&agri4capri$sector_number=="3.A"],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4","N2O","CO2")&agri4capri$sector_number=="3"
+writeLines("\n*  --- Emissions in kt of gas\n",conf)
+writeLines("\n*  --- Emissions in kt of gas\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$gas=="CH4"],"\".(CH4ENT,CH4MAN,CH4RIC)   \"",agri4export$meta[sel&agri4capri$gas=="CH4"],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$gas=="N2O"],"\".(N2OMAN,N2OSYN,N2OAPP,N2OGRA,N2OCRO,N2OHIS,N2OindMM,N2OindAS,N2OLEA)   \"",agri4export$meta[sel&agri4capri$gas=="N2O"],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&agri4capri$gas=="CO2"],"\".(CO2LIME,CO2UREA)   \"",agri4export$meta[sel&agri4capri$gas=="CO2"],"\""),cong)
+
+
+
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4")&agri4capri$category%in%selanimals&grepl("3.A",agri4capri$sector_number)
+writeLines("\n*  --- Enteric Fermentation IPCC 3.A\n",conf)
+writeLines("\n*  --- Enteric Fermentation IPCC 3.A\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CH4ENT)   \"",agri4export$meta[sel],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Manure Management CH4 IPCC 3.B.1\n",conf)
+writeLines("\n*  --- Manure Management CH4 IPCC 3.B.1\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CH4MAN)   \"",agri4export$meta[sel],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Manure Management N2O IPCC 3.B.2\n",conf)
+writeLines("\n*  --- Manure Management N2O IPCC 3.B.2\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+selxtra<-agri4capri$sector_number=="3.B.2.5"
+writeLines(paste0("\"",agri4export$variableUID[sel&!selxtra],"\".(N2OMAN)   \"",agri4export$meta[sel&!selxtra],"\""),cong)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OindMM)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4")&agri4capri$category%in%selanimals&agri4capri$sector_number%in%c("3.C","3.C.1")
+writeLines("\n*  --- Rice Cultivation CH4 IPCC 3.C\n",conf)
+writeLines("\n*  --- Rice Cultivation CH4 IPCC 3.C\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CH4RIC)   \"",agri4export$meta[sel],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O")&grepl("3.D",agri4capri$sector_number)
+writeLines("\n*  --- Agricultural Soils N2O IPCC 3.D\n",conf)
+writeLines("\n*  --- Agricultural Soils N2O IPCC 3.D\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+selxtra<-agri4capri$sector_number=="3.D"
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OSYN,N2OAPP,N2OGRA,N2OCRO,N2OHIS,N2OindAS,N2OLEA)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-agri4capri$sector_number=="3.D.1"
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OSYN,N2OAPP,N2OGRA,N2OCRO,N2OHIS)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-agri4capri$sector_number=="3.D.1.1"
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OSYN)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.1.2",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OAPP)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.1.3",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OGRA)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.1.4",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OCRO)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.1.6",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OHIS)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.2$",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OindAS,N2OLEA)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.2.1",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OindAS)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+selxtra<-grepl("3.D.2.2",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OLEA)   \"",agri4export$meta[sel&selxtra],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F",agri4capri$sector_number)
+writeLines("\n*  --- Field Burning IPCC 3.F\n",conf)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4","N2O","CO2")&"3.G"==agri4capri$sector_number
+writeLines("\n*  --- Liming IPCC 3.G\n",conf)
+writeLines("\n*  --- Liming IPCC 3.G\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CO2LIME)   \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4","N2O","CO2")&grepl("3.H",agri4capri$sector_number)
+writeLines("\n*  --- Urea Application IPCC 3.H\n",conf)
+writeLines("\n*  --- Urea Application IPCC 3.H\n",cong)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CO2UREA)   \"",agri4export$meta[sel],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.J",agri4capri$sector_number)
+writeLines("\n*  --- Other agriculture emissions IPCC 3.J\n",conf)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+
+
+writeLines("\n\n\n******************************************************",conf)
+writeLines("*  --- N excretion by animals ",conf)
+writeLines("******************************************************\n",conf)
+
+sel<-agri4capri$measure=="Total N excreted"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Total N excretion IPCC 3.B.2\n",conf)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+sel<-agri4capri$measure=="Nitrogen excretion rate"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Nitrogen excretion rate IPCC 3.B.2\n",conf)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+sel<-agri4capri$measure=="Nitrogen excretion per MMS"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Nitrogen excretion per MMS IPCC 3.B.2\n",conf)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+writeLines("\n\n\n******************************************************",conf)
+writeLines("*  --- N input to soils ",conf)
+writeLines("******************************************************\n",conf)
+sel<-agri4capri$meastype=="AD"&agri4capri$gas%in%c("no gas")&grepl("3.D",agri4capri$sector_number)
+sel<-sel&!grepl("3.D.1.2.[bc]",agri4capri$sector_number)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+writeLines("\n\n\n******************************************************",conf)
+writeLines("*  --- Populations ",conf)
+writeLines("******************************************************\n",conf)
+sel<-agri4capri$meastype=="POP"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.A",agri4capri$sector_number)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+sel<-agri4capri$meastype=="POP"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B.1",agri4capri$sector_number)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+sel<-agri4capri$meastype=="POP"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B.2",agri4capri$sector_number)
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+writeLines("/;",conf)
+writeLines("/;",cong)
+close(conf)
+
+writeLines("\n\nSET UID_TO_MPACT(variableUID,MPACT) 'Mapping of relevant UIDs for mapping between CAPRI and NIR'/\n",cong)
+writeLines("\n*  --- Farming\n",cong)
+sx<-agri4capri$measure=="Emissions"&agri4capri$category=="Farming"&agri4capri$gas%in%c("CH4","N2O")
+sx<-sx&!grepl("3.[D|1|E|C]",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(SET.MPACT)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Cattle\n",cong)
+se<-agri4capri$measure%in%c("Emissions","Total N excreted","Nitrogen excretion rate","Nitrogen excretion per MMS","Population")&agri4capri$gas%in%c("CH4","N2O","no gas")
+sx<-se&agri4capri$category=="Cattle"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(DCOL,DCOH,BULL,BULH,HEIL,HEIH,SCOW,HEIR,CAMF,CAFF,CAMR,CAFR)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Dairy Cattle\n",cong)
+sx<-se&agri4capri$category=="Dairy Cattle"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(DCOL,DCOH)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Non-Dairy Cattle\n",cong)
+sx<-se&agri4capri$category=="Non-Dairy Cattle"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(BULL,BULH,HEIL,HEIH,SCOW,HEIR,CAMF,CAFF,CAMR,CAFR)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Sheep and Goats - Note that Goats are separately!!\n",cong)
+sx<-se&agri4capri$category=="Sheep"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(SHGM,SHGF)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Swine\n",cong)
+sx<-se&agri4capri$category=="Swine"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(PIGF,SOWS)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Other Livestock\n",cong)
+sx<-se&agri4capri$category=="Other Livestock"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(HENS,POUF,OANI)   \"",agri4export$meta[sx],"\""),cong)
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4")&agri4capri$category%in%selanimals&agri4capri$sector_number%in%c("3.C","3.C.1")
+writeLines("\n*  --- Rice Cultivation CH4 IPCC 3.C\n",cong)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(PARI)   \"",agri4export$meta[sel],"\""),cong)
+
+writeLines("\n*  --- Agricultural Soils N2O IPCC 3.D\n",cong)
+sx<-agri4capri$measure=="Emissions"&grepl("3.D",agri4capri$sector_number)&agri4capri$gas%in%c("CH4","N2O")
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(SET.MPACT)   \"",agri4export$meta[sx],"\""),cong)
+
+sel<-agri4capri$meastype=="AD"&agri4capri$gas%in%c("no gas")&grepl("3.D",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(SET.MCACT)   \"",agri4export$meta[sel],"\""),cong)
+writeLines("/;",cong)
+
+
+writeLines("\n\nSET UID_TO_COLS(variableUID,DB_COLS)/",cong)
+sel<-agri4capri$meastype=="EM"&agri4capri$gas=="Aggregate GHGs"
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(ImpactGWP)   \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CO2")&agri4capri$sector_number%in%c("3","3.G","3.H")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(UAAR)   \"",agri4export$meta[sel],"\""),cong)
+writeLines("/;",cong)
+
+writeLines("\n\nSET UID_TO_ROWS(variableUID,DB_ROWS)/",cong)
+sel<-agri4capri$measure=="Total N excreted"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Total N excretion IPCC 3.B.2\n",cong)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(MANN)   \"",agri4export$meta[sel],"\""),cong)
+writeLines("\n*  --- Populations \n",cong)
+sel<-agri4capri$meastype=="POP"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.[AB]",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(HERD)   \"",agri4export$meta[sel],"\""),cong)
+
+writeLines("/;",cong)
+
+writeLines("\n\nSET UID_TO_ALLTYPE(variableUID,ALLTYPE)/",cong)
+sel<-agri4capri$measure=="Nitrogen excretion per MMS"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
+writeLines("\n*  --- Nitrogen excretion per MMS - Liquid Systems\n",cong)
+sx<-sel&grepl("Liquid",agri4capri$source)
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(Liquid)   \"",agri4export$meta[sx],"\""),cong)
+
+writeLines("\n*  --- Nitrogen excretion per MMS - Solid Systems\n",cong)
+sx<-sel&grepl("Solid",agri4capri$source)
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(Solid)   \"",agri4export$meta[sx],"\""),cong)
+
+writeLines("\n*  --- Nitrogen excretion per MMS - Grazing Systems\n",cong)
+sx<-sel&grepl("Pasture",agri4capri$source)
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(GRAZ)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("/;",cong)
+
+close(cong)

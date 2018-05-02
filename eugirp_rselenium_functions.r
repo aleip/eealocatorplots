@@ -375,12 +375,12 @@ approvequestionandsend<-function(remDr,issue,where=NULL){
 followupissue<-function(x,line){
     remDr<-emrtgema()
     curissue<-line$issuenr
-    #https://emrt-esd.eionet.europa.eu/2017/BE-3A-2017-0005#tab-qa
+    #https://emrt-esd.eionet.europa.eu/2017/BEL-3A-2017-0005#tab-qa
     print(paste0("issue ",x,": ",curissue))
     print(line$communication)
     openissue(remDr,curissue)
     
-    #https://emrt-esd.eionet.europa.eu/2017/BE-3A-2017-0005/question-1/++add++Comment
+    #https://emrt-esd.eionet.europa.eu/2017/BEL-3A-2017-0005/question-1/++add++Comment
     clickstandardbutton(remDr,"Add follow up question")
     Sys.sleep(2)
     while(!grepl("\\+\\+add\\+\\+",remDr$getCurrentUrl()[[1]])){
@@ -968,7 +968,7 @@ preparefileforissueupload<-function(newissuefile="",revyear=curyear){
     missfields<-(newissuefields[!newissuefields%in%names(newissuefile)])
     
     if("Obs"%in%missfields & sum(grepl("Observ",names(newissuefile)))) newissuefile$Obs<-newissuefile[,which(grepl("Observ",names(newissuefile)))]
-    newissuefile$party[grepl("UK|GB",newissuefile$party)]<-"GB"
+    newissuefile$party[grepl("GBE|GBK",newissuefile$party)]<-"GBK"
     newissuefile$Country<-unlist(lapply(c(1:nrow(newissuefile)),function(x) countriesl[which(countries2==newissuefile$party[x])]))
     newissuefile$Country[grepl("United Kingdom",newissuefile$Country)]<-"United Kingdom"
     #if("Country"%in%missfields & sum(grepl("party",names(newissuefile)))) {
@@ -1327,7 +1327,7 @@ if(sum(selection)>0){View(issuelist);stop("There are mistakes in issue-nr, see i
 #        checked in the next submission.
 # Also issues where some 'action' from our side is required: clarification with UNFCCC 
 #      or advice requested
-esdtrial<-c("AT","BE","BG","CY","CZ","EE","FI","DE","HR","HU","IE","LV","LT","MT","RO","SE","SK","UK")
+esdtrial<-c("AUT","BEL","BGR","CYP","CZE","EST","FIN","DEU","HRV","HUN","IRL","LVA","LTU","MLT","ROU","SWE","SVK","GBE")
 
 #i2resolve<-unique(i2retrieve[i2retrieve$next.%in%c("Resolved","Corrected","Justified"),c("issuenr","next.","note",flagnames)])
 #i2partly<-unique(i2retrieve[grepl("Partly",i2retrieve$next.),linedetails])

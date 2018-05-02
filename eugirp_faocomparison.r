@@ -11,7 +11,7 @@ faocontent<-c("Enteric Fermentation","Manure Management","Rice Cultivation",
               "Crop Residues","Cultivation of Organic Soils","Burning - Crop Residues",
               "Agriculture Total")
 
-faosites<-c("GE","GM","GR","GY","GU","GP","GA","GV","GB","GT")
+faosites<-c("GE","GM","GRC","GY","GU","GP","GA","GV","GBK","GT")
 #faocountries<-faocountries[faocountries$cAc!="",]
 #faocountries<-read.csv(file=paste0(invloc,"/fao/faocountries.csv"))
 faocountries<-read.csv("faocountries.csv",header = TRUE)
@@ -376,9 +376,9 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     #faodata[,mismeta]<-merge(x,y,by="variableUID",all.x=TRUE)
     
     # Ensure that excludeparty is not deleted
-    if("GB" %in% acountry) faodata$party[faodata$party=="UK"]<-"GB"
-    if("FM" %in% acountry) faodata$party[faodata$party=="FR"]<-"FM"
-    if("IS" %in% acountry) faodata$party[faodata$party=="IC"]<-"IS"
+    if("GBK" %in% acountry) faodata$party[faodata$party=="GBE"]<-"GBK"
+    if("FM" %in% acountry) faodata$party[faodata$party=="FRK"]<-"FM"
+    if("ISL" %in% acountry) faodata$party[faodata$party=="IC"]<-"ISL"
     
     # Calculate EU28 sums
     faodata<-faodata[!faodata$party%in%eu,]

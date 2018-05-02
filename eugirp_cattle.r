@@ -12,10 +12,10 @@ curagri<-curagri[!selection,]
 
 # For Poland, the categories "Other Cattle.Non-dairy cattle" and "Other Cattle.Dairy cattle"
 #             already have all data required.
-selection<-curagri$party=="PL"&curagri$category=="Other Cattle.Non-dairy cattle"&grepl("3.A",curagri$sector_number)
+selection<-curagri$party=="POL"&curagri$category=="Other Cattle.Non-dairy cattle"&grepl("3.A",curagri$sector_number)
 #curagri$category[selection]<-"Non-dairy Cattle"
 curagri<-curagri[!selection,]
-#selection<-curagri$party=="PL"&curagri$category=="Other Cattle.Dairy cattle"
+#selection<-curagri$party=="POL"&curagri$category=="Other Cattle.Dairy cattle"
 #curagri$category[selection]<-"Dairy Cattle"
 #curagri<-curagri[!selection,]
 
@@ -83,7 +83,7 @@ getcatuid<-function(line,cattleuid){
         line$gas==cattleuid$gas &
         line$source==cattleuid$source
     uid<-unique(as.character(cattleuid$variableUID[selection]))
-    #One possibility is that Other cattle thing from PL
+    #One possibility is that Other cattle thing from POL
     #if(length(unique(allagri$category[allagri$variableUID%in%uid]))) uid<-uid[!grepl("Other [cC]attle.[DN]",unique(allagri$category[allagri$variableUID%in%uid]))]    
     n<-length(uid)
     if(n>1){

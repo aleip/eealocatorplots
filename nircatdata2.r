@@ -5,7 +5,7 @@ curemissions<-curemissions[curemissions$party%in%acountry,]
 curemissions[is.nan(curemissions)]<-NA
 
 # Exclude some national data with wrong unit
-if(curmea=="Milk") curemissions[curemissions$party=="LU",years]<-NA
+if(curmea=="Milk") curemissions[curemissions$party=="LUX",years]<-NA
 
 #euemissions<-filter(curemissions,party==eusubm)
 euemissions<-curemissions[curemissions$party==eusubm,]

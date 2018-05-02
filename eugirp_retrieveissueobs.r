@@ -68,8 +68,8 @@ responses<-checkmsresponse(remDr)
 # Check individual issue
 remDr<-emrt()
 ldetails<-c("obs","date","yr","par","ms","eu","flag","q","lfrom","ldate","ltext")
-curissue<-"IS-3B-2015-0008"
-curissue<-"BE-3H-2015-0001"
+curissue<-"ISL-3B-2015-0008"
+curissue<-"BEL-3H-2015-0001"
 details<-as.data.frame(t(unlist(obsdetails(remDr,curissue))))
 names(details)<-ldetails
 
@@ -96,5 +96,5 @@ line = curis[x,]
 r<-unlist(lapply(c(2:4),function(x) resolveissue(remDr,x,line = curis[x,],do="")))
 r<-unlist(lapply(c(1:nrow(curis)),function(x) resolveissue(remDr,x,line = curis[x,],do="")))
 
-line[,linedetails]<-c("RO-3A-2015-0003","Explained","",0,0,1,0,0,0,0,0)
+line[,linedetails]<-c("ROU-3A-2015-0003","Explained","",0,0,1,0,0,0,0,0)
 resolveissue(remDr,1,line,do="")

@@ -36,7 +36,7 @@ options(error=NULL) #error=recover goes into debug mode
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
 # Return:
 # - alldata: data frame containing (almost) all EEA-locator data. Years are transposed to columns.
-#            Some cleaning on uids has been done, data rows with irrelevant gases, UK removed (GB
+#            Some cleaning on uids has been done, data rows with irrelevant gases, GBE removed (GBK
 #            kept), sector_numbers "-" removed. 
 #            Infos (e.g. documentation boxes) and notation keys stored in separate files
 # - allnotations: Notations used
@@ -54,7 +54,7 @@ source("eugirpA.1_eealocator.r")
 # - Recombine with the other sectors
 if(stepsdone==1){
     print("Step 2: Generate list of measures and deal with animals")
-    # Remove UK (use GB) and remove Island ####
+    # Remove GBE (use GBK) and remove Island ####
     
     alldata$datasource<-"nir"
     alldata$notation<-""
@@ -161,12 +161,12 @@ if(stepsdone==2){
     names(calcshare)<-c("ncountries","party","year","share","variableUID","mean","meanother")
     ademoutl<-merge(calcshare,agrisummeas,by="variableUID")
     ademoutl<-simplifytestmatrix(check = ademoutl,group = c("year","share"),compare = list(years,"range"))
-    ok1<-ademoutl$party=="IT"&ademoutl$category=="Buffalo"
-    ok2<-ademoutl$party=="DK"&ademoutl$source=="Digesters"
-    ok3<-ademoutl$party=="NL"&ademoutl$option=="Option B"
-    ok4<-ademoutl$party=="RO"&grepl("^3.F.",ademoutl$sector_number)
-    ok6<-ademoutl$party=="ES"&grepl("^3.F.",ademoutl$sector_number) #20170127 burning of agricultural residues, no area burnt is reported (NA) but some biomass available (table 3.F, column C) from soybean and other non-specified. Reported emissions are NO.
-    ok5<-ademoutl$party=="SE"&grepl("^3.*8$",ademoutl$sector_number)
+    ok1<-ademoutl$party=="ITA"&ademoutl$category=="Buffalo"
+    ok2<-ademoutl$party=="DNM"&ademoutl$source=="Digesters"
+    ok3<-ademoutl$party=="NLD"&ademoutl$option=="Option B"
+    ok4<-ademoutl$party=="ROU"&grepl("^3.F.",ademoutl$sector_number)
+    ok6<-ademoutl$party=="ESP"&grepl("^3.F.",ademoutl$sector_number) #20170127 burning of agricultural residues, no area burnt is reported (NA) but some biomass available (table 3.F, column C) from soybean and other non-specified. Reported emissions are NO.
+    ok5<-ademoutl$party=="SWE"&grepl("^3.*8$",ademoutl$sector_number)
     ademoutl<-ademoutl[!(ok1 | ok2 | ok3 | ok4 | ok5 | ok6),]
     ademoutl$correction<-0
     ademoutl<-ademoutl[order(ademoutl$party,ademoutl$sector_number),]
@@ -525,7 +525,7 @@ if(stepsdone==6){
     
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")
-    #paramcheck$correction[paramcheck$party=="SE"&paramcheck$meastype=="VSEXC"]<-0
+    #paramcheck$correction[paramcheck$party=="SWE"&paramcheck$meastype=="VSEXC"]<-0
     source("eugirp_euweightedaverages.r")
     export4uba(allagri = allagri)
     
@@ -566,15 +566,16 @@ if(stepsdone==7) {
     #load(rdatmeasu)
     
     # source("tmp_otherlivestockearlier.r")
-    # Again manual correction of BE-swine/sheep problem
+    # Again manual correction of BEL-swine/sheep problem
     #     allagri<-allagri[!allagri$variableUID=="8A72A9BE-DB94-4277-ADFC-8AE85BE6B999",]
     #     uidrem<-"76660D32-4F2A-4C65-81C3-71FA2C340542"
     #     uidnew<-"AB1CC8F6-D71C-46A1-A846-B5E76E2DE3A2"
-    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
+    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BEL"]<-uidnew
+    
     #     allagri<-allagri[!allagri$variableUID==uidrem,]
     #     uidrem<-"1FB8F04A-E6A1-47B7-A6F0-407836FDF3EF"
     #     uidnew<-"3FB4B8CB-B0A8-4BA1-8D81-CD412F301D1B"
-    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BE"]<-uidnew
+    #     allagri$variableUID[allagri$variableUID==uidrem&allagri$party=="BEL"]<-uidnew
     #     allagri<-allagri[!allagri$variableUID==uidrem,]
     
     #keycategories<-keysources()
@@ -638,6 +639,7 @@ if(stepsdone==7) {
 if(stepsdone==8) {
     print(paste0("Step ",stepsdone+1,": Comparison with FAO"))
     source("eugirp_faocomparison.r")
+    source("eugirp_exportUIDs4capri.r")
     stepsdone<-9
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     save(list=savelist,file=rdatallem)

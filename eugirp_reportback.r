@@ -54,9 +54,9 @@ resclima<-cbind(test,resclima)
 resclima$party<-"EU28"
 
 #correct for errors
-resclima[resclima$party=="NL"&resclima$source!="",years]<-resclima[resclima$party=="NL"&resclima$source!="",years]/3
-resclima[resclima$party=="PT"&resclima$source!="",years]<-resclima[resclima$party=="NL"&resclima$source!="",years]/1.2
-sel<-resclima$party=="LV"&resclima$source!=""&resclima$category=="Poultry"
+resclima[resclima$party=="NLD"&resclima$source!="",years]<-resclima[resclima$party=="NLD"&resclima$source!="",years]/3
+resclima[resclima$party=="PRT"&resclima$source!="",years]<-resclima[resclima$party=="NLD"&resclima$source!="",years]/1.2
+sel<-resclima$party=="LVA"&resclima$source!=""&resclima$category=="Poultry"
 resclima[sel,as.character(c(1990:2009))]<-resclima[sel,as.character(c(1990:2009))]/2
 resclima[sel,as.character(c(2010:2013))]<-resclima[sel,as.character(c(2010:2013))]/3
 

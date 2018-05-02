@@ -777,7 +777,7 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
         lastyr<-0
         relmedian<-0
         share<-"no emissions reported"
-        #if(line$party=="IS") share<-"Island excluded from check"
+        #if(line$party=="ISL") share<-"Island excluded from check"
     }else{
         if(y!=0){
             relmedian<-y/median
@@ -1590,16 +1590,16 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     pars<-unique(as.vector(unlist(t1$party)))
     for(par in pars){
         #print(paste0("par=",par))
-        #if(par=="CY" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
+        #if(par=="CYP" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
         t2<-t1[t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype,]
         secsl<-unique(as.vector(unlist(t2$sector_number)))
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]
         #print(secsl)
         for(sec in secsl){
             #print(paste0("sec=",sec))
-            #if(par=="CY" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later (it has no "classification")
-            #if(par=="CY" & meastype == "IEF" & sec == "3.F.1.2") next  #xavi20180321: included this because there is an error that needs to be fixed later
-            #if(par=="DK" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later
+            #if(par=="CYP" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later (it has no "classification")
+            #if(par=="CYP" & meastype == "IEF" & sec == "3.F.1.2") next  #xavi20180321: included this because there is an error that needs to be fixed later
+            #if(par=="DNM" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later
             t2<-t1[t1$party==par&t1$sector_number==sec&t1$category%in%cats&t1$meastype==meastype,]
             catsl<-unique(as.vector(unlist(t2$category)))
             #print(paste0("cats=",cats))

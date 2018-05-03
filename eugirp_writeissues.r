@@ -346,7 +346,7 @@ keysources<-function(){
         }else if(keycategories$party[x]=="EU"){
             "EUC"
         }else{
-            as.character(country4sub[country4sub$code3==keycategories$party[x],"code2"])
+            as.character(country4sub[country4sub$code3==keycategories$party[x],"code3"])
         }))
     keycategories$party[keycategories$party=="EU"]
     keycategories$category<-unlist(lapply(c(1:nrow(keycategories)),function(x) 
@@ -483,7 +483,7 @@ emrtsector<-function(sectornumber){
 flags4newissue<-function(line,check,x){
   
     #cat(x," ")
-    country<-country4sub[country4sub$code2==as.character(line$party),"long"]
+    country<-country4sub[country4sub$code3==as.character(line$party),"long"]
     if(length(country)==0)country<-as.character(line$party)
     if(check=="outlier") {
         observation<-observationoutlier(line)

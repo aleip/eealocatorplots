@@ -239,7 +239,7 @@ xx<-xx[,!names(xx)%in%eu]
 if(sum(names(xx)%in%c("FRK","FM"))==2) xx<-xx[,!names(xx)%in%"FM"]
 #Remove "GBK" is both "GBK" and "GBE" are present
 if(sum(names(xx)%in%c("GBK","GBE"))==2) xx<-xx[,!names(xx)%in%"GBK"]
-xx$ncountriesNK<-apply(xx[,names(xx)%in%countries2],1,function(x) sum(x!=""))
+xx$ncountriesNK<-apply(xx[,names(xx)%in%countries3],1,function(x) sum(x!=""))
 o<-order(xx$sector_number,xx$category)
 agrinotations<-xx[o,]
 write.csv(agrinotations,paste0(issuedir,"nechecks/notationkeys~",curdate(),".csv"))
@@ -280,7 +280,7 @@ xz<-dcast(reporting,arrange,value.var="nyears")
 if(sum(names(xz)%in%c("FRK","FM"))==2) xz<-xz[,!names(xz)%in%"FM"]
 #Remove "GBK" is both "GBK" and "GBE" are present
 if(sum(names(xz)%in%c("GBK","GBE"))==2) xz<-xz[,!names(xz)%in%"GBK"]
-xz$ncountriesValue<-apply(xz[,names(xz)%in%countries2],1,function(x) sum(!is.na(x)))
+xz$ncountriesValue<-apply(xz[,names(xz)%in%countries3],1,function(x) sum(!is.na(x)))
 
 
 countriesNO<-merge(countriesNO,xz[,c("variableUID","ncountriesValue")],by="variableUID",all.x=TRUE)

@@ -89,29 +89,29 @@ gwps<-gwpsar4
 
 
 #email david 20160203
-#* - GBE (CRF Party code & ‘submission file’ in the locator) = GBE (‘Party code’ in the locator) = Great Britain (‘Party name’ in the locator) = EU-territory geographical coverage > EU’s submission under the Convention
-#* - GBR (CRF Party code & ‘submission file’ in the locator) = GBK (‘Party code’ in the locator) = United Kingdom (‘Party name’ in the locator) = KP geographical coverage > EU’s submission under KP
+#* - GBE (CRF Party code & ‘submission file’ in the locator) = UK (‘Party code’ in the locator) = Great Britain (‘Party name’ in the locator) = EU-territory geographical coverage > EU’s submission under the Convention
+#* - GBR (CRF Party code & ‘submission file’ in the locator) = GB (‘Party code’ in the locator) = United Kingdom (‘Party name’ in the locator) = KP geographical coverage > EU’s submission under KP
 
 #email david 20150703 (quoted in email spyri 20150706)
-# - 2 XML files for GBE: GBE and GBR ("GBE" has been assigned code "GBK" and label "Great Britain", 
-#                                    "GBR" has been assigned code "GBE" and label "United Kingdom").
+# - 2 XML files for UK: GBE and GBR ("GBE" has been assigned code "GB" and label "Great Britain", 
+#                                    "GBR" has been assigned code "UK" and label "United Kingdom").
 
 #email riccardo 20160530
-#I think the first email is right: GBE=GBE=EU-territory & GBK=GBR=KP
+#I think the first email is right: UK=GBE=EU-territory & GB=GBR=KP
 #GBR is clearly KP and should be higher than GBE. 
 #The Party name is confusing because it is the United Kingdom in both instances 
 #(one with overseas territories 'GBR' and the other without 'GBE').  We should improve this next year. 
 
-countries2<-c("AUT" ,"BEL" ,"BGR" ,"CYP" ,"CZE" ,"DEU" ,"DNM" ,"EST" ,"ESP" ,"FIN" ,"FRK" ,"FM" ,"GBK" ,"GBE" ,"GRC" ,"HRV" ,"HUN" ,"IRL" ,"ISL" ,"ITA" ,"LTU" ,"LUX" ,"LVA" ,"MLT" ,"NLD" ,"POL" ,"PRT" ,"ROU" ,"SWE" ,"SVN" ,"SVK" )
+countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"EE" ,"ES" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SE" ,"SI" ,"SK" )
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBR","GBK","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
 eu<-c("EUA","EUC")
 eum<-c("EU28","EU28+ISL")
 eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
 
 countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Estonia",
               "Spain","Finland","France","France incl Mayotte",
-              "United Kingdom (GBK=GBR=KP geographical coverage)","United Kingdom (GBE=GBK=EU territory)","Greece","Croatia","Hungary","Ireland",
+              "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBK=EU territory)","Greece","Croatia","Hungary","Ireland",
               "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
               "Portugal","Romania","Sweden","Slovenia","Slovakia")
 countries4plot<-gsub("United Kingdom.*","United Kingdom",countriesl)
@@ -128,20 +128,20 @@ country4sub$EUA[country4sub$code3=="ISL"]<-0
 
 # France: EU28 and EU-inventory for UNFCCC: France excluding Mayotte
 #         Kyoto: France including Mayotte
-country4sub$EU28[country4sub$code2=="FRK"]<-0
-country4sub$EUA[country4sub$code2=="FRK"]<-0
+country4sub$EU28[country4sub$code2=="FR"]<-0
+country4sub$EUA[country4sub$code2=="FR"]<-0
 #FM not reported any more in 2017
-country4sub$EU28[country4sub$code2=="FRK"]<-1
-country4sub$EUA[country4sub$code2=="FRK"]<-1
+country4sub$EU28[country4sub$code2=="FR"]<-1
+country4sub$EUA[country4sub$code2=="FR"]<-1
 country4sub$EUC[country4sub$code2=="FM"]<-0
 country4sub$EUA[country4sub$code2=="FM"]<-0
 country4sub$EU28[country4sub$code2=="FM"]<-0
 
 #
 country4sub$EU28[country4sub$code3=="GBR"]<-0
-country4sub$EUA[country4sub$code3=="GBR"]<-0
+country4sub$EUA[country4sub$code3=="GBK"]<-0
 country4sub$EUC[country4sub$code3=="GBE"]<-0
-country4sub$EUC[country4sub$code3=="GBK"]<-0
+#country4sub$EUC[country4sub$code3=="GBK"]<-0
 country4sub$EU28[country4sub$code3=="EUC"]<-0
 country4sub$EU28[country4sub$code3=="EUA"]<-0
 country4sub$EUA[country4sub$code3=="EU28"]<-0

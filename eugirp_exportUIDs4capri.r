@@ -1,5 +1,5 @@
 selhead<-c("variableUID",setdiff(uniquefields,c("variableUID","datasource")))
-selanimals<-c("Farming","Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine","Other Livestock")
+selanimals<-c("Farming","Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine","Poultry")
 
 agri4capri<-unique(allagri[,selhead])
 agri4capri[] <- lapply(agri4capri, as.character)
@@ -224,9 +224,9 @@ writeLines(paste0("\"",agri4export$variableUID[sx],"\".(SHGM,SHGF)   \"",agri4ex
 writeLines("\n*  --- Swine\n",cong)
 sx<-se&agri4capri$category=="Swine"
 writeLines(paste0("\"",agri4export$variableUID[sx],"\".(PIGF,SOWS)   \"",agri4export$meta[sx],"\""),cong)
-writeLines("\n*  --- Other Livestock\n",cong)
-sx<-se&agri4capri$category=="Other Livestock"
-writeLines(paste0("\"",agri4export$variableUID[sx],"\".(HENS,POUF,OANI)   \"",agri4export$meta[sx],"\""),cong)
+writeLines("\n*  --- Poultry\n",cong)
+sx<-se&agri4capri$category=="Poultry"
+writeLines(paste0("\"",agri4export$variableUID[sx],"\".(HENS,POUF)   \"",agri4export$meta[sx],"\""),cong)
 
 sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4")&agri4capri$category%in%selanimals&agri4capri$sector_number%in%c("3.C","3.C.1")
 writeLines("\n*  --- Rice Cultivation CH4 IPCC 3.C\n",cong)

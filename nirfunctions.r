@@ -150,7 +150,7 @@ absval<-function(curch,d=0){
 laender<-function(pp){
     #pp: vector with country acronyms
     pp<-as.character(pp)
-    pl<-unlist(lapply(c(1:length(pp)),function(x) country4sub$thename[which(country4sub$code2==pp[x])]))
+    pl<-unlist(lapply(c(1:length(pp)),function(x) country4sub$thename[which(country4sub$code3==pp[x])]))
     npl<-length(pp)
     laender<-pl[1]
     if(npl==2){laender<-paste(pl,collapse=" and ")}

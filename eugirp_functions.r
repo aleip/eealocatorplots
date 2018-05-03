@@ -258,7 +258,7 @@ eu28sums<-function(A,aeu=eu,years=years){
                                           ncol=ncol(A),nrow=nrow(agri2sum)))
             names(eu28sum)<-names(A)
             eu28sum[,names(agri2sum)]<-agri2sum[,names(agri2sum)]
-            acountry<-as.character(country4sub[country4sub[,aeu[i]]==1,"code2"])
+            acountry<-as.character(country4sub[country4sub[,aeu[i]]==1,"code3"])
             acountry<-acountry[!acountry%in%eu]
             # remove unwanted countries
             B<-A[A$party%in%acountry,]
@@ -846,7 +846,7 @@ keycategories<-function(){
     arrange<-as.formula(paste(cols2leave,"~ party"))
     potkeycategories<-dcast(potkeycategories,arrange,value.var=lastyear)
     #countries in the list
-    cindf<-c(countries2[countries2%in%names(potkeycategories)],"EUC")
+    cindf<-c(countries3[countries3%in%names(potkeycategories)],"EUC")
     #potkeycategories$EUC<-apply(potkeycategories[,cindf],1,sum,na.rm=TRUE)
     
     rankcategories<-function(x){
@@ -1465,7 +1465,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     pheight=pwidth/1.833
     plotresolution<-plotresolution
     
-    acountry<-as.character(country4sub[country4sub[,eukp]==1,"code2"])
+    acountry<-as.character(country4sub[country4sub[,eukp]==1,"code3"])
     dfm<-DF[DF$measure=="Emissions"&grepl(sec,DF$sector_number)&DF$party%in%acountry,]
     if(grepl("A|B",sec)){
         #dfm<-agridet[agridet$measure=="Emissions"&grepl(sec,agridet$sector_number)&!grepl(paste0(sec,".4"),agridet$sector_number),]
@@ -1477,7 +1477,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     }
     dfm<-filter(dfm,gas!="NMVOC")
     dfp<-acountry[as.character(unique(dfm$party))%in%acountry]
-    dfc<-sapply(dfp,function(x) country4sub[country4sub$code2==x,"code3"])
+    dfc<-sapply(dfp,function(x) country4sub[country4sub$code3==x,"code3"])
     if(sec=="3.B.2.5"){
         dfm<-dcast(dfm,source +gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
@@ -1590,7 +1590,7 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     pars<-unique(as.vector(unlist(t1$party)))
     for(par in pars){
         #print(paste0("par=",par))
-        #if(par=="CYP" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
+        if(par=="CYP" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
         t2<-t1[t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype,]
         secsl<-unique(as.vector(unlist(t2$sector_number)))
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]

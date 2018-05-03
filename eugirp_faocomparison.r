@@ -355,7 +355,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     rowsadded<-addallagriout[[2]]
     
     allagri<-curagri
-    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
     #View(curagri[selection,])
     
     

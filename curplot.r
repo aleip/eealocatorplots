@@ -161,7 +161,7 @@ if(exists("alldata")){
     eucountries<-c("EU28","EU29")
     allcountries<-c(x[!(x %in% eucountries)],x[ (x %in% eucountries)])
     countriesnoeu<-allcountries[!allcountries %in% eucountries]
-    countrynames<-unlist(lapply(c(1:length(allcountries)),function(x) countriesl[which(countries2==allcountries[x])]))
+    countrynames<-unlist(lapply(c(1:length(allcountries)),function(x) countriesl[which(countries3==allcountries[x])]))
 
     countries<-as.data.frame(allcountries)
     names(countries)<-"party"

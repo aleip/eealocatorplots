@@ -106,7 +106,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     plotdata<-plotdata[apply(plotdata[,years],1,sum,na.rm=TRUE)!=0,]
     years2keep<-as.character(years2keep)
     if(rundata=="adem"){
-        acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code2"])
+        acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code3"])
         acountry<-acountry[!acountry%in%eu]
         plotdata<-plotdata[plotdata$party%in%acountry,]
         plotdata<-eu28sums(A = plotdata,aeu = subcountries,years=years2keep)
@@ -275,6 +275,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     
     #print("prepareplot")
     curuid<-plotmeas$variableUID[imeas]
+    mstp <- plotmeas$meastype[imeas]
     years2keep<-as.character(years2keep)
     #runfoc<-paste0(runfoc,)
     #print(runfocus)
@@ -294,7 +295,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     relavs<-NULL
     nmain<-NULL
     nothers<-NULL
-    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
     acountryminus<-acountry[!acountry%in%eu]
     #eukp<-eunames[,eusubm]
     
@@ -649,9 +650,9 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     }
                   #xavi20180214: plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious)
                   if ( tmin > 0.01){
-                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,serious)
+                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,serious, mstp)
                   }else{
-                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious)
+                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious, mstp)
                   }
                 }
                 tmp<-as.data.frame(finnames)
@@ -694,7 +695,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
 
 #plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource){
 #plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource,defaults,serious){
-plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource,tmin,tmax,tmag,defaults,serious){
+plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource,tmin,tmax,tmag,defaults,serious,mstp){
     # This function creates the various plots that can be used for the NIR,
     # in particular: value-plots, trend-plots, and country-plots.
     #capinv graphics.off()
@@ -969,6 +970,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         ipccmax<-(defaults[2])
         if(ipccmin!="" & ipccmax!=""){
           ipcctxt<-paste0("IPCC 2006 default: ",as.character(unlist(defaults[3])))
+          if(mstp == "NRATE") ipcctxt<-paste0("IPCC 2006 default (units converted using default Liveweight values): ",as.character(unlist(defaults[3])))
           ipccmin<-suppressWarnings(as.numeric(as.character(unlist(defaults[1]))))
           ipccmax<-suppressWarnings(as.numeric(as.character(unlist(defaults[2]))))
           if(!is.na(ipccmin)){
@@ -1039,7 +1041,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     topnos<-unlist(plotted[[2]][[4]])
     
     # Retrieve ordering info
-    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
     acountry<-acountry[!acountry%in%eu]
     #eukp<-eunames[,eusubm]
     
@@ -1275,7 +1277,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
                     #if(finshares[i]!=0 | finshares[i]==0){
                     #print(paste(i,ncountries,finnames[i],finshares[i],sep="-"))
                     mytextavc <- finnames[i]
-                    if(finnames[i]!="Other")mytextavc <- country4sub[country4sub$code2==finnames[i],"code3"]
+                    if(finnames[i]!="Other")mytextavc <- country4sub[country4sub$code3==finnames[i],"code3"]
                     mytexteu<-eukp
                     mytexteua<-paste0(eukp)
                     if(is.nan(finshares[i])) finshares[i]<-NA

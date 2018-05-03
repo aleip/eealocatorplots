@@ -1,50 +1,50 @@
 ,Country,Country.Code,party
 1,Albania,3,
-31,Austria,11,AT
+31,Austria,11,AUT
 53,Belarus,57,
-75,Belgium,255,BE
+75,Belgium,255,BEL
 97,Belgium-Luxembourg,15,
 125,Bosnia and Herzegovina,80,
-147,Bulgaria,27,BG
-177,Croatia,98,HR
-199,Czech Republic,167,CZ
+147,Bulgaria,27,BGR
+177,Croatia,98,HRV
+199,Czech Republic,167,CZE
 221,Czechoslovakia,51,
-243,Denmark,54,DK
-265,Estonia,63,EE
-279,Finland,67,FI
-293,France,68,FR
-323,Germany,79,DE
-345,Greece,84,GR
-375,Hungary,97,HU
-405,Ireland,104,IE
-419,Italy,106,IT
-449,Latvia,119,LV
-463,Lithuania,126,LT
-485,Luxembourg,256,LU
-507,Malta,134,MT
+243,Denmark,54,DNM
+265,Estonia,63,EST
+279,Finland,67,FIN
+293,France,68,FRK
+323,Germany,79,DEU
+345,Greece,84,GRC
+375,Hungary,97,HUN
+405,Ireland,104,IRL
+419,Italy,106,ITA
+449,Latvia,119,LVA
+463,Lithuania,126,LTU
+485,Luxembourg,256,LUX
+507,Malta,134,MLT
 521,Montenegro,273,
-543,Netherlands,150,NL
+543,Netherlands,150,NLD
 565,Norway,162,
-579,Poland,173,PL
-601,Portugal,174,PT
+579,Poland,173,POL
+601,Portugal,174,PRT
 639,Republic of Moldova,146,
-661,Romania,183,RO
+661,Romania,183,ROU
 691,Russian Federation,185,
 721,Serbia,272,
 743,Serbia and Montenegro,186,
-765,Slovakia,199,SK
-787,Slovenia,198,SI
-809,Spain,203,ES
-847,Sweden,210,SE
+765,Slovakia,199,SVK
+787,Slovenia,198,SVN
+809,Spain,203,ESP
+847,Sweden,210,SWE
 861,Switzerland,211,
 883,The former Yugoslav Republic of Macedonia,154,
 913,Ukraine,230,
-943,United Kingdom,229,UK
+943,United Kingdom,229,GBE
 965,USSR,228,
 995,Yugoslav SFR,248,
 1081,Andorra,6,
 1753,Faroe Islands,64,
-2089,Iceland,99,IC
+2089,Iceland,99,ISL
 2201,Isle of Man,264,
 2369,Liechtenstein,125,
 3295,Svalbard and Jan Mayen Islands,260,

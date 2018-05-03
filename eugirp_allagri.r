@@ -1,6 +1,6 @@
 agriselect<-grepl("^3",alldata$sector_number) 
 allagri<-alldata[agriselect,]
-acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
 o<-order(allagri$sector_number,allagri$category)
 allagri<-allagri[o,]
 allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))

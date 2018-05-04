@@ -116,23 +116,31 @@ if(stepsdone==2){
     #eu28sum$notation[eu28sum$notation==0]<-""
     #calceu<-rbind(alldata,eu28sum)
     print("Calculate EU-sums")
-    calceu[,years]<-apply(calceu[,years],2,function(x) as.numeric(x))
-    calceu<-eu28sums(calceu,"EUC",years = years)
-    eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EUC",]
-    calceu <- calceu[!calceu$party=="EUC",] #xavi20180219:removing EUC sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
-    calceu <- rbind(calceu, eu28sum) #xavi20180219: so that calceu keeps only EUC sums for those that can be summed (i.e. meas2sum), but all the sector n.3 (agri)
+    #xavi20180504: calceu[,years]<-apply(calceu[,years],2,function(x) as.numeric(x))
+    #xavi20180504: calceu<-eu28sums(calceu,"EUC",years = years)
+    #xavi20180504: eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EUC",]
+    #xavi20180504: calceu <- calceu[!calceu$party=="EUC",] #xavi20180219:removing EUC sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
+    calceu <- eu28sums(A = calceu,years = years) #xavi20180504: to calculate sums for EUA and EUC
+    eu28sum <- calceu[calceu$meastype %in% meas2sum & calceu$party %in% eu,]
+    calceu <- calceu[!calceu$party %in% eu,] #xavi20180219:removing EUC and EUA sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
+    calceu <- rbind(calceu, eu28sum) #xavi20180219: so that calceu keeps only EUC and EUA sums for those that can be summed (i.e. meas2sum), but all the sector n.3 (agri)
     agrisummeas<-measures2sum[grepl("^3",measures2sum$sector_number),]
     
     # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting
+    
     sharecalc<-function(uid,D,E,x){
         #print(x)
         uid<-as.vector(unlist(uid))
-        alc<-c(1:length(countriesnoeu))
-        coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu,narm = FALSE)
+        #xavi20180504: alc<-c(1:length(countriesnoeu))
+        countriesnoeu1 <- countriesnoeu[countriesnoeu %in% as.character(country4sub[country4sub[,"EUC"]==1,"code3"])]
+        alc<-c(1:length(countriesnoeu1))
+        coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu1,narm = FALSE)
         ncoval<-coval[apply(coval,1,sum,na.rm=TRUE)!=0,]
         if(is.matrix(ncoval)){ncoval<-nrow(ncoval)}else{ncoval<-0}
         
-        euval<-E[E$variableUID==uid,years]
+        #xavi20180504: euval<-E[E$variableUID==uid,years]
+        euval<-E[E$variableUID==uid,]
+        euval<-euval[euval$party=="EUC",years]
         #euval<-euval[E$category[E$variableUID%in%uid]%in%c("Other Cattle.Non-dairy cattle","Other Cattle.Dairy cattle"),]
         euval<-as.numeric(matrix(euval))
         if(ncoval>3) {

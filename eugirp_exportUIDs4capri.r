@@ -8,6 +8,13 @@ agri4capri$meta<-gsub(",,",",*,",agri4capri$meta)
 agri4capri$meta<-gsub(",,",",*,",agri4capri$meta)
 agri4export<-agri4capri[,c("variableUID","meta")]
 
+all4capri<-unique(alldata[,selhead])
+all4capri[] <- lapply(all4capri, as.character)
+all4capri$meta<-sapply(1:nrow(all4capri),function(x) paste(as.character(all4capri[x,setdiff(uniquefields,c("variableUID","datasource"))]),collapse=","))
+all4capri$meta<-gsub(",,",",*,",all4capri$meta)
+all4capri$meta<-gsub(",,",",*,",all4capri$meta)
+all4export<-all4capri[,c("variableUID","meta")]
+
 
 header<-paste0("*******************************************************************************")
 header<-paste0(header,"\n$ontext")
@@ -67,7 +74,11 @@ writeLines(paste0("$SETGLOBAL NinLeach ",agri4capri$variableUID[sel&agri4capri$s
 
 
 
-sel<-agri4capri$meastype=="EM"&agri4capri$gas=="Aggregate GHGs"
+selem<-agri4capri$meastype=="EM"
+sel<-selem&agri4capri$gas=="Aggregate GHGs"
+sel<-sel | selem&agri4capri$gas=="CO2"&agri4capri$sector_number%in%c("3.G.1","3.G.2","3.H","3.I")
+
+
 writeLines("\n\nSET variableUID 'IPCC unique identifier in allagri'/\n",conf)
 writeLines("SET UID_TO_GHG(variableUID,GHGs) 'Mapping of relevant UIDs for mapping between CAPRI and NIR'/\n",cong)
 writeLines("******************************************************",conf)
@@ -145,11 +156,18 @@ writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OindAS)   \""
 selxtra<-grepl("3.D.2.2",agri4capri$sector_number)
 writeLines(paste0("\"",agri4export$variableUID[sel&selxtra],"\".(N2OLEA)   \"",agri4export$meta[sel&selxtra],"\""),cong)
 
-sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F",agri4capri$sector_number)
+selx<-agri4capri$measure=="Emissions"&grepl("3.F",agri4capri$sector_number)
 writeLines("\n*  --- Field Burning IPCC 3.F\n",conf)
+writeLines("\n*  --- Field Burning IPCC 3.F\n",cong)
+sel<-selx&agri4capri$gas%in%c("CH4")
 write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CH4BUR)   \"",agri4export$meta[sel],"\""),cong)
+sel<-selx&agri4capri$gas%in%c("N2O")
+write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(N2OBUR)   \"",agri4export$meta[sel],"\""),cong)
 
-sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4","N2O","CO2")&"3.G"==agri4capri$sector_number
+
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CH4","N2O","CO2")&grepl("3.G",agri4capri$sector_number)
 writeLines("\n*  --- Liming IPCC 3.G\n",conf)
 writeLines("\n*  --- Liming IPCC 3.G\n",cong)
 write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
@@ -163,7 +181,6 @@ writeLines(paste0("\"",agri4export$variableUID[sel],"\".(CO2UREA)   \"",agri4exp
 sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.J",agri4capri$sector_number)
 writeLines("\n*  --- Other agriculture emissions IPCC 3.J\n",conf)
 write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
-
 
 
 writeLines("\n\n\n******************************************************",conf)
@@ -199,11 +216,22 @@ write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FAL
 sel<-agri4capri$meastype=="POP"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B.2",agri4capri$sector_number)
 write.table(agri4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
 
+writeLines("\n\n\n******************************************************",conf)
+writeLines("*  --- LULUCF emissions ",conf)
+writeLines("******************************************************\n",conf)
+selcats<-c("Carbon stock change","Wildfires","Direct N2O Emissions from N inputs","Direct N2O Emissions from N Mineralization/Immobilization")
+sel<-all4capri$meastype=="EM"&all4capri$gas%in%c("N2O","CH4","CO2")&grepl("4.[ABCDEF].[12D]",all4capri$sector_number)&all4capri$category%in%selcats
+write.table(all4export[sel,],file=conf,quote=TRUE,row.names=FALSE,col.names=FALSE,sep="    ")
+
+
+
 writeLines("/;",conf)
 writeLines("/;",cong)
 close(conf)
 
 writeLines("\n\nSET UID_TO_MPACT(variableUID,MPACT) 'Mapping of relevant UIDs for mapping between CAPRI and NIR'/\n",cong)
+
+
 writeLines("\n*  --- Farming\n",cong)
 sx<-agri4capri$measure=="Emissions"&agri4capri$category=="Farming"&agri4capri$gas%in%c("CH4","N2O")
 sx<-sx&!grepl("3.[D|1|E|C]",agri4capri$sector_number)
@@ -238,6 +266,23 @@ writeLines(paste0("\"",agri4export$variableUID[sx],"\".(SET.MPACT)   \"",agri4ex
 
 sel<-agri4capri$meastype=="AD"&agri4capri$gas%in%c("no gas")&grepl("3.D",agri4capri$sector_number)
 writeLines(paste0("\"",agri4export$variableUID[sel],"\".(SET.MCACT)   \"",agri4export$meta[sel],"\""),cong)
+
+
+writeLines("\n*  --- Field Burning IPCC 3.F\n",cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F.1.1",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(SWHE,DWHE)           \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F.1.2",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(BARL)                \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F.1.3",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(MAIZ,MAIF)           \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F.1.4",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(PARI,OCER,RYEM,OATS) \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F.2",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(PULS)                \"",agri4export$meta[sel],"\""),cong)
+sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("N2O","CH4")&grepl("3.F.3",agri4capri$sector_number)
+writeLines(paste0("\"",agri4export$variableUID[sel],"\".(POTA,SUGB)           \"",agri4export$meta[sel],"\""),cong)
+
+
 writeLines("/;",cong)
 
 
@@ -248,7 +293,11 @@ sel<-agri4capri$measure=="Emissions"&agri4capri$gas%in%c("CO2")&agri4capri$secto
 writeLines(paste0("\"",agri4export$variableUID[sel],"\".(UAAR)   \"",agri4export$meta[sel],"\""),cong)
 writeLines("/;",cong)
 
+
+
 writeLines("\n\nSET UID_TO_ROWS(variableUID,DB_ROWS)/",cong)
+
+
 sel<-agri4capri$measure=="Total N excreted"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
 writeLines("\n*  --- Total N excretion IPCC 3.B.2\n",cong)
 writeLines(paste0("\"",agri4export$variableUID[sel],"\".(MANN)   \"",agri4export$meta[sel],"\""),cong)

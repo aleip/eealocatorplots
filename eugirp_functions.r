@@ -1166,7 +1166,7 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
 }
 export4uba<-function(allagri){
     dtagri<-as.data.table(allagri)
-    col2show<-c("party","gas","meastype","source","sector_number","category",years,"variableUID")
+    col2show<-c("party","gas","meastype","source","target","classification","sector_number","category",years,"variableUID")
     t3s1<-dtagri[grepl("EUC|EUA",party)&meastype=="EM"&
                      grepl("3.A|3.B.",sector_number)&
                      category%in%c(livestock,otherlivestock)&
@@ -1202,7 +1202,7 @@ export4uba<-function(allagri){
     View(t3as2)
     
     t3bas1<-dtagri[grepl("EUC|EUA",party)&
-                       meastype%in%c("POP","MASS","VSEXC","B0","EM")&
+                       meastype%in%c("POP","MASS","VSEXC","B0","EM","CLIMA","MCF")&
                        #meastype%in%c("GE")&
                        grepl("3.B.1",sector_number)&
                        category%in%c(livestock,otherlivestock)&

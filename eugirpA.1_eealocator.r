@@ -95,7 +95,7 @@ if(generatealldata==1){
     # Save alldata for later re-use incase of allem or all3 ####
     print("Save alldata")
     stepsdone<-1
-    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods","alldatanosector")
+    savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods","alldatanosector", "country4sub")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
     save(measures,parties,years,notations,classifications,categories,sources,methods,

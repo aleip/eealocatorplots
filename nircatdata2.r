@@ -110,7 +110,7 @@ selyears<-c(firstyear,lastyear)
 curtable<-(curemissions%>%select(party,one_of(selyears)))
 curtable[curtable==0]<-NA
 curtable$party<-as.character(curtable$party)
-curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) country4sub$name[which(country4sub$code2==curtable$party[x])]))
+curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) country4sub$name[which(country4sub$code3==curtable$party[x])]))
 curtable[,selyears]<-format(curtable[,selyears],digits=2)
 sel<-curtable$party==eusubml
 #eumsubm<-eum[which(eu==eusubm)]

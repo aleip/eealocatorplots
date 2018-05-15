@@ -102,18 +102,18 @@ gwps<-gwpsar4
 #The Party name is confusing because it is the United Kingdom in both instances 
 #(one with overseas territories 'GBR' and the other without 'GBE').  We should improve this next year. 
 
-countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"EE" ,"ES" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SE" ,"SI" ,"SK" )
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","EST","ESP","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK")
+countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SK" ,"SI" ,"SE" )
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SVK","SVN","SWE")
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SVK","SVN","SWE")
 eu<-c("EUA","EUC")
 eum<-c("EU28","EU28+ISL")
 eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
 
-countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Estonia",
-              "Spain","Finland","France","France incl Mayotte",
+countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark",
+              "Spain","Estonia","Finland","France","France incl Mayotte",
               "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBK=EU territory)","Greece","Croatia","Hungary","Ireland",
               "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
-              "Portugal","Romania","Sweden","Slovenia","Slovakia")
+              "Portugal","Romania","Slovakia","Slovenia","Sweden")
 countries4plot<-gsub("United Kingdom.*","United Kingdom",countriesl)
 
 country4sub<-as.data.frame(c(countries2,eu))

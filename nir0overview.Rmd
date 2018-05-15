@@ -1,4 +1,6 @@
-﻿## Overview of sector
+﻿#
+
+## Overview of sector
 ```{r 3overview,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 figs("figtrendem",paste0("&#09;EU-28 GHG emissions for 1990-",lastyear," from CRF Sector 3: 'Agriculture' in CO2 equivalents (Mt)"))
 figs("figshares",paste0("&#09;Absolute change of GHG emissions by large key source categories 1990-",lastyear," in CO2 equivalents (Mt) in CRF Sector 3: 'Agriculture'"))

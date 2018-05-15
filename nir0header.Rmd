@@ -14,7 +14,7 @@ output:
   html_document: default
 
 foldertext:
-  cursubm: 20180319
+  cursubm: 20180508
   ecirfolder: '../ecir'
 
 ---
@@ -84,10 +84,10 @@ agritotalco2<-agriemissions[agriemissions$gas=="CO2"&agriemissions$sector_number
 eusubm<-"EUC"
 eusubml<-eum[which(eu==eusubm)]
 eukp<-eusubml
-acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
 if(!is.null(excludeparty)) acountry<-acountry[-which(acountry==excludeparty)]
 countriesnoeu<-acountry[!acountry%in%eu]
-countrynamesnoex<-as.character(country4sub[country4sub$code2%in%acountry,"code3"])
+countrynamesnoex<-as.character(country4sub[country4sub$code3%in%acountry,"code3"])
 euagritotalch4<-agritotalch4[agritotalch4$party==eusubm,]
 euagritotaln2o<-agritotaln2o[agritotaln2o$party==eusubm,]
 euagritotalco2<-agritotalco2[agritotalco2$party==eusubm,]

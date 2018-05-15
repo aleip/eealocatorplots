@@ -253,7 +253,7 @@ if(stepsdone>2){
             savelist<-c(savelist,"emplotsdone","plotmeas")
             save(list=savelist,file=rdatallem)
             save(list=savelist,file=gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem))
-            stop("End of general part (Emission plots done!)")
+            #stop("End of general part (Emission plots done!)")
         }else{
             print("Step 4: Emission plots already done")
         }

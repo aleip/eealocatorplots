@@ -48,7 +48,7 @@ echo Now replace the placeholders at $HOSTNAME
 echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
 sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
 sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
-sed -e 's/\$cursubm\$/20180319/g' tmp0 > tmp2
+sed -e 's/\$cursubm\$/20180508/g' tmp0 > tmp2
 
 mv tmp2 nir${focus}out.Rmd
 
@@ -72,7 +72,7 @@ elif [ "$HOSTNAME" = "l01ri1203587" ] ; then
     /c/Program\ Files/R/R-3.4.4/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
 
 elif [ "$HOSTNAME" = "d01ri1701864" ] ; then
-	echo $HOSTNAME
+
     wexe="/c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE"
     pexe="pandoc"
 	rexe="/c/Program\ Files/R/R-3.4.3/bin/Rscript.exe"

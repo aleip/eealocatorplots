@@ -14,6 +14,7 @@ submission=20170509
 submission=20171011
 submission=${subyear}0122
 submission=${subyear}0319
+submission=${subyear}0508
 ifil=CRF_MMR_${submission}.txt
 direct=../${subyear}/eealocator/
 
@@ -21,7 +22,7 @@ ifil=${direct}/${ifil}
 
 ofilsub=eealocator_${submission}.txt
       #party   country_name    filename        generationtimestamp     variableUID     year    value   notation        sector_number   name    submission_version      submission_year
-cut -d$'\t' -f1,2,5-12 $ifil | \
+cut -d$'\t' -f1,2,3,5-12 $ifil | \
   sed -e 's/,/ /g' | \
   sed -e 's/\t/,/g' | \
   sed -e 's/\]\[/,/g' | \

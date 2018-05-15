@@ -135,7 +135,8 @@ if(nrow(tmpis)>0)tmpis$party<-"Iceland"
 tmpeunois$party<-"EU-28"
 tmpeu$party<-"EU-28 + ISL"
 
-emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) country4sub$name[country4sub$code2==emfirstlast$party[x]])
+
+emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) country4sub$name[country4sub$code3==emfirstlast$party[x]])
 emfirstlast<-emfirstlast[order(emfirstlast$party),]
 emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis,tmpeu)
 emfirstlast[,curheaders]<-round(emfirstlast[,curheaders],0)

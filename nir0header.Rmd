@@ -11,11 +11,13 @@ output:
   word_document:
     fig_caption: yes
     fig_width: 3
+
   html_document: default
 
 foldertext:
   cursubm: 20180508
   ecirfolder: '../ecir'
+  
 
 ---
     

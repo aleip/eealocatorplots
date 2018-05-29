@@ -4,6 +4,13 @@ rdatfile<-paste0(csvfil,".RData")
 if(!file.exists(rdatfile)){
     print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
     alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999", quote = "")
+    
+    #Correction of CY 3.A.1 GE for 2014 
+    if(cursubm == "20180508"){
+      levels(alldata$value) <- c(levels(alldata$value), as.character(6855418.00/25330))
+      alldata[alldata$variableUID == "323AB36B-6A46-4EDE-A81C-11235D6CB9BA" & alldata$year == 2014 & alldata$party == "CY", names(alldata) %in% c("value")] <- 6855418.00/25330
+    }
+      
     names(alldata)[1] <- "party_2char"
     alldata$party_3char <- substring(alldata$filename, 1, 3)
     party_2_3char <- unique(alldata[,names(alldata) %in% c("party_2char", "party_3char", "country_name")])

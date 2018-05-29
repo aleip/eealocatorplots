@@ -234,8 +234,7 @@ if(stepsdone>2){
             plotmeas<-temp[[2]]
             adddefault<-temp[[3]]
             sharesexist<-temp[[4]]
-            source("corr20170127.r")
-            
+
             x1<-368;x2<-nrow(plotmeas)
             x1<-1;x2<-154
             x1<-1;x2<-nrow(plotmeas)

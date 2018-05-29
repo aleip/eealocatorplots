@@ -120,8 +120,11 @@ eusubm<-"EUC"
 # Settings for plots
 # --> number of countries which are listed in the legend
 doemissionplots<-FALSE #TRUE/FALSE                                           #!!!
+plotformat<-"png"     #Options: pdf, png, jpg                               #!!!
+plotformat<-"pdf"     #Options: pdf, png, jpg                               #!!!
 plotformat<-"jpg"     #Options: pdf, png, jpg                               #!!!
 plotresolution<-400   #Needed for png and jpg (200 is low, 600 high)        #!!!
+#plotresolution<-1200   #Needed for png and jpg (200 is low, 600 high)        #!!!
 restrictsector<-""
 restrictcategory<-""
 topn<-10
@@ -179,3 +182,4 @@ if(exists("alldata")){
     maxr<-5
     source("eugirp_texts.r")    
 }
+

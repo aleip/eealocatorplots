@@ -23,7 +23,13 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     if("capri"%in%datasource & "nir"%in%datasource)plotdata<-plotdata[,names(capinv)]
     if("capri"%in%datasource & "nir"%in%datasource)plotdata<-rbind(plotdata,capinv)
     if("capri"%in%datasource & !("nir"%in%datasource))plotdata<-capinv
-    if("fao"%in%datasource & "nir"%in%datasource)plotdata<-rbind(plotdata,faodata)
+    if("fao"%in%datasource & "nir"%in%datasource){
+      plotdata<-rbind(plotdata,faodata)
+      if(cursubm == "20180508"){
+        not2sel <- plotdata$variableUID == "200C50F9-B172-40BC-A8EB-7110EBA69E10" & plotdata$party == "NLD"
+        plotdata <- plotdata[!not2sel, ]
+      }   
+    }
     if("fao"%in%datasource & !("nir"%in%datasource))plotdata<-faodata
     #years2remove<-years[!years%in%years2keep]
     #plotdata<-plotdata[,-which(names(plotdata)%in%years2remove)]
@@ -164,7 +170,7 @@ plotname<-function(dsource,plotsdir,issuedir,imeas,runsect,runmeta,runmeas,runfo
     }
     
     #if(grepl("fao",dsource)) figdir<-paste0(invloc,"/fao/plots")
-    if(rundata=="ief") plotformat<-"jpg"
+    #if(rundata=="ief") plotformat<-"jpg"
     #if(plotparamcheck==1) plotformat<-"jpg"
     if(plotparamcheck==1) figdir<-paste0(issuedir,"countryoutliers")
     if (! file.exists(figdir)){dir.create(file.path(figdir),showWarnings = FALSE )}
@@ -188,7 +194,10 @@ iniplot<-function(figname,nplots){
     # Note: default values have been set for a plot of the size 27.94 cm x 15.24 cm
     # Note: default values have been set for a plot of the size 11 in x 6 in
     pwidth=27.94
-    pwidth=16
+    #pwidth=16
+    pwidth=14.8  #exactly the size in the word document
+    pltunits <- "in";  if (pltunits == "in") pwidth <- (pwidth/2.54)*1.3
+    #pwidth=4
     pheight=pwidth/1.833
     if(runfocus=="compare"){heightmult<-1.3}else{heightmult<-1}
     pheight=pheight*heightmult
@@ -199,7 +208,7 @@ iniplot<-function(figname,nplots){
     #df.bar<-barplot(eu28fin,yaxp=c(0,8000,2000),col=mycols)
     
     #cat("\nfigname: ",figname)
-    if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
+    if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight, bg = "white", pointsize = 27)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     cat(gsub(plotsdir,"",figname),": ")
@@ -328,7 +337,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
             
             ticksyaxis<-getyaxis(eu28,eu28pos,eu28neg)
             tmin<-min(tmin,ticksyaxis[[1]])
-            tmax<-max(tmax,ticksyaxis[[2]])
+            tmax<-max(tmax,ticksyaxis[[2]])*1.02
             tmag<-max(tmag,ticksyaxis[[3]])
             #print(paste(tmin,tmax,tmag))
 
@@ -457,7 +466,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #kk: eu28main<-plotmatr[row.names(plotmatr) %in% topneu28, c(ncol(plotmatr)-1, ncol(plotmatr))]
                     
                     eu28main<-plotmatr[row.names(plotmatr) %in% topneu28,]
-                    eu28main<-eu28main[order(eu28main[lastyear], decreasing = FALSE), c(years2keep,"party")]
+                    eu28main<-eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
                     
                     
                     if(length(multisource)>1 & isource==1){
@@ -706,8 +715,13 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     #source("c:/adrian/models/capri/dndc/results/20110722/nitrogen/figures/plotdefaults.r")
     
     #pwidth set in function iniplot ... needs to be retrieved from current device
+    pwidth=27.94
     pwidth=16
+    #pwidth=14.8  #exactly the size in the word document
+    #pltunits <- "in";  if (pltunits == "in") pwidth <- (pwidth/2.54)*1.3
+    
     pconv<-pwidth/27.94
+    if(plotformat=="pdf") pconv <- 0.3
     # runcateg to be used for the plot title
     #rungas<-unique(pmeas$gas)
     
@@ -934,6 +948,9 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         # Add small grey ticks on the y-axis
         axis(2,at=seq(tmin,tmax,(tmax-tmin)/tdis/5),pos=c(ypos,0),lwd=smallticks,labels=F,col.ticks="grey")
         
+        # Add also a y-axis on the right
+        #axis(4,at=seq(tmin,tmax,(tmax-tmin)/tdis/5), pos=c((length(years)+5.6),0),lwd=smallticks,labels = rep("", length(seq(tmin,tmax,(tmax-tmin)/tdis/5))),col.ticks="grey")
+        
         # Calculate distances for large ticks and draw them
         tnum<-(tmax-tmin)/tdis
         tnum<-tdis
@@ -953,6 +970,11 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         if(tmin/tmax<0) lines(x=c(-1,length(years)*1.2),y=c(0,0),lwd=largeticks*1.2)
         abline(v=ypos,lwd=largeticks)
         #stop()
+        
+        #axis(4,at=tseq, pos=c((length(years)+5.6),0),lwd=largeticks,las=1,labels=FALSE)
+        #abline(v=(length(years)+5.6),lwd=largeticks)
+        #abline(h=0,lwd=largeticks)
+
     }
     
     if(length(multisource)>1){
@@ -1562,6 +1584,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     
     foottextleft<-paste0("EU-GIRP.v",eugirp.version," (",eugirp.fullname,") (c) EC-JRC/AL ",eugirp.web)
     foottextrigt<-paste0(figdate," - UID: ",curuid, ". Submission from ",cursubm)
+    if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") foottextleft_2 <- "NLD not included due to an error in the data"
     
     autocorrtext<-autocorr
     if(length(serious)!=0){serioustext<-paste0("Data not plotted (serious outlier): ",paste(countriesnoeu[serious],collapse=", "))
@@ -1573,6 +1596,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     
     if(rundata!="adem")if(length(serioustext)!=0)text(0.005,0.4+0.2*(nchar(ipcctxt)>1),adj=0,serioustext,cex=0.5*pconv,font=1,col="red")
     text(0.005,0.4,adj=0,ipcctxt,cex=0.5*pconv,font=1,col="blue")
+    if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") text(0.005,0.4,adj=0,foottextleft_2,cex=0.5*pconv,font=1,col="red")
     text(0.005,0.1,adj=0,foottextleft,cex=0.5*pconv,font=1)
     text(0.995,0.1,adj=1,foottextrigt,cex=0.5*pconv,font=1)
     mtext(ipcctxt,side=1,at=c(0.012,2),cex=0.35,outer=TRUE,col="blue")
@@ -1669,8 +1693,8 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2013){
     #test<-test[test$party!="GBK",]
     
     test<-test[order(test$relimpr,na.last=FALSE),]
-    
-    testc<-sapply(test$party,function(x) countries4plot[which(countries2==x)])
+    ctr3 <- country4sub$code3[!country4sub$code3 %in% eu]
+    testc<-sapply(test$party,function(x) countries4plot[which(ctr3==x)])
     
     datasource<-names(test)[!names(test)=="party"]
     bspace=1.3
@@ -1690,18 +1714,18 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2013){
     }
     barplot(test[,multisource[1]],horiz=TRUE,space=bspace1,beside=TRUE,col=cols[1],
             axes=T,
-            names.arg=sapply(test[,"party"],function(x) countries4plot[which(countries2==x)]),
+            names.arg=sapply(test[,"party"],function(x) countries4plot[which(ctr3==x)]),
             las=1,cex.names=0.8)
     barplot(test[,multisource[2]],horiz=TRUE,space=bspace2,beside=TRUE,col=cols[2],add=T)
     
     barplot(test[,"reldiff"],horiz=TRUE,space=bspace2,beside=TRUE,col=cols[4],
             axes=T,
-            names.arg=sapply(test[,"party"],function(x) countries4plot[which(countries2==x)]),
+            names.arg=sapply(test[,"party"],function(x) countries4plot[which(ctr3==x)]),
             las=1,cex.names=0.8)
     
     barplot(test[,"relimpr"],horiz=TRUE,space=bspace1,beside=TRUE,col=cols[3],
             axes=T,
-            names.arg=sapply(test[,"party"],function(x) countries4plot[which(countries2==x)]),
+            names.arg=sapply(test[,"party"],function(x) countries4plot[which(ctr3==x)]),
             las=1,cex.names=0.8)
     # Title
     runsect<-data.frame(lapply(unique(pmeas[,sectfields]),as.character))

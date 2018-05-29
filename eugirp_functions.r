@@ -1389,6 +1389,8 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
     piedata<-piedata[grepl(piegrep,piedata$sector_number),]
     if(nrow(piedata)>0){
         plotformat<-"jpg"
+        plotformat<-"pdf"
+        plotformat<-"png"
         piewidth=3*2
         pieheight=2
         piefont<-1.6*pieheight/6
@@ -1461,7 +1463,9 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
 }
 
 emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
+    plotformat <- "jpg"
     pwidth=16
+    if (plotformat == "pdf") pwidth=13.5
     pheight=pwidth/1.833
     plotresolution<-plotresolution
     
@@ -1514,7 +1518,11 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
     
-    par(mar=c(4,4,1,7), xpd=TRUE)
+    if(plotformat=="pdf") {
+      par(mar=c(4,4,1,20), xpd=TRUE)
+    }else{
+      par(mar=c(4,4,1,7), xpd=TRUE)
+    }
     par(cex=0.7)
     curcols<-grey.colors(length(dfl))
     curcols1<-curcols[as.logical(c(1:length(dfl))%%2)]
@@ -1532,8 +1540,13 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
         curcols<-rev(brewer.pal(length(dfl),"Blues"))
     }
     print(curcols)
-    barplot(t(dfms),horiz = FALSE,las=2,cex.axis = 0.8,offset = 0,col = curcols)
-    legend("topright",inset=c(-0.19,0), legend=dfl,fill=curcols,cex=0.7)
+    if(plotformat=="pdf"){
+      barplot(t(dfms),horiz = FALSE,las=2,cex.axis = 1.5, cex.names = 1.5,offset = 0,col = curcols)
+      legend("topright",inset=c(-0.25,0), legend=dfl,fill=curcols,cex=1.5)
+    }else{
+      barplot(t(dfms),horiz = FALSE,las=2,cex.axis = 0.8,offset = 0,col = curcols)
+      legend("topright",inset=c(-0.19,0), legend=dfl,fill=curcols,cex=0.7)
+    }
     graphics.off()
 }
 

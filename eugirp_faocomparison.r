@@ -377,7 +377,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     
     # Ensure that excludeparty is not deleted
     if("GBK" %in% acountry) faodata$party[faodata$party=="GBE"]<-"GBK"
-    if("FM" %in% acountry) faodata$party[faodata$party=="FRK"]<-"FM"
+    if("FRK" %in% acountry) faodata$party[faodata$party=="FM"]<-"FRK"
     if("ISL" %in% acountry) faodata$party[faodata$party=="IC"]<-"ISL"
     
     # Calculate EU28 sums

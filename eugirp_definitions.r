@@ -157,6 +157,8 @@ country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL"
 
 country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
+countries4plot <- country4sub$name[!country4sub$name %in% c("EU28", "EU28+ISL", "France incl Mayotte")]
+
 countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
 eunames<-as.data.frame("EU28")

@@ -658,6 +658,16 @@ stop("Step 9 done")
 
 
 
+
+# UNCERTAINTY ####
+
+source("eugirp_uncertainty.r")
+
+
+
+
+
+
 # A.3 Determine Key categories ####
 if(exists("paramchecked")){
     

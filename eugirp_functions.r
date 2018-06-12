@@ -1697,3 +1697,29 @@ gcCount <-  function(line, char){
     chars = strsplit(as.character(line),"")[[1]]
     length(which(tolower(chars) == char))
 }
+
+
+
+recalc_uncert <- function(tbl, corrct = FALSE, fctr = 100){
+  
+  names(tbl) <- paste0("X", seq(1:length(tbl)))
+  
+  if(corrct == TRUE){
+    print(paste0("correcting uncertainties for... ", ct, " by factor = ", fctr))
+    tbl[,c(5:6)] <- tbl[,c(5:6)] / fctr 
+  }
+  
+  print(paste0("recalculating other uncertainty estimates for... ", ct))
+  tbl$X7 <- sqrt((tbl$X5)^2 + (tbl$X6)^2)
+  tbl$X8 <- (tbl$X7*tbl$X4)^2 / sum(tbl$X4, na.rm = T)^2
+  tbl$X9 <- ((0.01*tbl$X4) + sum(tbl$X4, na.rm = T) - (0.01*tbl$X3) - sum(tbl$X3, na.rm = T)) / 
+    ((( 0.01*tbl$X3 + sum(tbl$X3, na.rm = T))*100) - 
+       (((sum(tbl$X4, na.rm = T) - sum(tbl$X3, na.rm = T)) / (sum(tbl$X3, na.rm = T) * 100))))
+  tbl$X10 <- abs(tbl$X4 / sum(tbl$X3, na.rm = T))
+  tbl$X11 <- tbl$X9 * tbl$X6
+  tbl$X12 <- tbl$X10 * tbl$X5 * sqrt(2)
+  tbl$X13 <- (tbl$X11)^2 + (tbl$X12)^2
+  return(tbl)
+  
+}
+

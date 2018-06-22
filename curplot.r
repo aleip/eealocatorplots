@@ -188,6 +188,8 @@ if(exists("alldata")){
 #       Additional settings for Uncertainty calculations
 ##############################################################################
 
+yr <- c(2015:2018)
+yr <- c(2017)
 yr <- invyear
-yr <- c("2018", "2017", "2016", "2015")
+
 

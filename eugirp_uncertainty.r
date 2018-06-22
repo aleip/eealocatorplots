@@ -2,11 +2,22 @@
 ##------------------------------------------------------------------------------------------
 
 library(xlsx)
-uncert_all <- as.data.frame(matrix(nrow = 0, ncol = 0)) 
+
+if(file.exists(paste0(invloc, "/uncertainty/uncert_all.csv"))){
+  uncert_all <- read.csv(paste0(invloc, "/uncertainty/uncert_all.csv"), header = TRUE)
+  names(uncert_all) <- c(paste0("X", c(1:13)), "party", "year")
+} else {
+  uncert_all <- as.data.frame(matrix(nrow = 0, ncol = 0)) 
+}
+
 
 
 for (y in yr){
+  
+  if(y %in% unique(uncert_all$year)) next
+  
   print(paste0("Year: ", y))
+  
   fldr <- paste0(invloc,"/uncertainty/", y)
   setwd(fldr)
   
@@ -19,7 +30,11 @@ for (y in yr){
   for (ct in countries3){
     print(paste0("Reading uncertainty data for country: ", ct))
     
-    fle <- list.files(path = fldr, pattern = paste0("^", ct), full.names = FALSE)
+    if(ct == "BEL" & y == 2017){
+      fle <- list.files(path = fldr, pattern = paste0("^", "Bel"), full.names = FALSE)
+    }else{
+      fle <- list.files(path = fldr, pattern = paste0("^", ct), full.names = FALSE)
+    }
     
     if(length(fle) > 1){
       fle <- as.data.frame(fle)
@@ -54,6 +69,7 @@ for (y in yr){
       sheetIndex <- 1
       sheetName <- NULL
     }
+    
     
     if (ct == "CYP"){
       if(grepl("2018", fldr)){
@@ -273,9 +289,15 @@ for (y in yr){
       tbl <- recalc_uncert(tbl = tbl, corrct = FALSE) 
       
     }else{
+      
+      
       if(ct == "FIN" & y == "2017") fle <- "FIN_MMR-IRArticle14_Template_v4_EEA_FIN-2017-03-15.xlsx"
       
-      if(ct == "DEU" & y == "2015") {
+      if (ct == "BEL" & y == "2017"){
+        tbl <-  read.xlsx(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 4, as.data.frame = TRUE, header = FALSE)
+        tbl <-  tbl[substr(tbl$X1, 1, 1) %in% c(1:9), 1:13]
+        
+      }else if(ct == "DEU" & y == "2015") {
         tbl <-  read.xlsx2(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 2, as.data.frame = TRUE, header = FALSE)
         tbl$X1 <- paste0(tbl$X1, tbl$X2) 
         tbl <- tbl[, c(1, 3, 5, 7, 9, 10)]
@@ -288,6 +310,7 @@ for (y in yr){
         tbl$X4 <- paste0(tbl$X3, tbl$X4) 
         tbl <- tbl[!tbl$X4 == "NANA", c(2:14)]
         names(tbl) <- names(uncert_all)[1:13]
+        
       }else if (ct == "ISL" & y == "2016"){
         fle <- paste0(fldr, "/", fle, "/ISL_MMR-IRArticle14_Uncertainty_2016.xlsx")
         tbl <-  read.xlsx(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 11, as.data.frame = TRUE, header = FALSE)
@@ -343,17 +366,18 @@ for (y in yr){
     uncert_all <- rbind(uncert_all, tbl)
     #
     
-  }
+  } #end for country3
+  
 } #end for yr
 
 
-setwd(paste0(invloc, "/uncertainty/2018"))
+setwd(paste0(invloc, "/uncertainty/", invyear))
 
 fles <- as.data.frame(file.info(list.files(pattern="*.xlsx")))
 fles$files <- rownames(fles)
 fles <- fles[, names(fles) %in% c("files", "mtime")]
 
-hdr <-  read.xlsx(tail(fles[grepl("^A", fles$files), 2], 1), sheetIndex = sheetIndex, sheetName = sheetName, rowIndex = 8, as.data.frame = TRUE, header = FALSE)
+hdr <-  read.xlsx(tail(fles[grepl("^A", fles$files), 2], 1), sheetName = "MMR IR-Article14", rowIndex = 8, as.data.frame = TRUE, header = FALSE)
 names(uncert_all) <- c(as.vector(as.matrix(hdr[1, 1:13])), "party", "year")
 uncert_all <- uncert_all[!is.na(uncert_all$`Year x emissions or removals`), ]
 
@@ -453,8 +477,96 @@ EMagg_eu$party <- "EU28+ISL"
 EMagg_eu <- EMagg_eu[, c("party", names(EMagg_eu)[-length(EMagg_eu)])]
 
 EMagg <- rbind(EMagg, EMagg_eu)
+
+
+## Adding years 2012 - 2014
+yrs <- c(2012:2014)
+
+for (y in yrs){
+  #y <- yrs[1]
+  print(paste0("Year: ", y))
+  
+  y1 <- y - 2
+  
+  if(y1 != 2012){
+    emgg <-  read.xlsx(paste0(y1, ".EC-IR.4_uncertainty.Tier1_level.xls"), sheetName = "EMagg", startRow = 3, as.data.frame = TRUE, header = FALSE)
+    emgg <-  merge(country4sub[, 1:2], emgg, by.x = "code2", by.y = "X1", all.y = TRUE)[-1]
+    names(emgg)[1] <- "X1"
+    emgg$X1 <- gsub("GBK", "GBE", emgg$X1)
+    emgg <- emgg[emgg$X1 %in% countries3, paste0("X", c(1, 3:13))]
+    emgg$X3 <- y
+    emgg1 <- as.data.frame(matrix(0, ncol = 3, nrow = nrow(emgg)))
+    emgg <- cbind(emgg, emgg1)
+    emgg <- emgg[ , c(1:10, 13:15, 11:12)]
+    names(emgg) <- names(EMagg)
+  } else {
+    emgg <-  read.xlsx(paste0(y1, ".EC-IR.4_uncertainty.Tier1_level.xls"), sheetName = "EMagg", startRow = 6, as.data.frame = TRUE, header = FALSE)
+    emgg <-  merge(country4sub[, 1:2], emgg, by.x = "code2", by.y = "X1", all.y = TRUE)[-1]
+    names(emgg)[1] <- "X1"
+    emgg$X1 <- gsub("GBK", "GBE", emgg$X1)
+    emgg <- emgg[emgg$X1 %in% countries3, paste0("X", c(1, 4:16))]
+    emgg$X3 <- y
+    emgg <- emgg[ , c(1, 15, 2:14)]
+    names(emgg) <- names(EMagg)
+  }
+  
+  nms <- as.vector(c(FALSE, FALSE, sapply(emgg[3:15], is.factor)))
+  emgg[, nms] <- as.numeric(as.character(emgg[, nms]))
+  
+  
+  EMagg_eu <- as.data.frame(emgg[,-1] %>% group_by(year) %>% summarise_all(sum, na.rm = TRUE))
+  EMagg_eu$party <- "EU27"
+  EMagg_eu <- EMagg_eu[, c("party", names(EMagg_eu)[-length(EMagg_eu)])]
+  
+  EMagg <- rbind(EMagg, emgg, EMagg_eu)
+  
+}
+
+
 View(EMagg)
 
 write.csv(EMagg, paste0(invloc, "/uncertainty/EMagg_all.csv"), row.names = FALSE)
+
+
+
+## Calculating percentages of EM (agriculture)
+
+EMagg_perc_1 <- as.matrix(EMagg[, -c(1:4,11:13)])
+EMagg_perc_1[is.na(EMagg_perc_1)] <- 0
+
+
+EMagg_perc_1 <- round(prop.table(as.matrix(EMagg_perc_1), margin=1)*100, 2)
+EMagg_perc <- EMagg[, -c(11:13)]
+EMagg_perc[, -c(1:4)] <- EMagg_perc_1
+EMagg_perc[is.nan(EMagg_perc)] <- 0
+
+write.csv(EMagg_perc, paste0(invloc, "/uncertainty/EMagg_all_percent.csv"), row.names = FALSE)
+
+
+
+## Calculating Uncertainty aggregations
+
+
+uncert_3A <- uncert_agri[grepl("^3A", uncert_agri$`IPCC category/Group`),]
+
+unique(uncert_3A$`IPCC category/Group`)
+
+yr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

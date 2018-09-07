@@ -1,7 +1,12 @@
+#source("E:/ghginventory/eealocatorplots/curplot.r")
 
 ##------------------------------------------------------------------------------------------
 
 library(xlsx)
+library(tidyr)
+
+
+#### Reading in data sets ####
 
 if(file.exists(paste0(invloc, "/uncertainty/uncert_all.csv"))){
   uncert_all <- read.csv(paste0(invloc, "/uncertainty/uncert_all.csv"), header = TRUE)
@@ -9,7 +14,6 @@ if(file.exists(paste0(invloc, "/uncertainty/uncert_all.csv"))){
 } else {
   uncert_all <- as.data.frame(matrix(nrow = 0, ncol = 0)) 
 }
-
 
 
 for (y in yr){
@@ -27,8 +31,9 @@ for (y in yr){
   
   #countrs <- unique(countries3[!countries3 %in% c("ITA")])
   
-  for (ct in countries3){
+  for (ct in unique(countries3)){
     print(paste0("Reading uncertainty data for country: ", ct))
+    #if(ct == "FRK") stop()
     
     if(ct == "BEL" & y == 2017){
       fle <- list.files(path = fldr, pattern = paste0("^", "Bel"), full.names = FALSE)
@@ -76,11 +81,17 @@ for (y in yr){
         tbl <-  read.xlsx(fle, sheetIndex = 2, sheetName = NULL, startRow = 9, as.data.frame = TRUE, header = FALSE)
       }else if(grepl("2016", fldr)){
         tbl <-  read.xlsx(fle, sheetIndex = NULL, sheetName = "2014", startRow = 11, as.data.frame = TRUE, header = FALSE)
+      }else if(grepl("2015", fldr)){
+        tbl <-  read.xlsx(fle, sheetIndex = NULL, sheetName = "2012", startRow = 4, as.data.frame = TRUE, header = FALSE)
+        if(grepl("2015", fldr)) tbl$X1 <- gsub("^3", "9", tbl$X1)
+        if(grepl("2015", fldr)) tbl$X1 <- gsub("^4", "3", tbl$X1)
       }
       tbl <-  tbl[substr(tbl$X1, 1, 1) %in% c(1:9), 1:13]
       tbl[tbl == "NA" | tbl == "C" | tbl == "-" | tbl == "ND"] <- NA
       nms <- c(FALSE, FALSE, sapply(tbl[3:13], is.factor))
       tbl[, nms] <- lapply(tbl[, nms], function(x) as.numeric(as.character(x))) 
+      
+      if(grepl("2016", fldr)) tbl[, 3:13] <-  tbl[, 3:13] / 100
       
       tbl <- recalc_uncert(tbl = tbl, corrct = FALSE)  #corrct = FALSE  recalculates X7 to X13
       
@@ -243,7 +254,7 @@ for (y in yr){
           tbl1 <- rbind(tbl1, tbl)
         }
         tbl <- tbl1 ; rm(tbl1)
-        tbl <- tbl[!is.na(tbl$X5), ]
+        #tbl <- tbl[!is.na(tbl$X5), ]
         
       }
       
@@ -316,8 +327,14 @@ for (y in yr){
         tbl <-  read.xlsx(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 11, as.data.frame = TRUE, header = FALSE)
         tbl$X13 <- paste0(tbl$X4, tbl$X13)
         tbl <- tbl[, c(13:25)]
-        tbl <- tbl[!is.na(tbl$X15), ]
-        tbl <- tbl[!is.na(tbl$X14), ]
+        tbl$X13 <- gsub("NAAnimal production", "3.D. Animal Production", tbl$X13)
+        #tbl <- tbl[!is.na(tbl$X15), ]
+        #tbl <- tbl[!is.na(tbl$X14), ]
+        tbl <- tbl[tbl$X13 != "NANA", ]
+        tbl <- tbl[!is.na(tbl$X17), ]
+        tbl$X13 <- gsub("NAConsumption", "2..Consumption", tbl$X13)
+        tbl$X13 <- gsub("NASolvent", "2..Solvent", tbl$X13)
+        tbl$X13 <- gsub("^NA", "4.. ", tbl$X13)
         tbl <- tbl[substr(tbl$X13, 1, 1) %in% c(1:9), ]
         names(tbl) <- paste0("X", c(1:13))
         tbl[] <- lapply(tbl, gsub, pattern = ",", replacement = "")
@@ -356,6 +373,7 @@ for (y in yr){
           tbl <- recalc_uncert(tbl = tbl, corrct = FALSE)
         }
       }
+      if (ct == "MLT" & y == 2016)  tbl <- recalc_uncert(tbl = tbl, corrct = FALSE)
       if (ct == "PRT") tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
       
     }
@@ -371,6 +389,7 @@ for (y in yr){
 } #end for yr
 
 
+#To find column names
 setwd(paste0(invloc, "/uncertainty/", invyear))
 
 fles <- as.data.frame(file.info(list.files(pattern="*.xlsx")))
@@ -388,15 +407,12 @@ write.csv(uncert_all, paste0(invloc, "/uncertainty/uncert_all.csv"), row.names =
 
 
 
-# Aggregating Emissions
+#### Aggregating Emissions ####
 #data1 <- uncert_all
 
 EMagg <- as.data.frame(uncert_all %>% group_by(party, year) %>% summarise(TotalGHGem = sum(`Year x emissions or removals`, na.rm = TRUE)))
 
 uncert_agri <- uncert_all[grepl("^3", uncert_all$`IPCC category/Group`), ]
-EMagg_agri <- as.data.frame(uncert_agri %>% group_by(party, year) %>% summarise(TotalAgriculture = sum(`Year x emissions or removals`, na.rm = TRUE)))
-#EMagg_agri$TotalAgriculture <- NA
-EMagg <- merge(EMagg, EMagg_agri, by = c("party", "year"), all = TRUE)
 
 uncert_agri[, 1] <- gsub("\\.", "", uncert_agri[, 1])
 uncert_agri[, 1] <- gsub(" ", "", uncert_agri[, 1])
@@ -411,6 +427,11 @@ uncert_3A_CH4 <- uncert_agri[grepl("^3A", uncert_agri$`IPCC category/Group`) & u
 EMagg_3A_CH4 <- as.data.frame(uncert_3A_CH4 %>% group_by(party, year) %>% summarise(EntericFerm_3A_CH4 = sum(`Year x emissions or removals`, na.rm = TRUE)))
 #EMagg_3A_CH4[, 3] <- EMagg_3A_CH4[, 3] * 21
 EMagg <- merge(EMagg, EMagg_3A_CH4, by = c("party", "year"), all = TRUE)
+
+uncert_3A_N2O <- uncert_agri[grepl("^3A", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
+EMagg_3A_N2O <- as.data.frame(uncert_3A_N2O %>% group_by(party, year) %>% summarise(EntericFerm_3A_N2O = sum(`Year x emissions or removals`, na.rm = TRUE)))
+#EMagg_3A_N2O[, 3] <- EMagg_3A_N2O[, 3] * 310
+EMagg <- merge(EMagg, EMagg_3A_N2O, by = c("party", "year"), all = TRUE)
 
 
 uncert_3B_CH4 <- uncert_agri[grepl("^3B", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("CH4"), ]
@@ -429,6 +450,11 @@ EMagg_3C_CH4 <- as.data.frame(uncert_3C_CH4 %>% group_by(party, year) %>% summar
 #EMagg_3C_CH4[, 3] <- EMagg_3C_CH4[, 3] * 21
 EMagg <- merge(EMagg, EMagg_3C_CH4, by = c("party", "year"), all = TRUE)
 
+uncert_3C_N2O <- uncert_agri[grepl("^3C", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
+uncert_3C_N2O <- as.data.frame(uncert_3C_N2O %>% group_by(party, year) %>% summarise(RiceCult_3C_N2O = sum(`Year x emissions or removals`, na.rm = TRUE)))
+#uncert_3C_N2O[, 3] <- uncert_3C_N2O[, 3] * 310
+EMagg <- merge(EMagg, uncert_3C_N2O, by = c("party", "year"), all = TRUE)
+
 
 uncert_3D_CH4 <- uncert_agri[grepl("^3D", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("CH4"), ]
 EMagg_3D_CH4 <- as.data.frame(uncert_3D_CH4 %>% group_by(party, year) %>% summarise(AgrSoils_3D_CH4 = sum(`Year x emissions or removals`, na.rm = TRUE)))
@@ -445,18 +471,21 @@ uncert_3D_N2O_direct <- uncert_3D_N2O_direct[grepl("[Dd]irect", uncert_3D_N2O_di
 uncert_3D_N2O_direct <- uncert_3D_N2O_direct[!grepl("[Ii]ndirect", uncert_3D_N2O_direct$`IPCC category/Group`), ]
 uncert_3D_N2O_direct <- uncert_3D_N2O_direct[!grepl("[Aa]nimal", uncert_3D_N2O_direct$`IPCC category/Group`), ]
 EMagg_3D_N2O_direct <- as.data.frame(uncert_3D_N2O_direct %>% group_by(party, year) %>% summarise(AgrSoils_3D_N2O_Direct = sum(`Year x emissions or removals`, na.rm = TRUE)))
+#EMagg_3D_N2O_direct[, 3] <- EMagg_3D_N2O_direct[, 3] * 310
 EMagg <- merge(EMagg, EMagg_3D_N2O_direct, by = c("party", "year"), all = TRUE)
 
 uncert_3D_N2O_animalProd <- uncert_agri[grepl("^3D", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
 uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[grepl("[Aa]nimal", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
 uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[!grepl("[Dd]irect", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
 EMagg_3D_N2O_animalProd <- as.data.frame(uncert_3D_N2O_animalProd %>% group_by(party, year) %>% summarise(AgrSoils_3D_N2O_AnimalProd = sum(`Year x emissions or removals`, na.rm = TRUE)))
+#EMagg_3D_N2O_animalProd[, 3] <- EMagg_3D_N2O_animalProd[, 3] * 310
 EMagg <- merge(EMagg, EMagg_3D_N2O_animalProd, by = c("party", "year"), all = TRUE)
 
 uncert_3D_N2O_indirect <- uncert_agri[grepl("^3D", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
 uncert_3D_N2O_indirect <- uncert_3D_N2O_indirect[grepl("[Ii]ndirect", uncert_3D_N2O_indirect$`IPCC category/Group`), ]
 uncert_3D_N2O_indirect <- uncert_3D_N2O_indirect[!grepl("[Aa]nimal", uncert_3D_N2O_indirect$`IPCC category/Group`), ]
 EMagg_3D_N2O_indirect <- as.data.frame(uncert_3D_N2O_indirect %>% group_by(party, year) %>% summarise(AgrSoils_3D_N2O_Indirect = sum(`Year x emissions or removals`, na.rm = TRUE)))
+#EMagg_3D_N2O_indirect[, 3] <- EMagg_3D_N2O_indirect[, 3] * 310
 EMagg <- merge(EMagg, EMagg_3D_N2O_indirect, by = c("party", "year"), all = TRUE)
 
 
@@ -467,7 +496,7 @@ EMagg <- merge(EMagg, EMagg_3F_CH4, by = c("party", "year"), all = TRUE)
 
 uncert_3F_N2O <- uncert_agri[grepl("^3F", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
 EMagg_3F_N2O <- as.data.frame(uncert_3F_N2O %>% group_by(party, year) %>% summarise(FieldBurning_3F_N2O = sum(`Year x emissions or removals`, na.rm = TRUE)))
-#EMagg_3F_N2O[, 3] <- EMagg_3F_N2O[, 3] * 21
+#EMagg_3F_N2O[, 3] <- EMagg_3F_N2O[, 3] * 310
 EMagg <- merge(EMagg, EMagg_3F_N2O, by = c("party", "year"), all = TRUE)
 
 
@@ -479,11 +508,21 @@ EMagg_eu <- EMagg_eu[, c("party", names(EMagg_eu)[-length(EMagg_eu)])]
 EMagg <- rbind(EMagg, EMagg_eu)
 
 
+## Aggr Total Agriculture
+EMagg$TotalAgriculture <- apply(EMagg[, c(4:11, 15:16)], 1, sum, na.rm = TRUE)
+EMagg <- EMagg[, c(1:3, 17, 4:16)]
+#EMagg_agri <- as.data.frame(uncert_agri %>% group_by(party, year) %>% summarise(TotalAgriculture = sum(`Year x emissions or removals`, na.rm = TRUE)))
+#EMagg <- merge(EMagg, EMagg_agri, by = c("party", "year"), all = TRUE)
+View(EMagg)
+
+
+
+
 ## Adding years 2012 - 2014
 yrs <- c(2012:2014)
 
 for (y in yrs){
-  #y <- yrs[1]
+  #y <- yrs[3]
   print(paste0("Year: ", y))
   
   y1 <- y - 2
@@ -497,7 +536,9 @@ for (y in yrs){
     emgg$X3 <- y
     emgg1 <- as.data.frame(matrix(0, ncol = 3, nrow = nrow(emgg)))
     emgg <- cbind(emgg, emgg1)
-    emgg <- emgg[ , c(1:10, 13:15, 11:12)]
+    emgg$W1 <- 0
+    emgg$W2 <- 0
+    emgg <- emgg[ , c(1:5, 16, 6:8, 17, 9:10, 13:15, 11:12)]
     names(emgg) <- names(EMagg)
   } else {
     emgg <-  read.xlsx(paste0(y1, ".EC-IR.4_uncertainty.Tier1_level.xls"), sheetName = "EMagg", startRow = 6, as.data.frame = TRUE, header = FALSE)
@@ -506,7 +547,9 @@ for (y in yrs){
     emgg$X1 <- gsub("GBK", "GBE", emgg$X1)
     emgg <- emgg[emgg$X1 %in% countries3, paste0("X", c(1, 4:16))]
     emgg$X3 <- y
-    emgg <- emgg[ , c(1, 15, 2:14)]
+    emgg$W1 <- 0
+    emgg$W2 <- 0
+    emgg <- emgg[ , c(1, 15, 2:4, 16, 5:7, 17, 8:14)]
     names(emgg) <- names(EMagg)
   }
   
@@ -544,14 +587,211 @@ write.csv(EMagg_perc, paste0(invloc, "/uncertainty/EMagg_all_percent.csv"), row.
 
 
 
-## Calculating Uncertainty aggregations
+#### Calculating Uncertainty aggregations ####
+
+# uEM: Combined Uncertainty
+
+uEM <- as.data.frame(matrix(nrow = 0, ncol = 0))
+
+for (y in yr){
+  for (ct in unique(countries3)){
+    for (ctg in LETTERS[1:6][-5]){
+      for (gs in c("CH4", "N2O")){
+        
+        uncert_3 <- uncert_agri[grepl(paste0("^3", ctg), uncert_agri$`IPCC category/Group`) & 
+                                   uncert_agri$Gas == gs &
+                                   uncert_agri$party == ct &
+                                   uncert_agri$year == y,]
+        
+        if (nrow(uncert_3) == 0) next
+        
+        #View(uncert_3)
+        relerror <- uncert_3$`Combined uncertainty`
+        emission <- uncert_3$`Year x emissions or removals`
+        
+        
+        if (any(grepl("[Dd]airy", uncert_3$`IPCC category/Group`))){ #aggregating Dairy and non-Dairy cattles to Cattle
+          
+          uncert_3_noDair <- uncert_3[!grepl("[Dd]airy", uncert_3$`IPCC category/Group`), ]
+          if (any(grepl("[Cc]attle", uncert_3_noDair$`IPCC category/Group`))){
+            relerror <- relerror[!grepl("[Dd]airy", uncert_3$`IPCC category/Group`)]
+            emission <- emission[!grepl("[Dd]airy", uncert_3$`IPCC category/Group`)]
+          }else{
+            relerror_1 <- relerror[grepl("[Dd]airy", uncert_3$`IPCC category/Group`)]
+            emission_1 <- emission[grepl("[Dd]airy", uncert_3$`IPCC category/Group`)]
+            uncert_EM_cattle <- sumerr(relerror_1, emission_1)
+
+            relerror <- c(uncert_EM_cattle, relerror[!grepl("[Dd]airy", uncert_3$`IPCC category/Group`)])
+            emission <- c( sum(emission[grepl("[Dd]airy", uncert_3$`IPCC category/Group`)]), emission[!grepl("[Dd]airy", uncert_3$`IPCC category/Group`)])
+            
+          }
+        }
+        
+        
+        
+        if(ctg == "D" & gs == "N2O"){ 
+          
+          #agrregating 3D.N2O.b1 and b2 to 3D.N2O.b
+          sel_b12 <- grepl("[Aa]tmospheric", uncert_3$`IPCC category/Group`) | grepl("[L]eaching", uncert_3$`IPCC category/Group`)
+          if (any(sel_b12)){
+            relerror_1 <- relerror[sel_b12]
+            emission_1 <- emission[sel_b12]
+            uncert_EM_3b <- sumerr(relerror_1, emission_1)
+            emiss_EM_3b <- sum(emission[sel_b12])
+          }else{
+            uncert_EM_3b <- 0
+            emiss_EM_3b <- 0
+          }
+        
+          
+          #agrregating 3D.N2O.a2
+          sel_2abc <- grepl("[Aa]pplied[Tt]o[Ss]oils", uncert_3$`IPCC category/Group`)
+          if (any(sel_2abc)){
+            relerror_1 <- relerror[sel_2abc]
+            emission_1 <- emission[sel_2abc]
+            uncert_EM_a2 <- sumerr(relerror_1, emission_1)
+            emiss_EM_a2 <- sum(emission[sel_2abc])
+          }else{
+            uncert_EM_a2 <- 0
+            emiss_EM_a2 <- 0
+          }
+          
+          #agrregating 3D.N2O.a
+          sel_a <- !sel_2abc & !sel_b12
+          if (any(sel_a)){
+            relerror_1 <- c(relerror[sel_a], uncert_EM_a2)
+            emission_1 <- c(emission[sel_a], emiss_EM_a2 )
+            uncert_EM_3a <- sumerr(relerror_1, emission_1)
+            emiss_EM_3a <- sum(emission_1)
+          }
+          
+          relerror <- c(uncert_EM_3a, uncert_EM_3b)
+          emission <- c(emiss_EM_3a, emiss_EM_3b)
+          
+          if(exists("uncert_EM_3a")){rm(uncert_EM_3a, emiss_EM_3a)}
+          if(exists("uncert_EM_3b")){rm(uncert_EM_3b, emiss_EM_3b)}
+          if(exists("uncert_EM_a2")){rm(uncert_EM_a2, emiss_EM_a2)}
+          
+        }
+
+        uncert_EM_agrr <- sumerr(relerror, emission)
+
+        uEM_i <- t(c(ct, y, paste0("3", ctg), gs, paste0("3", ctg, ".", gs, ".0"), uncert_EM_agrr))
+        uEM <- rbind(uEM, uEM_i)
+       
+
+      }#end of for Gas
+    }#end fo categories (A-F)
+  }#end of for country
+}#end of for year
+
+uEM <- spread(uEM[,-c(3:4)], V5, V6)  #data frame to wide format
+
+uEM$TotalGHGEm <- NA
+uEM$TotalAgriculture <- NA
+uEM$'3D.N2O_Direct' <- NA
+uEM$'3D.N2O_AnimalProd' <- NA
+uEM$'3D.N2O_Indirect' <- NA
+uEM[uEM == '<NA>']  <- NA 
+uEM[, -c(1:2)]  <- lapply(uEM[, -c(1:2)], function(x) as.numeric(as.character(x)))
+#apply(uEM[, -c(1:2)], 2, sum, na.rm=T)
+
+uEM <- uEM[, order(names(uEM))]
+uEM <- uEM[, c(16:17, 15:14, 1:8, 10, 9, 11:13)]
+names(uEM) <- names(EMagg)
+
+View(uEM)
+View(EMagg)
 
 
-uncert_3A <- uncert_agri[grepl("^3A", uncert_agri$`IPCC category/Group`),]
+EMagg_noEU_LUX_15_18 <- EMagg[EMagg$party %in% countries3[!countries3 %in% c("LUX")] & EMagg$year %in% c(2015:2018), ]
+uEM_15_18 <- uEM[uEM$party %in% countries3[!countries3 %in% c("LUX")] & uEM$year %in% c(2015:2018), ]
 
-unique(uncert_3A$`IPCC category/Group`)
+mrgd <- merge(uEM_15_18, EMagg_noEU_LUX_15_18, by = c("party", "year"), all = TRUE)
+mrgd[is.na(mrgd)] <- 0
+mrgd <- mrgd[order(mrgd[, 1], mrgd[, 2]), ]
+uEM_15_18 <- uEM_15_18[order(uEM_15_18[, 1], uEM_15_18[, 2]), ]
 
-yr
+uEM_15_18$TotalAgriculture <- unlist(apply(mrgd, 1, function(x){ sumerr(as.numeric(x[c(5:12, 16:17)]), as.numeric(x[c(20:27, 31:32)])) } ))
+
+uncert_agri_15_18_LUX <- uncert_agri[uncert_agri$party %in% c("LUX") & uncert_agri$year %in% c(2015:2018) & uncert_agri$Gas %in% c("CH4", "N2O"), ]
+uEM_15_18_LUX <- as.data.frame(matrix(NA, nrow = length(unique(uncert_agri_15_18_LUX$year)), ncol = ncol(uEM_15_18)))
+names(uEM_15_18_LUX) <- names(uEM_15_18)
+uEM_15_18_LUX$party <- "LUX"
+uEM_15_18_LUX$year <- unique(uncert_agri_15_18_LUX$year)
+for (y in unique(uncert_agri_15_18_LUX$year)){
+  uEM_15_18_LUX[uEM_15_18_LUX$year == y, ]$TotalAgriculture <- sumerr(uncert_agri_15_18_LUX[uncert_agri_15_18_LUX$year == y, ]$`Combined uncertainty`,
+                                                                      uncert_agri_15_18_LUX[uncert_agri_15_18_LUX$year == y, ]$`Year x emissions or removals`)
+}
+
+uEMagg <- rbind(uEM_15_18, uEM_15_18_LUX)
+
+uEMagg[, c(3:17)] <- uEMagg[, c(3:17)] * 100
+
+## Fixing errors in the reported values
+
+uEMagg[uEMagg$party == "BGR", - c(1:3)] <- uEMagg[uEMagg$party == "BGR", - c(1:3)] / 100
+uEMagg[uEMagg$party == "DNM", - c(1:3)] <- uEMagg[uEMagg$party == "DNM", - c(1:3)] / 100
+uEMagg[uEMagg$party == "HRV" & uEMagg$year %in% c(2016:2017), - c(1:3)] <- uEMagg[uEMagg$party == "HRV" & uEMagg$year %in% c(2016:2017), - c(1:3)] * 100
+uEMagg[uEMagg$party == "SWE" & uEMagg$year %in% c(2016, 2018), - c(1:3)] <- uEMagg[uEMagg$party == "SWE" & uEMagg$year %in% c(2016, 2018), - c(1:3)] / 100
+
+
+
+
+View(uEMagg)  
+
+## Adding years 2012 - 2014
+yrs <- c(2012:2014)
+
+for (y in yrs){
+  print(paste0("Year: ", y))
+  
+  y1 <- y - 2
+  
+  if(y1 != 2012){
+    uemgg <-  read.xlsx(paste0(y1, ".EC-IR.4_uncertainty.Tier1_level.xls"), sheetName = "uEMagg", startRow = 3, endRow = 17, as.data.frame = TRUE, header = FALSE)
+    uemgg <-  merge(country4sub[, 1:2], uemgg, by.x = "code2", by.y = "X1", all.y = TRUE)[-1]
+    names(uemgg)[1] <- "X1"
+    uemgg$X1 <- gsub("GBK", "GBE", uemgg$X1)
+    uemgg$X2 <- y
+    uemgg <- uemgg[ , c(1:2, 4:6, 3, 7:9, 3, 10:11, 3, 3, 3, 12:13)]
+    names(uemgg) <- names(uEMagg)
+    uemgg[uemgg == 0] <- NA
+
+  } else {
+    uemgg <-  read.xlsx(paste0(y1, ".EC-IR.4_uncertainty.Tier1_level.xls"), sheetName = "uEMagg", startRow = 6, endRow = 20, as.data.frame = TRUE, header = FALSE)[, -c(4, 17)]
+    uemgg <-  merge(country4sub[, 1:2], uemgg, by.x = "code2", by.y = "X1", all.y = TRUE)[-1]
+    names(uemgg)[1] <- "X1"
+    uemgg$X1 <- gsub("GBK", "GBE", uemgg$X1)
+    uemgg$X2 <- y
+    uemgg <- uemgg[ , c(1:5, 3, 6:8, 3, 9:15)]
+    names(uemgg) <- names(uEMagg)
+    uemgg[uemgg == 0] <- NA
+  }
+  
+  uemgg[, c(1:2)] <- lapply(uemgg[, c(1:2)], function(x) as.factor(x)) 
+  
+  #uemgg_eu <- as.data.frame(uemgg[,-1] %>% group_by(year) %>% summarise_all(sum, na.rm = TRUE))
+  #uemgg_eu$party <- "EU27"
+  #uemgg_eu <- uemgg_eu[, c("party", names(uemgg_eu)[-length(uemgg_eu)])]
+  #uEMagg <- rbind(uEMagg, uemgg, uemgg_eu)
+  
+  uEMagg <- rbind(uEMagg, uemgg)
+  
+}
+
+View(uEMagg)  
+write.csv(uEMagg, paste0(invloc, "/uncertainty/uEMagg_all.csv"), row.names = FALSE)
+
+
+View(uncert_agri[uncert_agri$party == "ESP" & uncert_agri$year == 2015, ])
+View(uncert_agri[uncert_agri$party == "AUT", ])
+
+
+
+
+
+
 
 
 

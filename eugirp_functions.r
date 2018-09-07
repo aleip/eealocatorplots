@@ -1723,3 +1723,41 @@ recalc_uncert <- function(tbl, corrct = FALSE, fctr = 100){
   
 }
 
+
+sumerr <- function(relerror, emission, r = 0){   # function to aggrgate categories of Combined Undertainty, etc (e.g. Cattle + Buffalo + Sheep + etc)
+                                             # Used for 3A_CH4, 3B_CH4, 3D_N20, 3D_N2O_1, and some subcategories (e.g. Dairy + Non-Dairy Cattle) 
+  # relerror: Vector of uncertainties
+  # emission: Vector of EM (emissions). relerror and emission must have the same length
+  # r <- 0   #check in the old years if it's always 0
+  C <- 0
+  e <- 0
+  
+  if (length(relerror) != length(emission)) stop("Please chose arrays of the same length!")
+  
+  for (un_i in 1:length(relerror)){
+    if (!is.numeric(emission[un_i])) emission[un_i] <- 0
+    if (is.na(relerror[un_i])) relerror[un_i] <- 0
+    
+    vari <- ( (relerror[un_i] * emission[un_i]) / 100 )^2
+    C <- C + vari
+    
+    if(relerror[un_i] > 0)  e <- e + abs(emission[un_i])
+    
+    for (un_j in 1:length(relerror)){
+      if (!is.numeric(emission[un_j])) emission[un_j] <- 0
+      if (is.na(emission[un_j])) emission[un_j] <- 0
+      if (is.na(relerror[un_j])) relerror[un_j] <- 0
+      
+      varj <- ( (relerror[un_j] * emission[un_j]) / 100 )^2
+      C <- C + 2 * r * (vari * varj)^0.5
+      
+    }# end of for each element of uncertaity vector (j)
+  }# end of for each element of uncertaity vector (i)
+  
+  if(e > 0)  sumerr <- (100 * C^0.5) / e
+  if(e == 0)  sumerr <- 0
+  
+  return(sumerr)
+  
+}
+

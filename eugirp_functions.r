@@ -1736,6 +1736,7 @@ sumerr <- function(relerror, emission, r = 0){   # function to aggrgate categori
   
   for (un_i in 1:length(relerror)){
     if (!is.numeric(emission[un_i])) emission[un_i] <- 0
+    if (is.na(emission[un_i])) emission[un_i] <- 0
     if (is.na(relerror[un_i])) relerror[un_i] <- 0
     
     vari <- ( (relerror[un_i] * emission[un_i]) / 100 )^2

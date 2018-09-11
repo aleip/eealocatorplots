@@ -279,7 +279,8 @@ for (y in yr){
         tbl$X1 <- gsub("Urea Application", "3.H Urea Application", tbl$X1)
         tbl$X1 <- gsub("Enteric Fermentation", "3.A Enteric Fermentation", tbl$X1)
         tbl$X1 <- gsub("Manure Management", "3.B Manure Management", tbl$X1)
-        tbl$X1 <- gsub("Direct N2O Emissions From Managed Soils", "3.D.1 Direct N2O Emissions From Managed Soils", tbl$X1)
+        tbl$X1 <- gsub("^Indirect N2O Emissions From Managed Soils", "3.D.2 Indirect N2O Emissions From Managed Soils", tbl$X1)
+        tbl$X1 <- gsub("^Direct N2O Emissions From Managed Soils", "3.D.1 Direct N2O Emissions From Managed Soils", tbl$X1)
         tbl <-  tbl[tbl$X2 %in% as.vector(unique(tbl$X2))[1:6], 1:13]
       } else {
         tbl <-  read.xlsx2(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 9, as.data.frame = TRUE, header = FALSE)[,-14]
@@ -308,6 +309,14 @@ for (y in yr){
         tbl <-  read.xlsx(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 4, as.data.frame = TRUE, header = FALSE)
         tbl <-  tbl[substr(tbl$X1, 1, 1) %in% c(1:9), 1:13]
         
+      }else if(ct == "CZE" & y %in% c(2016, 2018)) {
+        tbl <-  read.xlsx(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 11, as.data.frame = TRUE, header = FALSE)
+        tbl <-  tbl[substr(tbl$X1, 1, 1) %in% c(1:9), 1:13]
+        tbl[grepl("3.A", tbl$X1), 2] <- "CH4"
+        tbl[grepl("3.B", tbl$X1), 2][2] <- "N2O"
+        tbl[grepl("3.G Li", tbl$X1), 2] <- "CO2"
+        #View(tbl)
+        #View(uncert_all)
       }else if(ct == "DEU" & y == "2015") {
         tbl <-  read.xlsx2(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 2, as.data.frame = TRUE, header = FALSE)
         tbl$X1 <- paste0(tbl$X1, tbl$X2) 
@@ -319,7 +328,7 @@ for (y in yr){
       }else if(ct == "FRK" & y == "2016") {
         tbl <-  read.xlsx(fle, sheetIndex = sheetIndex, sheetName = sheetName, startRow = 6, as.data.frame = TRUE, header = FALSE)[,-c(1:2)]
         tbl$X4 <- paste0(tbl$X3, tbl$X4) 
-        tbl <- tbl[!tbl$X4 == "NANA", c(2:14)]
+        tbl <- tbl[!tbl$X4 == "NANA", c(2:5, 8:16)]
         names(tbl) <- names(uncert_all)[1:13]
         
       }else if (ct == "ISL" & y == "2016"){
@@ -364,7 +373,7 @@ for (y in yr){
       if (ct == "CZE") tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
       if (ct == "DEU") tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
       if (ct == "ESP") tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
-      if (ct == "FRK") tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
+      if (ct == "FRK"& y == 2016) tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
       if (ct == "IRL") tbl <- recalc_uncert(tbl = tbl, corrct = TRUE)
       if (ct == "ISL") {
         if(y == "2016"){
@@ -474,9 +483,15 @@ EMagg_3D_N2O_direct <- as.data.frame(uncert_3D_N2O_direct %>% group_by(party, ye
 #EMagg_3D_N2O_direct[, 3] <- EMagg_3D_N2O_direct[, 3] * 310
 EMagg <- merge(EMagg, EMagg_3D_N2O_direct, by = c("party", "year"), all = TRUE)
 
-uncert_3D_N2O_animalProd <- uncert_agri[grepl("^3D", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
-uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[grepl("[Aa]nimal", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
-uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[!grepl("[Dd]irect", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
+if (ct == "POL"){
+  uncert_3D_N2O_animalProd <- uncert_agri[grepl("^3D", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
+  uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[grepl("[Aa]nimal", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
+  #uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[!grepl("[Dd]irect", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
+}else {
+  uncert_3D_N2O_animalProd <- uncert_agri[grepl("^3D", uncert_agri$`IPCC category/Group`) & uncert_agri$Gas %in% c("N2O"), ]
+  uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[grepl("[Aa]nimal", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
+  uncert_3D_N2O_animalProd <- uncert_3D_N2O_animalProd[!grepl("[Dd]irect", uncert_3D_N2O_animalProd$`IPCC category/Group`), ]
+}
 EMagg_3D_N2O_animalProd <- as.data.frame(uncert_3D_N2O_animalProd %>% group_by(party, year) %>% summarise(AgrSoils_3D_N2O_AnimalProd = sum(`Year x emissions or removals`, na.rm = TRUE)))
 #EMagg_3D_N2O_animalProd[, 3] <- EMagg_3D_N2O_animalProd[, 3] * 310
 EMagg <- merge(EMagg, EMagg_3D_N2O_animalProd, by = c("party", "year"), all = TRUE)
@@ -513,7 +528,7 @@ EMagg$TotalAgriculture <- apply(EMagg[, c(4:11, 15:16)], 1, sum, na.rm = TRUE)
 EMagg <- EMagg[, c(1:3, 17, 4:16)]
 #EMagg_agri <- as.data.frame(uncert_agri %>% group_by(party, year) %>% summarise(TotalAgriculture = sum(`Year x emissions or removals`, na.rm = TRUE)))
 #EMagg <- merge(EMagg, EMagg_agri, by = c("party", "year"), all = TRUE)
-View(EMagg)
+#View(EMagg)
 
 
 
@@ -566,7 +581,7 @@ for (y in yrs){
 }
 
 
-View(EMagg)
+#View(EMagg)
 
 write.csv(EMagg, paste0(invloc, "/uncertainty/EMagg_all.csv"), row.names = FALSE)
 
@@ -632,7 +647,7 @@ for (y in yr){
         if(ctg == "D" & gs == "N2O"){ 
           
           #agrregating 3D.N2O.b1 and b2 to 3D.N2O.b
-          sel_b12 <- grepl("[Aa]tmospheric", uncert_3$`IPCC category/Group`) | grepl("[L]eaching", uncert_3$`IPCC category/Group`)
+          sel_b12 <- grepl("[Aa]tmospheric", uncert_3$`IPCC category/Group`) | grepl("[Ll]eaching", uncert_3$`IPCC category/Group`)
           if (any(sel_b12)){
             relerror_1 <- relerror[sel_b12]
             emission_1 <- emission[sel_b12]
@@ -700,8 +715,8 @@ uEM <- uEM[, order(names(uEM))]
 uEM <- uEM[, c(16:17, 15:14, 1:8, 10, 9, 11:13)]
 names(uEM) <- names(EMagg)
 
-View(uEM)
-View(EMagg)
+#View(uEM)
+#View(EMagg)
 
 
 EMagg_noEU_LUX_15_18 <- EMagg[EMagg$party %in% countries3[!countries3 %in% c("LUX")] & EMagg$year %in% c(2015:2018), ]
@@ -732,13 +747,13 @@ uEMagg[, c(3:17)] <- uEMagg[, c(3:17)] * 100
 
 uEMagg[uEMagg$party == "BGR", - c(1:3)] <- uEMagg[uEMagg$party == "BGR", - c(1:3)] / 100
 uEMagg[uEMagg$party == "DNM", - c(1:3)] <- uEMagg[uEMagg$party == "DNM", - c(1:3)] / 100
+uEMagg[uEMagg$party == "FRK" & uEMagg$year %in% c(2017, 2018), - c(1:3)] <- uEMagg[uEMagg$party == "FRK" & uEMagg$year %in% c(2017, 2018), - c(1:3)] / 100
 uEMagg[uEMagg$party == "HRV" & uEMagg$year %in% c(2016:2017), - c(1:3)] <- uEMagg[uEMagg$party == "HRV" & uEMagg$year %in% c(2016:2017), - c(1:3)] * 100
 uEMagg[uEMagg$party == "SWE" & uEMagg$year %in% c(2016, 2018), - c(1:3)] <- uEMagg[uEMagg$party == "SWE" & uEMagg$year %in% c(2016, 2018), - c(1:3)] / 100
 
 
 
-
-View(uEMagg)  
+#View(uEMagg)  
 
 ## Adding years 2012 - 2014
 yrs <- c(2012:2014)
@@ -780,32 +795,8 @@ for (y in yrs){
   
 }
 
-View(uEMagg)  
+#View(uEMagg)  
 write.csv(uEMagg, paste0(invloc, "/uncertainty/uEMagg_all.csv"), row.names = FALSE)
-
-
-View(uncert_agri[uncert_agri$party == "ESP" & uncert_agri$year == 2015, ])
-View(uncert_agri[uncert_agri$party == "AUT", ])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

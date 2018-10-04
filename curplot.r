@@ -41,7 +41,7 @@ if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/x
 if(mypc=="D01RI1600881") iam="adrianjrc"
 if(mypc=="L01RI1203587") iam="testcapri"
 if(mypc=="L01RI1203587") iam="adrianlaptop"
-if(mypc=="JRCIPRAP246P") iam="serverJRC"
+if(mypc=="S-JRCIPRAP246P") iam="serverJRC"
 if(mypc=="D01RI1701864") iam="PCxavi"
 eugirpok<-FALSE
 if(grepl("adrian",iam)) eugirpok<-TRUE

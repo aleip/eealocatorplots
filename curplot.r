@@ -32,8 +32,8 @@ if(mypc=="L01RI1203587"){ #checks machine name
     adrian<-"x:/Adrian/"
 }else if(mypc=="D01RI1701864"){
     adrian<-"E:/ghginventory/"
-}else if(mypc=="MARSBL1BHL"){
-    adrian<-"X:\\Agrienv\\ghginventory\\"
+}else if(mypc=="S-JRCIPRAP246P"){
+    adrian<-"D:\\dev\\ghginventory\\"
 }else{
     adrian<-"C:/Adrian/"
 }
@@ -41,13 +41,13 @@ if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/x
 if(mypc=="D01RI1600881") iam="adrianjrc"
 if(mypc=="L01RI1203587") iam="testcapri"
 if(mypc=="L01RI1203587") iam="adrianlaptop"
-if(mypc=="MARSBL1BHL") iam="marsbl1bhl"
+if(mypc=="JRCIPRAP246P") iam="serverJRC"
 if(mypc=="D01RI1701864") iam="PCxavi"
 eugirpok<-FALSE
 if(grepl("adrian",iam)) eugirpok<-TRUE
 if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
 if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
-if(iam=="marsbl1bhl")locplots<-paste0(adrian,"/eealocatorplots")
+if(iam=="serverJRC")locplots<-paste0(adrian,"/eealocatorplots")
 if(iam=="PCxavi")locplots<-paste0(adrian,"/eealocatorplots")
    
 setwd(locplots)
@@ -85,9 +85,9 @@ csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)
 csvfil1 <- paste0(locplots,"/../",invyear,"/eealocator/")   
 if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
 if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
-if(iam=="marsbl1bhl")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"
-if(iam=="marsbl1bhl")invloc<-"X:\\Agrienv\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
-if(iam=="PCxavi")invloc<-"E:\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
+#if(iam=="serverJRC")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"
+if(iam=="serverJRC")invloc<-"D:\\dev\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
+if(iam=="PCxavi")invloc<-"E:\\ghginventory\\ecir"    #xavi20180125: new path to ecir in xavi's PC 
 #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)

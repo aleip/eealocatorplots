@@ -310,11 +310,11 @@ writeLines("/;",cong)
 writeLines("\n\nSET UID_TO_ALLTYPE(variableUID,ALLTYPE)/",cong)
 sel<-agri4capri$measure=="Nitrogen excretion per MMS"&agri4capri$gas%in%c("no gas")&agri4capri$category%in%selanimals&grepl("3.B",agri4capri$sector_number)
 writeLines("\n*  --- Nitrogen excretion per MMS - Liquid Systems\n",cong)
-sx<-sel&grepl("Liquid",agri4capri$source)
+sx<-sel&grepl("Liquid|lagoon",agri4capri$source)
 writeLines(paste0("\"",agri4export$variableUID[sx],"\".(Liquid)   \"",agri4export$meta[sx],"\""),cong)
 
 writeLines("\n*  --- Nitrogen excretion per MMS - Solid Systems\n",cong)
-sx<-sel&grepl("Solid",agri4capri$source)
+sx<-sel&grepl("Solid|Digesters|Composting|Daily|Burned|Other",agri4capri$source)
 writeLines(paste0("\"",agri4export$variableUID[sx],"\".(Solid)   \"",agri4export$meta[sx],"\""),cong)
 
 writeLines("\n*  --- Nitrogen excretion per MMS - Grazing Systems\n",cong)

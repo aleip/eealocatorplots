@@ -18,6 +18,8 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
     adrian<-"E:/ghginventory/"
 }else if(Sys.info()[4]=="MARSBL1BHL"){
   adrian<-"X:\\Agrienv\\ghginventory\\"
+}else if(Sys.info()[4]=="D01RI1600850"){# Gema PC
+  adrian<-"D:\\Users\\carmoge\\Documents\\GitHub\\"
 }else{
   adrian<-"C:/Adrian/"
 }
@@ -25,6 +27,7 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
 locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
 if(Sys.info()[4]=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1701864")locplots<-paste0(adrian,"/eealocatorplots")
+if(Sys.info()[4]=="D01RI1600850")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
 options(warn=0)
 source("curplot.r")

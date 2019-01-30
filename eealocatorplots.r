@@ -20,6 +20,8 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
   adrian<-"X:\\Agrienv\\ghginventory\\"
 }else if(Sys.info()[4]=="D01RI1600850"){# Gema PC
   adrian<-"D:\\Users\\carmoge\\Documents\\GitHub\\"
+}else if(Sys.info()[4]=="S-JRCIPRAP246P"){# New server
+  adrian<-"D:\\dev\\ghginventory"
 }else{
   adrian<-"C:/Adrian/"
 }
@@ -28,6 +30,7 @@ locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")         
 if(Sys.info()[4]=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1701864")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1600850")locplots<-paste0(adrian,"/eealocatorplots")
+if(Sys.info()[4]=="S-JRCIPRAP246P")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
 options(warn=0)
 source("curplot.r")
@@ -47,6 +50,8 @@ options(error=NULL) #error=recover goes into debug mode
 # - alldatanovalues
 # - measname
 source("eugirpA.1_eealocator.r")
+options(error=NULL) #error=recover goes into debug mode
+
 
 # A.2 Clean animal type names ####
 # Some animal types are given under 'allmethods', the options either 'sector_number' and/or 'allmethods'
@@ -101,7 +106,13 @@ if(stepsdone==1){
 # B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
 if(stepsdone==2){
     print("Step 3a: Calculating EU-sums only for summable variables")
-
+  
+    if(!is.null(keepNORout)){ 
+      print("Keeping Norway out")
+      alldata_NOR<-alldata[alldata$party == "NOR",]
+      alldata<-alldata[alldata$party != "NOR",]
+    }
+  
     alldata<-alldata[alldata$party!="EU28",]
     alldata$datasource<-"nir"
     calceu<-alldata[grepl("^3",alldata$sector_number),]
@@ -165,6 +176,7 @@ if(stepsdone==2){
             }else{return(NULL)}
         }else{return(NULL)}
     }
+    cat("/n")
     print("Calculate calcshare")
     calcshare<-lapply(c(1:nrow(agrisummeas)),function(x) 
         Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x)))
@@ -202,11 +214,11 @@ if(stepsdone==2){
     alldata<-alldata[o,allfields]
     
     #stop("pause")
-    source("eugirp_allagri.r")
+    source("eugirp_allagri.r")  #20190125: allagri data WITH Norway (alldata WITHOUT Norway)
     
     stepsdone<-3
     emplotsdone<-0
-    savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen")
+    savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     source("curplot.r")
@@ -222,6 +234,8 @@ if(stepsdone>2){
     if(doemissionplots==TRUE){
         if(emplotsdone==0){
             print("Step 4: Emission plots")
+            if(!is.null(keepNORout)) print("Keeping Norway out of these plots")
+          
             adempars<-c("AD","EM")
             
             rundata<-"adem"
@@ -240,7 +254,11 @@ if(stepsdone>2){
 
             x1<-368;x2<-nrow(plotmeas)
             x1<-1;x2<-154
-            x1<-1;x2<-nrow(plotmeas)
+            x1<-167; x2<-nrow(plotmeas)
+            x1<-1; x2<-nrow(plotmeas)
+            #imeas <- 171
+            #loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")
+            #View(alldata[alldata$variableUID == "91817067-8DB6-41D6-A348-57E2C17B655D", ])
             for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
             plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
             write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
@@ -268,9 +286,11 @@ if(stepsdone>2){
 #stop("plots done")
 #++++ END OF GENERAL PART 
 #++++ BELOW SECTOR-3 SPECIFIC PART
+# 2019: Norway is included in all checks
 # A.3 Calculate trend and growth rates ####
 if(stepsdone==3){
     print("Step 4: Calculating trends and growth rates")
+    if(!is.null(keepNORout)) print("Including (again) Norway")
     
     nyears<-length(years)
     period1<-as.character(years[1]:years[nyears-1])
@@ -282,6 +302,7 @@ if(stepsdone==3){
     agriemissions<-unique(agriemissions)
     
     # Agrishares as agriemissions relative to total emissions ####
+    # 2019: both 'alltotals' and 'agriemissions' include Norway
     totaluid<-as.vector(unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$type==signtype&alltotals$gas=="Aggregate GHGs"]))
     totalval<-alltotals[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs",]
     totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE)
@@ -348,6 +369,10 @@ if(stepsdone==3){
 # A.4 NE-check and check on unit errors. Prepare for outlier check ####
 if(stepsdone==4){
     print("# A.4 NE-check and check on unit errors. Prepare for outlier check ####")
+    if(!is.null(keepNORout)){
+      print("Norway data is included for these checkings")
+      alldata <- rbind(alldata, alldata_NOR)
+    } 
     #load("checksteps.Rdata")
     #print(checksteps)
     
@@ -391,6 +416,9 @@ if(stepsdone==4){
     #checksteps<-"4c"
     #save(checksteps,file="checksteps.RData")
     
+    # removing again NOR data
+    if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 
+    
     stepsdone<-5
     savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
     save(list=savelist,file=rdatallem)
@@ -406,6 +434,11 @@ if(stepsdone==4){
 if(stepsdone==5){
     
     print("# A.3 Check for outlier errors and calculate EU weighted averages ####")
+    if(!is.null(keepNORout)){
+      print("Norway data is included for these checkings (not for calculating EU weighted averages!!)")
+      alldata <- rbind(alldata, alldata_NOR)
+    } 
+  
     print(paste0("Step ",stepsdone+1,"a: Check for outlier errors on parameters @ ",curtime(1)))
     outcheck<-"param"
     source("eugirp_checkoutliers.r")
@@ -509,6 +542,8 @@ if(stepsdone==5){
     print(paste0("Step ",stepsdone+1,"j: Write outlier list @ ",curtime(1)))
     source("eugirp_writeoutlierlist.r")
     
+    # removing again NOR data
+    if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 
     
     stepsdone<-6
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
@@ -523,7 +558,7 @@ if(stepsdone==5){
 #stop("step 6 done")
 # Calculate EU weighted averages and make adem and ief plots####
 if(stepsdone==6){
-    
+    NOR fuori per w averages ma dentro per i plot
     # Make growth plots to check ... improve loop!!
     
     #temporarycommented 
@@ -536,8 +571,18 @@ if(stepsdone==6){
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")
     #paramcheck$correction[paramcheck$party=="SWE"&paramcheck$meastype=="VSEXC"]<-0
+    
+    #removing NOR data before to calculate averages
+    if(!is.null(keepNORout)){ 
+      print("Averages computed keeping OUT Norway")
+      allagri_NOR<-allagri[allagri$party == "NOR",]
+      allagri<-allagri[allagri$party != "NOR",]
+    }
     source("eugirp_euweightedaverages.r")
     export4uba(allagri = allagri)
+    
+    # Including again Norway data
+    if(!is.null(keepNORout)) allagri <- rbind(allagri, allagri_NOR) 
     
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
     datasource<-"nir"
@@ -572,6 +617,7 @@ if(stepsdone==6){
 # C - Make checks for sector 3 ####
 #checksteps<-7
 if(stepsdone==7) {
+  NOR dentro
     print(paste0("Step ",stepsdone+1,": Make specific checks for Sector 3 - Set 1"))
     #load(rdatmeasu)
     
@@ -647,6 +693,7 @@ if(stepsdone==7) {
 
 #stop("Step 8 done")
 if(stepsdone==8) {
+  nor dentro
     print(paste0("Step ",stepsdone+1,": Comparison with FAO"))
     source("eugirp_faocomparison.r")
     source("eugirp_exportUIDs4capri.r")

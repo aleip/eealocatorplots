@@ -1,3 +1,6 @@
+
+if(!is.null(keepNORout)) alldata <- rbind(alldata, alldata_NOR) 
+
 agriselect<-grepl("^3",alldata$sector_number) 
 allagri<-alldata[agriselect,]
 acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
@@ -133,3 +136,6 @@ writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),coll
 write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
 close(con)
 
+
+# removing again NOR data
+if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 

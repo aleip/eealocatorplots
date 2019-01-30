@@ -113,6 +113,7 @@ allagri$sector_number[selection & allagri$meastype%in%meastb12weight]<-"3.B.1.3"
 allagri$sector_number[selection & allagri$meastype%in%meastb22weight]<-"3.B.2.3"
 
 allagri98<-allagri
+#allagri <- allagri98
 # Method-column gives problems for merge (20160819 - never previously)
 allagrimethod<-allagri$method
 allagri<-allagri[,-which(names(allagri)=="method")]
@@ -135,7 +136,11 @@ selectsw<-grepl("swine",tolower(allagri$category))
 swines<-unique(allagri$category[selectsw])
 
 #Substitute different terms for 'other Swine'
-allagri<-substituteothers(allagri,"All swine","Other Swine")
+if(invyear != 2019){
+  allagri[allagri$party != "MLT", ] <- substituteothers(allagri[allagri$party != "MLT", ],"All swine","Other Swine")
+}#else{
+#  allagri<-substituteothers(allagri,"All swine","Other Swine")
+#}
 allagri<-substituteothers(allagri,"Other Swine.swine","Other Swine")
 allagri<-substituteothers(allagri,"Other Swine.Total","Other Swine")
 allagri<-substituteothers(allagri,"Other swine","Other Swine")
@@ -166,7 +171,11 @@ sheeps<-unique(allagri$category[selectsw])
 
 #Substitute different terms for 'other sheep'
 allagri<-substituteothers(allagri,"All Sheep","Other Sheep")
-allagri<-substituteothers(allagri,"Other Sheep.Sheep","Other Sheep")
+if(invyear != 2019){
+  allagri[allagri$party != "LUX", ] <- substituteothers(allagri[allagri$party != "LUX", ],"Other Sheep.Sheep","Other Sheep")
+}#else{
+#  allagri<-substituteothers(allagri,"Other Sheep.Sheep","Other Sheep")
+#}
 allagri<-substituteothers(allagri,"Other Sheep.Total","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep.General","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Other Sheep")

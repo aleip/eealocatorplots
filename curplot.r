@@ -78,7 +78,8 @@ cursubm <- "20171011"                                                       #!!!
 cursubm <- "20180122"                                                       #!!!
 cursubm <- "20180319"                                                       #!!!
 cursubm <- "20180508"                                                       #!!!
-invyear<-2018
+cursubm <- "20190115"                                                       #!!!
+invyear<-2019
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
 invloc<-paste0(adrian,"google/projects/ecir")#!!!
@@ -119,6 +120,10 @@ lastkeyfile<-"keycategories~20160606.csv"
 lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
 excludeparty<-NULL
 eusubm<-"EUC"
+
+# 2019: Keeping Norway data OUT for the plots and for calculating EU averages, but IN for the checks (and agriplots - Step6)
+keepNORout <- NULL # this is to keep Norway IN for everithing
+keepNORout <- 1
 
 # Settings for plots
 # --> number of countries which are listed in the legend
@@ -195,4 +200,5 @@ yr <- c(2015:2018)
 yr <- c(2017)
 yr <- invyear
 
+options(error=NULL) #error=recover goes into debug mode
 

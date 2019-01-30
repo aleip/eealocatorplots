@@ -484,6 +484,7 @@ flags4newissue<-function(line,check,x){
   
     #cat(x," ")
     country<-country4sub[country4sub$code3==as.character(line$party),"long"]
+    if(any(country %in% c("France incl Mayotte")) && length(country) > 1) {country <- c("France")}
     if(length(country)==0)country<-as.character(line$party)
     if(check=="outlier") {
         observation<-observationoutlier(line)

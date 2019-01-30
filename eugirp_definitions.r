@@ -102,17 +102,23 @@ gwps<-gwpsar4
 #The Party name is confusing because it is the United Kingdom in both instances 
 #(one with overseas territories 'GBR' and the other without 'GBE').  We should improve this next year. 
 
-countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" ,"PL" ,"PT" ,"RO" ,"SK" ,"SI" ,"SE" )
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SVK","SVN","SWE")
-countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SVK","SVN","SWE")
+countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" , "NO","PL" ,"PT" ,"RO" ,"SK" ,"SI" ,"SE" )
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
+countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
 eu<-c("EUA","EUC")
-eum<-c("EU28","EU28+ISL")
-eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
+if(!is.null(keepNORout)){ 
+  eum<-c("EU28","EU28+ISL")
+  eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
+}else{
+  eum<-c("EU28","EU28+ISL+NOR")
+  eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL+NOR)")
+}
+
 
 countriesl<-c("Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark",
               "Spain","Estonia","Finland","France","France incl Mayotte",
               "United Kingdom (GB=GBR=KP geographical coverage)","United Kingdom (UK=GBK=EU territory)","Greece","Croatia","Hungary","Ireland",
-              "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands","Poland",
+              "Iceland","Italy","Lithuania","Luxembourg","Latvia","Malta","Netherlands", "Norway", "Poland",
               "Portugal","Romania","Slovakia","Slovenia","Sweden")
 countries4plot<-gsub("United Kingdom.*","United Kingdom",countriesl)
 
@@ -125,6 +131,16 @@ country4sub$EUA<-1
 country4sub$EUC<-1
 country4sub$EU28[country4sub$code3=="ISL"]<-0
 country4sub$EUA[country4sub$code3=="ISL"]<-0
+
+if(!is.null(keepNORout)){ 
+  country4sub$EU28[country4sub$code3=="NOR"]<-0
+  country4sub$EUA[country4sub$code3=="NOR"]<-0
+  country4sub$EUC[country4sub$code3=="NOR"]<-0
+}else{
+  country4sub$EU28[country4sub$code3=="NOR"]<-0
+  country4sub$EUA[country4sub$code3=="NOR"]<-0
+}
+
 
 # France: EU28 and EU-inventory for UNFCCC: France excluding Mayotte
 #         Kyoto: France including Mayotte
@@ -153,17 +169,30 @@ country4sub$name<-country4sub$long
 country4sub$name[grepl("United",country4sub$name)]<-"United Kingdom"
 country4sub$name[grepl("France",country4sub$name)]<-"France"
 country4sub$name[country4sub$code3=="EUA"]<-"EU28"
-country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL"
+
+if(!is.null(keepNORout)){ 
+  country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL"
+}else{
+  country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL+NOR"
+}
 
 country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
-countries4plot <- country4sub$name[!country4sub$name %in% c("EU28", "EU28+ISL", "France incl Mayotte")]
+if(!is.null(keepNORout)){ 
+  countries4plot <- country4sub$name[!country4sub$name %in% c("EU28", "EU28+ISL", "France incl Mayotte")]
+}else{
+  countries4plot <- country4sub$name[!country4sub$name %in% c("EU28", "EU28+ISL+NOR", "France incl Mayotte")]
+}
 
 countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
 eunames<-as.data.frame("EU28")
 names(eunames)<-"EUA"
-eunames$EUC<-"EU28+ISL"
+if(!is.null(keepNORout)){ 
+  eunames$EUC<-"EU28+ISL"
+}else{
+  eunames$EUC<-"EU28+ISL+NOR"
+}
 eukp<-eunames[,eusubm]
 
 

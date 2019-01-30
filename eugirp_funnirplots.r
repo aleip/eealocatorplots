@@ -195,7 +195,7 @@ iniplot<-function(figname,nplots){
     # Note: default values have been set for a plot of the size 11 in x 6 in
     pwidth=27.94
     #pwidth=16
-    pwidth=14.8  #exactly the size in the word document
+    #pwidth=14.8  #exactly the size in the word document
     pltunits <- "in";  if (pltunits == "in") pwidth <- (pwidth/2.54)*1.3
     #pwidth=4
     pheight=pwidth/1.833
@@ -210,7 +210,8 @@ iniplot<-function(figname,nplots){
     #cat("\nfigname: ",figname)
     if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight, bg = "white", pointsize = 27)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
-    if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
+    #xavi2019: if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
+    if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution, pointsize = 12)
     cat(gsub(plotsdir,"",figname),": ")
     # Parameters must be set afte defining graphic (?)
     par(mfrow = c(nplots,1))
@@ -231,7 +232,7 @@ iniplot<-function(figname,nplots){
     paromd<-c(xstt,xleg,ystt,yhea)
     if(runfocus=="compare") paromd<-c(0.05,1,0.15,yhea)
     par(omd=paromd)
-    return(list(hastitle,haslegend,hasfootnote,pconv,paromd))
+    return(list(hastitle,haslegend,hasfootnote,pconv,paromd, pwidth))
 }
 
 getyaxis<-function(teval,tevalpos,tevalneg){
@@ -659,9 +660,9 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     }
                   #xavi20180214: plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious)
                   if ( tmin > 0.01){
-                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,serious, mstp)
+                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
                   }else{
-                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious, mstp)
+                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
                   }
                 }
                 tmp<-as.data.frame(finnames)
@@ -704,7 +705,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
 
 #plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource){
 #plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource,defaults,serious){
-plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource,tmin,tmax,tmag,defaults,serious,mstp){
+plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource,tmin,tmax,tmag,defaults,serious,mstp, pconv, pwidth){
     # This function creates the various plots that can be used for the NIR,
     # in particular: value-plots, trend-plots, and country-plots.
     #capinv graphics.off()
@@ -715,12 +716,12 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     #source("c:/adrian/models/capri/dndc/results/20110722/nitrogen/figures/plotdefaults.r")
     
     #pwidth set in function iniplot ... needs to be retrieved from current device
-    pwidth=27.94
-    pwidth=16
+    #pwidth=27.94
+    #pwidth=16
     #pwidth=14.8  #exactly the size in the word document
     #pltunits <- "in";  if (pltunits == "in") pwidth <- (pwidth/2.54)*1.3
     
-    pconv<-pwidth/27.94
+    #pconv<-pwidth/27.94
     if(plotformat=="pdf") pconv <- 0.3
     # runcateg to be used for the plot title
     #rungas<-unique(pmeas$gas)

@@ -40,6 +40,7 @@ LUX	grey65	10	grey30	45	-45	23  white   grey
 LVA	grey65	 5	grey10	45	-45	23  white   black
 MLT	grey80	20	grey10	45	-45	23  white   white
 NLD	grey80	20	grey20	45	-45	23  grey    grey 
+NOR grey80  30  grey10  45  -45 23  black   black
 POL	grey80	40	grey10	45	-45	23  grey    white
 PRT	grey80	10	grey20	45	-45	23  grey    black
 ROU	grey80	 5	grey10	45	-45	23  black   white

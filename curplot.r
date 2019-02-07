@@ -118,6 +118,7 @@ rdatagri <- paste0(csvfil,"_agri.RData")
 lastkeyfile<-"keycategories~20151012.csv"
 lastkeyfile<-"keycategories~20160606.csv"
 lastkeyfile<-paste0(issuedir,"keycatetgories/",lastkeyfile)
+
 excludeparty<-NULL
 eusubm<-"EUC"
 

@@ -162,6 +162,9 @@ if(exists("autocorrections")){
         unlist(correctcorrection(autocorrections,selc$party[x],selc$variableUID[x]))))
     calceu[selection1,years]<-t
 }
+if(!is.null(keepNORout)){
+  calceu <- calceu[calceu$party != "NOR", ]
+}
 #allagri<-calceu
 # 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
 if(exists("paramcheck")){
@@ -182,7 +185,10 @@ if(exists("paramcheck")){
       calceu <- calceu[ !names(calceu) %in% c("correction.y")]            #xavi201801301
       names(calceu) <- sub("correction.x", "correction", names(calceu))
     }                                                                     #xavi201801301
-
+    
+    if(!is.null(keepNORout)){
+      calceu <- calceu[calceu$party != "NOR", ]
+    }
     calceucor<-calceu
 
     # Do not use the 'correction==0' values for the EU average, but keep them in the data...
@@ -198,10 +204,10 @@ eu28wei1<-as.data.frame(matrix(ncol=0,nrow=0))
 for(euneeded in c("EUC","EUA")) {
   print(paste("calculating averages for ", euneeded))
   acountry<-as.character(country4sub[country4sub[, euneeded]==1,"code3"])
-
+  #if(!is.null(keepNORout)) acountry <- acountry[!acountry %in% c("NOR")]
+    
   eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
   names(eu28wei)<-names(calceu)
-  
   eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]
   eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,acountry)
   eu28wei[,"party"]<-rep(euneeded,nrow(eu28wei))

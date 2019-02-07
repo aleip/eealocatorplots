@@ -839,7 +839,17 @@ keycategories<-function(){
     keycategories<-read.csv(paste0(issuedir,"../keycategories/EUkeycategoryanalysis_variables_JRC.csv"),stringsAsFactors = FALSE)
     keycategories<-keycategories$variable_UID
     potkeycategories<-alldata[alldata$variableUID%in%keycategories,]
+    if(cursubm == "20190115"){ 
+      gwps2019 <- gwps
+      gwps[6:8] <- 0  
+    }else{
+      stop("Check if the problem with 2.F.1. persists...")
+    }
+    
     gasf<-sapply(1:nrow(potkeycategories),function(x) gwps[which(gases==potkeycategories$gas[x])])
+    
+    if(cursubm == "20190115") gwps <- gwps2019
+    
     potkeycategories[,lastyear]<-as.numeric(potkeycategories[,lastyear])*gasf
     
     cols2leave<-paste(names(potkeycategories)[!names(potkeycategories)%in%c(years,"party","notation")],collapse="+")

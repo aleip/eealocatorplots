@@ -1,5 +1,5 @@
 
-if(!is.null(keepNORout)) alldata <- rbind(alldata, alldata_NOR) 
+#if(!is.null(keepNORout)) alldata <- rbind(alldata, alldata_NOR) 
 
 agriselect<-grepl("^3",alldata$sector_number) 
 allagri<-alldata[agriselect,]

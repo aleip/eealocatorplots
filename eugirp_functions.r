@@ -411,8 +411,8 @@ fillbyvariableUID<-function(DF=allagri,col,uid){
     cval<-unlist(lapply(1:length(col),function(x) f(DF,col[x],uid)))
     return(cval)
 }
-
-extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE){
+#DF=allagri;uid=curuid;c=allcountries;noeu = TRUE
+extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE, cursubm = cursubm){
     
     # Extracts data for one variableUID and 
     # Resorts them thus that the eu-countries (EUC, EUA etc) which are in 'c' and in the data are last
@@ -420,7 +420,13 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE){
     names(c)<-"party"
     #DF<-droplevels(DF)
     #if(length(levels(DF$variableUID))<length(levels(uid))) levels(DF$variableUID)<-levels(uid)
-    tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years2keep)])
+    if (cursubm == "20190115" & uid == "eugirp3B220SheeheepTNEktNyea0000000000"){
+      tmp1 <- DF[DF[,"variableUID"]==uid,c("party",years2keep)]
+      tmp1[, -1] <- round(tmp1[, -1], 5)
+      tmp1<-unique(tmp1)
+    }else{
+      tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years2keep)])
+    }
     tmp1<-tmp1[! is.na(tmp1$party),]
     ntmp<-nrow(tmp1)
     tmp1<-merge(c,tmp1,by="party",all=TRUE,sort=TRUE)

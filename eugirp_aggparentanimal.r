@@ -1,5 +1,6 @@
 options(warn=2)
-options(error=recover) 
+options(error=NULL) 
+
 #addparentvalues<-function(addparentanimal){
 allswines<-unique(addparentanimal$category[grepl("^3.A.3",addparentanimal$sector_number)])
 allsheeps<-unique(addparentanimal$category[grepl("^3.A.2",addparentanimal$sector_number)])

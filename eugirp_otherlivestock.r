@@ -5,6 +5,13 @@ allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 sel<-allagri$party=="SVK"&allagri$category=="Other Swine.swine"
 allagri<-allagri[!sel,]
 
+#LUX: remove Other sheep
+#View(allagri[allagri$party == "LUX" & grepl("[Ss]heep", allagri$category), ])
+if(invyear == 2019){
+  sel <- allagri$party == "LUX" & allagri$category == "Other Sheep"
+  allagri<-allagri[!sel,]
+}
+
 #Remove end-blank in sector_number
 selection<-grepl(" $",allagri$sector_number)
 allagri$sector_number[selection]<-gsub(" $","",allagri$sector_number[selection])

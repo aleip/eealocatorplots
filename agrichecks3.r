@@ -32,11 +32,11 @@ print("Check 7: NH3 and NOx volatilized")
 tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE)
 allagritab<-unique(subset(allagri,select=uniquefields))
 ccp<-c("Cattle","Swine","Poultry","Buffalo")
-so<-c("Sheep",otherlivestock[-match(c("Other Livestock","Poultry","Buffalo","Other Other Livestock"),otherlivestock)])
+so<-c("Sheep",otherlivestock[-match(c("Other Livestock","Poultry","Buffalo","Other Other Livestock", "Camels"),otherlivestock)])
 for(i in c(ccp,so)){
     sel<-allagri$meastype=="TNEXC2"&grepl("^3.B.2",allagri$sector_number)& allagri$category==i
     curuid<-getuid(1,ok=1,mea="TNEXC2",sec="^3.B.2",cat=paste0("^",i,"$"))
-    tmp2<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
+    tmp2<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
     #if(i=="Poultry"){manurep<-tmp2}
     if(i%in%ccp){if(i==ccp[1]){manurecpp<-tmp2}else{manurecpp<-manurecpp+tmp2}}
     if(i%in%so){if(i==so[1]){manureso<-tmp2}else{manureso<-manureso+tmp2}}
@@ -156,7 +156,7 @@ if(nrow(check6)>1 & check6$val[1]!=0){
 # IEF in pasture range and paddock
 #TABLE 11.1 DEFAULT EMISSION FACTORS TO ESTIMATE DIRECT N2O EMISSIONS FROM MANAGED SOILS
 #EF3PRP, CPP for cattle (dairy, non-dairy and buffalo), poultry and pigs [kg N2O–N (kg N)-1] 0.02 0.007 - 0.06
-#EF3PRP, SO for sheep and ‘other animals’ [kg N2O–N (kg N)-1] 0.01 0.003 - 0.03
+#EF3PRP, SO for sheep and 'other animals' [kg N2O-N (kg N)-1] 0.01 0.003 - 0.03
 curuid<-unique(allagri$variableUID[allagri$meastype=="IEF"&allagri$sector_number=="3.D.1.3"])
 d13ief<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
 check7<-checktemp
@@ -183,14 +183,14 @@ if(nrow(check7)>1 & check7$val[1]!=0){
 
 #TABLE 10.22 DEFAULT VALUES FOR NITROGEN LOSS DUE TO VOLATILISATION OF NH3 AND NOX FROM MANURE MANAGEMENT
 # Lowest
-# Dairy Cows Daily spread 7% (5 – 60)
-# Other Solid storage 12% (5 – 20)
-# Swine Pit storage 25% (15 – 30)
-# Dairy Cow Dry lot 20% (10 – 35)
+# Dairy Cows Daily spread 7% (5 - 60)
+# Other Solid storage 12% (5 - 20)
+# Swine Pit storage 25% (15 - 30)
+# Dairy Cow Dry lot 20% (10 - 35)
 # Largest
-# Poultry without litter 55% (40 – 70) 
-# Swine Liquid/slurry 48% (15 – 60)
-# Swine and Other Cattle Solid storage 45% (10 – 65)
+# Poultry without litter 55% (40 - 70) 
+# Swine Liquid/slurry 48% (15 - 60)
+# Swine and Other Cattle Solid storage 45% (10 - 65)
 
 # N lost in MMS as NH3+NOx or leached versus total Managed N (exception of PRP and manure burning)
 curuid<-unique(allagri$variableUID[grepl("3.B.2.5",allagri$sector_number)&allagri$meastype=="Nvol"])

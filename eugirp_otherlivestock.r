@@ -7,9 +7,11 @@ allagri<-allagri[!sel,]
 
 #LUX: remove Other sheep
 #View(allagri[allagri$party == "LUX" & grepl("[Ss]heep", allagri$category), ])
-if(invyear == 2019){
-  sel <- allagri$party == "LUX" & allagri$category == "Other Sheep"
-  allagri<-allagri[!sel,]
+if(invyear == 2019){   # Removing 'Other Sheep' as it is the sum of 'Sheep lambs under 1 yr' and 'Other Sheep.Sheep', and it could get confused with the latter
+#  sel <- allagri$party == "LUX" & allagri$category == "Other Sheep"
+#  allagri<-allagri[!sel,]
+  #allagri[allagri$party == "LUX" & allagri$category == "Other Sheep.Sheep", ]$category <- "Other Sheep.Sheep LUX"
+  #allagri[allagri$category == "Other Sheep.Sheep", ]$category <- "Other Sheep.Sheep subcat"
 }
 
 #Remove end-blank in sector_number
@@ -143,7 +145,7 @@ selectsw<-grepl("swine",tolower(allagri$category))
 swines<-unique(allagri$category[selectsw])
 
 #Substitute different terms for 'other Swine'
-if(invyear != 2019){
+if(invyear < 2019){
   allagri[allagri$party != "MLT", ] <- substituteothers(allagri[allagri$party != "MLT", ],"All swine","Other Swine")
 }#else{
 #  allagri<-substituteothers(allagri,"All swine","Other Swine")
@@ -178,15 +180,27 @@ sheeps<-unique(allagri$category[selectsw])
 
 #Substitute different terms for 'other sheep'
 allagri<-substituteothers(allagri,"All Sheep","Other Sheep")
-if(invyear != 2019){
-  allagri[allagri$party != "LUX", ] <- substituteothers(allagri[allagri$party != "LUX", ],"Other Sheep.Sheep","Other Sheep")
-}#else{
+#if(invyear != 2019){
+#  allagri[allagri$party != "LUX", ] <- substituteothers(allagri[allagri$party != "LUX", ],"Other Sheep.Sheep","Other Sheep")
+#}#else{
 #  allagri<-substituteothers(allagri,"Other Sheep.Sheep","Other Sheep")
 #}
+#if(invyear == 2019){
+##  #allagri[allagri$party == "LUX" & allagri$meastype == "DIGEST" & grepl("[Ss]heep", allagri$category), ]$category <- " Other Sheep"
+##  allagri[allagri$party == "LUX", ] <- substituteothers(allagri[allagri$party == "LUX", ], "Other Sheep.Sheep", "Other Sheep")
+#  allagri[allagri$party == "LUX", ] <- substituteothers(allagri[allagri$party == "LUX", ], "Other Sheep.Sheep", "Other Sheep")
+#} 
+
+#allagri<-substituteothers(allagri,"Other Sheep.Sheep","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep.Total","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep.General","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Other Sheep")
-allagri<-substituteothers(allagri,"Other Sheep","Sheep")
+#if(invyear == 2019){
+#  allagri[allagri$party != "LUX", ] <- substituteothers(allagri[allagri$party != "LUX", ],"Other Sheep", "Sheep")
+#}else{
+  allagri<-substituteothers(allagri,"Other Sheep","Sheep")
+#}
+
 allagri<-substituteothers(allagri,"sheep","Sheep")
 allagri152<-allagri
 selectsw<-grepl("sheep",tolower(allagri$category))

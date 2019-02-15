@@ -1,6 +1,6 @@
 
 #checkuids<-allanimals
-tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE)
+tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE, cursubm = cursubm)
 checkpar<-"NRATE"
 checkuids[,checkpar]<-unlist(lapply(c(1:nrow(checkuids)), function(x)
     getuid(1,ok=1,mea=checkpar,gas="no gas",x=x,
@@ -59,7 +59,7 @@ checkuids$sector_number<-gsub(" $","",checkuids$sector_number)
 checkuids<-checkuids[checkuids$sector_number!="",]
 # Check sum of manureSystems against total excretion
 # Testresults
-tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE)
+tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE, cursubm = cursubm)
 #tmp0[is.na(tmp0)]<-0
 check1<-checktemp
 ncheck1<-1
@@ -75,13 +75,13 @@ for(i in c(1:nrow(checkuids))){
     tmp1<-tmp0
     for(j in manureSysshrt){
         if(checkuids[i,j]!=0){
-            tmp<-extractuiddata(allagri,checkuids[i,j],allcountries,noeu = TRUE)
+            tmp<-extractuiddata(allagri,checkuids[i,j],allcountries,noeu = TRUE, cursubm = cursubm)
             tmp1<-tmp+tmp1
         }
     }
     
     # Total N excretion reported
-    tmp2<-extractuiddata(allagri,checkuids[i,"TNEXC"],allcountries,noeu = TRUE)
+    tmp2<-extractuiddata(allagri,checkuids[i,"TNEXC"],allcountries,noeu = TRUE, cursubm = cursubm)
     
     # Difference between sum(NEXC,mms) and TNEXC
     test1<-"NexTOT"
@@ -102,12 +102,12 @@ for(i in c(1:nrow(checkuids))){
     val2<-"AD x Nrate"
     if(checkuids[i,"APOP"]!=0){
         if(checkuids[i,"B2POP"]==0){
-            tmp3<-extractuiddata(allagri,checkuids[i,"APOP"],allcountries,noeu = TRUE)
+            tmp3<-extractuiddata(allagri,checkuids[i,"APOP"],allcountries,noeu = TRUE, cursubm = cursubm)
         }else{
-            tmp3<-extractuiddata(allagri,checkuids[i,"B2POP"],allcountries,noeu = TRUE)
+            tmp3<-extractuiddata(allagri,checkuids[i,"B2POP"],allcountries,noeu = TRUE, cursubm = cursubm)
         }
         if(checkuids[i,"NRATE"]!=0){
-            tmp4<-extractuiddata(allagri,checkuids[i,"NRATE"],allcountries,noeu = TRUE)
+            tmp4<-extractuiddata(allagri,checkuids[i,"NRATE"],allcountries,noeu = TRUE, cursubm = cursubm)
             tmp5<-1/1000 * tmp3 * tmp4
             
             # Difference between sum(NEXC,mms) and POP*Nrate 
@@ -171,13 +171,13 @@ for(j in manureSysshrt[!manureSysshrt %in% "pasture"]){
     for(i in mainanimals){
         k<-which(checkuids$sector_number%in%c(".1",".2",".3",".4") & checkuids$category==i)
         if(checkuids[k,j]!=0){
-            tmp1<-tmp1+extractuiddata(allagri,checkuids[k,j],allcountries,noeu = TRUE)
+            tmp1<-tmp1+extractuiddata(allagri,checkuids[k,j],allcountries,noeu = TRUE, cursubm = cursubm)
         }
     }
     
     # Total N excretion reported
     icheck<-which(grepl(".5 N2O Emissions per MMS",checkuids$sector_number))
-    tmp2<-extractuiddata(allagri,checkuids[icheck,j],allcountries,noeu = TRUE)
+    tmp2<-extractuiddata(allagri,checkuids[icheck,j],allcountries,noeu = TRUE, cursubm = cursubm)
     test<-paste0("N in ",j)
     sec<-paste0("3.B.2",checkuids$sector_number[icheck])
     cat<-checkuids$category[i]
@@ -217,13 +217,13 @@ for(j in c(1:length(manureSystems))){
     icheck<-which(grepl(".5 N2O Emissions per MMS",checkuids$sector_number))
     
     # Total N excretion reported
-    tmp2<-extractuiddata(allagri,checkuids[icheck,cursystem],allcountries,noeu = TRUE)
+    tmp2<-extractuiddata(allagri,checkuids[icheck,cursystem],allcountries,noeu = TRUE, cursubm = cursubm)
     
     # Total N2O emissions
-    tmp3<-extractuiddata(allagri,checkuids[icheck,curem],allcountries,noeu = TRUE)
+    tmp3<-extractuiddata(allagri,checkuids[icheck,curem],allcountries,noeu = TRUE, cursubm = cursubm)
     
     # N2O IEF
-    tmp4<-extractuiddata(allagri,checkuids[icheck,curief],allcountries,noeu = TRUE)
+    tmp4<-extractuiddata(allagri,checkuids[icheck,curief],allcountries,noeu = TRUE, cursubm = cursubm)
     tmp6<-tmp4
     tmp6[is.na(tmp6)]<-0
     
@@ -273,9 +273,9 @@ ncheck5<-1
 for(i in c(1:nrow(checkuids))){
     #tmp1 = Total N excretion per animal type (measure: Total N excreted, meastype: EM)
     #tmp1 1 [kt N/yr]
-    tmp1<-extractuiddata(allagri,checkuids[i,"TNEXC"],allcountries,noeu = TRUE)
-    tmp1past<-extractuiddata(allagri,checkuids[i,"pasture"],allcountries,noeu = TRUE)
-    tmp1burn<-extractuiddata(allagri,checkuids[i,"burned"],allcountries,noeu = TRUE)
+    tmp1<-extractuiddata(allagri,checkuids[i,"TNEXC"],allcountries,noeu = TRUE, cursubm = cursubm)
+    tmp1past<-extractuiddata(allagri,checkuids[i,"pasture"],allcountries,noeu = TRUE, cursubm = cursubm)
+    tmp1burn<-extractuiddata(allagri,checkuids[i,"burned"],allcountries,noeu = TRUE, cursubm = cursubm)
     tmp1<-tmp1-tmp1past-tmp1burn
     
     if(sum(tmp1)>0){
@@ -287,8 +287,8 @@ for(i in c(1:nrow(checkuids))){
             tmp2<-tmp0
             tmp3<-tmp0
             icheck<-which(grepl(".5 N2O Emissions per MMS",checkuids$sector_number))
-            if(checkuids[i,manureSysshrt[j]]!=0) tmp2<-extractuiddata(allagri,checkuids[i,manureSysshrt[j]],allcountries,noeu = TRUE)
-            if(checkuids[icheck,paste0(manureSysshrt[j],"IEFN2O")]!=0) tmp3<-extractuiddata(allagri,checkuids[icheck,paste0(manureSysshrt[j],"IEFN2O")],allcountries,noeu = TRUE)
+            if(checkuids[i,manureSysshrt[j]]!=0) tmp2<-extractuiddata(allagri,checkuids[i,manureSysshrt[j]],allcountries,noeu = TRUE, cursubm = cursubm)
+            if(checkuids[icheck,paste0(manureSysshrt[j],"IEFN2O")]!=0) tmp3<-extractuiddata(allagri,checkuids[icheck,paste0(manureSysshrt[j],"IEFN2O")],allcountries,noeu = TRUE, cursubm = cursubm)
             if(sum(tmp2)>0 & sum(tmp3)>0) {
                 #tmp1 [kt N/yr]: Total N excretion of animal type
                 #tmp2 [kt N/yr]: N-excretion per MMS and animaltype; measure: Nitrogen excretion per MMS, meastype: NEXC
@@ -317,7 +317,7 @@ for(i in c(1:nrow(checkuids))){
             #tmp1 = Total N excretion per animal type (measure: Total N excreted, meastype: EM)
             #tmp1 1 [kt N/yr]
             #tmp5 [kt N2O/yr for animal type] total N2O emissions as reported for animal types
-            tmp5<-extractuiddata(allagri,checkuids[i,"EMN2O"],allcountries,noeu = TRUE)
+            tmp5<-extractuiddata(allagri,checkuids[i,"EMN2O"],allcountries,noeu = TRUE, cursubm = cursubm)
             
             
             tmp6<-(tmp5*28/44)/(tmp1)

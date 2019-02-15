@@ -167,7 +167,7 @@ linkto<-function(text){text<-paste0("=HYPERLINK(\"",text,"\")")}
 calculateshares<-function(x,uid,curval,totalval){
     # Calculate the share of a time series (curval) for all MS against a give total (totalval)
     #print(x)
-    val<-extractuiddata(DF = curval,uid = uid,c = allcountries,narm = FALSE)
+    val<-extractuiddata(DF = curval,uid = uid,c = allcountries,narm = FALSE, cursubm = cursubm)
     val<-apply(val,2,function(x) as.numeric(x))
     res<-val/totalval
     res<-as.data.frame(res)
@@ -306,8 +306,8 @@ weightovercountries<-function(D,Auid,Puid,ok,y,c){
         s<-matrix(0,ncol=length(y))
         ad<-matrix(0,ncol=length(y),nrow=length(c))
         pa<-ad
-        ad<-extractuiddata(D,Auid,c,narm = FALSE)
-        pa<-extractuiddata(D,Puid,c,narm = FALSE)
+        ad<-extractuiddata(D,Auid,c,narm = FALSE, cursubm = cursubm)
+        pa<-extractuiddata(D,Puid,c,narm = FALSE, cursubm = cursubm)
         
         ad<-ad[!is.na(apply(pa,1,sum,rm.na=TRUE)),]
         pa<-pa[!is.na(apply(pa,1,sum,rm.na=TRUE)),]
@@ -420,13 +420,13 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE, cursubm = curs
     names(c)<-"party"
     #DF<-droplevels(DF)
     #if(length(levels(DF$variableUID))<length(levels(uid))) levels(DF$variableUID)<-levels(uid)
-    if (cursubm == "20190115" & uid == "eugirp3B220SheeheepTNEktNyea0000000000"){
-      tmp1 <- DF[DF[,"variableUID"]==uid,c("party",years2keep)]
-      tmp1[, -1] <- round(tmp1[, -1], 5)
-      tmp1<-unique(tmp1)
-    }else{
+#    if (cursubm == "20190115" & uid == "eugirp3B220SheeheepTNEktNyea0000000000"){
+#      tmp1 <- DF[DF[,"variableUID"]==uid,c("party",years2keep)]
+#      tmp1[, -1] <- round(tmp1[, -1], 4)
+#      tmp1<-unique(tmp1)
+#    }else{
       tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years2keep)])
-    }
+#    }
     tmp1<-tmp1[! is.na(tmp1$party),]
     ntmp<-nrow(tmp1)
     tmp1<-merge(c,tmp1,by="party",all=TRUE,sort=TRUE)

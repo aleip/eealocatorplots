@@ -186,7 +186,8 @@ if(exists("alldata")){
     trendoutlmethod<-3
     if(trendoutlmethod==2)bxplf <- 1.5*0.953 #
     if(trendoutlmethod==3)bxplf <- 1.5 #times standard deviation
-    
+    #if(trendoutlmethod==3)bxplf <- 2 #times standard deviation
+
     
     maxr<-5
     source("eugirp_texts.r")    

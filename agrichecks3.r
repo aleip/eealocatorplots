@@ -29,12 +29,13 @@ print("Check 7: NH3 and NOx volatilized")
 # SO      manure[[2]][[1]] manure[[2]][[2]] manure[[2]][[3]] 
 #
 
-tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE)
+tmp0<-extractuiddata(allagri,"",allcountries,noeu = TRUE, cursubm = cursubm)
 allagritab<-unique(subset(allagri,select=uniquefields))
 ccp<-c("Cattle","Swine","Poultry","Buffalo")
 so<-c("Sheep",otherlivestock[-match(c("Other Livestock","Poultry","Buffalo","Other Other Livestock", "Camels"),otherlivestock)])
 for(i in c(ccp,so)){
     sel<-allagri$meastype=="TNEXC2"&grepl("^3.B.2",allagri$sector_number)& allagri$category==i
+    allagritab <- allagritab[sel, ]
     curuid<-getuid(1,ok=1,mea="TNEXC2",sec="^3.B.2",cat=paste0("^",i,"$"))
     tmp2<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
     #if(i=="Poultry"){manurep<-tmp2}
@@ -52,7 +53,7 @@ for(i in c("Cattle","Swine","Poultry","Sheep",tmplive)){
         icheck<-which(checkuids$category==i)
         
         # Total N excretion reported per animal type and MMS
-        tmp2<-extractuiddata(allagri,checkuids[icheck,cursystem],allcountries,noeu = TRUE)
+        tmp2<-extractuiddata(allagri,checkuids[icheck,cursystem],allcountries,noeu = TRUE, cursubm = cursubm)
         
         if(cursystem=="pasture"){
             #if(i=="Poultry"){manurerprp<-tmp2}
@@ -127,9 +128,9 @@ if(sum(totPRP)!=0){
     curuid<-unique(allagri$variableUID[grepl("3.D.1.3",allagri$sector_number)&allagri$meastype=="AD"])
     if(length(curuid)==0) curuid<-newuid(sector = sec,categ = cat,meast = "AD",units = "kt N/year",metho = "",sourc = "",targe = "",optio = "",gasun = "no gas")
     tmpuid<-unique(allagri$variableUID[grepl("3.D.1.3",allagri$sector_number)&allagri$meastype=="EM"])
-    tmp1<-extractuiddata(allagri,tmpuid,allcountries,noeu = TRUE)
+    tmp1<-extractuiddata(allagri,tmpuid,allcountries,noeu = TRUE, cursubm = cursubm)
     tmpuid<-unique(allagri$variableUID[grepl("3.D.1.3",allagri$sector_number)&allagri$meastype=="IEF"])
-    tmp2<-extractuiddata(allagri,tmpuid,allcountries,noeu = TRUE)
+    tmp2<-extractuiddata(allagri,tmpuid,allcountries,noeu = TRUE, cursubm = cursubm)
     
     addallagriout<-add2allagri(tmp1/tmp2*28/44,sec,cat,"no gas","kt N/year","","","AD","",curuid,"AD for grazing animals missing",noeu=TRUE)
     allagri<-addallagriout[[1]]
@@ -158,7 +159,7 @@ if(nrow(check6)>1 & check6$val[1]!=0){
 #EF3PRP, CPP for cattle (dairy, non-dairy and buffalo), poultry and pigs [kg N2O–N (kg N)-1] 0.02 0.007 - 0.06
 #EF3PRP, SO for sheep and 'other animals' [kg N2O-N (kg N)-1] 0.01 0.003 - 0.03
 curuid<-unique(allagri$variableUID[allagri$meastype=="IEF"&allagri$sector_number=="3.D.1.3"])
-d13ief<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
+d13ief<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
 check7<-checktemp
 ncheck7<-1
 test<-"IEF in 3D13 vs default IEFs from manure CPP and SO"
@@ -194,9 +195,9 @@ if(nrow(check7)>1 & check7$val[1]!=0){
 
 # N lost in MMS as NH3+NOx or leached versus total Managed N (exception of PRP and manure burning)
 curuid<-unique(allagri$variableUID[grepl("3.B.2.5",allagri$sector_number)&allagri$meastype=="Nvol"])
-nvol<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)/1000000
+nvol<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)/1000000
 curuid<-unique(allagri$variableUID[grepl("3.B.2.5",allagri$sector_number)&allagri$meastype=="Nleach"])
-nlea<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)/1000000
+nlea<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)/1000000
 nloss<-nvol+nlea
 
 totmanaged<-manure[[1]][[1]]+manure[[2]][[1]]
@@ -263,7 +264,7 @@ unt<-"1"
 gas<-"no gas"
 note<-"Fraction of N not lost from MMS as NH3+NOx vs. N applied in manure"
 curuid<-unique(allagri$variableUID[grepl("3.D.1.2.a",allagri$sector_number)&allagri$meastype=="AD"])
-FAM<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
+FAM<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
 Frac_Nav_app<-totnotlost/FAM
 uid<-newuid(sector = sec,categ = cat,meast=meas,units = unt,metho = "",sourc = "",targe = "",optio = "",gasun = gas)
 addallagriout<-add2allagri(Frac_Nav_app,sec,cat,gas,unt,"","",meas,"",uid,note,noeu=TRUE)
@@ -273,9 +274,9 @@ rowsadded<-addallagriout[[2]]
 
 # Liquid/slurry and pit storage have no additional N2 losses (comparison Table 23 vs Table 22)
 curuid<-unique(allagri$variableUID[allagri$source=="Liquid system"&grepl("3.B.2.5 N2O Emissions per MMS",allagri$sector_number)&allagri$meastype=="NEXC"])
-liquid<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
+liquid<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
 curuid<-unique(allagri$variableUID[allagri$source=="Other"&grepl("3.B.2.5 N2O Emissions per MMS",allagri$sector_number)&allagri$meastype=="NEXC"])
-other<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
+other<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
 liqshare<-(liquid+other)/totmanaged
 sec<-"3.B.2.5 N2O Emissions per MMS"
 cat<-"Farming"
@@ -284,7 +285,7 @@ unt<-"1"
 gas<-"no gas"
 note<-"Fraction of N managed in Liquid/Slurry and other MMS"
 curuid<-unique(allagri$variableUID[grepl("3.D.1.2.a",allagri$sector_number)&allagri$meastype=="AD"])
-FAM<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE)
+FAM<-extractuiddata(allagri,curuid,allcountries,noeu = TRUE, cursubm = cursubm)
 Frac_Nav_app<-totnotlost/FAM
 uid<-newuid(sector = sec,categ = cat,meast=meas,units = unt,metho = "",sourc = "",targe = "",optio = "",gasun = gas)
 addallagriout<-add2allagri(liqshare,sec,cat,gas,unt,"","",meas,"",uid,note,noeu=TRUE)

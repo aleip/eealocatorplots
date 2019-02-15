@@ -20,7 +20,7 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
         D$ulim<-D[,"median"]+(1 + bxplf)*(D[,"p75"]-D[,"median"])
         D$llim<-D[,"median"]+(1 + bxplf)*(D[,"p25"]-D[,"median"])
         #D<-merge(D,D,by="variableUID")
-        
+
         #               Keep values which are outside of the 95% confidence intervall
         #               Do NOT keep values which are very close to the median (rounding errors)
         Dmeddevtest<-(((D[years]>D$ulim) | (D[years]<D$llim)) & (abs(1-D[years]/D[,"median"])>0.1)) 

@@ -51,9 +51,9 @@ for (x in c(1:nrow(checkuids))){
     if(checkuids$APOP[x]!=0) checkA<-T
     if(checkuids$B1POP[x]!=0) checkB1<-T
     if(checkuids$B2POP[x]!=0) checkB2<-T
-    if(checkA)   {tmpA <-extractuiddata(allagri,checkuids$APOP[x],countries,noeu = TRUE)}
-    if(checkB1)  {tmpB1<-extractuiddata(allagri,checkuids$B1POP[x],countries,noeu = TRUE)}
-    if(checkB2)  {tmpB2<-extractuiddata(allagri,checkuids$B2POP[x],countries,noeu = TRUE)}
+    if(checkA)   {tmpA <-extractuiddata(allagri,checkuids$APOP[x],countries,noeu = TRUE, cursubm = cursubm)}
+    if(checkB1)  {tmpB1<-extractuiddata(allagri,checkuids$B1POP[x],countries,noeu = TRUE, cursubm = cursubm)}
+    if(checkB2)  {tmpB2<-extractuiddata(allagri,checkuids$B2POP[x],countries,noeu = TRUE, cursubm = cursubm)}
     
     sec<-checkuids$sector_number[x]
     cat<-checkuids$category[x]

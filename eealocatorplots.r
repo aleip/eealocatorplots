@@ -74,6 +74,7 @@ if(stepsdone==1){
   allagri<-alldata[selection,allfields]
   alldata<-alldata[!selection,allfields]
   save(allagri,file="tmpallagri60.rdata")
+  #load("tmpallagri60.rdata", verbose = TRUE)
   #stop("Plause")
   source("eugirp_otherlivestock.r")
   # Calculate parameter for parent category 'swine' and 'sheep ####
@@ -142,13 +143,17 @@ if(stepsdone==2){
   
   # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting
   
-  sharecalc<-function(uid,D,E,x){
+  sharecalc<-function(uid,D,E,x, cursubm){
     #print(x)
     uid<-as.vector(unlist(uid))
     #xavi20180504: alc<-c(1:length(countriesnoeu))
     countriesnoeu1 <- countriesnoeu[countriesnoeu %in% as.character(country4sub[country4sub[,"EUC"]==1,"code3"])]
+    if(!is.null(keepNORout)){
+      countriesnoeu1 <- countriesnoeu1[!countriesnoeu1 %in% c("NOR")]
+      D <- D[!D$party %in% c("NOR"), ]
+    } 
     alc<-c(1:length(countriesnoeu1))
-    coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu1,narm = FALSE)
+    coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu1,narm = FALSE, cursubm = cursubm)
     ncoval<-coval[apply(coval,1,sum,na.rm=TRUE)!=0,]
     if(is.matrix(ncoval)){ncoval<-nrow(ncoval)}else{ncoval<-0}
     
@@ -176,10 +181,10 @@ if(stepsdone==2){
       }else{return(NULL)}
     }else{return(NULL)}
   }
-  cat("/n")
+  cat("\n")
   print("Calculate calcshare")
   calcshare<-lapply(c(1:nrow(agrisummeas)),function(x) 
-    Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x)))
+    Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x, cursubm = cursubm)))
   calcshare<-as.data.frame(t(Reduce(cbind,calcshare)))
   names(calcshare)<-c("ncountries","party","year","share","variableUID","mean","meanother")
   ademoutl<-merge(calcshare,agrisummeas,by="variableUID")
@@ -241,6 +246,7 @@ if(stepsdone==2){
 #stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-0
+doemissionplots <- FALSE
 doemissionplots<-TRUE
 if(stepsdone>2){
     if(doemissionplots==TRUE){
@@ -317,7 +323,7 @@ if(stepsdone==3){
     # 2019: both 'alltotals' and 'agriemissions' include Norway
     totaluid<-as.vector(unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$type==signtype&alltotals$gas=="Aggregate GHGs"]))
     totalval<-alltotals[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs",]
-    totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE)
+    totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE, cursubm = cursubm)
     totalval<-apply(totalval,2,function(x) as.numeric(x))
     agrishares<-unique(agriemissions[,allfields[!allfields%in%c("party",years,"notation")]])
     shareuids<-unique(agrishares$variableUID)
@@ -597,6 +603,7 @@ if(stepsdone==6){
       allagri_NOR$autocorr <- ""
       allagri_NOR$correction <- ""
       allagri <- rbind(allagri, allagri_NOR)
+      write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
     }  
     
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
@@ -632,9 +639,6 @@ if(stepsdone==6){
 # C - Make checks for sector 3 ####
 #checksteps<-7
 if(stepsdone==7) {
-  20190131 per mirar dilluns: warnings L510
-  NOR dentro
-  20190131 allagri i alldata contenen NOR en aquest punt
     print(paste0("Step ",stepsdone+1,": Make specific checks for Sector 3 - Set 1"))
     #load(rdatmeasu)
     

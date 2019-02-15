@@ -318,7 +318,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         # Determine y-axis for ADEM plots
         isource<-which(dsource==multisource)
         plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
-        plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
+        plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE, cursubm = cursubm))
         eu28<-plotmatr[nrow(plotmatr),]
         plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
         if(sum(plotmatr,na.rm=TRUE)==0){return(list(plotted,ploteuvals,plotinitialized,multisource))}
@@ -376,7 +376,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
             #    eu28<-colSums(extractuiddata(DF = plotdatacur[plotdatacur$party=="EU28",],uid = curuid,c = countries,narm = FALSE),na.rm=TRUE)
             #}else if(grepl("ief",rundata)){
             save(plotdatacur,curuid,acountry,file="temp.rdata")
-            plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE))
+            plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE, cursubm = cursubm))
             #View(plotdatacur,dsource)
             eu28<-plotmatr[nrow(plotmatr),]
             plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]

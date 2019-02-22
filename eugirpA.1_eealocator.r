@@ -57,7 +57,13 @@ if(generatealldata==1){
     
     # Store notations in different data frame - delete from alldata ####
     print("Store allnotations")
+    alldata$notation <- as.character(alldata$notation)
+    alldata$sector_number <- as.character(alldata$sector_number)
+    alldata[which(alldata$value == 0 & alldata$notation == "" & !is.na(alldata$notation) & (alldata$sector_number == "" | grepl("^3", alldata$sector_number))), ]$sector_number <- "JRC_NotatKey"
+    alldata$notation <- as.factor(alldata$notation)
+    alldata$sector_number <- as.factor(alldata$sector_number)
     notationkeys<-"[CS,NO,NE,IRL,NA,D,T1,T2]"
+    notationkeys<-"[CS,NO,NE,IRL,NA,D,T1,T2,JRC_NotatKey]"
     allnotations<-alldata[grepl(notationkeys,alldata$notation),]
     alldata<-alldata[! grepl(notationkeys,alldata$notation),]
     allnotations<-simplifytestmatrix(allnotations,"year",years2keep)

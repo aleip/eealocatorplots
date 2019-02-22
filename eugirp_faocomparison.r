@@ -25,7 +25,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     temp = list.files(pattern="Emissions.*.csv",path=paste0(faodir, yr))
     lastdownload<-max(as.numeric(Sys.Date()-as.Date(file.mtime(paste0(faodir,"/",yr,"/",temp)))))
     #print(lastdownload)
-    if(lastdownload>30){
+    if(is.na(lastdownload) | lastdownload>30){
       for (i in faocontent){
             #print(paste0("http://www.fao.org/faostat/en/#data/",faosites[i]))
             #remDr<-remoteDriver(browserName = "firefox",remoteServerAddr = "localhost", port = 4567)
@@ -36,7 +36,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
             #                       "Save the *csv file into the folder: ",faodir,".\n",
             #                       "Then press [enter] to continue."))
             #remDr$close()
-        #print(i)
+        print(i)
         i1 <- gsub(" ", "_", i)
         if(i1 == "Cultivation_of_Organic_Soils") i1 <- "Cultivated_Organic_Soils"
         if(i1 == "Burning_-_Crop_Residues") i1 <- "Burning_crop_residues"

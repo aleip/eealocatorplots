@@ -842,6 +842,7 @@ reportchecks1<-function(check,data,x){
           rw_comp1 <- data.frame()
           for (ct in categs){
             rw_comp <- checkw[checkw$category == ct, ]
+            rw_comp <- rw_comp[rev(order(rw_comp$source)), ]
             rw_comp[nrow(rw_comp)+1, years] <- colSums(rw_comp[-nrow(rw_comp), years]) 
             rw_comp[nrow(rw_comp)+1, years] <- rw_comp[nrow(rw_comp)-1, years] / rw_comp[nrow(rw_comp), years]
             rw_comp[, "party"] <- c

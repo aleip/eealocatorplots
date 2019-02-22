@@ -128,6 +128,28 @@ filnam<-paste0("corrections_",name,"_",c,".csv")
 autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
 paramdata<-writecorrection(v,paramdata,mult,name)
 
+
+# POP:Malta - REPORTED IN HEADS INSTEAD OF 1000 HEADS ()
+if(any(paramdata[paramdata$party == "MLT" & paramdata$meastype=="POP", years] > 2000)){
+  v<-which(paramdata$party == "MLT" & paramdata$meastype=="POP" & paramdata[years] >= 1, arr.ind = TRUE)
+  c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+  name<-"POP"
+  mult<-0.001
+  filnam<-paste0("corrections_",name,"_",c,".csv")
+  autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+  paramdata<-writecorrection(v,paramdata,mult,name)
+  
+  v<-which(paramdata$party == "MLT" & paramdata$meastype=="IEF" & paramdata$unit ==  "kg/head/year"  & paramdata[years] > 0, arr.ind = TRUE)
+  c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+  name<-"IEF"
+  mult<-1000
+  filnam<-paste0("corrections_",name,"_",c,".csv")
+  autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+  paramdata<-writecorrection(v,paramdata,mult,name)
+  
+}
+
+
 autocorrections<-merge(autocorrections,paramdata,by=c("variableUID","party"),all=FALSE)
 #autocorrections[,docfields]<-""
 tn<-names(autocorrections)

@@ -372,7 +372,7 @@ climcheck$obs<-"sum alloc over mms and climate not 100"
 climcheck$fac<-apply(climcheck[,years],1,mean,na.rm=TRUE)
 climcheck$test<-climcheck$check
 climcheck<-climcheck[order(climcheck$sec,climcheck$cat,climcheck$ms,climcheck$yr),names(climcheck)]
-climyears<-which(climcheck[,years]!=round(100,1),arr.ind = TRUE)
+climyears<-which(round(climcheck[, years], 10) != 100, arr.ind = TRUE)
 climcheck$yr<-sapply(1:nrow(climcheck),function(x) unlist(reportyears(years[climyears[climyears[,1]==x,2]],years)))
 
 climcheck$cat<-gsub(" ","_",climcheck$cat)

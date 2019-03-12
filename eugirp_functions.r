@@ -1138,11 +1138,21 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
     
     if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
     } else {library(readxl)}
+    if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
+    } else {library(plyr)}
   
     solvedfile<-as.data.frame(read_excel(path=paste0(issuedir,"solvedissues14122017.xlsx"), sheet = 1))
     #solvedfile_kk<-read.csv(file=paste0(issuedir,"solvedissues.csv"),stringsAsFactors = FALSE)
     #add curcheck fields
     #xavi20180131: solvedfile<-solvedfile[,-which(colnames(solvedfile)%in%c("X"))]
+    solvedfile1 <- as.data.frame(read_excel(path=paste0(issuedir,"ALL_ISSUES_2018_for solved file.xlsx"), sheet = 1))[, 1:17]
+    names(solvedfile1) <- sub("answer", "explanation", names(solvedfile1))
+    names(solvedfile1) <- sub("dateansw", "expldate", names(solvedfile1))
+    names(solvedfile1) <- sub("comments", "Comments", names(solvedfile1))
+    solvedfile1$SOURCE <- "ALL_ISSUES_2018_for solved file.xlsx"
+
+    solvedfile <- rbind.fill(solvedfile1, solvedfile)
+    
     solvedfile<-convert2char(solvedfile)
     #curcheck<-convert2char(curcheck)
     #colnames(solvedfile)<-gsub("year","years",colnames(solvedfile))
@@ -1150,6 +1160,7 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
     
     cols2join<-c("party","sector_number","category","meastype","Obs","variableUID","check","unit","gas")
     cols2join<-c("party","sector_number","category","meastype","Obs","check")
+    #cols2join<-c("party","sector_number","category","Obs","check")
     if("explanation"%in%colnames(curcheck))cols2join<-c(cols2join,"explanation")
     if("expldate"%in%colnames(curcheck))cols2join<-c(cols2join,"expldate")
     miscolssolve<-cols2join[!cols2join%in%colnames(solvedfile)]

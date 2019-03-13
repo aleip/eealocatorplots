@@ -696,7 +696,8 @@ if(stepsdone==7) {
     agrichecks[x1:x2,flag4issues]<-test
     #write.csv(agrichecks[allcheckfields4emrt],file=paste0(issuedir,"agrichecks.csv"))
     
-    agrichecks<-addsolved2check(agrichecks,c("recalc","outlier","timeseries","ne_empty","notakey"))
+    #agrichecks<-addsolved2check(agrichecks,c("recalc","outlier","timeseries","ne_empty","notakey"))
+    agrichecks<-addsolved2check(agrichecks,c("recalc","recalculation","outlier","timeseries","ne_empty","notakey"))
     
     #agrichecks<-filldf(agrichecks,allcheckfields)
     

@@ -1150,6 +1150,7 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
     names(solvedfile1) <- sub("dateansw", "expldate", names(solvedfile1))
     names(solvedfile1) <- sub("comments", "Comments", names(solvedfile1))
     solvedfile1$SOURCE <- "ALL_ISSUES_2018_for solved file.xlsx"
+    solvedfile1$year <- 2018
 
     solvedfile <- rbind.fill(solvedfile1, solvedfile)
     

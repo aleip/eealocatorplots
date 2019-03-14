@@ -57,7 +57,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     # Clean up files so that they have the same number of cols (=> years) ####
     faoyears<-paste0("Y",yearsnum)
     years2eliminate<-c(1950:1989,2030,2050)
-    faodata<-lapply(faodata,function(x) x[,!names(x) %in% c(paste0("Y",years2eliminate),paste0("Y",years2eliminate,"F"))])
+    faodata<-lapply(faodata,function(x) x[,!names(x) %in% c(paste0("Y",years2eliminate),paste0("Y",years2eliminate,"F"), paste0("Y",years2eliminate,"N"), paste0("Y",years,"N"))])
     
     fillyears<-function(D){
         lastyears<-c("Y2012","Y2012F","Y2013","Y2013F")
@@ -74,7 +74,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     faodata<-lapply(faodata,function(x) fillyears(x))
     temp2<-faodata
     nrowstotal<-sum(unlist(lapply(temp2,function(x) nrow(x))))
-    faodata<-Reduce(rbind,faodata)
+    faodata<-Reduce(rbind.fill,faodata)
     temp3<-faodata
     
     # Clean up faodata (countries) ####
@@ -355,7 +355,8 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     rowsadded<-addallagriout[[2]]
     
     allagri<-curagri
-    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+    #acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+    acountry <- sort(c(as.character(country4sub[country4sub[,eusubm]==1,"code3"]), "NOR"))
     #View(curagri[selection,])
     
     
@@ -379,6 +380,7 @@ if(!file.exists(faofile) | recalc_faofile == 1){
     if("GBK" %in% acountry) faodata$party[faodata$party=="GBE"]<-"GBK"
     if("FRK" %in% acountry) faodata$party[faodata$party=="FM"]<-"FRK"
     if("ISL" %in% acountry) faodata$party[faodata$party=="IC"]<-"ISL"
+    if("NOR" %in% acountry) faodata$party[faodata$party=="NO"]<-"NOR"
     
     # Calculate EU28 sums
     faodata<-faodata[!faodata$party%in%eu,]

@@ -715,7 +715,7 @@ if(stepsdone==7) {
 
 #stop("Step 8 done")
 if(stepsdone==8) {
-  nor dentro
+  #nor dentro
     print(paste0("Step ",stepsdone+1,": Comparison with FAO"))
     source("eugirp_faocomparison.r")
     source("eugirp_exportUIDs4capri.r")

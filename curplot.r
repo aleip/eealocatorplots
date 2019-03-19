@@ -19,6 +19,7 @@ if(require(knitr)==FALSE){install.packages("knitr", repos = "https://cloud.r-pro
 if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-project.org"); library(Matrix)} else {library(Matrix)}
 if(require(compare)==FALSE){install.packages("compare", repos = "https://cloud.r-project.org"); library(compare)} else {library(compare)}
 if(require(RColorBrewer)==FALSE){install.packages("RColorBrewer", repos = "https://cloud.r-project.org"); library(RColorBrewer)} else {library(RColorBrewer)}
+if(require(googledrive)==FALSE){install.packages("googledrive", repos = "https://cloud.r-project.org"); library(googledrive)} else {library(googledrive)}
 #require(dtplyr)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 rm(list=objects())

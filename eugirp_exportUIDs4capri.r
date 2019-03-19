@@ -323,3 +323,24 @@ writeLines(paste0("\"",agri4export$variableUID[sx],"\".(GRAZ)   \"",agri4export$
 writeLines("/;",cong)
 
 close(cong)
+
+# saving to Google Drive
+if(nrow(drive_find("uid_to_ghg.set")) == 0){
+  drive_upload(media = "D:/dev/ghginventory/eealocatorplots/uid_to_ghg.set", 
+               #path = NULL, 
+               #name = NULL, type = NULL, 
+               verbose = FALSE)
+  drive_upload(media = "D:/dev/ghginventory/eealocatorplots/variableuid.set", 
+               #path = NULL, 
+               #name = NULL, type = NULL, 
+               verbose = FALSE)
+}else{
+  drive_update(file = "uid_to_ghg.set", 
+               media = "D:/dev/ghginventory/eealocatorplots/uid_to_ghg.set", 
+               verbose = FALSE)
+  drive_update(file = "variableuid.set", 
+               media = "D:/dev/ghginventory/eealocatorplots/variableuid.set", 
+               verbose = FALSE)
+}
+
+

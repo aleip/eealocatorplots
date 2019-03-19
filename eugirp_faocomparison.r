@@ -1,5 +1,6 @@
 library(plyr)
 
+
 faocategs<-c("Burning_crop_residues","Burning_Savanna","Crop_residues",
              "Cultivated_Organic_Soils","Energy","Enteric_Fermentation",
              "Manure_applied_to_soils","Manure_left_on_pasture",

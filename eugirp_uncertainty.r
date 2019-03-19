@@ -51,7 +51,7 @@ old_data <- "n"
 
 if (old_data == "y") {
   yr1 <- yr - 1
-  load(paste0(invloc, "/uncertainty/uncert_all_2012_", yr1, ".RData"), verbose = TRUE)
+  load(paste0(invloc, "/uncertainty/uncert_all_2015_", yr1, ".RData"), verbose = TRUE)
 }
 
 #### Reading in data sets ####
@@ -624,7 +624,7 @@ if (old_data == "y"){
   uEMagg <- rbind(uEMagg, uEMagg1)
   EMagg_perc <- rbind(EMagg_perc, EMagg_perc2)
   save(list = c("uncert_all", "EMagg", "EMagg_perc", "uEMagg"),
-       file = paste0(invloc, "/uncertainty/uncert_all_2012_", yr, ".RData"))
+       file = paste0(invloc, "/uncertainty/uncert_all_2015_", yr, ".RData"))
   
 }else{
   uncert_all <- uncert_all1

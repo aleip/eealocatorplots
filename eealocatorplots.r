@@ -51,6 +51,7 @@ options(error=NULL) #error=recover goes into debug mode
 # - measname
 source("eugirpA.1_eealocator.r")
 options(error=NULL) #error=recover goes into debug mode
+options(warn=0)
 
 
 # A.2 Clean animal type names ####
@@ -98,6 +99,21 @@ if(stepsdone==1){
   savelist<-c(savelist,"alltotals")
   save(list=savelist,file=rdatallem)
   save(list=savelist,file=gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem))
+  if(nrow(drive_find(paste0("eealocator_", cursubm, "_clean.RData"))) == 0){
+    drive_upload(media = rdatallem, 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
+  }else{
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+  }
+  drive_upload(media = gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem), 
+               #path = NULL, 
+               #name = NULL, type = NULL, 
+               verbose = FALSE)
+  #drive_download("eealocator_20190115_clean.RData", path = "D:\\dev\\ghginventory/eealocator_20190115_clean.RData", overwrite = TRUE)
   source("curplot.r")
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")
@@ -238,6 +254,13 @@ if(stepsdone==2){
   savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR")
   save(list=savelist,file=rdatallem)
   save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+  drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+               media = rdatallem, 
+               verbose = FALSE)
+  drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+               #path = NULL, 
+               #name = NULL, type = NULL, 
+               verbose = FALSE)
   source("curplot.r")
 }else if(stepsdone>2){
   print("Step 3a: EU sums already calculated")
@@ -291,6 +314,13 @@ if(stepsdone>2){
             savelist<-c(savelist,"emplotsdone","plotmeas")
             save(list=savelist,file=rdatallem)
             save(list=savelist,file=gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem))
+            drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                         media = rdatallem, 
+                         verbose = FALSE)
+            drive_upload(media = gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem), 
+                         #path = NULL, 
+                         #name = NULL, type = NULL, 
+                         verbose = FALSE)
             #stop("End of general part (Emission plots done!)")
         }else{
             print("Step 4: Emission plots already done")
@@ -378,6 +408,13 @@ if(stepsdone==3){
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+    drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
     source("curplot.r")
 }else if(stepsdone>3){
     print("Step 4: Trends and growth rates already calculated")
@@ -441,6 +478,13 @@ if(stepsdone==4){
     savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+    drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
     source("curplot.r")
 }else if(stepsdone>4){
     print("Step 5: NEchecks and Unitchecks done; param and growth prepared for outlier checks.")
@@ -567,6 +611,13 @@ if(stepsdone==5){
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+    drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
     source("curplot.r")
 }else if(stepsdone>5){
     print(paste0("Step 6: Check for outliers errors already done"))
@@ -629,6 +680,13 @@ if(stepsdone==6){
     stepsdone<-stepsdone+1
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+    drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
     source("curplot.r")
     
 }else if(stepsdone>6){
@@ -708,6 +766,13 @@ if(stepsdone==7) {
     #save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     save(list=savelist,file=rdatallem)
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+    drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
     source("curplot.r")
 }else if(stepsdone>7){
     print(paste0("Step 7: Sector 3 checks 1 already done"))
@@ -722,6 +787,13 @@ if(stepsdone==8) {
     stepsdone<-9
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     save(list=savelist,file=rdatallem)
+    drive_update(file = paste0("eealocator_", cursubm, "_clean.RData"), 
+                 media = rdatallem, 
+                 verbose = FALSE)
+    drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+                 #path = NULL, 
+                 #name = NULL, type = NULL, 
+                 verbose = FALSE)
     source("curplot.r")
 }else if(stepsdone>8){
     print(paste0("Step 7: Comparison with FAO already done"))

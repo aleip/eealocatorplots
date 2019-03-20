@@ -20,6 +20,12 @@ if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-p
 if(require(compare)==FALSE){install.packages("compare", repos = "https://cloud.r-project.org"); library(compare)} else {library(compare)}
 if(require(RColorBrewer)==FALSE){install.packages("RColorBrewer", repos = "https://cloud.r-project.org"); library(RColorBrewer)} else {library(RColorBrewer)}
 if(require(googledrive)==FALSE){install.packages("googledrive", repos = "https://cloud.r-project.org"); library(googledrive)} else {library(googledrive)}
+if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
+} else {library(readxl)}
+if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
+} else {library(plyr)}
+
+
 #require(dtplyr)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
 rm(list=objects())
@@ -66,6 +72,7 @@ eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
 eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
 eugirp.version<-"2.1" #20160531
 eugirp.version<-"2.2" #20160820
+eugirp.version <- paste0("2.3(commit: ", system("git rev-parse --short HEAD", intern = TRUE), ")")   #20190320
 # Define current submission.
 cursubm <- "20151030"                                                       #!!!
 cursubm <- "20160202"                                                       #!!!
@@ -80,6 +87,7 @@ cursubm <- "20180122"                                                       #!!!
 cursubm <- "20180319"                                                       #!!!
 cursubm <- "20180508"                                                       #!!!
 cursubm <- "20190115"                                                       #!!!
+cursubm <- "20190315"                                                       #!!!
 invyear<-2019
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.

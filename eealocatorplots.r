@@ -61,6 +61,8 @@ options(warn=0)
 # - First separate agri from other data to speed up processing
 # - Clean animal types in source file "eugirp_Acleananimaltypes.r"
 # - Recombine with the other sectors
+
+#  source("curplot.r")
 if(stepsdone==1){
   print("Step 2: Generate list of measures and deal with animals")
   # Remove GBE (use GBK) and remove Island ####
@@ -99,18 +101,18 @@ if(stepsdone==1){
   savelist<-c(savelist,"alltotals")
   save(list=savelist,file=rdatallem)
   save(list=savelist,file=gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem))
-  if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
-  if(nrow(drive_find(paste0("eealocatorplots/", cursubm))) == 0) drive_mkdir(cursubm, "eealocatorplots") 
-  if(nrow(drive_find(paste0("eealocatorplots/", cursubm, "/eealocator_", cursubm, "_clean.RData"))) == 0){
-    drive_upload(media = rdatallem, 
-                 path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
-                 #name = NULL, type = NULL, 
-                 verbose = FALSE)
-  }else{
-    drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
-                 media = rdatallem, 
-                 verbose = FALSE)
-  }
+  #if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
+  #if(!cursubm %in% drive_ls("eealocatorplots/")$name) drive_mkdir(cursubm, "eealocatorplots") 
+  #if(nrow(drive_find(paste0("eealocatorplots/", cursubm, "/eealocator_", cursubm, "_clean.RData"))) == 0){
+  #  drive_upload(media = rdatallem, 
+  #               path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
+  #               #name = NULL, type = NULL, 
+  #               verbose = FALSE)
+  #}else{
+  #  drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
+  #               media = rdatallem, 
+  #               verbose = FALSE)
+  #}
   #drive_upload(media = gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem), 
   #             #path = NULL, 
   #             #name = NULL, type = NULL, 
@@ -256,9 +258,9 @@ if(stepsdone==2){
   savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR")
   save(list=savelist,file=rdatallem)
   save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-  drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-               media = rdatallem, 
-               verbose = FALSE)
+  #drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
+  #             media = rdatallem, 
+  #             verbose = FALSE)
   #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
   #             #path = NULL, 
   #             #name = NULL, type = NULL, 
@@ -410,9 +412,9 @@ if(stepsdone==3){
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-                 media = rdatallem, 
-                 verbose = FALSE)
+    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
+    #             media = rdatallem, 
+    #             verbose = FALSE)
     #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
     #             #path = NULL, 
     #             #name = NULL, type = NULL, 
@@ -480,9 +482,9 @@ if(stepsdone==4){
     savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-                 media = rdatallem, 
-                 verbose = FALSE)
+    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
+    #             media = rdatallem, 
+    #             verbose = FALSE)
     #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
     #             #path = NULL, 
     #             #name = NULL, type = NULL, 
@@ -613,9 +615,9 @@ if(stepsdone==5){
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-                 media = rdatallem, 
-                 verbose = FALSE)
+    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
+    #             media = rdatallem, 
+    #             verbose = FALSE)
     #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
     #             #path = NULL, 
     #             #name = NULL, type = NULL, 
@@ -682,9 +684,9 @@ if(stepsdone==6){
     stepsdone<-stepsdone+1
     save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-                 media = rdatallem, 
-                 verbose = FALSE)
+    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
+    #             media = rdatallem, 
+    #             verbose = FALSE)
     #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
     #             #path = NULL, 
     #             #name = NULL, type = NULL, 
@@ -768,9 +770,18 @@ if(stepsdone==7) {
     #save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     save(list=savelist,file=rdatallem)
-    drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-                 media = rdatallem, 
-                 verbose = FALSE)
+    if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
+    if(!cursubm %in% drive_ls("eealocatorplots/")$name) drive_mkdir(cursubm, "eealocatorplots") 
+    if(nrow(drive_find(paste0("eealocatorplots/", cursubm, "/eealocator_", cursubm, "_clean.RData"))) == 0){
+      drive_upload(media = rdatallem, 
+                   path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
+                   #name = NULL, type = NULL, 
+                   verbose = FALSE)
+    }else{
+      drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
+                   media = rdatallem, 
+                   verbose = FALSE)
+    }
     #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
     #             #path = NULL, 
     #             #name = NULL, type = NULL, 

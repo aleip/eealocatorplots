@@ -144,12 +144,13 @@ print("# Clean up swine and sheep categories ####")
 selectsw<-grepl("swine",tolower(allagri$category))
 swines<-unique(allagri$category[selectsw])
 
+#allagri_kk <- allagri
 #Substitute different terms for 'other Swine'
 #if(invyear < 2019){
 #  allagri[allagri$party != "MLT", ] <- substituteothers(allagri[allagri$party != "MLT", ],"All swine","Other Swine")
 #}else{
-  allagri<-substituteothers(allagri,"All swine","Other Swine")
-  allagri<-substituteothers(allagri,"all swine","Other Swine")
+allagri<-substituteothers(allagri,"All swine","Other Swine")
+allagri<-substituteothers(allagri,"all swine","Other Swine")
 #}
 allagri<-substituteothers(allagri,"Other Swine.swine","Other Swine")
 allagri<-substituteothers(allagri,"Other Swine.Total","Other Swine")
@@ -219,9 +220,9 @@ agriselect<-!is.na(allagri$nvariableUID)
 allagri$variableUID[agriselect]<-allagri$nvariableUID[agriselect]
 allagri<-allagri[,allfields]
 
-if(cursubm == "20190115"){
+if(nrow(unique(allagri[allagri$party == "MLT" & allagri$variableUID == "91817067-8DB6-41D6-A348-57E2C17B655D", years])) > 1){
   sel <- grepl("[Ss]wine", allagri$category) & allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3"
-  allagri[sel, names(allagri) %in% years] <- round(allagri[sel, names(allagri) %in% years], 4)
+  allagri[sel, names(allagri) %in% years] <- round(allagri[sel, names(allagri) %in% years], 5)
   #allagri[grepl("[Ss]wine", allagri$category) & allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3",]
 }
 allagri<-unique(allagri)

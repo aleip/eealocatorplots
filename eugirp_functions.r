@@ -845,12 +845,13 @@ keycategories<-function(){
     keycategories<-read.csv(paste0(issuedir,"../keycategories/EUkeycategoryanalysis_variables_JRC.csv"),stringsAsFactors = FALSE)
     keycategories<-keycategories$variable_UID
     potkeycategories<-alldata[alldata$variableUID%in%keycategories,]
-    if(cursubm == "20190115"){ 
-      gwps2019 <- gwps
-      gwps[6:8] <- 0  
-    }else{
-      stop("Check if the problem with 2.F.1. persists...")
-    }
+    #if(cursubm == "20190115"){ 
+    #  gwps2019 <- gwps
+     # gwps[6:8] <- 0  
+    #}else{
+    #  stop("Check if the problem with 2.F.1. persists...")
+    #}
+
     
     gasf<-sapply(1:nrow(potkeycategories),function(x) gwps[which(gases==potkeycategories$gas[x])])
     
@@ -1136,10 +1137,10 @@ addsolved2check<-function(curcheck,check2ignore=NULL){
     # Adds already solved issues to a check so that duplication of issues can be avoided
     # check2ignore are 'checks' (e.g. recalc) which can be ignored
     
-    if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
-    } else {library(readxl)}
-    if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
-    } else {library(plyr)}
+#    if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
+#    } else {library(readxl)}
+#    if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
+#    } else {library(plyr)}
   
     solvedfile<-as.data.frame(read_excel(path=paste0(issuedir,"solvedissues14122017.xlsx"), sheet = 1))
     #solvedfile_kk<-read.csv(file=paste0(issuedir,"solvedissues.csv"),stringsAsFactors = FALSE)

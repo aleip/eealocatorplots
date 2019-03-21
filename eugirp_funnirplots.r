@@ -1409,8 +1409,9 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
                 }
             }
             if (rundata=="ief" && runfocus=="value") {
-                text(0,1.00,paste0("Average ",runmeastype," of country "),cex=legcex,adj=0,font=2)
-                if(nplots==1) text(0.60,1.00,paste0("(min-max)"),cex=legcex,adj=0,font=2)
+                if(nchar(runmeastype) > 5){ av <- "Avg. " }else{ av <- "Avgerage " }
+                text(0,1.00,paste0(av, runmeastype," of country "),cex=legcex,adj=0,font=2)
+                if(nplots==1) text(avshare+0.40,1.00,paste0("(min-max)"),cex=legcex,adj=1,font=2)
             }
             if (rundata=="ief" && runfocus=="countries") text(0,1.00,"Range of values over the period",cex=legcex,adj=0,font=2)
             

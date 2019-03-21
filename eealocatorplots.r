@@ -673,7 +673,7 @@ if(stepsdone==6){
     sharesexist<-temp[[4]]
     
     x1<-942;x2<-nrow(plotmeas)
-    x1<-886;x2<-887
+    x1<-31;x2<-33
     x1<-1;x2<-nrow(plotmeas)
     for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
     for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = "range",eusubm = "EUC")}
@@ -772,7 +772,7 @@ if(stepsdone==7) {
     save(list=savelist,file=rdatallem)
     if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
     if(!cursubm %in% drive_ls("eealocatorplots/")$name) drive_mkdir(cursubm, "eealocatorplots") 
-    if(nrow(drive_find(paste0("eealocatorplots/", cursubm, "/eealocator_", cursubm, "_clean.RData"))) == 0){
+    if(nrow(drive_find(paste0("eealocator_", cursubm, "_clean.RData"))) == 0){
       drive_upload(media = rdatallem, 
                    path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
                    #name = NULL, type = NULL, 

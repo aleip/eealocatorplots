@@ -44,6 +44,34 @@ if(!file.exists(rdatfile)){
     #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
     #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
     #    save(alldata,file=rdatfile)
+    
+    if(!c("nir") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
+      drive_mkdir(paste0("eealocatorplots/", cursubm, "/nir/"))  # make folder in home Drive directory
+      for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
+        drive_upload(media = fls, 
+                     path = as_dribble(paste0("eealocatorplots/", cursubm, "/nir/")), 
+                     #name = NULL, type = NULL, 
+                     verbose = FALSE)
+      }
+
+    }else{
+      #for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
+      #  drive_update(file = paste0("eealocatorplots/", cursubm, "/nir/", sub('.*\\/', '', fls)), 
+      #               media = fls, 
+      #               verbose = TRUE)
+      #}
+    }
+    
+    if(!c("crfs") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
+      drive_mkdir(paste0("eealocatorplots/", cursubm, "/crfs/"))  # make folder in home Drive directory
+      for(fls in (list.files(paste0(adrian, "/crfs/"), full.names = TRUE))){
+        drive_upload(media = fls, 
+                     path = as_dribble(paste0("eealocatorplots/", cursubm, "/crfs/")), 
+                     #name = NULL, type = NULL, 
+                     verbose = FALSE)
+      }
+    }
+    
 }else{
     print(paste0("Retrieve ",rdatfile))
     load(rdatfile)

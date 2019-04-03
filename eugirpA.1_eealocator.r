@@ -110,5 +110,8 @@ if(generatealldata==1){
     write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_lulucs_s1.csv"),sep=",")
 
     source("curplot.r")
+    options(error=NULL) #error=recover goes into debug mode
+    options(warn=0)
+    
     
 }

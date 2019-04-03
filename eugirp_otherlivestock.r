@@ -193,7 +193,11 @@ allagri<-substituteothers(allagri,"All Sheep","Other Sheep")
 #  allagri[allagri$party == "LUX", ] <- substituteothers(allagri[allagri$party == "LUX", ], "Other Sheep.Sheep", "Other Sheep")
 #} 
 
+#if(cursubm == "20190315"){
+#  allagri[allagri$party == "GBK", ] <- substituteothers(allagri[allagri$party == "GBK", ], "Other Sheep.Sheep", "Other Sheep")
+#}
 #allagri<-substituteothers(allagri,"Other Sheep.Sheep","Other Sheep")
+
 allagri<-substituteothers(allagri,"Other Sheep.Total","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep.General","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Other Sheep")
@@ -220,11 +224,18 @@ agriselect<-!is.na(allagri$nvariableUID)
 allagri$variableUID[agriselect]<-allagri$nvariableUID[agriselect]
 allagri<-allagri[,allfields]
 
-if(nrow(unique(allagri[allagri$party == "MLT" & allagri$variableUID == "91817067-8DB6-41D6-A348-57E2C17B655D", years])) > 1){
+if(nrow(unique(allagri[allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3"  & allagri$category == "Swine", years])) > 1){
   sel <- grepl("[Ss]wine", allagri$category) & allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3"
   allagri[sel, names(allagri) %in% years] <- round(allagri[sel, names(allagri) %in% years], 5)
   #allagri[grepl("[Ss]wine", allagri$category) & allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3",]
 }
 allagri<-unique(allagri)
 
+
+
+#if(cursubm == "20190315"){
+#  allagri[allagri$party =="GBK" & grepl("[Ss]heep", allagri$category), ]$category <- "Sheep"
+#  View(allagri[allagri$party =="GBK" & grepl("[Ss]heep", allagri$category), ])
+#  unique(allagri[allagri$party =="GBK" & grepl("[Ss]heep", allagri$category), ]$variableUID)
+#}
 

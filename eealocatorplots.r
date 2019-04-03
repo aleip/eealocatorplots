@@ -50,8 +50,6 @@ options(error=NULL) #error=recover goes into debug mode
 # - alldatanovalues
 # - measname
 source("eugirpA.1_eealocator.r")
-options(error=NULL) #error=recover goes into debug mode
-options(warn=0)
 
 
 # A.2 Clean animal type names ####
@@ -318,9 +316,9 @@ if(stepsdone>2){
             savelist<-c(savelist,"emplotsdone","plotmeas")
             save(list=savelist,file=rdatallem)
             save(list=savelist,file=gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem))
-            drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
-                         media = rdatallem, 
-                         verbose = FALSE)
+            #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
+            #             media = rdatallem, 
+            #             verbose = FALSE)
             #drive_upload(media = gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem), 
             #             #path = NULL, 
             #             #name = NULL, type = NULL, 

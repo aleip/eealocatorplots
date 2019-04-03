@@ -10,6 +10,14 @@ if(!file.exists(rdatfile)){
       levels(alldata$value) <- c(levels(alldata$value), as.character(6855418.00/25330))
       alldata[alldata$variableUID == "323AB36B-6A46-4EDE-A81C-11235D6CB9BA" & alldata$year == 2014 & alldata$party == "CY", names(alldata) %in% c("value")] <- 6855418.00/25330
     }
+    
+    ct2check <- countries2[!countries2 %in% c("FM")]
+    ct2check <- ct2check[!ct2check %in% unique(alldata$party)]
+    
+    if (length(ct2check) >= 1){
+      answ1 <- readline(prompt = paste0("There is no data for: ", ct2check, "\nIf you are NOT happy with that, quit by pressing [n]+[enter]; \notherwise, press [enter] or any other key to continue processing the data..."))
+      if (answ1 == "n") stop("killing...")
+    }
       
     names(alldata)[1] <- "party_2char"
     alldata$party_3char <- substring(alldata$filename, 1, 3)
@@ -29,7 +37,6 @@ if(!file.exists(rdatfile)){
     write.csv(party_2_3char, paste0(csvfil1, "party_2_3char.csv"), row.names = FALSE)
 
     answ <- readline(prompt = "Please, check country codes in 'party_2_3char'.\nIf you find errors, quit by pressing [n]+[enter]; \notherwise, press [enter] or any other key to update 'country4sub' and to continue...")
-    
     if (answ == "n") stop("killing...")
     
     sel <- party_2_3char$EU28 == 0 & party_2_3char$EUA == 0 & party_2_3char$EUC == 0
@@ -37,6 +44,8 @@ if(!file.exists(rdatfile)){
 
     alldata <- alldata %>% select(party_3char, names(alldata)[-c(1,3)])
     names(alldata)[1] <- "party"
+    
+    #if(is.factor(alldata$value) == FALSE) alldata$value <- as.factor(alldata$value)
     
     print(paste0("saving  ", rdatfile))
     save(alldata,file=rdatfile)

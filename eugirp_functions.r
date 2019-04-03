@@ -927,9 +927,9 @@ keycateuc<-function(){
   keyeuagri<-keyeu
   #keyeuagri<-filter(keyeu,grepl("^3",sector_number))
   
-  write.csv(keyeuagri,file=paste0(invloc,"/keycategories/keyeuagri.csv"))
-  write.csv(agrimethods,file=paste0(invloc,"/keycategories/agrimethods.csv"))
-  write.csv(agridetem,file=paste0(invloc,"/keycategories/agridetem.csv"))
+  write.csv(keyeuagri,file=paste0(invloc,"/keycategories/keyeuagri_", cursubm,".csv"))
+  write.csv(agrimethods,file=paste0(invloc,"/keycategories/agrimethods_", cursubm,".csv"))
+  write.csv(agridetem,file=paste0(invloc,"/keycategories/agridetem_", cursubm,".csv"))
   return(keyeuagri)
 }
 

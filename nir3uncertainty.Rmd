@@ -148,7 +148,7 @@ esdrevie<-c("33%","17%","33%","17%")
 
 response<-rbind(complete,outliers,recalcul,timeseri,esdrevie)
 checkstats[,2:5]<-response
-checkdate<-"March 29, 2018"
+checkdate<-"March 15, 2019"
 tabs("checkstat",paste0("Status of issues as of ",checkdate))
 
 ```
@@ -171,8 +171,7 @@ The status of responses as of `r checkdate` is given in `r tabs("checkstat",disp
 
 `r pander(checkstats)`&nbsp;
 
-All issues had been responded by `r checkdate`, being the time series the type of issues with the highest percentage of resolution, followed by the recalculations. Most of the time series and the recalculation issues required just an explanation and some of the recalculations were due to mistakes which have mostly been corrected. The outliers are the type of issues with the highest share of questions still unresolved, probably needing more time to justify. 
-Regarding the recommendations, one third has already been resolved and 63% have not been resolved yet but countries are working on getting the necessary data for the resolution of the issues; these issues often require detailed information which sometimes the countries cannot easily obtain. Similar situation happens with the agricheck issues, for which one third have already been resolved and 41% are still open and might be solved in May resubmission.
+All issues had been responded by `r checkdate`, being the time series the type of issues with the highest percentage of resolution, followed by the recalculations. Most of the time series and the recalculation issues required just an explanation and some of the recalculations were due to mistakes which have mostly been corrected. The agrichecks are the type of issues with the highest share of questions still unresolved, often requiring detailed information which sometimes the countries cannot easily obtain. Similarly happens with the recommendations, 63% of which have not been resolved yet but countries are working on getting the necessary data for the resolution of the issues. Regarding outliers, 63% of the issues are still partly resolved or unresolved, probably needing more time to justify.
 
 
 #### Calculation of EU background data 

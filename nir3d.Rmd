@@ -15,7 +15,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs("figD1share",display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.D.1.jpg)
+![]($eugirpplots$/$cursubm$agrimixeu3.D.1.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
@@ -158,6 +158,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 #figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
 ```
 
+
 #### Implied EFs  and Methodological Issues
 
 In this section we discuss the implied emission factor for the main N sources 
@@ -249,7 +250,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs("figD2share",display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.D.2.jpg)
+![]($eugirpplots$/$cursubm$agrimixeu3.D.2.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
@@ -444,13 +445,24 @@ curseclong<-"Indirect N2O emissions"
 curcat<-"Fraction of N input to managed soils"
 curmea<-"FracLEACH"
 source("nircatdata2.r")
-figs("figB211trendFracLEACH",trendiefcaption(eukp,curcattext,lastyear))
+#figs("figB211trendFracLEACH",trendiefcaption(eukp,curcattext,lastyear))
 tabs("tabB211FracLEACH",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r gsub("frac", "Frac", text2ief(fig=figs("figB211trendFracLEACH",display="cite"),tab=tabs("tabB211FracLEACH",display="cite")))`
+`r gsub("frac", "Frac", text2ief(tab=tabs("tabB211FracLEACH",display="cite")))`
 
 `r gsub("frac", "Frac", tabs("tabB211FracLEACH",display="full"))`
 `r pander(splittable(curtable,2))`&nbsp;
+
+
+
+### Agriculture- non-key categories 
+```{r AGR_nonKey,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+tabs("AGR_non_key", "Aggregated GHG emissions from nonkey categories in the agriculture sector")
+
+```
+
+`r tabs("AGR_non_key",display="full")`&nbsp;
+
 

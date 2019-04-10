@@ -54,7 +54,8 @@ names(sapm)<-c("Characteristic","&#09;","&#09;","Units/categories")
 
 `r tabs("sapmcharachteristics",display="full")`
 
-`r pander(sapm)`
+ 
+`r pander(pandoc.table(sapm, justify = c('left')))`
 
 Note&nbsp;1:&#09;Utilised agricultural area (UAA) percentage band: (0), (> 0-< 25), (=25-< 50), (=50-< 75), (=75)
 

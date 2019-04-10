@@ -18,7 +18,7 @@ Regarding the handling of manure in the different Member States, `r figs(paste0(
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.B.2.jpg)
+![]($eugirpplots$/$cursubm$agrimixeu3.B.2.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
@@ -74,6 +74,7 @@ figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastye
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
+
 ![]($ubaimages$/$cursubm$/Table3B21CattleN2O.jpg)
 
 `r gsub("Cattle", "Dairy cattle", figs(paste0("fig3B211","trend",curmea),display="full"))`
@@ -108,6 +109,7 @@ subcategdet<-agridet[subcategssel,]
 subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
 nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
 
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
@@ -116,6 +118,8 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
 `r figs(paste0("fig3.B.2.3","trend",curmea),display="full")`
 

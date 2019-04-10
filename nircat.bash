@@ -35,7 +35,7 @@ elif [ $focus == "faonir" ]; then
 	cat nir0.Rmd nirfaocomparison.Rmd > tmp0
 elif [ $focus == "all" ]; then
 #	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd ${unc} nirfaocomparison.Rmd> tmp0
-	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd  nir3uncertainty.Rmd nir3workshops.Rmd nir3verification.Rmd nirfaocomparison.Rmd> tmp0
+	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd  nir3uncertainty.Rmd nir3workshops.Rmd nir3verification.Rmd nircapricomparison.Rmd nirfaocomparison.Rmd > tmp0
 elif [ $focus == "none" ]; then
 	cat nir0.Rmd > tmp0
 else #focus: 3a,3b1,3b2,3d
@@ -48,20 +48,20 @@ echo Now replace the placeholders at $HOSTNAME
 echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
 sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
 sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
-sed -e 's/\$cursubm\$/20180508/g' tmp0 > tmp2
+sed -e 's/\$cursubm\$/20190315/g' tmp0 > tmp2
 
 mv tmp2 nir${focus}out.Rmd
 
 
 # Generate markdown file
-if [ "$HOSTNAME" = "marsbl1bhl" ]; then
+if [ "$HOSTNAME" = "s-jrciprap246p" ]; then
 
 
-    rexe="/c/Program\ Files/R/R-3.4.1/bin/Rscript.exe"
+    rexe="/c/Apps/R/R-3.5.0/bin/Rscript.exe"
     wexe="/c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE"
     pexe="pandoc"
     
-    /c/Program\ Files/R/R-3.4.1/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
+    /c/Apps/R/R-3.5.0/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
 
 
 elif [ "$HOSTNAME" = "l01ri1203587" ] ; then

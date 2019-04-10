@@ -22,7 +22,7 @@ ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_numb
 
 `r figs("fig3.Ashare",display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.A.jpg)
+![]($eugirpplots$/$cursubm$agrimixeu3.A.png)
 
 `r figs("fig3.Asharems",display="full")`
 
@@ -300,11 +300,12 @@ tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
 ![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationMilk-nirrange.jpg) 
 
 
-`r tabs("tabA11Milk",display="full")`
-`r pander(splittable(curtable,2))`&nbsp;
-Note that the Netherlands does not report milk yield in their CRF, but such data are available in their NIR (see also Annex III).
+`r tabs("tabA11Milk",display="full")` [^exclNLmilk] [^exclLUmilk]
+`r pander(splittable(curtable,2))`
 
+[^exclNLmilk]: &#09;Note that the Netherlands does not report milk yield in their CRF, but such data are available in their NIR (see also Annex III).
 [^exclLUmilk]: &#09;Note that data from Luxembourg are not included in the plot as they are reported in a different unit.
+
 
 ```{r 3a12ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3.A.1"

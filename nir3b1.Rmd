@@ -19,7 +19,7 @@ ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_numb
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.B.1.jpg)
+![]($eugirpplots$/$cursubm$agrimixeu3.B.1.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 

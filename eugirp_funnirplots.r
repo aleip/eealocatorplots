@@ -662,6 +662,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                   if ( tmin > 0.01){
                     plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
                   }else{
+                    if(curuid == "C548A926-2825-4F66-A6FE-DA55F429CB29" & runfocus == "range") tmax <- (tmax+0.001)
                     plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
                   }
                 }

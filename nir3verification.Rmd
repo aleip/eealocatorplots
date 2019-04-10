@@ -1,30 +1,6 @@
 
 ### Verification
 
-#### Comparison of national inventories with EU-wide calculations with the CAPRI model
-
-```{r capricomparison,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-tabs("caprit1","")
-tabs("caprit2","")
-tabs("caprit3","")
-
-figs("capriFig1","")
-figs("capriFig2","")
-figs("capriFig3","")
-figs("capriFig4","")
-figs("capriFig5","")
-figs("capriFig6","")
-#figs("capriFig7","")
-```
-
-An in-depth comparison between GHG emission estimates as calculated with the CAPRI model and national GHG emission inventories had been done in the frame of the GGELS project[^ggelsweb].
-
-A brief summary of the report was included in previous submissions of the EU GHG emission inventories in the agriculture chapter. This summary is available from the JRC website[^ggelssummary].
-
-
-[^ggelsweb]: &#09;ftp://mars.jrc.ec.europa.eu/Afoludata/Public/DOCU236/
-[^ggelssummary]: &#09;ftp://mars.jrc.ec.europa.eu/Afoludata/Public/363_eughginventory2014/leip_weiss2014.ggels_summary.pdf
-
 #### Allocation to climate regions
 
 In the year 2013, an analysis was performed to compare the allocation of livestock over the IPCC climate regions at the national scale between data available at high spatial resolution at the Joint Research Centre and data provided in the national GHG inventory reports.
@@ -33,4 +9,5 @@ For the submission in the year 2014, this section had been updated and is availa
 
 
 [^allocation]: &#09;ftp://mars.jrc.ec.europa.eu/Afoludata/Public/363_eughginventory2014/koeble_leip2014.livestockallocation.pdf
+
 

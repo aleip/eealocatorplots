@@ -15,7 +15,7 @@ output:
   html_document: default
 
 foldertext:
-  cursubm: 20180508
+  cursubm: 20190315
   ecirfolder: '../ecir'
   
 

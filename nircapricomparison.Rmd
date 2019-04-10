@@ -1,0 +1,69 @@
+
+
+#### Comparison of national inventories with EU-wide calculations with the CAPRI model
+
+```{r capricomparison,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+#source("curplot.r")
+load(file=paste0(invloc2,"_clean_plotmeasademnir-capri.RData"), verbose = TRUE)
+multisource<-unique(plotdata$datasource)
+multiref<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC"}else if(x=="fao") {"FAO"}else if(x=="capri"){"CAPRI"}))
+multirefl<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC GHG inventories"}else if(x=="fao") {"FAO GHG database"}else if(x=="capri"){"CAPRI"}))
+
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"POP"
+
+capri_comp_plots <- "D:\\dev\\CAPRImodel\\CAPRI_R_TRUNK_15022019\\results\\inventories/"
+cursubm <- "20190315"
+#tabs("caprit1","")
+#tabs("caprit2","")
+#tabs("caprit3","")
+#
+#paste0("comp1", "3.A.1", "Non-Dairy Cattle", "trendem")
+figs("capriFig1", compademplots(eukp, "3.A.1", "Non-Dairy Cattle"))
+#figs("capriFig1","")
+#figs("capriFig2","")
+figs("capriFig2","")
+#figs("capriFig3","")
+#figs("capriFig4","")
+#figs("capriFig5","")
+#figs("capriFig6","")
+##figs("capriFig7","")
+```
+
+
+
+In the context of the GGELS project (http://afoludata.jrc.ec.europa.eu/group/ggels-results), an in-depth comparison between data provided by Parties in the national inventories and greenhouse gases estimates as calculated with the CAPRI model for the year 2002 was done. A summary of this project was included in previous EU GHG emission inventories in the agriculture chapter. The Joint Research Centre is working on a more comprehensive comparison between CAPRI and the national GHG inventories and compare the development of emissions over the timespan 1990 to last reported year. 
+
+To this purpose, for the submission in the year 2016, a pilot project was carried out to provide a preliminary comparison. In the CAPRI model, GHG emissions are calculated based on activity data contained in the CAPRI database drawing mainly from data obtained from Eurostat and complemented with other sources (e.g. FAOSTAT)). First results of that project were presented in the EU National Inventory Report of the year 2016. 
+
+The results revealed considerable differences for certain sub-categories of emissions, due to diverse reasons such as: some discrepancies in population numbers, the use of different emission factors, underlying assumptions taken in the model for certain parameters, and different methodologies for the calculation of emissions. For example, for the nitrogen compounds emitted, CAPRI uses a mass-preserving N balance approach, which consistently accounts for all nitrogen flows and quantifies available N at each step of the system (see [^leip2010], [^Velthof2007]). Furthermore, while countries may use different Tiers according to the emission category and their availability of resources, and often country specific methods and parameters, CAPRI applies the same calculation method for all reporting parties, always in compliance with 2006 IPCC guidelines.
+
+Since 2016, we have been working on the improvement of a comparison module in the CAPRI model, which incorporates some elements allowing the comparison with national inventory data along the whole time series. The module considers dynamic evolution of parameters which were originally considered as fixed, and in particular feed requirements. It is now possible to compare data for the whole time series from 1990 until the last year that is available in the CAPRI data base, which is currently the year 2014. For the year 2016, a CAPRI 'now-casting' is made. This is a projection of the data for the year 2016 based on a trend analysis keeping consistency between all variables (i.e., areas and herd sizes, yields, production volumes, technology development etc.).
+
+Preliminary results show that for some emission categories there are differences whose reasons have to be analysed. For example, `r figs("capriFig1",display="cite")` shows emissions from enteric fermentation from non-dairy cattle. As we can see, emissions calculated by CAPRI are higher than emissions reported by NI. According to `r figs("capriFig2",display="cite")`, differences in population between the two databases are much smaller, therefore another reason other than activity data must be behind discrepancies in emissions (for example feed rations or feed digestibility etc).
+
+
+`r figs("capriFig1", display="full")`
+![](D:/dev/CAPRImodel/CAPRI_R_TRUNK_15022019/results/inventories/20190315/valueadem/3A1Non-DairyCattle-EntericFermentationCH4EM-nircaprivalue.jpg) 
+
+
+`r #figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
+`r figs("capriFig2", display="full")`
+
+`r # ![]($eugirpplots$/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) `
+
+![](D:/dev/CAPRImodel/CAPRI_R_TRUNK_15022019/results/inventories/20190315/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nircaprivalue.jpg) 
+
+
+
+
+
+
+
+[^leip2010]: &#09;Leip, A., 2010. Quantitative quality assessment of the greenhouse gas inventory for agriculture in Europe. Clim. Change. 103, 245-261. doi:http://dx.doi.org/10.1007/s10584-010-9915-5.
+[^Velthof2007]: &#09;Velthof, G.L., D.A. Oudendag, and O. Oenema. 2007. Development and application of the integrated nitrogen model MITERRA-EUROPE. Task 1 of Service contract "Integrated measures in agriculture to reduce ammonia emissions. Alterra Rep.1663.1. Alterra, Wageningen, the Netherlands.
+

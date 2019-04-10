@@ -28,39 +28,43 @@ if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-proje
 
 #require(dtplyr)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
-rm(list=objects())
+#rm(list=objects())
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
-mypc<-Sys.info()[4]
-if(mypc=="L01RI1203587"){ #checks machine name
+
+if (!grepl("CAPRI", getwd())) {
+  mypc<-Sys.info()[4]
+  if(mypc=="L01RI1203587"){ #checks machine name
     adrian<-"X:/adrian/"
-}else if(mypc=="D01RI1600881"){
+  }else if(mypc=="D01RI1600881"){
     adrian<-"x:/Adrian/"
-}else if(mypc=="D01RI1701864"){
+  }else if(mypc=="D01RI1701864"){
     adrian<-"E:/ghginventory/"
-}else if(mypc=="D01RI1600850"){# Gema PC
+  }else if(mypc=="D01RI1600850"){# Gema PC
     adrian<-"D:\\Users\\carmoge\\Documents\\GitHub\\"
-}else if(mypc=="S-JRCIPRAP246P"){ 
-  adrian<-"D:\\dev\\ghginventory\\"
-}else{
+  }else if(mypc=="S-JRCIPRAP246P"){ 
+    adrian<-"D:\\dev\\ghginventory\\"
+  }else{
     adrian<-"C:/Adrian/"
+  }
+  if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/xavi-rp/xavi_functions/master/xavi_functions.r")
+  if(mypc=="D01RI1600881") iam="adrianjrc"
+  if(mypc=="L01RI1203587") iam="testcapri"
+  if(mypc=="L01RI1203587") iam="adrianlaptop"
+  if(mypc=="S-JRCIPRAP246P") iam="serverJRC"
+  if(mypc=="D01RI1701864") iam="PCxavi"
+  if(mypc=="D01RI1600850") iam="PCGema"
+  eugirpok<-FALSE
+  if(grepl("adrian",iam)) eugirpok<-TRUE
+  if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
+  if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
+  if(iam=="serverJRC")locplots<-paste0(adrian,"/eealocatorplots")
+  if(iam=="PCGema")locplots<-paste0(adrian,"/eealocatorplots")
+  if(iam=="PCxavi")locplots<-paste0(adrian,"/eealocatorplots")
+  setwd(locplots)
+  searchline<-FALSE
 }
-if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/xavi-rp/xavi_functions/master/xavi_functions.r")
-if(mypc=="D01RI1600881") iam="adrianjrc"
-if(mypc=="L01RI1203587") iam="testcapri"
-if(mypc=="L01RI1203587") iam="adrianlaptop"
-if(mypc=="S-JRCIPRAP246P") iam="serverJRC"
-if(mypc=="D01RI1701864") iam="PCxavi"
-if(mypc=="D01RI1600850") iam="PCGema"
-eugirpok<-FALSE
-if(grepl("adrian",iam)) eugirpok<-TRUE
-if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
-if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
-if(iam=="serverJRC")locplots<-paste0(adrian,"/eealocatorplots")
-if(iam=="PCGema")locplots<-paste0(adrian,"/eealocatorplots")
-if(iam=="PCxavi")locplots<-paste0(adrian,"/eealocatorplots")
-setwd(locplots)
-searchline<-FALSE
+
 
 ##############################################################################
 #
@@ -91,16 +95,23 @@ cursubm <- "20190315"                                                       #!!!
 invyear<-2019
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
-invloc<-paste0(adrian,"google/projects/ecir")#!!!
-if(mypc=="L01RI1203587") invloc<-paste0("C:/Adrian/google/projects/ecir")#!!!
-csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
-csvfil1 <- paste0(locplots,"/../",invyear,"/eealocator/")   
-if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
-if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
-#if(iam=="serverJRC")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"
-if(iam=="serverJRC")invloc<-"D:\\dev\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
-if(iam=="PCxavi")invloc<-"E:\\ghginventory\\ecir"    #xavi20180125: new path to ecir in xavi's PC 
-if(iam=="PCGema")invloc<-"D:\\Users\\carmoge\\Documents\\GitHub\\ecir"    #gema20181206: new path to ecir in Gema's PC 
+
+if (!grepl("CAPRI", getwd())) {
+  invloc<-paste0(adrian,"google/projects/ecir")#!!!
+  if(mypc=="L01RI1203587") invloc<-paste0("C:/Adrian/google/projects/ecir")#!!!
+  csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
+  csvfil1 <- paste0(locplots,"/../",invyear,"/eealocator/")   
+  if(iam=="testcapri")csvfil<-paste0(locplots,"/eealocator_",cursubm)
+  if(iam=="testcapri")invloc<-paste0(locplots,"/../../output/results/inventories")
+  #if(iam=="serverJRC")invloc<-"\\\\tsclient\\X\\adrian\\google\\projects\\ecir"
+  if(iam=="serverJRC")invloc<-"D:\\dev\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
+  if(iam=="PCxavi")invloc<-"E:\\ghginventory\\ecir"    #xavi20180125: new path to ecir in xavi's PC 
+  if(iam=="PCGema")invloc<-"D:\\Users\\carmoge\\Documents\\GitHub\\ecir"    #gema20181206: new path to ecir in Gema's PC 
+}else{
+  invloc <- ""
+  csvfil <- ""
+  csvfil1 <- ""
+}
 #!!!
 # Years to be used (adapt the last year at the 
 # beginning of each inventory-cycle)
@@ -158,14 +169,17 @@ topn<-10
 source("eugirp_functions.r")
 # Load general definitions
 source("eugirp_definitions.r")
-generatealldata <- 1
-if(file.exists(rdatallem)){
+if (!grepl("CAPRI", getwd())) {
+  generatealldata <- 1
+  if(file.exists(rdatallem)){
     #if(file.info(paste0(csvfil,".txt"))$mtime<file.info(rdatallem)$mtime){
     print(paste0("Load existing file ",rdatallem))
     load(rdatallem)    
     generatealldata <- 0
     #}
+  }
 }
+
 
 ##############################################################################
 #
@@ -212,4 +226,16 @@ yr <- c(2017)
 yr <- invyear
 
 options(error=NULL) #error=recover goes into debug mode
+
+
+##############################################################################
+#       Additional settings for CAPRI comparison (only for NIR Chapter 5)
+##############################################################################
+
+invloc2 <- "D:\\dev\\CAPRImodel\\Trunk_as_in_repository\\gams\\comparisonplots/"
+capri_comp_plots <- "D:\\dev\\CAPRImodel\\CAPRI_R_TRUNK_15022019\\results\\inventories/"
+
+
+
+
 

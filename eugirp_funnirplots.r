@@ -312,8 +312,8 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     tmin<-NULL
     tmax<-NULL
     tmag<-NULL
-    extrayears<-""
-    if("fao" %in% multisource) extrayears<-years[apply(plotdata[plotdata$datasource=="fao",years],2,sum,na.rm=TRUE)==0]
+    #extrayears<-""
+    #if("fao" %in% multisource) extrayears<-years[apply(plotdata[plotdata$datasource=="fao",years],2,sum,na.rm=TRUE)==0]
 #    if("capri" %in% multisource){
 #      plotdata_check <- plotdata[plotdata$variableUID==curuid, ]
 #      #View(plotdata_check)
@@ -690,12 +690,12 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #eugirp_funnirplots.r
                     #return(list(tmin,tmax))
                     #plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource)
-                    if("fao" %in% multisource){
-                        eu28fin[,extrayears]<-0
-                        eu28pos[extrayears]<-0
-                        eu28neg[extrayears]<-0
-                        eu28[extrayears]<-0
-                    }
+                    #if("fao" %in% multisource){
+                    #    eu28fin[,extrayears]<-0
+                    #    eu28pos[extrayears]<-0
+                    #    eu28neg[extrayears]<-0
+                    #    eu28[extrayears]<-0
+                    #}
                   #xavi20180214: plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious)
                   if ( tmin > 0.01){
                     plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])

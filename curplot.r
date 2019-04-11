@@ -76,7 +76,16 @@ eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
 eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
 eugirp.version<-"2.1" #20160531
 eugirp.version<-"2.2" #20160820
-eugirp.version <- paste0("2.3(commit: ", system("git rev-parse --short HEAD", intern = TRUE), ")")   #20190320
+
+if (grepl("CAPRI", getwd())) {  #This need to be generalized!!!!
+  setwd(paste0("D:\\dev\\ghginventory\\","/eealocatorplots"))
+  eugirp.version <- paste0("2.3(commit: ", system("git rev-parse --short HEAD", intern = TRUE), ")")  
+  setwd("D:/dev/CAPRImodel/Trunk_as_in_repository/gams/comparisonplots")
+}else{
+  eugirp.version <- paste0("2.3(commit: ", system("git rev-parse --short HEAD", intern = TRUE), ")")   #20190320
+}
+
+
 # Define current submission.
 cursubm <- "20151030"                                                       #!!!
 cursubm <- "20160202"                                                       #!!!

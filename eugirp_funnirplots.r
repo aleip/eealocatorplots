@@ -314,10 +314,48 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     tmag<-NULL
     extrayears<-""
     if("fao" %in% multisource) extrayears<-years[apply(plotdata[plotdata$datasource=="fao",years],2,sum,na.rm=TRUE)==0]
+#    if("capri" %in% multisource){
+#      plotdata_check <- plotdata[plotdata$variableUID==curuid, ]
+#      #View(plotdata_check)
+#      ctry_capri <- sort(unique(as.vector(plotdata_check[plotdata_check$datasource == "capri", ]$party)))
+#      ctry_nir   <- sort(unique(as.vector(plotdata_check[plotdata_check$datasource == "nir", ]$party)))
+#      
+#      if(length(setdiff(ctry_nir, ctry_capri)) > 0) {
+#        cat("There is no CAPRI data for: ", setdiff(ctry_nir, ctry_capri), "\n")
+#        cat("Removing NIR data for: ", setdiff(ctry_nir, ctry_capri), "\n")
+#        write_note_CAPRI <- paste0("Removed ", paste0(setdiff(ctry_nir, ctry_capri), collapse = ", "), " from the graphs because there is no CAPRI data")
+#        plotdata_check <- plotdata_check[!plotdata_check$party %in% setdiff(ctry_nir, ctry_capri), ]
+#        sort(unique(as.vector(plotdata_check$party)))
+#        nrow(plotdata_check)
+#      }else{
+#        if(exists("write_note_CAPRI")) rm(write_note_CAPRI)
+#      }
+#      
+#      if(length(setdiff(ctry_capri, ctry_nir)) > 0) {
+#        cat("There is no NIR data for: ", setdiff(ctry_capri, ctry_nir), "\n")
+#        cat("Removing NIR data for: ", setdiff(ctry_capri, ctry_nir), "\n")
+#        write_note_NIR <- paste0("Removed ", paste0(setdiff(ctry_capri, ctry_nir), collapse = ", "), " from the graphs because there is no NIR data")
+#        plotdata_check <- plotdata_check[!plotdata_check$party %in% setdiff(ctry_capri, ctry_nir), ]
+#        sort(unique(as.vector(plotdata_check$party)))
+#        nrow(plotdata_check)
+#      }else{
+#        if(exists("write_note_NIR")) rm(write_note_NIR)
+#      }
+#    }
+    
+    if(length(multisource)>1){
+        yr2share <- as.vector(apply(plotdata[plotdata$datasource == multisource[2], years], 2, sum, na.rm=TRUE) > 0)
+        yr2share <- years[yr2share]
+    }
+    
     for(dsource in multisource){
         # Determine y-axis for ADEM plots
         isource<-which(dsource==multisource)
-        plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
+#        if("capri" %in% multisource){
+#          plotdatacur<-plotdata_check[plotdata_check$variableUID==curuid&plotdata_check$datasource==dsource,]
+#        }else{
+          plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
+#        }
         plotmatr<-as.data.frame(extractuiddata(DF = plotdatacur,uid = curuid,c = acountry,narm = FALSE, cursubm = cursubm))
         eu28<-plotmatr[nrow(plotmatr),]
         plotmatr<-plotmatr[1:(nrow(plotmatr)-1),]
@@ -535,7 +573,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
                     #print("# General determination of the last available year")
                     #lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
-                    finshares<-eu28fin[,years[length(years)]]/as.numeric(eu28[years[length(years)]])*100
+                    finshares<-eu28fin[,yr2share[length(yr2share)]]/as.numeric(eu28[yr2share[length(yr2share)]])*100
                     ###Necessary addition as long as capri only has values up to 2010 
                     #print("Remove capri manipulation for calculation of country shares when there are values for final year")
                     #if(dsource=="capri"){
@@ -816,9 +854,11 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         
         par(new=T)
         eu28[eu28==0]<-NA
-        lines(x=df.bar,y=eu28,lty=1,lwd=2)
         #see point types here: http://www.endmemo.com/program/R/pchsymbols.php
-        points(x=df.bar,y=eu28,pch=21,bg="black",col="red",cex=1.5*pconv,lwd=2,cex.axis=1*pconv)
+        if(dsource != "capri" | !(exists("write_note_CAPRI") | exists("write_note_NIR"))){
+          lines(x=df.bar,y=eu28,lty=1,lwd=2)
+          points(x=df.bar,y=eu28,pch=21,bg="black",col="red",cex=1.5*pconv,lwd=2,cex.axis=1*pconv)
+        }
     }else{
         if(runfocus=="countries"){
             countrymatrix<-t(curmatrix)
@@ -1400,13 +1440,14 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
                 if(nplots==1) text(0,1.00,paste0("Share in year t-2 (",years[length(years)],")"),cex=legcex,adj=0,font=2)
                 if(nplots>1) {
                     text(0,1.00,paste0("Share in year "),cex=legcex,adj=0,font=2)
-                    lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)>0))
+                    #lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)>0))
+                    lastyear<-yr2share[length(yr2share)]
                     if(toupper(multisource[iplot]) == "NIR"){
                       nir <- "NGIs"
                     }else{
                       nir <- toupper(multisource[iplot])
                     }
-                    text(xplace,1.00,paste0(years[lastyear]," (",nir ,") "),cex=legcex-0.25,adj=1,font=1)
+                    text(xplace,1.00,paste0(lastyear," (",nir ,") "),cex=legcex-0.25,adj=1,font=1)
                 }
             }
             if (rundata=="ief" && runfocus=="value") {
@@ -1588,7 +1629,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     foottextleft<-paste0("EU-GIRP.v",eugirp.version," (",eugirp.fullname,") (c) EC-JRC/AL ",eugirp.web)
     foottextrigt<-paste0(figdate," - UID: ",curuid, ". Submission from ",cursubm)
     if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") foottextleft_2 <- "NLD not included due to an error in the data"
-    
+
     autocorrtext<-autocorr
     if(length(serious)!=0){serioustext<-paste0("Data not plotted (serious outlier): ",paste(countriesnoeu[serious],collapse=", "))
     }else{serioustext<-NULL}
@@ -1602,6 +1643,14 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") text(0.005,0.4,adj=0,foottextleft_2,cex=0.5*pconv,font=1,col="red")
     text(0.005,0.1,adj=0,foottextleft,cex=0.5*pconv,font=1)
     text(0.995,0.1,adj=1,foottextrigt,cex=0.5*pconv,font=1)
+    if(grepl("capri", paste(multisource,collapse="")) & (exists("write_note_CAPRI") | exists("write_note_NIR"))){
+      foottextleft1 <- "Note: "
+      if(exists("write_note_CAPRI")) foottextleft1 <- paste0(foottextleft1, write_note_CAPRI) 
+      if(exists("write_note_NIR")) foottextleft1 <- paste0(foottextleft1, "; ", write_note_NIR)
+      foottextleft1 <- paste0(foottextleft1, ". However, values are kept for the aggregations.")
+      text(0.005, 0.35, adj = 0, foottextleft1, cex = 0.65 * pconv, font = 1)
+    } 
+    
     mtext(ipcctxt,side=1,at=c(0.012,2),cex=0.35,outer=TRUE,col="blue")
     
     #   graphics.off()

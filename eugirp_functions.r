@@ -1013,6 +1013,7 @@ multidefaults<-function(D,keep,ignore){
     ldefs<-which(ldefs>1)
     
     def<-def[def[,col]!="",]
+    #def<-def[!is.na(def[,col]),]
     #print(def)
     defr<-unique(unlist(as.vector((def[,colr]))))
     #print(paste(col,colr,ldefs,col%in%ldefs))
@@ -1083,7 +1084,7 @@ adddefaults<-function(line,x,D){
     #print(as.character(D$gas[selection])==as.character(line$gas[selection]))
     #print(D[selection,])
     selection<-selection & D[1,v2006]!="" & D[1,v1997]!=""
-    
+
     vdefaults<-unique(D[selection,])
     ndefaults<-nrow(vdefaults)
     if(ndefaults==0){

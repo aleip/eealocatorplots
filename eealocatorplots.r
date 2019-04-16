@@ -34,7 +34,7 @@ if(Sys.info()[4]=="S-JRCIPRAP246P")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
 options(warn=0)
 source("curplot.r")
-options(warn=2) #warn=2 turns warnings into errors; set to 0 if this should be avoided
+options(warn=0) #warn=2 turns warnings into errors; set to 0 if this should be avoided
 options(error=recover) #error=recover goes into debug mode
 options(error=NULL) #error=recover goes into debug mode
 

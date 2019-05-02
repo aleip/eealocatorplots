@@ -59,12 +59,12 @@ Other important policies affecting greenhouse gas emissions from agriculture, pa
 
 * The 1999 Gothenburg Protocol under the Convention on Long Range Transboundary Air Pollution (CLRTAP[^clrtap]) to 'Abate Acidification, Eutrophication and Ground-level Ozone', revised in 2012 setting national emission reduction commitments to be achieved by 2020 and beyond; 
 
-* The National Emission Ceilings Directive (NEC - Directive 2001/81/EC[^nec]) sets upper limits for each Member State for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
+* The National Emission Ceilings Directive (NEC - Directive 2016/2284/EC[^nec]) sets upper limits for each Member State for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
 
 * The Industrial Emission Directive (IED[^ied][^ippc]), which was established in 1996, and aims at minimizing pollution from point sources, i. e., intensive animal production facilities (pig and poultry farms, with more than 2000 fattening pigs (over 30 kg); more than 750 sows or more than 40,000 head of poultry). These are required under the directive to apply control techniques for preventing NH3 emissions according to Best Available Technology (BAT).
 
 [^clrtap]: &#09;http://www.unece.org/env/lrtap/multi_h1.html
-[^nec]: &#09;http://ec.europa.eu/environment/air/pollutants/ceilings.htm  
+[^nec]: &#09;https://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1554903780611&uri=CELEX:32016L2284  
 [^nec2016]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016L2284&from=EN
 [^ied]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32010L0075
 [^ippc]: &#09;http://ec.europa.eu/environment/industry/stationary/index.htm

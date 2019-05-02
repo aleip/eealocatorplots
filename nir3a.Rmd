@@ -29,16 +29,19 @@ ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_numb
 ![]($eugirpplots$/$cursubm$emissionshare_3.A.jpg)
 
 ```{r 3atab,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-curtab<-round(agriemissions[agriemissions$sector_number=="3.A",c(firstyear,lastyear)],0)
+curtab<-round(agriemissions[agriemissions$sector_number=="3.A",c(firstyear, years[length(years) - 1], lastyear)],0)
 rownames(curtab)<-countrynamesnoex
 curtab$new1<-curtab[,1]
-curtab$new2<-curtab[,2]
+curtab$new3<-curtab[,2]
+curtab$new2<-curtab[,3]
 curtab$country<-countrynamesnoex
-curtab<-curtab[c(5,1:4)]
+curtab<-curtab[c(7,1:6)]
 names(curtab)<-c("Member State",
                  "GHG emissions in 1990 (kt CO2 equivalents)",
+                 paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
                  paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
                  "CH4 emissions in 1990 (kt CO2 equivalents)",
+                 paste0("CH4 emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
                  paste0("CH4 emissions in ",lastyear," (kt CO2 equivalents)"))
 ```
 

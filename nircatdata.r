@@ -120,10 +120,11 @@ if(sum(select)>0) subcateg$category[select]<-as.character(subcateg$type[select])
 select<-subcateg$sector_number=="3.D.2.1" | subcateg$sector_number=="3.D.2.2" 
 if(sum(select)>0) subcateg$category[select]<-as.character(subcateg$target[select])
 
-curheaders<-c(firstyear,lastyear,"GHGfirst","GHGlast")
+curheaders<-c(firstyear, years[length(years) - 1], lastyear,"GHGfirst","GHGlast-1","GHGlast")
 curemissions$party<-as.character(curemissions$party)
-emfirstlast<-curemissions[,c("party",firstyear,lastyear)]
+emfirstlast<-curemissions[,c("party",firstyear, years[length(years) - 1], lastyear)]
 emfirstlast[,"GHGfirst"]<-emfirstlast[,firstyear]
+emfirstlast[,"GHGlast-1"]<-emfirstlast[,years[length(years) - 1]]
 emfirstlast[,"GHGlast"]<-emfirstlast[,lastyear]
 tmpis<-emfirstlast[emfirstlast$party=="ISL",]
 emfirstlast<-emfirstlast[emfirstlast$party!="ISL",]
@@ -143,8 +144,10 @@ emfirstlast[,curheaders]<-round(emfirstlast[,curheaders],0)
 if(length(curgas)==1){
     names(emfirstlast)<-c("Member States",
                           paste0("GHG emissions in ",firstyear," (kt CO2 equivalents)"),
+                          paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
                           paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
                           paste0(curgas," emissions in ",firstyear," (kt CO2 equivalents)"),
+                          paste0(curgas," emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
                           paste0(curgas," emissions in ",lastyear," (kt CO2 equivalents)"))
     row.names(emfirstlast)<-NULL
 }

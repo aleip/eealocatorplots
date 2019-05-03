@@ -42,16 +42,22 @@ In the year `r lastyear`, `r curgas[c(2,1)]` and `r curgas[3]` emissions from CR
 ```{r sharetrends,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 source("nircattrend.r")
 # figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
-tabs("trendtable1","This is the dummy header of Trendtable1")
+tabs("trendtable1","Contribution of the different emission categories to the total trend in emissions from the agricultural sector, compared to the share of emissions of those categories from the total of the sector")
 tabs("trendtable2","This is the dummy header of Trendtable2")
 tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
 ```
 
 As shown in `r tabs("trendtable1",display="cite")` ...
 
-As shown in `r tabs("trendtable2",display="cite")` ...
 
 `r tabs("trendtable1",display="full")`
+
+`r pander(trsh_EUC_tbl)`&nbsp;
+
+
+
+
+As shown in `r tabs("trendtable2",display="cite")` ...
 
 `r tabs("trendtable2",display="full")`
 

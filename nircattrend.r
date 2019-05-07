@@ -101,15 +101,21 @@ write.csv(trendshares,con)
 close(con)
 
 
-trsh_EUC <- trendshares[trendshares$party == "EUC" & !grepl("land", trendshares$sector_number), c( "sector_number", "gas", "share02", "trend02abs", "trend02rel", "share02cum", "shareA", "trendAabs", "trendArel", lastyear)]
+trsh_EUC <- trendshares[trendshares$party == "EUC" & !grepl("land", trendshares$sector_number), c( "sector_number", "gas", "share02", "trend02abs", "trend02rel", "share02cum", "shareA", "trendAabs", "trendArel", firstyear, lastyear)]
 trsh_EUC$shr <- unlist(lapply(trsh_EUC[, lastyear], function(x) round((x / sum(trsh_EUC[, lastyear])), 2)))
 trsh_EUC <- trsh_EUC[order(trsh_EUC$sector_number), ]
-trsh_EUC$shareA <- round(trsh_EUC$shareA, 2)
-trsh_EUC$share02 <- round(trsh_EUC$share02, 2)
 trsh_EUC_tbl <- trsh_EUC[, c("sector_number", "gas", "shr", "shareA", "share02")]
+trsh_EUC_tbl$shareA <- round(trsh_EUC_tbl$shareA, 2)
+trsh_EUC_tbl$share02 <- round(trsh_EUC_tbl$share02, 2)
+
 names(trsh_EUC_tbl) <- c("Emission category", "Gas",
                          paste0("Contribution to total agricultural emissions (", lastyear, ")"),
                          paste0("Share of trend ", firstyear, "-", lastyear),	
                          paste0("Share of trend ", lastyear2, "-", lastyear))
 row.names(trsh_EUC_tbl) <- NULL
+
+
+cattle_pop <- as.vector(unlist(allagri[allagri$meastype == "POP" & allagri$party == "EUC" & allagri$category == "Cattle", c(firstyear, lastyear)]))
+inorg_fert_AD <- as.vector(unlist(allagri[allagri$party == "EUC" & allagri$meastype == "AD" & allagri$sector_number == "3.D.1.1", c(firstyear, lastyear)]))
+org_fert_AD   <- as.vector(unlist(allagri[allagri$party == "EUC" & allagri$meastype == "AD" & allagri$sector_number == "3.D.1.2", c(firstyear, lastyear)]))
 

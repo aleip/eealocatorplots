@@ -7,6 +7,14 @@ select<-curemissions$sector_number=="3.D.2.1" | curemissions$sector_number=="3.D
 if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$target[select])
 if(cursec=="3.A") curemissions<-agriemissions[agriemissions$sector_number==cursec,]
 
+curemissions_GBE<-agriemissions_GBE[agriemissions_GBE$sector_number==cursec&agriemissions_GBE$category==curcat&agriemissions_GBE$measure==selmeasure,]
+curemissions_GBE<-curemissions_GBE[curemissions_GBE$gas!="NMVOC",]
+select<-curemissions_GBE$sector_number=="3.D.1.1" | curemissions_GBE$sector_number=="3.D.1.2" 
+if(sum(select)>0) curemissions_GBE$category[select]<-as.character(curemissions_GBE$type[select])
+select<-curemissions_GBE$sector_number=="3.D.2.1" | curemissions_GBE$sector_number=="3.D.2.2" 
+if(sum(select)>0) curemissions_GBE$category[select]<-as.character(curemissions_GBE$target[select])
+if(cursec=="3.A") curemissions_GBE<-agriemissions_GBE[agriemissions_GBE$sector_number==cursec,]
+
 eusel<-curemissions$party==eusubm
 curgas<-as.character(curemissions$gas[eusel])
 curmeasure<-curmeasurenew(unique(as.character(curemissions$measure[eusel])))
@@ -120,12 +128,18 @@ if(sum(select)>0) subcateg$category[select]<-as.character(subcateg$type[select])
 select<-subcateg$sector_number=="3.D.2.1" | subcateg$sector_number=="3.D.2.2" 
 if(sum(select)>0) subcateg$category[select]<-as.character(subcateg$target[select])
 
-curheaders<-c(firstyear, years[length(years) - 1], lastyear,"GHGfirst","GHGlast-1","GHGlast")
+curheaders<-c(firstyear, lastyear2, lastyear,"GHGfirst","GHGlast-1","GHGlast")
 curemissions$party<-as.character(curemissions$party)
-emfirstlast<-curemissions[,c("party",firstyear, years[length(years) - 1], lastyear)]
+emfirstlast<-curemissions[,c("party",firstyear, lastyear2, lastyear)]
 emfirstlast[,"GHGfirst"]<-emfirstlast[,firstyear]
-emfirstlast[,"GHGlast-1"]<-emfirstlast[,years[length(years) - 1]]
+emfirstlast[,"GHGlast-1"]<-emfirstlast[, lastyear2]
 emfirstlast[,"GHGlast"]<-emfirstlast[,lastyear]
+
+emfirstlast_GBE <- curemissions_GBE[,c("party",firstyear, lastyear2, lastyear)]
+emfirstlast_GBE[,"GHGfirst"] <- emfirstlast_GBE[,firstyear]
+emfirstlast_GBE[,"GHGlast-1"] <- emfirstlast_GBE[, lastyear2]
+emfirstlast_GBE[,"GHGlast"] <- emfirstlast_GBE[,lastyear]
+
 tmpis<-emfirstlast[emfirstlast$party=="ISL",]
 emfirstlast<-emfirstlast[emfirstlast$party!="ISL",]
 tmpeu<-emfirstlast[emfirstlast$party=="EUC",]
@@ -138,8 +152,9 @@ tmpeu$party<-"EU-28 + ISL"
 
 
 emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) country4sub$name[country4sub$code3==emfirstlast$party[x]])
+emfirstlast_GBE$party <- "United Kingdom (KP)"
 emfirstlast<-emfirstlast[order(emfirstlast$party),]
-emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis,tmpeu)
+emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis, emfirstlast_GBE, tmpeu)
 emfirstlast[,curheaders]<-round(emfirstlast[,curheaders],0)
 if(length(curgas)==1){
     names(emfirstlast)<-c("Member States",

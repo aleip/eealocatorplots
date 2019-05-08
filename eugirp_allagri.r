@@ -89,6 +89,7 @@ convertfields<-c("gas","unit",years)
 agriemissions[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agriemissions)),function(x) Reduce(cbind,convert2co2eq(agriemissions[x,convertfields]))))
 agriemissions<-agriemissions[order(agriemissions$sector_number,agriemissions$category),]
 lastyear<-years[length(years)]
+agriemissions_GBE <- agriemissions[agriemissions$party %in% c("GBE"), ] #UK (Kyoto Protocol)
 agriemissions<-agriemissions[agriemissions$party%in%acountry,]
 
 agrigeneu<-agrigen[agrigen$party==eusubm&agrigen$meastype=="EM"&agrigen$gas!="no gas",]

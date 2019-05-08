@@ -231,9 +231,21 @@ source("nircattrend.r")
 tabs("trendtable1","Contribution of the different emission categories to the total trend in emissions from the agricultural sector, compared to the share of emissions of those categories from the total of the sector")
 tabs("trendtable2","This is the dummy header of Trendtable2")
 tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
+trsh_EUC_tbl_sort <- trsh_EUC_tbl[order(trsh_EUC_tbl$`Share of trend 1990-2017`, decreasing = TRUE), ]
+totEM <- as.vector(apply(trsh_EUC[, c(firstyear, lastyear)], 2, sum))
+trnd_neg <- trsh_EUC_tbl[which(trsh_EUC_tbl[, "Share of trend 1990-2017"] < 0), 1]
+trnd_neg_val <- (trsh_EUC_tbl[which(trsh_EUC_tbl[, "Share of trend 1990-2017"] < 0), "Share of trend 1990-2017"] * 100)
+if (length(trnd_neg)>1) {
+  trnd_neg_txt <- paste0("impact (", paste0(trnd_neg_val, collapse = ", "), "% of agriculture total trend, respectively).")
+}else{
+  trnd_neg_txt <- paste0("impact (", trnd_neg_val, "% of agriculture total trend).")
+}
+
 ```
 
-As shown in `r tabs("trendtable1",display="cite")` ...
+In this section we analyse the contribution of the different emission categories and the individual countries to the overall trend of emissions from the EU agricultural sector. `r tabs("trendtable1",display="cite")` shows the different emission categories, their contribution to total emissions in the EU sector and their contribution to the trend `r paste0(firstyear, "-",lastyear)` and `r paste0(lastyear2, "-",lastyear)`. A negative share of the trend means that the emissions in that category are evolving in the opposite direction to those of the EU.
+
+Total emissions from agriculture have decreased by `r round((1 - (totEM[2] / totEM[1])) * 100, 1)`% compared to `r firstyear`, and `r (trsh_EUC_tbl_sort[1, 4] * 100)`% of this reduction is due to sector `r trsh_EUC_tbl_sort[1, 1]`. Another important sector in determining long-term emission trends is `r trsh_EUC_tbl_sort[2, 1]` which accounts for `r (trsh_EUC_tbl_sort[2, 4] * 100)`% of the total decrease in agricultural emissions, followed by `r trsh_EUC_tbl_sort[3, 1]` (`r (trsh_EUC_tbl_sort[3, 4] * 100)`%), while all the other categories contribute less. The decrease in emissions is due to the decrease in the cattle population (`r round(((1 - (cattle_pop[2]/cattle_pop[1])) * 100), 1)`% between `r firstyear` and `r lastyear`) and the decrease in the quantities applied of fertilisers, both synthetic and organic (`r round(((1 - (inorg_fert_AD[2]/inorg_fert_AD[1])) * 100), 1)`% and `r round(((1 - (org_fert_AD[2]/org_fert_AD[1])) * 100), 1)`% decrease, respectively). Only emissions from `r trnd_neg` follow the opposite trend, contributing to compensate the emission decrease but with a very low `r trnd_neg_txt`
 
 
 `r tabs("trendtable1",display="full")`

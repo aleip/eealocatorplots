@@ -1,6 +1,7 @@
 curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea,]
 if(cursec=="3.B.2.5")curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&grepl(curmeasure,allagri$measure),]
 if(curcat%in%c("Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine"))curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&allagri$category==curcat,]
+curemissions_GBE <- curemissions[curemissions$party %in% c("GBE"),]
 curemissions<-curemissions[curemissions$party%in%acountry,]
 curemissions[is.nan(curemissions)]<-NA
 
@@ -108,9 +109,20 @@ panderOptions('table.alignment.default', c('left','right','right','right','left'
 
 selyears<-c(firstyear,lastyear)
 curtable<-(curemissions%>%select(party,one_of(selyears)))
+curtable_GBE<-(curemissions_GBE%>%select(party,one_of(selyears)))
 curtable[curtable==0]<-NA
 curtable$party<-as.character(curtable$party)
 curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) country4sub$name[which(country4sub$code3==curtable$party[x])]))
+
+if(nrow(curtable_GBE) > 0){
+  curtable_GBE$party <- "United Kingdom (KP)"
+  curtable <- rbind(curtable, curtable_GBE)
+
+  UK_KP_pos <- which(curtable$party %in% "United Kingdom")
+  curtable <- rbind(curtable[1:UK_KP_pos, ], curtable[nrow(curtable), ], curtable[(UK_KP_pos + 1):(nrow(curtable)-1), ])
+} 
+
+
 curtable[,selyears]<-format(curtable[,selyears],digits=2)
 sel<-curtable$party==eusubml
 #eumsubm<-eum[which(eu==eusubm)]

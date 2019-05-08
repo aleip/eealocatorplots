@@ -253,7 +253,7 @@ if(stepsdone==2){
   
   stepsdone<-3
   emplotsdone<-0
-  savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
+  savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions", "agriemissions_GBE","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
   save(list=savelist,file=rdatallem)
   save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
   #drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),

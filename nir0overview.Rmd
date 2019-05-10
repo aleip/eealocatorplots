@@ -55,6 +55,23 @@ if (length(trnd_neg)>1) {
   trnd_neg_txt <- paste0("impact (", trnd_neg_val, "% of agriculture total trend).")
 }
 
+table52 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", "share02")]
+table52 <- table52[!is.na(table52$share02), ]
+table52 <- table52[!table52$sector_number %in% c("3.C", "3.F", "3.I"), ]
+table52 <- spread(table52, sector_number, share02)
+table52[, - 1] <- table52[, - 1] * 100
+
+table52_1 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", lastyear)]
+table52_1 <- as.data.frame(table52_1 %>% group_by(party) %>% summarise_at(lastyear, sum, na.rm = TRUE))
+totEMeu_lastyear <- sum(table52_1[, lastyear])
+table52_1$share_lastyear <- (table52_1[, lastyear] / totEMeu_lastyear) * 100
+
+table52 <- merge(table52, table52_1[, c(1, 3)], by = "party", all = TRUE)
+table52 <- table52[order(table52$share_lastyear, decreasing = TRUE), ]
+table52[, - 1] <- round(table52[, - 1], 2)
+names(table52)[1] <- "Country"
+names(table52)[length(table52)] <- paste0("Share of total EU emissions from agriculture in ", lastyear)
+
 ```
 
 In this section we analyse the contribution of the different emission categories and the individual countries to the overall trend of emissions from the EU agricultural sector. `r tabs("trendtable1",display="cite")` shows the different emission categories, their contribution to total emissions in the EU sector and their contribution to the trend `r paste0(firstyear, "-",lastyear)` and `r paste0(lastyear2, "-",lastyear)`. A negative share of the trend means that the emissions in that category are evolving in the opposite direction to those of the EU.
@@ -68,11 +85,11 @@ Total emissions from agriculture have decreased by `r round((1 - (totEM[2] / tot
 
 
 
-
-As shown in `r tabs("trendtable2",display="cite")` ...
+Looking at the data by country in `r tabs("trendtable2",display="cite")` ...
 
 `r tabs("trendtable2",display="full")`
 
+`r pander(table52)`&nbsp;
 
 
 ## Source categories and methodological issues

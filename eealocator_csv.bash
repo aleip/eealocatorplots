@@ -18,6 +18,7 @@ submission=${subyear}0319
 submission=${subyear}0508
 submission=${subyear}0115
 submission=${subyear}0315
+submission=${subyear}0508
 ifil=CRF_MMR_${submission}.txt
 direct=../${subyear}/eealocator/
 

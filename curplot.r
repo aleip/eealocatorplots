@@ -14,6 +14,7 @@
 if(require(ggplot2)==FALSE){install.packages("ggplot2", repos = "https://cloud.r-project.org"); library(ggplot2)} else {library(ggplot2)}
 if(require(reshape2)==FALSE){install.packages("reshape2", repos = "https://cloud.r-project.org"); library(reshape2)} else {library(reshape2)}
 if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
+if(require(tidyr)==FALSE){install.packages("tidyr", repos = "https://cloud.r-project.org"); library(tidyr)} else {library(tidyr)}
 if(require(data.table)==FALSE){install.packages("data.table", repos = "https://cloud.r-project.org"); library(data.table)} else {library(data.table)}
 if(require(knitr)==FALSE){install.packages("knitr", repos = "https://cloud.r-project.org"); library(knitr)} else {library(knitr)}
 if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-project.org"); library(Matrix)} else {library(Matrix)}
@@ -101,6 +102,8 @@ cursubm <- "20180319"                                                       #!!!
 cursubm <- "20180508"                                                       #!!!
 cursubm <- "20190115"                                                       #!!!
 cursubm <- "20190315"                                                       #!!!
+cursubm <- "20190315"                                                       #!!!
+cursubm <- "20190508"                                                       #!!!
 invyear<-2019
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.

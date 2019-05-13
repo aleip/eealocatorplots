@@ -346,6 +346,8 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     if(length(multisource)>1){
         yr2share <- as.vector(apply(plotdata[plotdata$datasource == multisource[2], years], 2, sum, na.rm=TRUE) > 0)
         yr2share <- years[yr2share]
+    }else{
+      yr2share <- lastyear
     }
     
     for(dsource in multisource){

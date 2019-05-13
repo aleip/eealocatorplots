@@ -145,7 +145,7 @@ loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
     plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,multisource,adddefault)        
-    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted,multisource)
+    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted,multisource, yr2share = plotted[[5]])
     #if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,multisource,plotted)
     graphics.off()
 }
@@ -741,7 +741,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         }
         #stop()
     }
-    return(list(plotted,ploteuvals,plotinitialized,multisource))
+    return(list(plotted,ploteuvals,plotinitialized,multisource, yr2share))
 }
 
 #plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource){
@@ -1054,7 +1054,7 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     return(list(tmin,tmax,ipcctxt))
 }
 
-plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted,multisource){
+plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted,multisource, yr2share = yr2share){
     #print(paste("plotlegend. ",par("usr")))
     uabs<-par("usr")[3]
     oabs<-par("usr")[4]

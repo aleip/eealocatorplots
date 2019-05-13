@@ -48,7 +48,7 @@ echo Now replace the placeholders at $HOSTNAME
 echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
 sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
 sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
-sed -e 's/\$cursubm\$/20190315/g' tmp0 > tmp2
+sed -e 's/\$cursubm\$/20190508/g' tmp0 > tmp2
 
 mv tmp2 nir${focus}out.Rmd
 

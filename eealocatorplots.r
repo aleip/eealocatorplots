@@ -32,6 +32,8 @@ if(Sys.info()[4]=="D01RI1701864")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1600850")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="S-JRCIPRAP246P")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
+#setwd("\\\\s-jrciprap246p.jrc.it\\dev\\ghginventory\\eealocatorplots")   #Activate this to work with the data from the server remotely
+                                                                          #Also activate remote2server (remote2server <- 1) in 'curplot.r'  
 options(warn=0)
 source("curplot.r")
 options(warn=0) #warn=2 turns warnings into errors; set to 0 if this should be avoided
@@ -287,6 +289,11 @@ if(stepsdone>2){
             
             #Do temporary corrections for observations
             
+            #if(cursubm == "20190508" & file.info(paste0(csvfil,".txt"))$ctime < "2019-05-11 15:11:54 CEST"){
+            #  alldata[alldata$variableUID == "E92759E4-BD91-46D2-BEE4-B21C3C0D3207" & alldata$party == "POL", ]$`1995` <- 146800
+            #  alldata[alldata$variableUID == "131C4470-1F4D-4A5C-93F9-094BC7BA86F9" & alldata$party == "POL", ]$`1995` <- 52000
+            #}
+            
             temp<-generateplotdata(rundata = rundata,datasource = datasource,subcountries = "EUC")
             plotdata<-temp[[1]]
             plotdata$autocorr<-NA
@@ -296,7 +303,7 @@ if(stepsdone>2){
             sharesexist<-temp[[4]]
 
             x1<-368;x2<-nrow(plotmeas)
-            x1<-1;x2<-154
+            x1<-155;x2<-156
             x1<-167; x2<-nrow(plotmeas)
             x1<-1; x2<-nrow(plotmeas)
             #imeas <- 171

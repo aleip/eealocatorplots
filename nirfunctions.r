@@ -437,7 +437,12 @@ text2ief<-function(fig="",tab=""){
     # The implied emission factor for CH4 emissions in source category 3.A.1 - Cattle 
     # increased slightly in EU28 by 3.2% or 2.17 kg/head/year. 
     if(is.na(curtrend)){
+      if(cursec=="3.D.1.3" & curseclong=="Grazing Animals" &
+         curcat=="Urine and Dung Deposited by Grazing Animals" & curmea=="IEF") {
+        sent1<-""
+      }else{
         sent1<-paste0(capmeasure(curmeasure,"long"),"could not be evaluated at ",eusubml," level. ")
+      }
         sent2<-""
     }else{
         sent1<-paste0(capmeasure(curmeasure,"long"),deorincrease(1-curtrend),"d "," in ",eusubml,

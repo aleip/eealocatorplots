@@ -10,7 +10,7 @@ figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
 figs(paste0("fig","3.B.2.5","sharems"),sharemsfigurecaption(eukp,"3.B.2.5",lastyear))
 tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
-`r text2shareeu()`. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`, but substantial emissions are also reported for Swine, and Poultry.
+`r text2shareeu()` The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`, but substantial emissions are also reported for Swine, and Poultry.
 
 `r text2sharems(sec=cursec)`
 
@@ -114,7 +114,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`. `r figs(paste0("fig3B23","trend",curmea),display="cite")` shows the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figure represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+`r text2shareeu()` `r figs(paste0("fig3B23","trend",curmea),display="cite")` shows the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figure represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
@@ -143,7 +143,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`.
+`r text2shareeu()`
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`

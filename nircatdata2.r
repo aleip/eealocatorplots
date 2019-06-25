@@ -131,11 +131,16 @@ sel<-curtable$party==eusubml
 ##test
 curtable[curtable$party==eusubml,]<-paste0("**",gsub(" ","",curtable[curtable$party==eusubml,]),"**")
 if(grepl("NA",curtable[sel,firstyear])&grepl("NA",curtable[sel,lastyear])) curtable<-curtable[!sel,]
+
 for(yy in selyears){
     curtable[,yy]<-unlist(lapply(c(1:nrow(curtable)),function(x) if(grepl("NA",curtable[x,yy])){"&#09;"}else{curtable[x,yy]}))
     #curtable[,yy]<-unlist(lapply(c(1:nrow(curtable)),function(x) if(" 0"==curtable[x,yy]){"&#09;"}else{curtable[x,yy]}))
 }
+
 rownames(curtable)<-NULL
 names(curtable)<-c("Member State",selyears)
+
+sel <- which(curtable[, firstyear] == "&#09;" & curtable[, lastyear] == "&#09;")
+if(length(sel) > 0) curtable <- curtable[!row.names(curtable) %in% sel, ]
 
 

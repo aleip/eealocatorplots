@@ -2,8 +2,8 @@
 allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 
 #Slovakia: remove Other.swine.sine
-sel<-allagri$party=="SVK"&allagri$category=="Other Swine.swine"
-allagri<-allagri[!sel,]
+#sel<-allagri$party=="SVK"&allagri$category=="Other Swine.swine"
+#allagri<-allagri[!sel,]
 
 #LUX: remove Other sheep
 #View(allagri[allagri$party == "LUX" & grepl("[Ss]heep", allagri$category), ])

@@ -158,12 +158,12 @@ emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis, emfirstlast_GBE, tmpeu)
 emfirstlast[,curheaders]<-round(emfirstlast[,curheaders],0)
 if(length(curgas)==1){
     names(emfirstlast)<-c("Member States",
-                          paste0("GHG emissions in ",firstyear," (kt CO2 equivalents)"),
-                          paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
-                          paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
-                          paste0(curgas," emissions in ",firstyear," (kt CO2 equivalents)"),
-                          paste0(curgas," emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
-                          paste0(curgas," emissions in ",lastyear," (kt CO2 equivalents)"))
+                          paste0("GHG emissions in ",firstyear," (kt CO2-eq)"),
+                          paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2-eq)"),
+                          paste0("GHG emissions in ",lastyear," (kt CO2-eq)"),
+                          paste0(curgas," emissions in ",firstyear," (kt CO2-eq)"),
+                          paste0(curgas," emissions in ",years[length(years) - 1]," (kt CO2-eq)"),
+                          paste0(curgas," emissions in ",lastyear," (kt CO2-eq)"))
     row.names(emfirstlast)<-NULL
 }
 

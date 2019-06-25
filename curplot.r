@@ -48,7 +48,7 @@ if (!grepl("CAPRI", getwd())) {
   }else{
     adrian<-"C:/Adrian/"
   }
-  if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/xavi-rp/xavi_functions/master/xavi_functions.r")
+  #if(Sys.info()["user"] == "rotllxa")  source("https://raw.githubusercontent.com/xavi-rp/xavi_functions/master/xavi_functions.r")
   if(mypc=="D01RI1600881") iam="adrianjrc"
   if(mypc=="L01RI1203587") iam="testcapri"
   if(mypc=="L01RI1203587") iam="adrianlaptop"
@@ -62,6 +62,9 @@ if (!grepl("CAPRI", getwd())) {
   if(iam=="serverJRC")locplots<-paste0(adrian,"/eealocatorplots")
   if(iam=="PCGema")locplots<-paste0(adrian,"/eealocatorplots")
   if(iam=="PCxavi")locplots<-paste0(adrian,"/eealocatorplots")
+  #remote2server <- 1
+  remote2server <- NULL
+  if(!is.null(remote2server)) locplots <- "\\\\s-jrciprap246p.jrc.it\\dev\\ghginventory\\eealocatorplots"
   setwd(locplots)
   searchline<-FALSE
 }
@@ -119,6 +122,7 @@ if (!grepl("CAPRI", getwd())) {
   if(iam=="serverJRC")invloc<-"D:\\dev\\ghginventory\\ecir"    #xavi20180125: new path to ecir in the server 
   if(iam=="PCxavi")invloc<-"E:\\ghginventory\\ecir"    #xavi20180125: new path to ecir in xavi's PC 
   if(iam=="PCGema")invloc<-"D:\\Users\\carmoge\\Documents\\GitHub\\ecir"    #gema20181206: new path to ecir in Gema's PC 
+  if(!is.null(remote2server)) invloc <- "\\\\s-jrciprap246p.jrc.it\\dev\\ghginventory\\ecir"
 }else{
   invloc <- ""
   csvfil <- ""
@@ -191,6 +195,7 @@ if (!grepl("CAPRI", getwd())) {
     #}
   }
 }
+if(Sys.Date() == "2019-05-16") country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Czech Republic","Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 
 
 ##############################################################################
@@ -237,7 +242,7 @@ yr <- c(2015:2018)
 yr <- c(2017)
 yr <- invyear
 
-options(error=NULL) #error=recover goes into debug mode
+#options(error=NULL) #error=recover goes into debug mode
 
 
 ##############################################################################
@@ -245,8 +250,9 @@ options(error=NULL) #error=recover goes into debug mode
 ##############################################################################
 
 invloc2 <- "D:\\dev\\CAPRImodel\\Trunk_as_in_repository\\gams\\comparisonplots/"
+if(!is.null(remote2server)) invloc2 <- "\\\\s-jrciprap246p.jrc.it\\dev\\CAPRImodel\\Trunk_as_in_repository\\gams\\comparisonplots/"
 capri_comp_plots <- "D:\\dev\\CAPRImodel\\CAPRI_R_TRUNK_15022019\\results\\inventories/"
-
+if(!is.null(remote2server)) capri_comp_plots <- "\\\\s-jrciprap246p.jrc.it\\dev\\CAPRImodel\\CAPRI_R_TRUNK_15022019\\results\\inventories/"
 
 
 

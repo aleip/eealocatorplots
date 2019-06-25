@@ -227,11 +227,16 @@ tabs("tabD13ief",paratablecaption(eukp,curcattext,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
+**!!! The implied emission factor for N2O emissions in source category 3.D.1.3 - Urine and Dung Deposited by Grazing Animals decreased since 1990 from ??? to ??? kg N2O-N/kg N at EU28+ISL level!!!**
+
 `r text2ief(fig="",tab=tabs("tabD13ief",display="cite"))`
 
 `r #figs("figD13trendief",display="full")`
 
 `r tabs("tabD13ief",display="full")`
+
+**!!!ATENTION: Value for EU28+ISL needs to be manually copied from our CRF!!!** 
+
 `r pander(splittable(curtable,2))`&nbsp;
 
 

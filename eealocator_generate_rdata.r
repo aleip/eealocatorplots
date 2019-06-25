@@ -5,6 +5,14 @@ if(!file.exists(rdatfile)){
     print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
     alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999", quote = "")
     
+    #Correction of PL 2F1 and 2F1a for May 2019
+    if(cursubm == "20190508" & file.info(paste0(csvfil,".txt"))$ctime < "2019-05-11 15:11:54 CEST"){
+      levels(alldata$value) <- c(levels(alldata$value), as.character(c(146800, 52000)))
+      alldata[alldata$variableUID == "E92759E4-BD91-46D2-BEE4-B21C3C0D3207" & alldata$year == 1995 & alldata$party == "PL", names(alldata) %in% c("value")] <- 146800
+      alldata[alldata$variableUID == "131C4470-1F4D-4A5C-93F9-094BC7BA86F9" & alldata$year == 1995 & alldata$party == "PL", names(alldata) %in% c("value")] <- 52000
+    }
+    
+    
     #Correction of CY 3.A.1 GE for 2014 
     if(cursubm == "20180508"){
       levels(alldata$value) <- c(levels(alldata$value), as.character(6855418.00/25330))

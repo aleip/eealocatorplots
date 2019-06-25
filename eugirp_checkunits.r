@@ -79,6 +79,17 @@ if(nrow(v)>0) {
     paramdata<-paramdata[!c(1:nrow(paramdata))%in%v,]}
 
 # DIRECT N2O EMISSIONS - IEF FRACTION NOT PERCENT (DIVIDE BY 100)
+
+v<-which((grepl("3.D.1.[14]",paramdata$sector_number) | grepl("3.D.2.[12]",paramdata$sector_number)) & 
+           paramdata$meastype=="IEF" & paramdata[years]>=10,arr.ind = TRUE)
+c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
+name<-"N2OIEF"
+mult<-0.000001
+filnam<-paste0("corrections_",name,"_",c,".csv")
+autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
+paramdata<-writecorrection(v,paramdata,mult,name)
+
+
 v<-which((grepl("3.D.1.[14]",paramdata$sector_number) | grepl("3.D.2.[12]",paramdata$sector_number)) & 
              paramdata$meastype=="IEF" & paramdata[years]>=1,arr.ind = TRUE)
 c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
@@ -88,14 +99,6 @@ filnam<-paste0("corrections_",name,"_",c,".csv")
 autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
 paramdata<-writecorrection(v,paramdata,mult,name)
 
-v<-which((grepl("3.D.1.[14]",paramdata$sector_number) | grepl("3.D.2.[12]",paramdata$sector_number)) & 
-             paramdata$meastype=="IEF" & paramdata[years]>=10,arr.ind = TRUE)
-c<-paste(unique(paramdata$party[v[,1]]),collapse="-")
-name<-"N2OIEF"
-mult<-0.0001
-filnam<-paste0("corrections_",name,"_",c,".csv")
-autocorrections<-writeautoc(v,autocorrections,paramdata,mult,filnam)
-paramdata<-writecorrection(v,paramdata,mult,name)
 
 # VEXC - VALUES MUST BEL REPORTED IN (kg dm/head/day)
 #        VALUES >>100 ARE LIKELY IN (kg dm/head/YEAR) - (DIVIDE BY 365)

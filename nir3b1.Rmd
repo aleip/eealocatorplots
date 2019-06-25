@@ -64,7 +64,7 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`. `r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="cite")` and `r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="cite")` show the trend of emissions for Dairy and Non-Dairy Cattle indicating the countries contributing most to `r eusubml`.
+`r text2shareeu()` `r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="cite")` and `r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="cite")` show the trend of emissions for Dairy and Non-Dairy Cattle indicating the countries contributing most to `r eusubml`.
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
@@ -109,7 +109,7 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`. 
+`r text2shareeu()` 
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig=figs(paste0("fig",cursec,"trendem"),display="cite"),option=1)`
@@ -227,7 +227,6 @@ tabs("tabB111VSEXC",paratablecaption(eukp,curcattext,lastyear))
 `r figs("figB111trendVSEXC",display="full")`
 
 ![]($eugirpplots$/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
-
 
 `r tabs("tabB111VSEXC",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;

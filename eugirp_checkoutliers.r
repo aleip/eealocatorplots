@@ -203,6 +203,7 @@ if(outcheck=="growth"){
     growthcheck<-growthcheck[growthcheck$sector_number!="3.J",]
     
     
+    
     # Poultry are dependent on market fluctuations - they can be excluded from the test
     sel<-grepl("3.A.4.7|3.B.[12].4.7",growthcheck$sector_number)&growthcheck$meastype%in%c("POP","NEXC","CLIMA")
     growthcheck<-growthcheck[!sel,]
@@ -213,6 +214,11 @@ if(outcheck=="growth"){
     
     # Field residue burning is undergoing large fluctuations
     sel<-grepl("3.F",growthcheck$sector_number)&growthcheck$meastype%in%c("AD","AREA","PROD","FracBURN")
+    #al20200127 - added IEF because of problem with HUN-3.F.1.4: both gases trend outlier, but the lines are 'merged' to 'CH4-N2O' and 
+    #             become indistinguishable - which crashes the script (function makegrowthplots, line 1710)
+    #             Debugging sofar: the merge statment in line 76 created a second series of year - columns, in the case of HUN-3.F.1.4 
+    #             with the same numbers even though the growth rates were different.
+    sel<-grepl("3.F",growthcheck$sector_number)&growthcheck$meastype%in%c("AD","AREA","PROD","FracBURN", "IEF")
     growthcheck<-growthcheck[!sel,]
     
     growthcheckmeastypes<-unique(growthcheck$meastype)

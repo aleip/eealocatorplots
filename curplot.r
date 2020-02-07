@@ -21,6 +21,7 @@ if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-p
 if(require(compare)==FALSE){install.packages("compare", repos = "https://cloud.r-project.org"); library(compare)} else {library(compare)}
 if(require(RColorBrewer)==FALSE){install.packages("RColorBrewer", repos = "https://cloud.r-project.org"); library(RColorBrewer)} else {library(RColorBrewer)}
 if(require(googledrive)==FALSE){install.packages("googledrive", repos = "https://cloud.r-project.org"); library(googledrive)} else {library(googledrive)}
+if(require(httpuv)==FALSE){install.packages("httpuv", repos = "https://cloud.r-project.org"); library(httpuv)} else {library(httpuv)}
 if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
 } else {library(readxl)}
 if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
@@ -37,12 +38,12 @@ if (!grepl("CAPRI", getwd())) {
   mypc<-Sys.info()[4]
   if(mypc=="L01RI1203587"){ #checks machine name
     adrian<-"X:/adrian/"
-  }else if(mypc=="D01RI1600881"){
-    adrian<-"x:/Adrian/"
   }else if(mypc=="D01RI1701864"){
     adrian<-"E:/ghginventory/"
   }else if(mypc=="D01RI1600850"){# Gema PC
     adrian<-"D:\\Users\\carmoge\\Documents\\GitHub\\"
+  }else if(mypc=="D01RI1600881"){# Adrian
+    adrian<-"\\\\s-jrciprap246p.jrc.it\\dev\\ghginventory/"
   }else if(mypc=="S-JRCIPRAP246P"){ 
     adrian<-"D:\\dev\\ghginventory\\"
   }else{
@@ -57,7 +58,8 @@ if (!grepl("CAPRI", getwd())) {
   if(mypc=="D01RI1600850") iam="PCGema"
   eugirpok<-FALSE
   if(grepl("adrian",iam)) eugirpok<-TRUE
-  if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
+  if(grepl("adrian",iam))locplots<-paste0(adrian,"/data/inventories/eealocatorplots")           #!!!
+  if(grepl("adrianjrc",iam))locplots<-paste0(adrian,"/eealocatorplots")           #!!!
   if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
   if(iam=="serverJRC")locplots<-paste0(adrian,"/eealocatorplots")
   if(iam=="PCGema")locplots<-paste0(adrian,"/eealocatorplots")
@@ -80,6 +82,7 @@ eugirp.fullname<-"EU-Greenhouse gas Inventory Reporting and Plots"
 eugirp.web<-"https://github.com/aleip/eealocatorplots.git"
 eugirp.version<-"2.1" #20160531
 eugirp.version<-"2.2" #20160820
+#eugirp.version<-"X.X" #20200115
 
 if (grepl("CAPRI", getwd())) {  #This need to be generalized!!!!
   setwd(paste0("D:\\dev\\ghginventory\\","/eealocatorplots"))
@@ -107,12 +110,16 @@ cursubm <- "20190115"                                                       #!!!
 cursubm <- "20190315"                                                       #!!!
 cursubm <- "20190315"                                                       #!!!
 cursubm <- "20190508"                                                       #!!!
-invyear<-2019
+cursubm <- "20190115"                                                       #!!!
+cursubm <- "20200115"                                                       #!!!
+
+invyear<-2020
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
 
 if (!grepl("CAPRI", getwd())) {
   invloc<-paste0(adrian,"google/projects/ecir")#!!!
+  invloc<-paste0(adrian,"ecir")#!!!
   if(mypc=="L01RI1203587") invloc<-paste0("C:/Adrian/google/projects/ecir")#!!!
   csvfil <- paste0(locplots,"/../",invyear,"/eealocator/eealocator_",cursubm)   
   csvfil1 <- paste0(locplots,"/../",invyear,"/eealocator/")   

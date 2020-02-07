@@ -115,6 +115,7 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
 calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
 #measname<-as.data.frame(measname)
 #xavi20180221: measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+
 measures2sum<-allagri[allagri$meastype %in% meas2sum,]
 listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
 
@@ -142,6 +143,7 @@ parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 #              However as long as this is not implemented add to meas2popweight as a proxy
 selection<-allagri$party%in%eu & allagri$meastype%in%c(meas2popweight,meas2mcf,meas2clima)
 calceu<-allagri[!selection,]
+
 if(exists("autocorrections")){
     selection1<-autocorrections[!autocorrections$party%in%eu,c("party","variableUID","autocorr")]
     calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
@@ -200,7 +202,7 @@ if(exists("paramcheck")){
 #xavi20180411: acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
 
 eu28wei1<-as.data.frame(matrix(ncol=0,nrow=0))
-
+#print("Alex 13 in EUweightedaverages")
 for(euneeded in c("EUC","EUA")) {
   print(paste("calculating averages for ", euneeded))
   acountry<-as.character(country4sub[country4sub[, euneeded]==1,"code3"])
@@ -209,10 +211,11 @@ for(euneeded in c("EUC","EUA")) {
   eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
   names(eu28wei)<-names(calceu)
   eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]
+#  print("Alex EUW_euneeded 5")
   eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,acountry)
+#  print("Alex EUW_euneeded 6")
   eu28wei[,"party"]<-rep(euneeded,nrow(eu28wei))
   eu28wei$notation[eu28wei$notation==0]<-""
-  
   eu28wei1 <- rbind(eu28wei1, eu28wei)
 }
 
@@ -220,6 +223,7 @@ eu28wei <- eu28wei1
 
 allfieldsplus<-c(allfields,"autocorr","correction")
 allagri<-rbind(calceu[,allfieldsplus],eu28wei[,allfieldsplus])
+
 write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
 
 #Save already as this takes long time...

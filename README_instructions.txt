@@ -1,5 +1,5 @@
 
-A) This is a list of the steps to deal with the inventory data and to produce plots, etc:
+A) This is a list of the steps to follow to deal with the inventory data and to produce plots, etc:
 
 1.- Unzip 'D:\dev\ghginventory\2019\eealocator\CRF_MMR_20190508.zip'
 

@@ -62,6 +62,11 @@ if(!file.exists(rdatfile)){
     #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
     #    save(alldata,file=rdatfile)
     
+    # Adrian / Alex 2020-01-21 curbsum is not known yet here by drive_ls (googledrive command), but is necessary for googledrive 
+    # therefore we will make it (drive_mkdir) as curbsum is known by drive_mkdir command
+    if(!c(cursubm) %in%  drive_ls("eealocatorplots")$name){
+      drive_mkdir(paste0("eealocatorplots/", cursubm))
+    }
     if(!c("nir") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
       drive_mkdir(paste0("eealocatorplots/", cursubm, "/nir/"))  # make folder in home Drive directory
       for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){

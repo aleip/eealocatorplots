@@ -68,7 +68,7 @@ if(generatealldata==1){
     alldata<-alldata[! grepl(notationkeys,alldata$notation),]
     allnotations<-simplifytestmatrix(allnotations,"year",years2keep)
     alldata<-unique(alldata)
-    
+   
 
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     # Generate data frame with one columns per year ----
@@ -112,6 +112,5 @@ if(generatealldata==1){
     source("curplot.r")
     options(error=NULL) #error=recover goes into debug mode
     options(warn=0)
-    
     
 }

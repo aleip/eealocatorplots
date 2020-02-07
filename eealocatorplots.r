@@ -14,6 +14,7 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
   adrian<-"D:/Users/leipadr/adrian/"
 }else if(Sys.info()[4]=="D01RI1600881"){
   adrian<-"x:/Adrian/"
+  adrian <- "\\\\s-jrciprap246p.jrc.it/dev/ghginventory/"
 }else if(Sys.info()[4]=="D01RI1701864"){
   adrian<-"E:/ghginventory/"
 }else if(Sys.info()[4]=="MARSBL1BHL"){
@@ -29,6 +30,7 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
 locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
 if(Sys.info()[4]=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1701864")locplots<-paste0(adrian,"/eealocatorplots")
+if(Sys.info()[4]=="D01RI1600881")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1600850")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="S-JRCIPRAP246P")locplots<-paste0(adrian,"/eealocatorplots")
 setwd(locplots)
@@ -520,7 +522,8 @@ if(stepsdone==5){
     nyears<-length(years)
     source("eugirp_checkoutliers.r")
     # Add the gas to each measure so see what the corresponding emissions are
-    levels(paramcheck$gas)<-factor(signcategories$gas)
+    #al20200127 ... gas already availabel in paramcheck - not clear what the formula below was doing
+    #levels(paramcheck$gas)<-factor(signcategories$gas)
     paramcheck<-paramcheck[!paramcheck$party%in%eu,]
     paramcheck<-paramcheck[remagglevel(paramcheck,mt = 1),]
     
@@ -637,14 +640,11 @@ if(stepsdone==5){
 # Calculate EU weighted averages and make adem and ief plots####
 if(stepsdone==6){
     # Make growth plots to check ... improve loop!!
-    
     #temporarycommented 
     print(paste0("Step ",stepsdone+1,"a: Making Growth plots @ ",curtime()))
     mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
     mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
     for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
-    
-    
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")
     #paramcheck$correction[paramcheck$party=="SWE"&paramcheck$meastype=="VSEXC"]<-0
@@ -665,7 +665,6 @@ if(stepsdone==6){
       allagri <- rbind(allagri, allagri_NOR)
       write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
     }  
-    
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
     datasource<-"nir"
     runfocus<-"value"
@@ -827,13 +826,7 @@ stop("Step 9 done")
 
 
 # UNCERTAINTY ####
-
 source("eugirp_uncertainty.r")
-
-
-
-
-
 
 # A.3 Determine Key categories ####
 if(exists("paramchecked")){

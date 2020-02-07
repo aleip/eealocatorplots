@@ -11,11 +11,13 @@ output:
   word_document:
     fig_caption: yes
     fig_width: 3
+
   html_document: default
 
 foldertext:
-  cursubm: 20170317
+  cursubm: 20190315
   ecirfolder: '../ecir'
+  
 
 ---
     
@@ -23,11 +25,11 @@ foldertext:
 source("curplot.r")
 source("nirfunctions.r")
 source("nircomparisonfunctions.r")
-library(captioner)
-library(pander)
-library(dplyr)
-library(png)
-library(grid)
+if(require(captioner)==FALSE){install.packages("captioner", repos = "https://cloud.r-project.org"); library(captioner)} else {library(captioner)}
+if(require(pander)==FALSE){install.packages("pander", repos = "https://cloud.r-project.org"); library(pander)} else {library(pander)}
+if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
+if(require(png)==FALSE){install.packages("png", repos = "https://cloud.r-project.org"); library(png)} else {library(png)}
+if(require(grid)==FALSE){install.packages("grid", repos = "https://cloud.r-project.org"); library(grid)} else {library(grid)}
 panderOptions('table.alignment.default', function(df)
     ifelse(sapply(df, is.numeric), 'right', 'left'))
 panderOptions('table.split.table', Inf)
@@ -39,6 +41,8 @@ panderOptions('table.style','rmarkdown')
 figs<-captioner(prefix = "Figure ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
 tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n"),infix = ".")
 #for(i in c(1:5)){figs("sec","");bump(figs,2);bump(tabs,1)}
+
+
 ```
 
 ```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -82,10 +86,10 @@ agritotalco2<-agriemissions[agriemissions$gas=="CO2"&agriemissions$sector_number
 eusubm<-"EUC"
 eusubml<-eum[which(eu==eusubm)]
 eukp<-eusubml
-acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code2"])
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
 if(!is.null(excludeparty)) acountry<-acountry[-which(acountry==excludeparty)]
 countriesnoeu<-acountry[!acountry%in%eu]
-countrynamesnoex<-as.character(country4sub[country4sub$code2%in%acountry,"code3"])
+countrynamesnoex<-as.character(country4sub[country4sub$code3%in%acountry,"code3"])
 euagritotalch4<-agritotalch4[agritotalch4$party==eusubm,]
 euagritotaln2o<-agritotaln2o[agritotaln2o$party==eusubm,]
 euagritotalco2<-agritotalco2[agritotalco2$party==eusubm,]
@@ -139,36 +143,34 @@ Currently, the next reform of the CAP is under discussion enabling agriculture i
 [^capmodernizationweb]: &#09;https://ec.europa.eu/agriculture/consultations/cap-modernising/2017_en
 
 
-The **Nitrates Directive** (Council Directive 91/676/EEC) is the SMR with the largest impact on greenhouse gas emissions from agriculture. The directive aims at reducing and preventing water pollution caused by nitrates from agricultural sources with the goal that nitrate concentrations in groundwater will not exceed 50 mg NO~3~^-^ l^-1^ and listing codes of good practice (Annex II A) to be implemented by the farmers on a voluntary basis. Nitrate vulnerable zones (NVZ) must be designated on the basis of monitoring results which indicate that the groundwater and surface waters in these zones are or could be affected by nitrate pollution from agriculture. The action program must contain mandatory measures relating to: (i) periods when application of animal manure and fertilizers is prohibited; (ii) capacity of and facilities for storage of animal manure; and (iii) limits to the amounts of animal manure and fertilizers applied to land.
+The **Nitrates Directive** (Council Directive 91/676/EEC) is the SMR with the largest impact on greenhouse gas emissions from agriculture. The directive aims at reducing and preventing water pollution caused by nitrates from agricultural sources with the goal that nitrate concentrations in groundwater will not exceed 50 mg NO~3~^-^ l^-1^ and listing codes of good practice (Annex II A) to be implemented by the farmers on a voluntary basis. Nitrate vulnerable zones (NVZ) must be designated on the basis of monitoring results which indicate that the groundwater and surface waters in these zones are or could be affected by nitrate pollution from agriculture. The action program must contain mandatory measures relating to: (i) periods when application of animal manure and fertilisers are prohibited; (ii) capacity of and facilities for storage of animal manure; and (iii) limits to the amounts of animal manure and fertilisers applied to land.
 
-The action programmes need to be implemented by farmers within NVZs on a compulsory basis. These programmes must include measures already included in Codes of Good Agricultural Practice, which become mandatory, and other measures, such as limitation of fertilizer application (mineral and organic), taking into account crop needs and all nitrogen inputs and soil nitrogen supply, with maximum amount of livestock manure to be applied. Every four years countries are require to report on nitrates concentrations in groundwaters and surface waters; eutrophication of surface waters; assessment of the impact of action programme(s) on water quality and agricultural practices; revision of NVZs and action programme(s); estimation of future trends in water quality.
+The action programmes need to be implemented by farmers within NVZs on a compulsory basis. These programmes must include measures already included in Codes of Good Agricultural Practice, which become mandatory, and other measures, such as limitation of fertiliser application (mineral and organic), taking into account crop needs and all nitrogen inputs and soil nitrogen supply, with maximum amount of livestock manure to be applied. Every four years countries are required to report on nitrates concentrations in groundwaters and surface waters; eutrophication of surface waters; assessment of the impact of action programme(s) on water quality and agricultural practices; revision of NVZs and action programme(s); estimation of future trends in water quality.
 
 This has affected emissions in most countries:
 
 * In Belgium, Manure Action Plans (MAP, based on the Nitrate Directive) in Flanders affected NH3 volatilization from manure application. The first action plan in 1991 regulated the reduced period in which manure can be spread and foresaw low-emission techniques for the application of manure on land. The MAP2bis in 2000 focused on the reduction of the manure surplus and manure processing in order to reduce the NH3 emissions from manure application on land. Other MAP's followed, which have had a positive effect on the NH3 and N2O emissions.
 
-* In Denmark, the environmental policy has introduced a series of measures to prevent loss of nitrogen from agricultural soils to the aquatic environment. The measures include improvements to the utilisation of nitrogen in manure, a ban on manure application during autumn and winter, increasing area with winter-green fields to catch nitrogen, a maximum number of animals per hectare and maximum nitrogen application rates for agricultural crops. All farmers are obliged to do N-mineral accounting at farm and field level with the N-excretion data from FAS (Faculty of Agricultural Sciences). The N figures also include the quantities of mineral fertilizers bought and sold. Suppliers of mineral fertilizers are required to report all N sales to commercial farmers to the Plant Directorate. An active environmental policy has brought about a decrease in the N-excretion and a decrease of emission per produced animal, because of more efficient feeding. As a result of increasing requirements to reduce the nitrogen loss to the environment, the consumption of nitrogen in synthetic fertilizer has more than halved since 1990.
+* In Denmark, the environmental policy has introduced a series of measures to prevent loss of nitrogen from agricultural soils to the aquatic environment. The measures include improvements to the utilisation of nitrogen in manure, a ban on manure application during autumn and winter, increasing area with winter-green fields to catch nitrogen, a maximum number of animals per hectare and maximum nitrogen application rates for agricultural crops. All farmers are obliged to do N-mineral accounting at farm and field level with the N-excretion data from FAS (Faculty of Agricultural Sciences). The N figures also include the quantities of mineral fertilisers bought and sold. Suppliers of mineral fertilisers are required to report all N sales to commercial farmers to the Plant Directorate. An active environmental policy has brought about a decrease in the N-excretion and a decrease of emission per produced animal, because of more efficient feeding. As a result of increasing requirements to reduce the nitrogen loss to the environment, the consumption of nitrogen in synthetic fertiliser has more than halved since 1990.
 
-* In the Netherlands, manure and fertiliser policy influences livestock numbers. Especially young cattle, pigs and poultry numbers decreased by the introduction of measures like buying up part of the so-called pig and poultry production rights (ceilings for total animal numbers) by the government and lowering the maximum nutrient application standards for manure and fertilizer.
+* In the Netherlands, manure and fertiliser policy influences livestock numbers. Especially young cattle, pigs and poultry numbers decreased by the introduction of measures like buying up part of the so-called pig and poultry production rights (ceilings for total animal numbers) by the government and lowering the maximum nutrient application standards for manure and fertiliser.
 However, greater compliance to standards and requirements for animal welfare and the housing of animals may contribute to increasing emissions (so-called pollution swapping).
 
 Beside the environmentally-targeted directives, also the first pillar of the CAP (dealing with market support in contrast to pillar two covering rural development measures) had a strong impact on the greenhouse gas emissions from agriculture in Europe, namely through the milk quota system, which lead to a strong reduction of animal numbers in the dairy sector to compensate for the increasing animal performance during the last decades. The milk quota system ended in 2015.
 
 Other important policies affecting greenhouse gas emissions from agriculture, particularly by addressing the abatement of air pollution through the control of NOx and NH3 emissions include, amongst others:
 
-* the 1999 Gothenburg Protocol under the Convention on Long Range Transboundary Air Pollution (CLRTAP[^clrtap]) to 'Abate Acidification, Eutrophication and Ground-level Ozone', revised in 2012 setting national emission reduction commitments to be achieved by 2020 and beyond; 
+* The 1999 Gothenburg Protocol under the Convention on Long Range Transboundary Air Pollution (CLRTAP[^clrtap]) to 'Abate Acidification, Eutrophication and Ground-level Ozone', revised in 2012 setting national emission reduction commitments to be achieved by 2020 and beyond; 
 
-* the National Emission Ceilings Directive (NEC - Directive 2001/81/EC[^nec]) sets upper limits for each Member State for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
+* The National Emission Ceilings Directive (NEC - Directive 2016/2284/EC[^nec]) sets upper limits for each Member State for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
 
-* the Industrial Emission Directive (IED[^ied][^ippc]), which was established in 1996, and aims at minimizing pollution from point sources, i. e., intensive animal production facilities (pig and poultry farms, with > 2000 fattening pigs (over 30 kg); more than 750 sows or more than 40,000 head of poultry). These are required under the directive to apply control techniques for preventing NH3 emissions according to Best Available Technology (BAT).
+* The Industrial Emission Directive (IED[^ied][^ippc]), which was established in 1996, and aims at minimizing pollution from point sources, i. e., intensive animal production facilities (pig and poultry farms, with more than 2000 fattening pigs (over 30 kg); more than 750 sows or more than 40,000 head of poultry). These are required under the directive to apply control techniques for preventing NH3 emissions according to Best Available Technology (BAT).
 
 [^clrtap]: &#09;http://www.unece.org/env/lrtap/multi_h1.html
-[^nec]: &#09;http://ec.europa.eu/environment/air/pollutants/ceilings.htm  
+[^nec]: &#09;https://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1554903780611&uri=CELEX:32016L2284  
 [^nec2016]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016L2284&from=EN
 [^ied]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32010L0075
 [^ippc]: &#09;http://ec.europa.eu/environment/industry/stationary/index.htm
-
-Another policy affecting GHG emissions, in this case through the application of sewage sludge, is the Urban Wastewater Treatment Directive[^urbanwastewater]. In the UK, the input from sewage sludge sharply increased in 2001. This is explained by a step in the UK's estimates of sewage sludge collected around 2001, linked to the Urban Wastewater Treatment Directive, which enforced that all large wastewater treatment plants use secondary treatment. This additional treatment reduces the organic load in the effluent, and to achieve this a higher proportion of the organic load in the wastewater treatment plants as sewage sludge. A similar trend is observed in Ireland, where a significant increase (over double) in the quantity of sewage sludge applied to agricultural land took place around 1998 as a result of its diversion away from disposal at solid waste disposal sites.
 
 Legislation related with animal health may also affect emissions through changes in specific parameters. That is the case of Spain, where the methane conversion factor (Ym), and therefore the implied emission factor for CH4 emissions from enteric fermentation from swine decreased in 2006, partly due to the ban of the use of growth-promoting antibiotics in animal feeding. This resulted in a radical change in feeding conditions: raw materials with lowest digestibility were removed and replaced by carbohydrates (mainly cereals). To increase higher digestibility and quality protein supply, the soybean flour 44 was systematically replaced by soybean 47 which has higher protein content. Also, affordable synthetic amino acids and digestive enzymes were systematically introduced. In addition, during the same year, the regulation on additives used in animal feeding was published, thus forcing the withdrawal of products that were being used to date, in order to make the digestion of other diet components easier.
 
@@ -178,16 +180,18 @@ Structural changes are caused also by the general development of countries. For 
 
 In the case of Croatia, we can observe livestock population drops in 1992 due to the beginning of the Croatian War of Independence in 1991/1992, which significantly influenced animal production for most animal categories. 
 The countries which formed part of the communist block suffered structural changes when they changed regime, mainly due to privatizations. Lithuania shows an important decrease of non-dairy cattle population in 1993-1994, after the collapse of the Soviet Union and the restoration of independence in 1990, when changes in economy and significant reforms occurred. The reform included the re-establishment of private ownership and management in agriculture sector. Legislation defined dismemberment of collective farms, but they did not definitively ensure their replacement by at least equally productive private farms and corporations. The decrease in cattle population occurred also due to high costs in production, product differences in prices and lack of market for meat and milk. Similarly, Bulgaria shows a decline in cattle numbers in 1992-1995, after the communist period, due to the reforms in agricultural holdings, together with a decrease in the quantities of inorganic fertilisers. Poland, in turn, had a significant drop in cattle population since mid-1990s up to 2002 due to intentional limitations of cattle breeding related to weakening demand for beef meat. Further increase in population could be connected with the prospect of inclusion of Poland into the EU planned for 2004 and joining the common agricultural policy, with expectations for stable agricultural production. An increase in population in 2012 was probably triggered by the improved economic situation for the agricultural markets. 
-The economic situation seems to highly influence the use of fertilisers in the EU countries, especially for liming and urea fertilization. In Poland, limestone/dolomite fertiliser use dramatically decreased after 2004 as a result of a cut in their subsidies for farmers. In 2006 limestone use was lower by 40% than in previous year, despite remaining high need of soils. In Lithuania, a sharp increase of N input from application of other organic fertilizers took place in 2013, caused by changes in national circumstances when using financial resources of 2004-2006 EU ISPA/Cohesion funds Lithuania started to improve municipal solid waste management system. Also in Italy, fertiliser use was affected by the economic crisis (2009-2011), which led to a reduction in the application of all synthetic fertilisers, in particular urea. In 2012, a recovery from the sharp decline was recorded. In the same line, Slovenia reports a strong decrease in urea fertilisers in 1991 and 2008 due to the economic crisis and high prices of fertilisers. 
+The economic situation seems to highly influence the use of fertilisers in the EU countries, especially for liming and urea fertilization. In Poland, limestone/dolomite fertiliser use dramatically decreased after 2004 as a result of a cut in their subsidies for farmers. In 2006, limestone use was lower by 40% than in previous year, despite remaining high need of soils. In Lithuania, a sharp increase of N input from application of other organic fertilisers took place in 2013, caused by changes in national circumstances when using financial resources of 2004-2006 EU ISPA/Cohesion funds Lithuania started to improve municipal solid waste management system. Also in Italy, fertiliser use was affected by the economic crisis (2009-2011), which led to a reduction in the application of all synthetic fertilisers, in particular urea. In 2012, a recovery from the sharp decline was recorded. In the same line, Slovenia reports a strong decrease in urea fertilisers in 1991 and 2008 due to the economic crisis and high prices of fertilisers. 
 
-Similarly, the area used for rice cultivation suffers large changes for both continuous flooded and intermittently flooded rice as a consequences of economic and environmental pressures. For emissions at EU-level, the combination of emissions from rice from different countries and cultivation systems contributes additionally to fluctuations. Emissions from burning of agricultural residues also have fluctuating trends due to the heterogeneity of the emission source: it is a composite emission categories over countries and crops with different shares of residues burned and different shares of agricultural area and, as a consequence, large fluctuations are to be expected. 
+Similarly, the area used for rice cultivation suffers large changes for both continuous flooded and intermittently flooded rice as consequences of economic and environmental pressures. For emissions at EU-level, the combination of emissions from rice from different countries and cultivation systems contributes additionally to fluctuations. Emissions from burning of agricultural residues also have fluctuating trends due to the heterogeneity of the emission source: it is a composite emission categories over countries and crops with different shares of residues burned and different shares of agricultural area and, consequently, large fluctuations are to be expected. 
+
+
 
 ## Overview of sector
 ```{r 3overview,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 figs("figtrendem",paste0("&#09;EU-28 GHG emissions for 1990-",lastyear," from CRF Sector 3: 'Agriculture' in CO2 equivalents (Mt)"))
 figs("figshares",paste0("&#09;Absolute change of GHG emissions by large key source categories 1990-",lastyear," in CO2 equivalents (Mt) in CRF Sector 3: 'Agriculture'"))
 figs("figsharesb",paste0("&#09;Distribution of agricultural GHG emissions among the different source categories for the year ",lastyear))
-tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
+#tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt)")
 ```
 ```{r 3,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3"
@@ -198,11 +202,9 @@ source("nircatdata.r")
 #tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 ```
 
-In the year `r lastyear`, `r curgas[c(1,3)]` and `r curgas[2]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,1)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,1)` of total `r eukp` CH4, N2O, and CO2 emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively.<br>
+In the year `r lastyear`, `r curgas[c(2,1)]` and `r curgas[3]` emissions from CRF sector `r cursec` `r curseclong` were `r percent(eusharech4,1)`, `r percent(eusharen2o,1)`, and `r percent(eushareco2,1)` of total `r curgas[c(2,1)]` and `r curgas[3]` `r eukp` emissions, respectively. Total emissions from agriculture were `r absval(sum(curemissions[eusel,lastyear]),0)` with contributions from CH4, N2O, and CO2 of `r absval(curemissions[eusel & curemissions$gas=="CH4",lastyear],0)`, `r absval(curemissions[eusel & curemissions$gas=="N2O",lastyear],0)` and `r absval(curemissions[eusel & curemissions$gas=="CO2",lastyear],0)`, respectively. Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r percent(eusharen2ototal,d=1)` and `r percent(eushareco2total,d=1)` to total `r eukp` GHG emissions. They make `r percent(eushareagrich4ghg,1)`, `r percent(eushareagrin2oghg,1)` and `r percent(eushareagrico2ghg,1)` of total agricultural emissions.
 
-Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r percent(eusharen2ototal,d=1)` and `r percent(eushareco2total,d=1)` to total `r eukp` GHG emissions. They make `r percent(eushareagrich4ghg,1)`, `r percent(eushareagrin2oghg,1)` and `r percent(eushareagrico2ghg,1)` of total agricultural emissions.
-
-`r figs("figtrendem",display="cite")` shows the development of total GHG emissions from agriculture from `r round(euagritotalghg[firstyear]/1000,0)` Mt CO2-eq in `r firstyear` to `r round(euagritotalghg[lastyear]/1000,0)` Mt CO2-eq in `r lastyear` and the `r trendstrength(sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` `r deorincrease(1-sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` in `r eukp`. The decrease was most pronounced for `r curgas[which(curtrend==min(curtrend))]` with a decrease of `r percent(1-curtrend[which(curtrend==min(curtrend))],1)`, followed by `r curgas[rank(curtrend,1)[2]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[2]],1)` and `r curgas[rank(curtrend,1)[3]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[3]],1)`. The decrease was most pronounced in the first decade with a total reduction of `r percent(1-euagritotalghg["2000"]/euagritotalghg[firstyear],d=1)` between 1990 and 2000, a further decrease by between 2000 and 2005, while remaining constant since 2005 (change `r percent(euagritotalghg[lastyear]/euagritotalghg["2005"]-1,d=1)`).
+`r figs("figtrendem",display="cite")` shows the development of total GHG emissions from agriculture from `r round(euagritotalghg[firstyear]/1000,0)` Mt CO2-eq in `r firstyear` to `r round(euagritotalghg[lastyear]/1000,0)` Mt CO2-eq in `r lastyear` and the `r trendstrength(sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` `r deorincrease(1-sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` in `r eukp`. The reduction of emissions was most pronounced for `r curgas[which(curtrend==min(curtrend))]` with a decrease of `r percent(1-curtrend[which(curtrend==min(curtrend))],1)`, followed by `r curgas[rank(curtrend,1)[2]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[2]],1)` and `r curgas[rank(curtrend,1)[3]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[3]],1)`. The cut was most pronounced in the first decade with a total reduction of `r percent(1-euagritotalghg["2000"]/euagritotalghg[firstyear],d=1)` between 1990 and 2000, a further decrease by between 2000 and 2005, while remaining constant since 2005 (change `r percent(euagritotalghg[lastyear]/euagritotalghg["2005"]-1,d=1)`).
 
 `r figs("figshares",display="cite")` shows that largest reductions occurred in the largest key sources CH4 from *3.A.1: Cattle* and N2O from *3.D.1: Direct emissions from managed soils*. The main reasons for this are decreasing use of fertiliser and manure and declining cattle numbers in most Member States. `r figs("figsharesb",display="cite")` shows the distribution of agricultural GHG emissions among the different source categories for the year `r lastyear`. 
 
@@ -215,43 +217,186 @@ Thus, CH4, N2O, and CO2  contributed with `r percent(eusharech4total,d=1)`,  `r 
 `r figs("figshares",display="full")`
 
 `r print("Please add figure here!!")`
-![](../2017/eureport/figs/Absolutechangeinsector3columns.jpg)
+![](../ecir/ubaimages/$cursubm$/Absolutechangeinsector3columns.jpg)
 
 `r figs("figsharesb",display="full")`
 
 `r print("Please add figure here!!")`
-![](../2017/eureport/figs/Shareoflargestkeycategorysources2014piechart.jpg)
+![](../ecir/ubaimages/$cursubm$/Shareoflargestkeycategorysources2014piechart.jpg)
+
+## Emission trends
+```{r sharetrends,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+source("nircattrend.r")
+# figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
+tabs("trendtable1","Contribution of the different emission categories to the total trend in emissions from the agricultural sector, compared to the share of emissions of those categories from the total of the sector")
+tabs("trendtable2","This is the dummy header of Trendtable2")
+tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt). Emissions in kt CO2 eq.")
+trsh_EUC_tbl_sort <- trsh_EUC_tbl[order(trsh_EUC_tbl$`Share of trend 1990-2017`, decreasing = TRUE), ]
+totEM <- as.vector(apply(trsh_EUC[, c(firstyear, lastyear)], 2, sum))
+trnd_neg <- trsh_EUC_tbl[which(trsh_EUC_tbl[, "Share of trend 1990-2017"] < 0), 1]
+trnd_neg_val <- (trsh_EUC_tbl[which(trsh_EUC_tbl[, "Share of trend 1990-2017"] < 0), "Share of trend 1990-2017"] * 100)
+if (length(trnd_neg)>1) {
+  trnd_neg_txt <- paste0("impact (", paste0(trnd_neg_val, collapse = ", "), "% of agriculture total trend, respectively).")
+}else{
+  trnd_neg_txt <- paste0("impact (", trnd_neg_val, "% of agriculture total trend).")
+}
+
+table52 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", "share02")]
+table52 <- table52[!is.na(table52$share02), ]
+table52 <- table52[!table52$sector_number %in% c("3.C", "3.F", "3.I"), ]
+table52 <- spread(table52, sector_number, share02)
+table52[, - 1] <- table52[, - 1] * 100
+
+table52_1 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", lastyear)]
+table52_1 <- as.data.frame(table52_1 %>% group_by(party) %>% summarise_at(lastyear, sum, na.rm = TRUE))
+totEMeu_lastyear <- sum(table52_1[, lastyear])
+table52_1$share_lastyear <- (table52_1[, lastyear] / totEMeu_lastyear) * 100
+
+table52 <- merge(table52, table52_1[, c(1, 3)], by = "party", all = TRUE)
+table52 <- table52[order(table52$share_lastyear, decreasing = TRUE), ]
+table52[, - 1] <- round(table52[, - 1], 2)
+names(table52)[1] <- "Country"
+names(table52)[length(table52)] <- paste0("Share of total EU emissions from agriculture in ", lastyear)
+rownames(table52) <- NULL
+
+```
+
+In this section we analyse the contribution of the different emission categories and the individual countries to the overall trend of emissions from the EU agricultural sector. `r tabs("trendtable1",display="cite")` shows the different emission categories, their contribution to total emissions in the EU sector and their contribution to the trend `r paste0(firstyear, "-",lastyear)` and `r paste0(lastyear2, "-",lastyear)`. A negative share of the trend means that the emissions in that category are evolving in the opposite direction to those of the EU.
+
+Total emissions from agriculture have decreased by `r round((1 - (totEM[2] / totEM[1])) * 100, 1)`% compared to `r firstyear`, and `r (trsh_EUC_tbl_sort[1, 4] * 100)`% of this reduction is due to sector `r trsh_EUC_tbl_sort[1, 1]`. Another important sector in determining long-term emission trends is `r trsh_EUC_tbl_sort[2, 1]` which accounts for `r (trsh_EUC_tbl_sort[2, 4] * 100)`% of the total decrease in agricultural emissions, followed by `r trsh_EUC_tbl_sort[3, 1]` (`r (trsh_EUC_tbl_sort[3, 4] * 100)`%), while all the other categories contribute less. The decrease in emissions is due to the decrease in the cattle population (`r round(((1 - (cattle_pop[2]/cattle_pop[1])) * 100), 1)`% between `r firstyear` and `r lastyear`) and the decrease in the quantities applied of fertilisers, both synthetic and organic (`r round(((1 - (inorg_fert_AD[2]/inorg_fert_AD[1])) * 100), 1)`% and `r round(((1 - (org_fert_AD[2]/org_fert_AD[1])) * 100), 1)`% decrease, respectively). Only emissions from `r trnd_neg` follow the opposite trend, contributing to compensate the emission decrease but with a very low `r trnd_neg_txt`
 
 
+`r tabs("trendtable1",display="full")`
+
+`r pander(trsh_EUC_tbl)`&nbsp;
+
+
+Looking at the data by country in `r tabs("trendtable2",display="cite")`, we can see that the shares of the trend `r paste0(firstyear, "-",lastyear)` are close to the shares in emissions. Different figures are observed for the short-term trends, where the contribution of the emission categories is not linked to their weight in total emissions, and half of them have different sign from changes in the overall emissions of the sector. For the whole sector, there was a very slight increase of emissions between `r paste0(lastyear2, " and ",lastyear)` (1% of total emissions), with key categories increasing emissions (3.A, 3.B.1, 3.D.1, 3.D.2, 3.I) and some less relevant categories decreasing (3.B.2, 3.C, 3.F, 3.G, 3.H), resulting in an increase of emissions for the whole sector. The greatest relative changes took place in category 3.F, with a 17% decrease of emissions, being the total impact in the general trend, however, only of 2.5% given the low share of these emissions in the total emissions of the sector. The main contributor to the total increase in agricultural emissions from last year is category 3.D.1 (81% of the total trend), followed by 3.D.2 and 3.A (15% and 10%, respectively). The contribution of the other categories is less than 10% of total change.
+
+
+`r tabs("trendtable2",display="full")`
+
+`r pander(table52)`&nbsp;
+
+
+```{r sourcecategs, results='hide', warning=FALSE, message=FALSE, echo=FALSE}
+
+alldata1 <- alldata
+load(paste0(locplots, "/../", invyear, "\\eealocator\\eealocator_", cursubm, ".RData"), verbose = FALSE)
+#load("D:\\dev\\ghginventory\\2019\\eealocator\\eealocator_20190508.RData", verbose = FALSE)
+alldata3 <- alldata[grepl("^3", alldata$sector_number), ]
+alldata <- alldata1
+alldata3_tiers <- alldata3[grepl(paste(c("T1", "T2", "T3", "CS"), collapse = "|"), alldata3$notation), ]
+alldata3_tiers_unique <- alldata3_tiers[!duplicated(alldata3_tiers[, !names(alldata3_tiers) %in% "year"]), ]
+alldata3_tiers_unique <- alldata3_tiers_unique[alldata3_tiers_unique$measure == "Method", ]
+#write.csv(alldata3_tiers_unique, "~/kk_tiers_unique.csv", row.names = F)
+
+keyeuagri <- keycateuc()
+keyeuagri_agri <- keyeuagri[grepl("^3", keyeuagri$sector_number), ]
+
+#keyeuagri_agri <- keyeuagri_agri[keyeuagri_agri[, paste0(lastyear, "key")] == TRUE, ]
+keyeuagri_agri <- keyeuagri_agri[order(keyeuagri_agri$sector_number), ]
+
+keyeuagri_agri_tbl <- keyeuagri_agri[, c("party", "sector_number", "classification", "category", "gas", firstyear, lastyear)]
+keyeuagri_agri_tbl <- keyeuagri_agri_tbl[grepl("A|B|D", keyeuagri_agri_tbl$sector_number), ]
+keyeuagri_agri_tbl$Trend <- 0
+keyeuagri_agri_tbl$`Level 1990` <- 0
+keyeuagri_agri_tbl$`Level 2017` <- 0
+keyeuagri_agri_tbl$`Share of Higher Tier` <- 1
+
+
+for (i in 1:nrow(keyeuagri_agri_tbl)){
+  #i <- 3
+  sect_i <- keyeuagri_agri_tbl$sector_number[i]
+  sect_i2 <- keyeuagri_agri_tbl$category[i]
+  
+  sel_sectr <- alldata3_tiers_unique[grepl(substr(sect_i, 1, 5), alldata3_tiers_unique$sector_number), ]
+  sel_sectr <- sel_sectr[sel_sectr$category %in% sect_i2, ]
+  sel_sectr <- sel_sectr[!sel_sectr$party %in% c("EUC", "EUA", "NOR", "GBE"), ]
+
+  if("T1" %in% unique(sel_sectr$notation)){
+    sel_sectr_1 <- !agriemissions$party %in% c("EUC", "EUA", "NOR", "GBE") & agriemissions$meastype == "EM" & grepl(substr(sect_i, 1, 5), agriemissions$sector_number) & agriemissions$category %in% sect_i2
+    
+    sum_tot <- sum(agriemissions[sel_sectr_1, lastyear], na.rm = TRUE)
+    sum_T1 <- sel_sectr[sel_sectr$notation == "T1", ]$party
+    sum_T1 <- sum(agriemissions[sel_sectr_1 & agriemissions$party %in% sum_T1, lastyear], na.rm = TRUE) 
+    sum_hig_tier <- 1 - (sum_T1 / sum_tot)
+    keyeuagri_agri_tbl[keyeuagri_agri_tbl$sector_number %in% sect_i, ]$`Share of Higher Tier` <- sum_hig_tier
+    
+  }else{
+    next
+  }
+}  
+
+keyeuagri_agri_tbl$`Share of Higher Tier` <- round(keyeuagri_agri_tbl$`Share of Higher Tier`, 2)
+
+keyeuagri_agri_tbl$`Source category gas` <- paste0(keyeuagri_agri_tbl$sector_number, " ", keyeuagri_agri_tbl$classification, ": ", keyeuagri_agri_tbl$category, " (", keyeuagri_agri_tbl$gas, ")")
+
+keyeuagri_agri_tbl <- keyeuagri_agri_tbl[, -c(1:5)]
+keyeuagri_agri_tbl <- keyeuagri_agri_tbl[, c(length(keyeuagri_agri_tbl), (1:(length(keyeuagri_agri_tbl)) - 1))]
+
+names(keyeuagri_agri_tbl)[2] <- paste0("Emissions ", firstyear)
+names(keyeuagri_agri_tbl)[3] <- paste0("Emissions ", lastyear)
+names(keyeuagri_agri_tbl)[5] <- paste0("Level ", firstyear)
+names(keyeuagri_agri_tbl)[6] <- paste0("Level ", lastyear)
+rownames(keyeuagri_agri_tbl) <- NULL
+
+```
 
 ## Source categories and methodological issues
 
-In this section we present the information relevant for `r eukp` key source categories in the sector 3 Agriculture.
+In this section, we present the information relevant for `r eukp` key source categories in the sector 3 Agriculture.
 
-Key source categories considered are: 
+Key source categories identified are: 
+
+* CH4 emissions from source category 3.A.1 - Dairy cattle.
+* CH4 emissions from source category 3.A.1 - Non-dairy cattle. 
+* CH4 emissions from source category 3.B.1.1 - Cattle
+* CH4 emissions from source category 3.A.2 - Sheep.
+* CH4 emissions from source category 3.A.4 - Other livestock.
+* CH4 emissions from source category 3.B.1 - Manure management.
+* N2O emissions from source category 3.B.2 - Manure management.
+* N2O emissions from source category 3.D.1 - Direct N2O emissions from managed soils.
+* N2O emissions from source category 3.D.2 - Indirect emissions from managed soils
+
+**Check table with shares of higher Tier emissions and the text of the following paragraph !!!**
+
+
+`r tabs("tabkeycatsshares",display="cite")` shows emissions from key categories in the base year and in the last reported year, whether they are identified as key due to the level or to the trend in emissions and the share of emissions in the category which are calculated using a Tier 2 or Tier 3 method. CH4 emissions from enteric fermentation from cattle are calculated with very sophisticated methods, with only Cyprus using partially T1. For the enteric fermentation of sheep, the situation is more divided with 13 countries use Tier 1 methods and 15 using higher tiers (including those with higher emissions). For sector 3.A.4, only two countries (Romania and France) are using higher tiers, with all the others combining different methods. In 3.B.1 and 3.B.2 it is also more mixed, with Germany, Denmark, Finland, France, Croatia and Portugal using exclusively higher tiers in both categories. For the calculation of emissions from soils, the share of high tiers is very low; only Denmark and Sweden use solely higher tiers in 3.D.2, while there are no countries using only high tiers in 3.D.1, but only some combining high with low tier methods. 
+
 
 `r tabs("tabkeycatsshares",display="full")`
+`r pander(keyeuagri_agri_tbl)`&nbsp;
 
-**Include table with shares of higher Tier emissions**
 
-* CH4 emissions from source category 3.A.1 - Cattle 
-* CH4 emissions from source category 3.A.2 - Sheep 
-* CH4 emissions from source category 3.B.1.1 - Cattle
-* CH4 emissions from source category 3.B.1.3 - Swine
-* N2O emissions from source category 3.B.1.1 - Cattle
-* N2O emissions from source category 3.B.1.5 - Indirect emissions
-* N2O emissions from source category 3.B.1.4 - Other Livestock (mainly Poultry)
-* N2O emissions from source category 3.D.1.1 - Direct N2O emissions from managed soils from inorganic N fertilizers
-* N2O emissions from source category 3.D.1.2 - Direct N2O emissions from managed soils from organic N fertilizers
-* N2O emissions from source category 3.D.2.1 - Indirect Emissions from Managed Soils, Atmospheric Deposition
-* N2O emissions from source category 3.D.2.2 - Indirect Emissions from Managed Soils, Nitrogen leaching and run-off
+<!--
+Note: during agrichecks the function keycateuc calculates Level Key source categories based on the list of source categories obtained in 2017 from UBA-V. the agri-list has been changed acc to own preferences and consistent with the source categories in the NIR chapter. all emissions are ranked and cumulative emissions are calculated - based on this the L key source categories for EUC are identified for first and last year.
 
-Other source categories are not contributing to a key source analysis at `r eukp` level and are therefore not further discussed here. . Emissions from source category J - other agriculture emissions are reported only from Germany (digestion of energy crops) and the UK (emissions from liming in oversee territories and crown dependencies).
+files saved at ecir/keycategories:
+- keyeuagri.csv
+- agridetem.csv (a mix of source categories to be used with emissions)
+- agrimethods.csv
+
+Further processing has been done in excel as in \\MARSBL1BHL\Agrienv\ghginventory\ecir\keycategories\keyeuagri~20170523.xlsx
+
+- assign 'higher Tier or not' by country (1/0) in new column in sheet agrimethods
+- transfer this info into sheet agridetem
+- calculate share of higher-Tier emissions for EUC (e.g. =SUMPRODUCT(I934:I962,P934:P962)/SUM(P934:P962))
+- transfer this info into sheet keyeuagri
+- filter source categories and copy table into sheet 'Table 1'
+
+-->
+
+
+Other source categories are not identified as key source in the analysis at `r eukp` level and are therefore not further discussed here. Emissions from source category J - other agriculture emissions are reported only from Germany (digestion of energy crops) and the UK (emissions from liming in oversee territories and crown dependencies).
 
 For each of the above-mentioned source categories, data on the countries contributing most to `r eukp` emissions and to `r eukp` emissions trend are provided, as well as information on relevant activity data and IEFs and other parameters, if relevant.
 
 
-Many countries recognize that in the agriculture sector the emissions from the different categories are inherently linked and are best estimated in a comprehensive model that covers not only greenhouse gases (CH4 and N2O) in a consistent manner, but also ammonia. Estimations of ammonia emissions are required for reporting under the Convention on Long-Range Transboundary Air Pollution and are needed to estimate indirect N2O emissions. Hence, some countries have developed comprehensive models covering consistently different source categories and different gases.  
+Many countries recognize that in the agriculture sector the emissions from the different categories are inherently linked and are best estimated in a comprehensive model that covers not only greenhouse gases (CH4 and N2O) in a consistent manner, but also ammonia. Estimations of ammonia emissions are required for reporting under the Convention on Long-Range Transboundary Air Pollution and are needed to estimate indirect N2O emissions. Hence, several countries have developed comprehensive models covering consistently different source categories and different gases.  
+
+<!--
+Comment: recommendation to not focus on individual countries as more countries have such systems and they all should be mentioned (or none)
 
 * Austria: For the calculation of the losses of gaseous N species the mass-flow procedure pursuant to EMEP/CORINAIR is used. A detailed emission model for NH3, NMVOC and NOx has been integrated into the national inventory.
 * Germany: Germany uses the emission inventory model GAS-EM to calculate consistently emissions of CH4, NH3, N2O, and NO from agricultural sources. It is based on IPCC methodologies and has been developed in recent years with a comprehensive description found in Roesemann et al. (2013). Basis of the model is the feed intake which determine emissions in category 3.A and which determines N and C excretion rates relevant for category 3.B and also 3.D. Data are available at district (Landkreis, livestock characterisation, housing systems, manure management systems) and regional (Bundesland) level. N-emissions are considered within an N-flow concept (Daemmgen and Hutchings, 2005). In the N-flow concept, only remaining N in manure is transferred to storage systems, after subtraction of emissions in housing systems. Emissions are subtracted from the total N-pool.
@@ -260,6 +405,2637 @@ Finland: Finland uses a nitrogen mass flow model (except for N-fixing, crop resi
 * Finland: Direct N2O emissions and deposition from manure management are calculated with a national calculation model (Grönroos et al. 2009); leaching is calculated separately. The model integrates both ammonia and nitrous oxide emissions from manure in each phase of the manure management chain and allows accounting for the effect of possible abatement measures to volatilisation. The amount of N volatilised as NH3-N and NO-N from MMS is calculated in the model separately from the application to fields (NH3-N during and after spreading).
 * The Netherlands: N-flows from animal production are assessed by the National Emission Model for Ammonia (NEMA). Results include emissions of ammonia (NH3), nitric oxide (NO), nitrous oxide (N2O) and nitrogen gas (N2) from stable and storage.
 * Slovenia: a mass balance approach which tracks nitrogen throughout the system is used to estimate N2O emissions, based on EMEP/CORINAIR (2013) methodology. The amount of N which is lost through volatilisation is estimated simultaneously with direct N2O emissions using EMEP/CORINAIR (2013) methodology. Similar mass-flow approach, based on EMEP/EEA guidelines is followed by Iceland.
+-->
+ 
+
+
+### Enteric fermentation (CRF Source Category 3.A) 
+
+```{r 3a,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A"
+curseclong<-"Enteric Fermentation"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs("fig3.Ashare",sharefigurecaption(eukp,cursec,lastyear))
+figs("fig3.Asharems",sharemsfigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_number)&agridet$meastype=="EM"])
+```
+
+`r text2shareeu()` It is thus the largest GHG source in agriculture and the largest source of `r curgas` emissions. The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs("fig3.Ashare",display="cite")`. Emissions are also reported for `r subcateg$sector_number[4]` (`r subcateg$category[4]`) and `r subcateg$sector_number[5]` (`r subcateg$category[5]`). 
+`r curgas` emissions from `r curseclong` for &#39;Other Livestock&#39; are reported for the categories `r vector2words(ooenteric)`.
+
+
+`r text2sharems(sec=cursec,curcolor='blue')`
+
+
+`r figs("fig3.Ashare",display="full")`
+
+![](../ecir/plots/$cursubm$agrimixeu3.A.png)
+
+`r figs("fig3.Asharems",display="full")`
+
+![](../ecir/plots/$cursubm$emissionshare_3.A.jpg)
+
+```{r 3atab,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curtab<-round(agriemissions[agriemissions$sector_number=="3.A",c(firstyear, lastyear2, lastyear)],0)
+rownames(curtab)<-countrynamesnoex
+curtab$new1<-curtab[,1]
+curtab$new3<-curtab[,2]
+curtab$new2<-curtab[,3]
+curtab$country<-countrynamesnoex
+curtab<-curtab[c(7,1:6)]
+names(curtab)<-c("Member State",
+                 "GHG emissions in 1990 (kt CO2 equivalents)",
+                 paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
+                 paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
+                 "CH4 emissions in 1990 (kt CO2 equivalents)",
+                 paste0("CH4 emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
+                 paste0("CH4 emissions in ",lastyear," (kt CO2 equivalents)"))
+
+```
+
+`r text2mscontr(sec=cursec)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+
+![](../ecir/ubaimages/$cursubm$/Table3AEntericFermentation.jpg)
+
+
+```{r 3a1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curcat<-"Cattle"
+source("nircatdata.r")
+tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
+```
+`r text2mscontr(sec=curcattext)`
+
+`r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3A1CattleCH4.jpg)
+
+
+```{r 3a2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curcat<-"Sheep"
+source("nircatdata.r")
+tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
+```
+`r text2mscontr(sec=curcattext)`
+
+`r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3A2SheepCH4.jpg)
+
+#### Trends in Emissions and Activity Data
+```{r 3aadem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A"
+curseclong<-"Enteric Fermentation"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3AFarming-EntericFermentationCH4EM-nirvalue.jpg) 
+
+
+```{r 3a1em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Cattle"
+curmea<-"EM"
+source("nircatdata.r")
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig="")`
+
+```{r 3a11em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig","Dairy Cattle","trend",curmea),trendfigurecaption(eukp,paste0(cursec, " Dairy Cattle"),lastyear))
+```
+
+`r text2trend(fig=figs(paste0("fig","Dairy Cattle","trend",curmea),display="cite"))`
+
+```{r 3a12em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig","Non-Dairy Cattle","trend",curmea),trendfigurecaption(eukp,paste0(cursec, " Non-Dairy Cattle"),lastyear))
+```
+
+`r text2trend(fig=figs(paste0("fig","Non-Dairy Cattle","trend",curmea),display="cite"))`
+
+```{r 3a1ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Cattle"
+curmea<-"POP"
+source("nircatdata2.r")
+figs(paste0("fig","Dairy Cattle","trend","POP"),trendfigurecaption(eukp,paste0(cursec, " Dairy Cattle"),lastyear))
+figs(paste0("fig","Non-Dairy Cattle","trend","POP"),trendfigurecaption(eukp,paste0(cursec, " Non-Dairy Cattle"),lastyear))
+```
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+The main driver for the decrease of CH4 emissions from enteric fermentation was the decrease in animal numbers that we can see in `r figs(paste0("fig","Dairy Cattle","trend",curmea),display="cite")` and `r figs(paste0("fig","Non-Dairy Cattle","trend",curmea),display="cite")`.
+
+`r text2trend(fig="")`
+
+
+`r figs(paste0("fig","Dairy Cattle","trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
+
+`r figs(paste0("fig","Non-Dairy Cattle","trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
+
+`r figs(paste0("fig","Dairy Cattle","trend","POP"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
+
+`r figs(paste0("fig","Non-Dairy Cattle","trend","POP"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
+
+
+```{r 3a2em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+#figs("figA2trendad",trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+```{r 3a2ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"POP"
+source("nircatdata2.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+The main driver for the decrease of CH4 emissions from enteric fermentation for sheep 
+was the decrease in animal numbers shown in `r figs(paste0("fig",cursec,"trend",curmea),display="cite")`.
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A2Sheep-EntericFermentationCH4EM-nirvalue.jpg) 
+
+`r figs(paste0("fig",cursec,"trend","POP"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A2Sheep-EntericFermentationPOP-nirvalue.jpg) 
+
+#### Implied EFs  and Methodological Issues
+Information for cattle, sheep and swine are reported using national classification 
+of the animals. For example, it is possible to report cattle numbers using one of three options:
+
+* Option A distinguishes 'Dairy Cattle' and 'Non-Dairy Cattle'. 
+* Option B distinguishes 'Mature Dairy Cattle', 'Other Mature Cattle' and 'Growing Cattle'.
+* Option C allows for any national classification.
+
+To obtain values that can be aggregated to `r eukp` level, data reported under Option B
+and Option C were converted to Option A categories. 'Mature Dairy Cattle' is taken for 'Dairy Cattle'
+and the other two categories under Option B are used for 'Non-Dairy Cattle'.
+Also in Option C, dairy cattle can be identified (e.g. 'Dairy Cows', 'Other Dairy Cattle' etc.) and
+all other cattle categories have been grouped to the animal type 'Non-Dairy Cattle'.
+
+In case data were aggregated, this was done on the basis of a weighted average using 
+population data as weighting factors.
+
+In the cases for 'Sheep' and 'Swine', all animal types reported by countries are aggregated
+to one single parent category using the same approach.
+
+In this section we discuss the Implied Emission Factor for the main animal types.
+Furthermore, we present data on the average gross energy intake and - for dairy cattle - also the milk yield.
+
+
+```{r 3a1ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+tabs("tabA1ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig="",tab=tabs("tabA1ief",display="cite"))`
+
+`r tabs("tabA1ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3a11ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA11trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA11ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA11trendief",display="cite"),tab=tabs("tabA11ief",display="cite"))`
+
+`r figs("figA11trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationIEF-nirrange.jpg) 
+
+
+`r tabs("tabA11ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a11geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"GE"
+source("nircatdata2.r")
+figs("figA11trendgeav",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA11geav",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA11trendgeav",display="cite"),tab=tabs("tabA11geav",display="cite"))`
+
+`r figs("figA11trendgeav",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationGE-nirrange.jpg)
+
+
+`r tabs("tabA11geav",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a11Milk,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"Milk"
+source("nircatdata2.r")
+figs("figA11trendMilk",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA11trendMilk",display="cite"),tab=tabs("tabA11Milk",display="cite"))`
+
+`r figs("figA11trendMilk",display="full")`
+
+
+![](../ecir/plots/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationMilk-nirrange.jpg) 
+
+
+`r tabs("tabA11Milk",display="full")` [^exclNLmilk] [^exclLUmilk]
+`r pander(splittable(curtable,2))`
+
+[^exclNLmilk]: &#09;Note that the Netherlands does not report milk yield in their CRF, but such data are available in their NIR (see also Annex III).
+[^exclLUmilk]: &#09;Note that data from Luxembourg are not included in the plot as they are reported in a different unit.
+
+
+```{r 3a12ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA12trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA12ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA12trendief",display="cite"),tab=tabs("tabA12ief",display="cite"))`
+
+`r figs("figA12trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3A1Non-DairyCattle-EntericFermentationIEF-nirrange.jpg)
+
+`r tabs("tabA12ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a12geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"GEav"
+source("nircatdata2.r")
+figs("figA12trendgeav",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA12geav",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA12trendgeav",display="cite"),tab=tabs("tabA12geav",display="cite"))`
+
+`r figs("figA12trendgeav",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3A1Non-DairyCattle-EntericFermentationGEav-nirrange.jpg)
+
+
+`r tabs("tabA12geav",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3a2ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figA2trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA2ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA2trendief",display="cite"),tab=tabs("tabA2ief",display="cite"))`
+
+`r figs("figA2trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3A2Sheep-EntericFermentationIEF-nirrange.jpg) 
+
+`r tabs("tabA2ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3a2geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.2"
+curseclong<-"Enteric Fermentation"
+curcat<-"Sheep"
+curmea<-"GEav"
+source("nircatdata2.r")
+figs("figA2trendgeav",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabA2geav",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figA2trendgeav",display="cite"),tab=tabs("tabA2geav",display="cite"))`
+
+`r figs("figA2trendgeav",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3A2Sheep-EntericFermentationGEav-nirrange.jpg)
+
+
+`r tabs("tabA2geav",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+### Manure Management - CH4 (CRF Source Category 3B1) 
+```{r 3b1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"share"),sharefigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+
+ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_number)&agridet$meastype=="EM"])
+
+```
+`r text2shareeu()` The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`. Emissions are also reported for `r subcateg$sector_number[4]` (`r subcateg$category[4]` and `r subcateg$sector_number[5]` (`r subcateg$category[5]`). `r curgas` emissions from `r curseclong` for &#39;Other Livestock&#39; are reported for the categories `r vector2words(ooenteric)`.
+`r text2sharems(sec=cursec)`
+
+
+`r figs(paste0("fig",cursec,"share"),display="full")`
+
+![](../ecir/plots/$cursubm$agrimixeu3.B.1.png)
+
+`r figs(paste0("fig",cursec,"sharems"),display="full")`
+
+![](../ecir/plots/$cursubm$emissionshare_3.B.1.jpg)
+
+`r text2mscontr(sec=cursec)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+
+![](../ecir/ubaimages/$cursubm$/Table3B1ManureManagementtotalCH4.jpg)
+
+
+#### Trends in Emissions and Activity Data
+```{r 3b1adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
+```
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trendem"),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trendem"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B1Farming-CH4EmissionsCH4EM-nirvalue.jpg) 
+
+
+```{r 3b11em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+source("nircatdata.r")
+figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),trendfigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),trendfigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()` `r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="cite")` and `r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="cite")` show the trend of emissions for Dairy and Non-Dairy Cattle indicating the countries contributing most to `r eusubml`.
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig="",option=1)`
+
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3B11CattleCH4.jpg)
+
+`r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B11DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+
+`r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B11Non-DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+
+
+```{r 3b11pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"POP"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+##### `r paste0(curcattext," - Activity Data")`
+
+The main activity data for CH4 emissions from manure management - cattle are the animal numbers. 
+Cattle numbers are already discussed under source category 3.A Enteric Fermentation and therefore not further discussed here. 
+
+Other relevant activity data are the allocation by climate region and the allocation by manure management system (MMS).
+
+
+```{r 3b13em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()` 
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trendem"),display="cite"),option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3B13SwineCH4.jpg)
+Note that some member states are using Tier 1 and default emission factors for 3.B.1.3 category. Although this is a key category for the EU, is not a key category for all member states. For those countries using Tier 1, source category 3.B.1.3 is not a key category.
+
+`r figs(paste0("fig",cursec,"trendem"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B13Swine-CH4EmissionsCH4EM-nirvalue.jpg) 
+
+
+```{r 3b13ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Enteric Fermentation"
+curcat<-"Swine"
+curmea<-"POP"
+source("nircatdata2.r")
+figs(paste0("fig",cursec,"trendad"),trendfigurecaption(eukp,cursec,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+The main activity data for CH4 emissions from manure management - swine are the animal numbers. 
+As swine are not a main animal type in the source category 3.A Enteric Fermentation its population
+data is discussed here.
+`r text2trend(fig=figs(paste0("fig",cursec,"trendad"),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trendad"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B13Swine-CH4EmissionsPOP-nirvalue.jpg) 
+
+#### Implied EFs  and methodological issues
+
+In this section, we discuss the implied emission factor for the category 3.B.1 for the main animal types.
+Furthermore, we present data on the typical animal mass as reported in CRF Tables 3B(a)s1
+and average volatile solid (VS) daily excretion.
+
+
+```{r 3B11ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+tabs("tabB11ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+
+`r text2ief(fig="",tab=tabs("tabB11ief",display="cite"))`
+
+
+`r tabs("tabB11ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+
+```{r 3B111ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB111trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB111ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB111trendief",display="cite"),tab=tabs("tabB111ief",display="cite"))`
+
+`r figs("figB111trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+
+
+`r tabs("tabB111ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"MASS"
+source("nircatdata2.r")
+figs("figB111trendMASS",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB111MASS",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB111trendMASS",display="cite"),tab=tabs("tabB111MASS",display="cite"))`
+
+`r figs("figB111trendMASS",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+
+
+`r tabs("tabB111MASS",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"VSEXC"
+source("nircatdata2.r")
+figs("figB111trendVSEXC",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB111VSEXC",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB111trendVSEXC",display="cite"),tab=tabs("tabB111VSEXC",display="cite"))`
+
+`r figs("figB111trendVSEXC",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
+
+`r tabs("tabB111VSEXC",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B112ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB112trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB112ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB112trendief",display="cite"),tab=tabs("tabB112ief",display="cite"))`
+
+`r figs("figB112trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B11Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB112ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B112MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"MASS"
+source("nircatdata2.r")
+figs("figB112trendMASS",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB112MASS",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB112trendMASS",display="cite"),tab=tabs("tabB112MASS",display="cite"))`
+
+`r figs("figB112trendMASS",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B11Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+
+`r tabs("tabB112MASS",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B112VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"VSEXC"
+source("nircatdata2.r")
+figs("figB112trendVSEXC",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB112VSEXC",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB112trendVSEXC",display="cite"),tab=tabs("tabB112VSEXC",display="cite"))`
+
+`r figs("figB112trendVSEXC",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B11Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
+
+`r tabs("tabB112VSEXC",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B13ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB13trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB13ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB13trendief",display="cite"),tab=tabs("tabB13ief",display="cite"))`
+
+`r figs("figB13trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B13Swine-CH4EmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB13ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B13MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"MASS"
+source("nircatdata2.r")
+figs("figB13trendMASS",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB13MASS",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB13trendMASS",display="cite"),tab=tabs("tabB13MASS",display="cite"))`
+
+`r figs("figB13trendMASS",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B13Swine-CH4EmissionsMASS-nirrange.jpg) 
+
+`r tabs("tabB13MASS",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B13VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.1.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"VSEXC"
+source("nircatdata2.r")
+figs("figB13trendVSEXC",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB13VSEXC",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB13trendVSEXC",display="cite"),tab=tabs("tabB13VSEXC",display="cite"))`
+
+`r figs("figB13trendVSEXC",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B13Swine-CH4EmissionsVSEXC-nirrange.jpg) 
+
+`r gsub("dm", "DM", tabs("tabB13VSEXC",display="full"))`
+
+`r pander(splittable(curtable,2))`
+
+
+
+### Manure Management - N2O (CRF Source Category 3B2) 
+```{r 3b2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"share"),sharefigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig","3.B.2.5","sharems"),sharemsfigurecaption(eukp,"3.B.2.5",lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+`r text2shareeu()` The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs(paste0("fig",cursec,"share"),display="cite")`, but substantial emissions are also reported for Swine, and Poultry.
+
+`r text2sharems(sec=cursec)`
+
+Regarding the handling of manure in the different Member States, `r figs(paste0("fig","3.B.2.5","sharems"),display="cite")` shows the distribution of total manure nitrogen by manure system in all Member States and in the EU28. Each bar represents the total manure nitrogen handled in the current system for the country, where different shades of grey correspond to the emitting manure systems.
+
+`r figs(paste0("fig",cursec,"share"),display="full")`
+
+![](../ecir/plots/$cursubm$agrimixeu3.B.2.png)
+
+`r figs(paste0("fig",cursec,"sharems"),display="full")`
+
+![](../ecir/plots/$cursubm$emissionshare_3.B.2.jpg)
+
+`r figs(paste0("fig","3.B.2.5","sharems"),display="full")`
+
+![](../ecir/plots/$cursubm$emissionshare_3.B.2.5.jpg)
+
+`r text2mscontr(sec=cursec)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+
+![](../ecir/ubaimages/$cursubm$/Table3B2ManureManagementotalGHGN2O.jpg)
+
+
+#### Trends in Emissions and Activity Data
+```{r 3B2adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B2Farming-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+
+```{r 3B21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"EM"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig3B211","trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()`. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represent the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig="",option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+
+![](../ecir/ubaimages/$cursubm$/Table3B21CattleN2O.jpg)
+
+`r gsub("Cattle", "Dairy cattle", figs(paste0("fig3B211","trend",curmea),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+`r gsub("Cattle", "Non-dairy cattle", figs(paste0("fig3B212","trend",curmea),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+```{r 3B21pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"POP"
+```
+##### `r paste0(curcattext," - population")`
+
+One of the main activity data for N2O emissions from manure management - cattle is the animal numbers. 
+Cattle numbers are already discussed under source category 3.A Enteric Fermentation and therefore not further discussed here.
+
+Other activity data is:
+
+* N-allocation by MMS. 
+
+```{r 3B243em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"EM"
+source("nircatdata.r")
+
+subcategssel<-grepl("3.B.2.3.",agridet$sector_number) & agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas==curgas
+subcategdet<-agridet[subcategssel,]
+subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
+nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
+
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()` `r figs(paste0("fig3B23","trend",curmea),display="cite")` shows the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figure represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig="",option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r figs(paste0("fig3.B.2.3","trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B23Swine-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+
+```{r 3B24em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4"
+curseclong<-"Manure Management"
+curcat<-"Other Livestock"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+
+#subcategssel<-grepl(paste0("^",cursec,"\\."),agridet$sector_number) & agridet$party=="EU28"&agridet$meastype=="EM"&agridet$gas==curgas
+#subcategdet<-agridet[subcategssel,]
+#subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
+#nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
+
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()`
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3B24OtherLivestockN2O.jpg)
+
+
+```{r 3B247em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4.7"
+curseclong<-"Manure Management"
+curcat<-"Poultry"
+curmea<-"EM"
+source("nircatdata.r")
+
+subcategssel<-grepl("3.B.2.4.",agridet$sector_number) & agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas==curgas
+subcategdet<-agridet[subcategssel,]
+subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
+nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
+
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+Largest contribution to other livestock emissions comes from sub-category `r if(subcategdet$category[1]=="Other Other Livestock"){"'other' animals in this sub-category"}else{tolower(subcategdet$category[1])}` with `r percent(subcategdet[1,lastyear]/sum(subcategdet[,lastyear]))` of total `r curgas` emissions. Other animal types with high emissions are `r if(subcategdet$category[2]=="Other Other Livestock"){"'other' animals in this sub-category"}else{tolower(subcategdet$category[2])}` with a share of `r percent(subcategdet[2,lastyear]/sum(subcategdet[,lastyear]))` and `r subcategdet$category[3]` with a share of `r percent(subcategdet[3,lastyear]/sum(subcategdet[,lastyear]))`. Here only the most important animal type `r subcategdet$category[1]` is discussed. 
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+```{r 3B24ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.A.4.7"
+curseclong<-"Enteric Fermentation"
+curcat<-"Poultry"
+curmea<-"POP"
+source("nircatdata2.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+As population data for poultry have not yet been discussed, this will be done here. 
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+Other activity data related to this emission category are:
+
+* Nitrogen managed on each manure management system
+
+`r figs(paste0("fig","3.B.2.4","trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B24OtherLivestock-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+`r figs(paste0("fig","3.B.2.4.7","trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B247Poultry-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+
+`r gsub("in poultry", "in", figs(paste0("fig",cursec,"trend","POP"),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3A47Poultry-EntericFermentationPOP-nirvalue.jpg) 
+
+
+#### Implied EFs  and Methodological Issues
+
+In this section, we discuss the implied emission factor for the main animal types.
+Furthermore, we present data on the nitrogen excretion rate for the different animal types.
+
+```{r 3B25em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management - Indirect Emissions"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2shareeu()`
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3B25ManureManagementN2O.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B25Farming-IndirectN2OEmissionsN2OEM-nirvalue.jpg) 
+
+
+
+
+```{r 3B21ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+tabs("tabB21ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig="",tab=tabs("tabB21ief",display="cite"))`
+
+`r tabs("tabB21ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B211ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB211trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211ief",paratablecaption(eukp,curcattext,lastyear))
+
+
+
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendief",display="cite"),tab=tabs("tabB211ief",display="cite"))`
+
+`r figs("figB211trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+
+
+`r tabs("tabB211ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B211NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Dairy Cattle"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB211trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB211trendNRATE",display="cite"),tab=tabs("tabB211NRATE",display="cite"))`
+
+`r figs("figB211trendNRATE",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+
+
+`r tabs("tabB211NRATE",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B212ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB212trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB212ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB212trendief",display="cite"),tab=tabs("tabB212ief",display="cite"))`
+
+`r figs("figB212trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB212ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B212NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.1"
+curseclong<-"Manure Management"
+curcat<-"Non-Dairy Cattle"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB212trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB212NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB212trendNRATE",display="cite"),tab=tabs("tabB212NRATE",display="cite"))`
+
+`r figs("figB212trendNRATE",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+
+`r tabs("tabB212NRATE",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B23ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB23trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB23ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB23trendief",display="cite"),tab=tabs("tabB23ief",display="cite"))`
+
+`r figs("figB23trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B23Swine-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB23ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B23NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.3"
+curseclong<-"Manure Management"
+curcat<-"Swine"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB23trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB23NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB23trendNRATE",display="cite"),tab=tabs("tabB23NRATE",display="cite"))`
+
+Sweden explains the large increase by an update of nitrogen production data for sows and pigs in 2002, due to more intense swine production. The time trend also shows steps because surveys are only done biannually and small percentage differences in the survey have a significant effect on emissions, as emission factors are differing considerably between the different systems.
+
+`r figs("figB23trendNRATE",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B23Swine-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+
+`r tabs("tabB23NRATE",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B247ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4.7"
+curseclong<-"Manure Management"
+curcat<-"Poultry"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figB247trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB247ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB247trendief",display="cite"),tab=tabs("tabB247ief",display="cite"))`
+
+`r figs("figB247trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B247Poultry-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB247ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3B247NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.4.7"
+curseclong<-"Manure Management"
+curcat<-"Poultry"
+curmea<-"NRATE"
+source("nircatdata2.r")
+figs("figB247trendNRATE",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB247NRATE",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB247trendNRATE",display="cite"),tab=tabs("tabB247NRATE",display="cite"))`
+
+`r figs("figB247trendNRATE",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B247Poultry-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+
+`r tabs("tabB247NRATE",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B25iefa,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"IEF"
+curmeasure<-"Atmospheric"
+source("nircatdata2.r")
+#figs("figB25trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB25ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+`r text2ief(fig=figs("figB25trendief",display="cite"),tab=tabs("tabB25ief",display="cite"))`
+
+`r tabs("tabB25ief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B25iefb,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.B.2.5"
+curseclong<-"Manure Management"
+curcat<-"Farming"
+curmea<-"IEF"
+curmeasure<-"leaching"
+source("nircatdata2.r")
+figs("figB25btrendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB25bief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2ief(fig=figs("figB25trendief",display="cite"),tab=tabs("tabB25ief",display="cite"))`
+
+`r figs("figB25btrendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3B25Farming-IndirectN2OEmissionsIEF-nirrange.jpg) 
+
+`r tabs("tabB25bief",display="full")`
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+### Direct Emissions from Managed Soils - N2O (CRF Source Category 3D1) 
+```{r 3D1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1"
+curseclong<-""
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"EM"
+source("nircatdata.r")
+figs("figD1share",sharefigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+`r text2shareeu()` The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`),  `r subcateg$sector_number[2]` (`r subcateg$category[2]`) and `r subcateg$sector_number[3]` (`r subcateg$category[3]`) as shown in `r figs("figD1share",display="cite")`.
+`r text2sharems(sec=cursec,curcolor='blue')`
+
+`r figs("figD1share",display="full")`
+
+![](../ecir/plots/$cursubm$agrimixeu3.D.1.png)
+
+`r figs(paste0("fig",cursec,"sharems"),display="full")`
+
+![](../ecir/plots/$cursubm$emissionshare_3.D.1.jpg)
+
+`r text2mscontr(sec=cursec)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+
+![](../ecir/ubaimages/$cursubm$/Table3D1DirectN2OEmissions.jpg)
+
+
+#### Trends in Emissions and Activity Data
+```{r 3D1adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1"
+curseclong<-""
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+
+inorg<-allagri[allagri$sector_number=="3.D.1.1"&allagri$meastype=="AD"&allagri$party==eusubm,]
+organ<-allagri[allagri$sector_number=="3.D.1.2"&allagri$meastype=="AD"&allagri$party==eusubm,]
+
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D1DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsN2OEM-nirvalue.jpg) 
+
+The main driving force of direct N2O emissions from agricultural soils is the use of nitrogen fertiliser and animal manure, which were `r trendtext(as.vector(inorg[lastyear]/inorg[firstyear]))[[2]]` and `r trendtext(as.vector(organ[lastyear]/organ[firstyear]))[[2]]` below `r firstyear` levels in `r lastyear`, respectively. N2O emissions from agricultural land can be decreased by overall efficiency improvements of nitrogen uptake by crops, which should lead to lower fertiliser consumption on agricultural land. The decrease of fertiliser use is partly due to the effects of the 1992 reform of the Common Agricultural Policy and the resulting shift from production-based support mechanisms to direct area payments in arable production. This has tended to lead to an optimisation and overall reduction in fertiliser use. In addition, reduction in fertiliser use is also due to directives such as the Nitrate Directive and to the extensification measures included in the Agro-Environment Programmes (EC, 2001).
+
+Another policy affecting GHG emissions, in this case through the application of sewage sludge, is the Urban Wastewater Treatment Directive[^urbanwastewater]. In the UK, the input from sewage sludge sharply increased in 2001. This is explained by a step in the UK's estimates of sewage sludge collected around 2001, linked to the Urban Wastewater Treatment Directive, which enforced that all large wastewater treatment plants use secondary treatment. This additional treatment reduces the organic load in the effluent, and to achieve this a higher proportion of the organic load in the wastewater treatment plants as sewage sludge. A similar trend is observed in Ireland, where a significant increase (over double) in the quantity of sewage sludge applied to agricultural land took place around 1998 as a result of its diversion away from disposal at solid waste disposal sites.
+
+
+```{r 3D11em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.1"
+curseclong<-"Inorganic N fertilisers"
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0("3.D.1.1 - Direct N2O emissions from inorganic N fertilisers"," - ",curmeasure)`
+
+`r gsub("Inorganic N fertilisers Inorganic N fertilisers", "Inorganic N fertilisers", text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite")), ignore.case = TRUE)`
+
+
+```{r 3D11ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.1"
+curseclong<-"Inorganic N fertilisers"
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"AD"
+source("nircatdata2.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0("3.D.1.1 - Direct N2O emissions from inorganic N fertilisers"," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r gsub("Inorganic N fertilisers Inorganic N fertilisers", "Inorganic N fertilisers", figs(paste0("fig",cursec,"trend","EM"),display="full"), ignore.case = TRUE)`
+
+![](../ecir/plots/$cursubm$/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersN2OEM-nirvalue.jpg) 
+
+`r gsub("From Inorganic N fertilisers Inorganic N fertilisers", "From Inorganic N fertilisers", figs(paste0("fig",cursec,"trend",curmea),display="full"), ignore.case = TRUE)`
+
+![](../ecir/plots/$cursubm$/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNfertilizersAD-nirvalue.jpg) 
+
+
+```{r 3D12em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.2"
+curseclong<-"Organic N fertilisers"
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig",cursec,"trend","AD"),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0("3.D.1.2 - Direct N2O emissions from organic N fertilisers"," - ",curmeasure)`
+
+`r gsub("from organic N fertilisers organic N fertilisers", "from organic N fertilisers", text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite")), ignore.case=TRUE)`
+
+
+```{r 3D12ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.2"
+curseclong<-"Organic N fertilisers"
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"AD"
+source("nircatdata2.r")
+```
+##### `r paste0("3.D.1.2 - Direct N2O emissions from organic N fertilisers"," - ","amount of N applied")`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r gsub("From Organic N fertilisers Organic N fertilisers", "From Organic N fertilisers", figs(paste0("fig",cursec,"trend","EM"),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNfertilizersN2OEM-nirvalue.jpg) 
+
+`r gsub("From Organic N fertilisers Organic N fertilisers", "From Organic N fertilisers", figs(paste0("fig",cursec,"trend","AD"),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNfertilizersAD-nirvalue.jpg) 
+
+```{r 3D13em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.3"
+curseclong<-"Grazing Animals"
+curcat<-"Urine and Dung Deposited by Grazing Animals"
+curmea<-"EM"
+source("nircatdata.r")
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+
+`r text2shareeu()`
+
+`r text2mscontr(sec=cursec)`
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"),option=1)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3D13UrineandDungN2O.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D13UrineandDungDepositedbyGrazingAnimals-AgriculturalSoilsN2OEM-nirvalue.jpg) 
+
+
+```{r 3D13ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+# cursec<-"3.D.1.3"
+# curseclong<-"Grazing Animals"
+# curcat<-"Urine and Dung Deposited by Grazing Animals"
+# curmea<-"AD"
+# source("nircatdata2.r")
+#figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+```
+
+
+#### Implied EFs  and Methodological Issues
+
+In this section we discuss the implied emission factor for the main N sources 
+contributing to direct N2O emissions from managed soils.
+
+
+```{r 3D11ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.1"
+curseclong<-"Inorganic N fertilisers"
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figD11trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabD11ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+
+##### `r gsub("From Inorganic N fertilisers Inorganic N fertilisers", "From Inorganic N fertilisers", paste0(curcattext," - ",curmeasure))`
+
+
+`r gsub("From Inorganic N fertilisers Inorganic N fertilisers", "From Inorganic N fertilisers", text2ief(fig=figs("figD11trendief",display="cite"),tab=tabs("tabD11ief",display="cite")))`
+
+
+`r gsub("From Inorganic N fertilisers Inorganic N fertilisers", "From Inorganic N fertilisers", figs("figD11trendief",display="full"))`
+
+![](../ecir/plots/$cursubm$/rangeief/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNfertilizersIEF-nirrange.jpg)
+
+
+
+`r gsub("From Inorganic N fertilisers Inorganic N fertilisers", "From Inorganic N fertilisers", tabs("tabD11ief",display="full"))`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+
+```{r 3D12ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.2"
+curseclong<-"Organic N fertilisers"
+curcat<-"Direct N2O Emissions From Managed Soils"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figD12trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabD12ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r gsub("From Organic N fertilisers Organic N fertilisers", "From Organic N fertilisers", paste0(curcattext," - ",curmeasure))`
+
+`r gsub("From Organic N fertilisers Organic N fertilisers", "From Organic N fertilisers", text2ief(fig=figs("figD12trendief",display="cite"),tab=tabs("tabD12ief",display="cite")))`
+
+`r gsub("From Organic N fertilisers Organic N fertilisers", "From Organic N fertilisers", figs("figD12trendief",display="full"))`
+
+![](../ecir/plots/$cursubm$/rangeief/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNfertilizersIEF-nirrange.jpg)
+
+
+`r gsub("From Organic N fertilisers Organic N fertilisers", "From Organic N fertilisers", tabs("tabD12ief",display="full"))`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3D13ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.1.3"
+curseclong<-"Grazing Animals"
+curcat<-"Urine and Dung Deposited by Grazing Animals"
+curmea<-"IEF"
+source("nircatdata2.r")
+tabs("tabD13ief",paratablecaption(eukp,curcattext,lastyear))
+#figs("figD13trendief",trendiefcaption(eukp,curcattext,lastyear))
+#![](../ecir/plots/$cursubm$/rangeief/3D13UrineandDungDepositedbyGrazingAnimals-AgriculturalSoilsN2OIEF-nirvalue.jpg)
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+**!!! The implied emission factor for N2O emissions in source category 3.D.1.3 - Urine and Dung Deposited by Grazing Animals decreased since 1990 from ??? to ??? kg N2O-N/kg N at EU28+ISL level!!!**
+
+`r text2ief(fig="",tab=tabs("tabD13ief",display="cite"))`
+
+`r #figs("figD13trendief",display="full")`
+
+`r tabs("tabD13ief",display="full")`
+
+**!!!ATENTION: Value for EU28+ISL needs to be manually copied from our CRF!!!** 
+
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+### Indirect Emissions from Managed Soils - N2O (CRF Source Category 3D2) 
+```{r 3D2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2"
+curseclong<-"Indirect Emissions from Managed Soils"
+curcat<-"Farming"
+source("nircatdata.r")
+figs("figD2share",sharefigurecaption(eukp,cursec,lastyear))
+figs(paste0("fig",cursec,"sharems"),sharemsfigurecaption(eukp,cursec,lastyear))
+tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
+```
+`r text2shareeu()` The main sub-categories are `r subcateg$sector_number[1]` (`r subcateg$category[1]`), and `r subcateg$sector_number[2]` (`r subcateg$category[2]`) as shown in `r figs("figD2share",display="cite")`.
+`r text2sharems(sec=cursec,curcolor='blue')`
+
+`r figs("figD2share",display="full")`
+
+![](../ecir/plots/$cursubm$agrimixeu3.D.2.png)
+
+`r figs(paste0("fig",cursec,"sharems"),display="full")`
+
+![](../ecir/plots/$cursubm$emissionshare_3.D.2.jpg)
+
+`r text2mscontr(sec=cursec)`
+
+`r tabs(paste0("tab",cursec,"mscontr"),display="full")`
+
+![](../ecir/ubaimages/$cursubm$/Table3D2IndirectEmissionsN2O.jpg)
+
+
+#### Trends in Emissions and Activity Data
+```{r 3D2adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2"
+curseclong<-"Indirect Emissions from Managed Soils"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D2Farming-AgriculturalSoilsIndirectN2OEmissionsFromManagedSoilsN2OEM-nirvalue.jpg)
+
+
+```{r 3D21em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.1"
+curseclong<-"Atmospheric Deposition"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig",cursec,"trend","AD"),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+```{r 3D21ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.1"
+curseclong<-"Atmospheric Deposition"
+curcat<-"Farming"
+curmea<-"AD"
+source("nircatdata2.r")
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D21Farming-AgriculturalSoilsAtmosphericDepositionN2OEM-nirvalue.jpg)
+
+`r figs(paste0("fig",cursec,"trend",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D21Farming-AgriculturalSoilsAtmosphericDepositionAD-nirvalue.jpg)
+
+
+```{r 3D22em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.2"
+curseclong<-"Nitrogen leaching and run-off"
+curcat<-"Farming"
+curmea<-"EM"
+source("nircatdata.r")
+figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,lastyear))
+figs(paste0("fig",cursec,"trend","AD"),trendfigurecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+
+```{r 3D22ad,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.2"
+curseclong<-"Nitrogen leaching and run-off"
+curcat<-"Farming"
+curmea<-"AD"
+source("nircatdata2.r")
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r text2trend(fig=figs(paste0("fig",cursec,"trend",curmea),display="cite"))`
+
+`r figs(paste0("fig",cursec,"trend","EM"),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offN2OEM-nirvalue.jpg)
+
+`r gsub("in emissions", "N leached from fertilisers and other agricultural inputs",figs(paste0("fig",cursec,"trend",curmea),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offAD-nirvalue.jpg)
+
+#### Implied EFs  and Methodological Issues
+
+In this section we discuss the implied emission factor for the main N sources 
+contributing to indirect N2O emissions from managed soils.
+Furthermore, we present the most relevant parameters related with indirect N2O emissions: 
+
+* Frac~GASF~: Fraction of synthetic fertiliser N applied to soils that volatilises as NH3 and NOX
+* Frac~GASM~: Fraction of livestock N excretion that volatilises as NH3 and NOX
+* Frac~LEACH~: Fraction of N input to managed soils that is lost through leaching and run-off.
+
+
+
+```{r 3D21ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.1"
+curseclong<-"Atmospheric Deposition"
+curcat<-"Farming"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figD21trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabD21ief",paratablecaption(eukp,curcattext,lastyear))
+```
+
+
+##### `r curcattext`
+
+
+`r text2ief(fig=figs("figD21trendief",display="cite"),tab=tabs("tabD21ief",display="cite"))`
+
+
+`r figs("figD21trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3D21Farming-AgriculturalSoilsAtmosphericDepositionIEF-nirrange.jpg)
+
+
+
+`r tabs("tabD21ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111FracGASF,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.AI.1"
+curseclong<-"Indirect N2O emissions"
+curcat<-"Fraction of synthetic fertiliser"
+curmea<-"FracGASF"
+source("nircatdata2.r")
+#figs("figB211trendFracGASF",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211FracGASF",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r gsub("frac", "Frac", text2ief(fig="",tab=tabs("tabB211FracGASF",display="cite")))`
+
+`r gsub("frac", "Frac", tabs("tabB211FracGASF",display="full"))`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111FracGASM,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.AI.2"
+curseclong<-"Indirect N2O emissions"
+curcat<-"Fraction of Livestock N excretion"
+curmea<-"FracGASM"
+source("nircatdata2.r")
+#figs("figB211trendFracGASM",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211FracGASM",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r gsub("frac", "Frac", text2ief(fig="",tab=tabs("tabB211FracGASM",display="cite")))`
+
+`r gsub("frac", "Frac", tabs("tabB211FracGASM",display="full"))`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+```{r 3D22ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.2.2"
+curseclong<-"Nitrogen leaching and run-off"
+curcat<-"Farming"
+curmea<-"IEF"
+source("nircatdata2.r")
+figs("figD22trendief",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabD22ief",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r curcattext`
+
+`r text2ief(fig=figs("figD22trendief",display="cite"),tab=tabs("tabD22ief",display="cite"))`
+
+`r figs("figD22trendief",display="full")`
+
+![](../ecir/plots/$cursubm$/rangeief/3D22Farming-AgriculturalSoilsNitrogenLeachingandRun-offIEF-nirrange.jpg)
+
+
+`r tabs("tabD22ief",display="full")`
+`r pander(splittable(curtable,2))`&nbsp;
+
+```{r 3B111FracLEACH,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+cursec<-"3.D.AI.3"
+curseclong<-"Indirect N2O emissions"
+curcat<-"Fraction of N input to managed soils"
+curmea<-"FracLEACH"
+source("nircatdata2.r")
+#figs("figB211trendFracLEACH",trendiefcaption(eukp,curcattext,lastyear))
+tabs("tabB211FracLEACH",paratablecaption(eukp,curcattext,lastyear))
+```
+##### `r paste0(curcattext," - ",curmeasure)`
+
+`r gsub("frac", "Frac", text2ief(tab=tabs("tabB211FracLEACH",display="cite")))`
+
+`r gsub("frac", "Frac", tabs("tabB211FracLEACH",display="full"))`
+`r pander(splittable(curtable,2))`&nbsp;
+
+
+
+### Agriculture- non-key categories 
+```{r AGR_nonKey,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+tabs("AGR_non_key", "Aggregated GHG emissions from nonkey categories in the agriculture sector")
+
+```
+
+`r tabs("AGR_non_key",display="full")`&nbsp;
+
+
+[^checknes]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checknes.r
+[^unitcheck]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkunits.r
+[^outlier]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkoutliers.r
+[^potsig]: &#09;See function `ispotentialissue()` in the file https://github.com/aleip/eealocatorplots/blob/master/eugirp_functions.r
+[^adchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks1ADs.r
+[^nexchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks2Nex.r
+
+
+## Uncertainties
+
+```{r niruncer,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+tabs("niruncert",paste0("Sector Agriculture: EU-28 uncertainty estimates"))
+
+
+```
+
+`r tabs("niruncert",display="cite")` shows the total EU-28 uncertainty estimates for the sector Agriculture and the uncertainty estimates for the relevant gases of each source category. The highest level uncertainty was estimated for N2O from 3D and the lowest for CH4 from sector 3A. With regard to the uncertainty on trend N2O from sector 3J shows the highest uncertainty estimates, CH4 from sector 3A the lowest. For a description of the Tier 1 uncertainty analysis carried out for the EU-28 see Chapter 1.6.
+
+`r tabs("niruncert",display="full")` 
+
+Note: Emissions are in Gg CO2 equivalents; trend uncertainty is presented as percentage points; the sum of the source category emissions may not be the total sector emissions of the EU-NIR because uncertainty estimates are not available for all source categories in each of this 28 EU Member States
+
+
+
+## Sector-specific quality assurance and quality control and verification
+
+### Introduction
+
+This section gives an overview of the QA/QC procedures applied specifically for the agriculture sector of the EU GHG inventory.
+It first gives an overview of the development of the agriculture QA/QC system with an outlook of further improvements to be discussed and/or implemented in coming years. A brief description of the QA/QC procedures used to process the data and interact with the Member States is given.
+
+This is followed by brief summaries of selected activities that have been carried out in the past to improve and/or verify national and EU wide GHG emissions from agriculture in the frame of the EU GHG inventory system. The list is not comprehensive.
+
+
+### Improvements
+
+#### Brief overview of the development of the QA/QC in the agriculture sector
+
+A major revision of the present chapter on methodological issues and uncertainty in the sector agriculture was done for the submission in 2006 giving for the first time a complete overview of all relevant parameters required for the estimation of GHG emissions and the calculation of all background parameter in the CRF tables for agriculture.
+
+The changes were partly due to a natural evolution of the inventory generation over the years and partly motivated by recommendations made by the UNFCCC review team on the occasion of the in-country review in 2005. The main issues raised by the Expert Review Team in 2005 and the major changes included (i) more transparent overview tables on methodological issues; (ii) better presentation of trend development; (iii) streamlining information contained in CRF and NIR; (iv) continuous working with Member States in order to improve the inventory and allowing the quantification of all background data; (v) including a summary of workshops. For the submission in 2007, several errors identified in the background tables of the Member States could be eliminated, thus improving the calculation of EU-wide background information. Further details were added to the inventory report for the submission in 2008, based on recommendations by the Expert Review Team of the in-country review in 2007. For the submissions in 2009 through 2014, background information was further developed.
+
+In 2008, a novel approach to calculate uncertainties at the EU level including the assessment of the quality of the emission estimates at MS and EU level has been implemented and described in the NIR. This method was presented during the in-country-review in 2007 and its implementation in the EC-IR was suggested by the ERT. This has been complemented by a series of tables giving background information for the estimates of the uncertainty levels for activity data and emission factors.
+
+Over the time, several sections were added describing specific QA/QC and verification activities (see also sections below), such as:
+
+* Summary of the workshop on &apos;Inventories and Projections of Greenhouse Gas Emissions from Agriculture&apos; (2003)
+* Summary of the findings of the GGELS project (Evaluation of the livestock sector&apos;s contribution to the EU greenhouse gas emissions. 
+* A comparison between submissions and data from the FAO GHG database (2014)
+* An analysis on the share of manure excretion by IPCC climate zones with EU wide independent data
+* A description of the Survey on agricultural production methods (SAPM 2010)
+* A summary of the LiveDate project on Nitrogen Excretion factors
+* Workshop on improving national inventories for agriculture (2013)
+* Comparison of Cultivated Organic Soil at the FAO GHG database and JRC calculations
+
+
+
+#### Major changes for the 2015 submissions
+The  submission in the year 2015 the QA/QC system brought a complete revision of the approach taken for the EU GHG inventory report in general and for the agriculture chapter in particular, driven by the need to adapt to new CRF software, increased number of countries to describe, and a series of new communication software products (e.g. EEA review tool, EU-GIRP). For this purpose, the EU GHG inventory was thoroughly revised. While this was true for the whole EU GHG inventory, this was particularly true for the agriculture sector. The following specific issues with regard to the GHG inventory in the agriculture sector were identified to require improvements:
+
+* Focusing of the agriculture chapter in the EU-GHG inventory report on key categories and factors and parameters which have a significant relevance for EU total emissions. 
+
+* The agricultural chapter applied a specific methodology to calculate "Tier levels" and aggregated uncertainties to more accurately account for correlation between the uncertainty estimates of the individual countries. The methodology was developed for the EU GHG inventory and published in peer-reviewed literature[^leip2010]. While this method was shown to provide additional insight for the uncertainty assessment of the EU GHG inventory, it was of no practical relevance for the overall GHG inventory, as a different method was used for other sectors. It was therefore decided to be not continued.
+
+* One major drawback of previous GHG inventories was the difficulties to account for 'other' animal types or nitrogen inputs. With the new data processing framework[^eugirp], *all* data are now available so that a comprehensive analysis is possible
+
+* Streamlining with other sector chapters was improved, not the least by using of harmonized plots to present trend-data at EU level while also showing data from those countries contributing most to EU values
+
+* The writing of the agriculture chapter of the EU-GHG inventory report has been highly automated[^prezi]. The process is directly based on the data submitted by the countries and are calculated on the fly thus no quantitative data are introduced &apos;manually&apos;. This allows to provide a report with quantitative information avoiding inconsistencies with the CRF data.
+
+The newly developed system is described in the section QA/QC system in the agriculture sector.
+
+[^leip2010]: &#09;Leip, A., 2010. Quantitative quality assessment of the greenhouse gas inventory for agriculture in Europe. Clim. Change. 103, 245-261. doi:http://dx.doi.org/10.1007/s10584-010-9915-5.
+[^eugirp]: &#09;EU-GIRP: EU-Greenhouse gas Inventory Reporting and Plots, see https://github.com/aleip/eealocatorplots.git
+[^prezi]: &#09;For an overview of the QA/QC system of the agriculture sector for the 2013 GHG inventory see presentation given for the ICR2013 at https://prezi.com/f1d3elxzd4qn/20131002_icr_agri/
+
+#### Main improvements since 2016
+Since the 2016 submission, the system implemented in 2015 was further developed, providing now some additional &apos;checks&apos; that identify issues requiring clarification or justification. Particular attention is paid to &apos;country outlier&apos; and &apos;time series&apos; checks, as well as to a series of specific checks for the agriculture sector focusing on consistency of the data reported and on the completeness of background data which are important for transparency.
+
+Furthermore, chapters comparing GHG emissions and activity data reported by countries with data from the FAO-STAT data base and the CAPRI model are included. 
+
+
+#### Further improvements
+
+The following further improvements are foreseen for the next submission: 
+
+* Further addition of sector-specific checks that could not be performed for the current submission
+* Further development of the comparison with FAO and CAPRI data
+
+### QA/QC system in the agriculture sector
+
+#### Quality checks
+
+Several quality checks are performed in the EU-GIRP[^eugirp] software. 
+They are documented in various modules of EU-GIRP and can be examined in the open source repository.
+The checks include:
+
+`r ## Update annually number of ERT recommendations`
+
+* **Recommendations**: Country were checked if they had implemented last years' recommendations from the ESD review and from the UNFCCC review. From all recommendations, 16 were still unresolved and therefore the corresponding issues were reopened.
+
+* **Check on NEs**[^checknes] and empty cells has been done by extracting all reported &apos;NE&apos;s and the empty cells, respectively, from the data base. The results were compared with the data contained in the file NE_checks_20180122.xlsx provided which also contained a list of empty cells. 
+
+* **Notation keys**: we identified emission categories where a Member State reported a notation key, while 20 or more Member States reported emission estimates, in order to assess the potential over/underestimations (these also contained in NE checks in the file above).
+
+* **Outliers in activity data and emissions**: Data were checked on outliers in AD and emissions. For each source category the share of AD and emissions by the countries to total `r eukp` values were determined. A share above 95% was further assessed and in case this was not linked to a source category which is dominated by single countries (such as emissions from buffalo, which are dominated by Italy) the country was notified 
+
+* **Check on erroneous units**: In several case, countries report background data using different units (e.g. fractions instead of percent values or vice versa; values per day instead of per year of vice versa; absolute values instead of values per head etc.). While these inconsistencies do not influence the reported emission estimates, a harmonization (at `r eukp` level) is important to ensure correct comparison of countries' values and a correct calculation of `r eukp` background data. An automated check[^unitcheck] is carried out detecting *seven* cases which can easily be recognised. Other &apos;mistakes&apos; in units used were detected following the outlier analysis (see below). The countries were notified via the review tool and in many cases corrections have already been implemented. 
+
+* **Within-country outliers**: within-country outliers in IEFs and other parameters are detected on the basis of the distribution of the values provided[^outlier]. We used the method based on the mean values and the standard deviation. Specifically, those values were identified as outliers which were more distant from than 1.5 time the standard deviation in the data from the mean (both in positive and negative direction). As an additional criterion, the relation to the median was used. In case the value was within 10% of the median it was not considered as an outlier. This removed cases where a country uses a country-specific parameter while most countries use the default value.
+
+* **Identification of potentially significant issues**: For each of the outliers identified it was determined whether or not this could be a potentially significant issue based on the criterion of a share of 0.05% of national total GHG emissions. The 'size' of the possible over- or under-estimation was quantified comparing the reported value with an estimate using the median IEF or parameter as reported by all countries[^potsig]. All outliers were &apos;manually&apos; cross-checked and analysed. Countries were notified on the results of the analysis.
+
+* **Time series outliers**: Time series outliers were detected on the basis of the same method as also used for the within-country-outlier check. Basis for the underlying distribution of data in this case, however, was not the values reported from all countries during the whole time series, but only the data reported by the country assessed. Only growth rates larger than &#177;3% could qualify as 'outliers'. However, this generated a large number of potential outliers which require further assessment. The following types of &apos;issues&apos; were identified, which might be linked either to an inconsistent time series or be the consequence of 'real' trends:
+* * *Period outphased*:	Relative constant trend with few years above/below the trend that &apos;looks plausible&apos;.
+* * *Trend break*: Time series in steps, in a stair shape: a few similar values, then a jump, and the same again.
+* * *One break group trend*: Regular time series with a different trend for a group of years, and a step when jumping from/coming back to the general trend.
+* * *Inflection point*: Trend suddenly changes from a specific year from which the growth of the values changes sign.
+* * *Single outlier*: One or few isolated year(s) where the value is out of the general trend
+* * *Smooth group trend change*: A series of years where the trend changes compared to the rest of the time series, but without any jumps
+* * *Trend jump*: There is a jump at some point in the time trend but it continues running parallel to the first section, after the jump. 
+* * *Jump and shape*: There is a jump at some point in the time trend and, after the jump, the trend changes shape
+
+* **Sector-specific checks**: Several checks were performed tailored to the reporting in the sector agriculture[^adchecks]^,^[^nexchecks]. First, the data are checked on consistency in reporting of activity data throughout the tables. Further, several other tests are performed:
+* * Difference between the sum of nitrogen excreted and reported in the different manure management system (MMS) versus the total reported nitrogen excreted
+* * Difference between the total nitrogen excreted and the product of animal population and nitrogen excretion rate
+* * Difference of the sum of N handled in MMS over animal type vs. total N handled in each MMS
+* * Check of the reported IEF per MMS with the total N excreted and the reported emissions
+* * Calculation and evaluation of the IEF in category 3.B.2 by animal type and in relation to the total N excreted
+* * Check that the sum of manure allocated to climate regions adds up to 100% over all MMS and climate regions
+* * Check that compares the Manure 'managed' in Pasture Range and Paddock in category 3.B.2 with AD in 3.D.1.3 (Urine and Dung Deposited by Grazing Animals). The sum of FRPR over all animal types should therefore equal the AD in category 3.D.1.3.
+* * Comparison of the IEF in 3.D.1.3 (N2O emissions from Urine and Dung Deposited by Grazing Animals) with default IEFs EF3_RPR_CPP for Cattle - Pigs and Poultry (0.02) and, EF3_RPR_SO for Sheep and other animals (0.01) using the shares FracRPR_CPP and FracRPR_SO of manure deposited by the two animal groups.
+* * Comparison of the fraction of N lost in MMS (via volatilization of NH3+NOx) versus total managed manure. According to IPCC Table 10.22 most of the loss fractions are between 20% and 45% of N in managed manure and N loss ratios are identified that are higher than 45% or lower than 20%.
+* * Comparison of the manure 'managed' and not lost as NH3+NOx or leaching in MMS (3B2) with Animal manure applied to soil (3D12a). Manure available for application is obtained from N managed in MMS and not lost (FracLOSSMS) according to Table 10.23 plus any addition of bedding material. The loss fractions in Table 10.23 include also losses of N2, which are not included in the indirect emissions-volatilisation. Therefore, FAM is expected to be smaller than N managed in MMS minus N lost as NH3+NOx+leaching unless bedding material has been accounted for. In case of crop residues as bedding material care has to be taken to avoid double counting.
+
+* **Recalculation**: Countries were asked for justifications of recalculations of more than 0.05% of national total emissions (excluding LULUCF) for years `r firstyear` and `r lastyear`, focusing on key categories.  
+
+
+```{r checkstats,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+checkstats<-as.data.frame(matrix(rep(NA,25),ncol=5,nrow=5))
+names(checkstats)<-c("Check","Resolved","Partially resolved","Unresolved","Not yet responded")
+checkstats$Check<-c("Completeness","Outliers","Recalculations","Time series","ESD review")
+complete<-c("50%","19%","31%","0%")
+outliers<-c("24%","2%","8%","65%")
+recalcul<-c("90%","0%","10%","0%")
+timeseri<-c("55%","3%","22%","21%")
+esdrevie<-c("33%","17%","33%","17%")
+
+response<-rbind(complete,outliers,recalcul,timeseri,esdrevie)
+checkstats[,2:5]<-response
+checkdate<-"March 15, 2019"
+tabs("checkstat",paste0("Status of issues as of ",checkdate))
+
+```
+
+A much lower number of issues were identified, compared to last year (340 issues were identified in 2017):
+
+* 12 completeness issues (related to ‘NE’/’empty’/’notation keys’)
+* 11 country-outlier issues
+* 14 recalculation issues
+* 16 time trend issues
+* 16 recommendations
+* 34 agricheck issues
+* 17 other issues (wrong units, same values reported for 2015 and 2016)
+
+`r #In 2017 agrichecks were done only in March due to time constraints. Some of the countries responded to the issues but they did not have to, given that questions were sent when it was not possible to submit new data. In this situation, none of these issues was triggered to the second step review, but we just kept record to check the issues again next year (or flag them as solved, if it is the case).`
+
+The status of responses as of `r checkdate` is given in `r tabs("checkstat",display="cite")`:
+
+`r tabs("checkstat",display="full")`
+
+`r pander(checkstats)`&nbsp;
+
+All issues had been responded by `r checkdate`, being the time series the type of issues with the highest percentage of resolution, followed by the recalculations. Most of the time series and the recalculation issues required just an explanation and some of the recalculations were due to mistakes which have mostly been corrected. The agrichecks are the type of issues with the highest share of questions still unresolved, often requiring detailed information which sometimes the countries cannot easily obtain. Similarly happens with the recommendations, 63% of which have not been resolved yet but countries are working on getting the necessary data for the resolution of the issues. Regarding outliers, 63% of the issues are still partly resolved or unresolved, probably needing more time to justify.
+
+
+#### Calculation of EU background data 
+
+
+EU-wide background data were calculated as weighted averages of the parameters provided by the countries, using activity data (animal numbers in category 3A and 3B and N input in category 3D) as weighting factors[^wave].
+
+Care is being taken to not include in the calculation erroneous values:
+
+* Data which had been identified as being reported with a different unit than the values reported by other countries (see above) were *converted* into the appropriate unit before calculating `r eukp` weighted averages
+
+* Data which *obviously* wrong (very large outliers) but for which no clear correction could be identified were *eliminated* from the calculation of the `r eukp` weighted averages to avoid biases in the results. Therefore, the `r eukp` weighted averages - in some cases - could not represent 100% of `r eukp` activity data.
+
+[^wave]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_euweightedaverages.r
+
+
+#### Compilation of the chapter agriculture for the EU-GHG inventory report
+
+The agriculture chapter of the EU-GHG inventory report takes advantage of the data base generated by EU-GIRP. All numeric data presented in the chapter are calculated directly using the processed data as described above, thus eliminating the risk of transcription or copy errors. This does not eliminate the possibility of mistakes completely. Therefore, all values are cross-checked.
+
+
+### Workshops and activities to improve the quality of the inventory in agriculture
+
+#### Workshop on 'Inventories and Projections of Greenhouse Gas Emissions from Agriculture' (2003)
+
+As a first activity to assure the quality of the inventory by Member States, a workshop on "Inventories and Projections of Greenhouse Gas Emissions from Agriculture" was held at the European Environment Agency in February 2003. The workshop focused on the emissions of methane (CH4) and nitrous oxide (N2O) induced by activities in the agricultural sector, not considering changes of carbon stocks in agricultural soils, but including emissions of ammonia (NH3). The consideration of ammonia emissions allows the validation of the N2O emission sources and it further strengthens the link between greenhouse gas and air pollutant emission inventories reported under the UNFCCC, the EC Climate Change Committee, the UNECE Long-Range Transboundary Air Pollution Convention, and the EU national emission ceiling directive. Objectives of the workshop were to compare the Member States methodologies and to identify and explain the main differences. The longer term objective is to further improve the methods used for inventories and projections in the different Member States and to identify how national and common agricultural policies could be integrated in EU-wide emission scenarios. 
+
+The workshop report including the Recommendations formulated at the workshop are available [here](https://www.researchgate.net/publication/284189570_N2O_emissions_from_agriculture._Report_on_the_expert_meeting_on_improving_the_quality_for_greenhouse_gas_emission_inventories_for_category_4D_Joint_Research_Centre_21-22_October_2004_Ispra?ev=prf_pub)[^2005report]
+
+[^2005report]: &#09;Leip, A., 2005. N2O emissions from agriculture. Report on the expert meeting on 'improving the quality for greenhouse gas emission inventories for category 4D', Joint Research Centre, 21-22 October 2004, Ispra. Office for Official Publication of the European Communities, Luxembourg. doi:http://dx.doi.org/10.13140/RG.2.1.4706.7607.
+
+#### Survey on agricultural production methods (SAPM 2010)
+
+The Survey on agricultural production methods, abbreviated as SAPM, is a once-only survey carried out in 2010 to collect data at farm level on agri-environmental measures. EU Member States could choose whether to carry out the SAPM as a sample survey or as a census survey. Data were collected on tillage methods, soil conservation, landscape features, animal grazing, animal housing, manure application, manure storage and treatment facilities and irrigation. With reference to irrigation, Member States were asked to provide estimation (possibly by means of models) of the volume of water used for irrigation on the agricultural holding. 
+
+The characteristics that were collected are given in the Regulation (EC) No 1166/2008 of the European Parliament and of the Council 19 November 2008 on farm structure surveys[^fss2008] and the survey on agricultural production methods  and further defined in the Commission Regulation (EC) No 1200/2009 of 30  November 2009 implementing Regulation (EC) No 1166/2008 of the European Parliament and of the Council on farm structure surveys and the survey on agricultural production methods, as regards livestock unit coefficients and definitions of the characteristics[^sapm2009].
+
+A list of characteristics of potential relevance for the quantification of GHG emissions is given in `r tabs("sapmcharachteristics","Selected characteristics included in the 'Survey on agricultural production methods' (SAPM)",display="cite")`.
+
+```{r samptable,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+sapm<-as.data.frame(t(c("Animal Grazing","Grazing on holding","Area grazed during the last year","ha")))
+sapm<-rbind(sapm,t(c("","","Amount of time when animals are outdoors on pasture","Month per year")))
+sapm<-rbind(sapm,t(c("","Common land grazing","Total number of animals grazing on common land","Head")))
+sapm<-rbind(sapm,t(c("","","Amount of time when animals are grazing on common land","Month per year")))
+sapm<-rbind(sapm,t(c("Animal housing","Cattle","Stanchion-tied table - with solid dung and liquid manure","Places")))
+sapm<-rbind(sapm,t(c("","","Stanchion-tied table - with slurry","Places")))
+sapm<-rbind(sapm,t(c("","","Loose housing - with solid dung and liquid manure","Places")))
+sapm<-rbind(sapm,t(c("","","Loose housing - with slurry","Places")))
+sapm<-rbind(sapm,t(c("","","Other","Places")))
+sapm<-rbind(sapm,t(c("","Pigs","On partially slatted floors","Places")))
+sapm<-rbind(sapm,t(c("","","On completely slatted floors","Places")))
+sapm<-rbind(sapm,t(c("","","On straw beds (deep litter housing)","Places")))
+sapm<-rbind(sapm,t(c("","","Other","Places")))
+sapm<-rbind(sapm,t(c("","Laying hens","On straw beds (deep litter housing)","Places")))
+sapm<-rbind(sapm,t(c("","","Battery cage (all types)","Places")))
+sapm<-rbind(sapm,t(c("","","&#09;Battery cage with manure belt","Places")))
+sapm<-rbind(sapm,t(c("","","&#09;Battery cage with deep pit","Places")))
+sapm<-rbind(sapm,t(c("","","&#09;Battery cage with stilt house","Places")))
+sapm<-rbind(sapm,t(c("","","Other","Places")))
+sapm<-rbind(sapm,t(c("Manure application","Used agricultural area on which solid/farmyard manure is applied","Total","UAA % band (^2^)")))
+sapm<-rbind(sapm,t(c("","Used agricultural area on which solid/farmyard manure is applied","With immediate incorporation","UAA % band (^2^)")))
+sapm<-rbind(sapm,t(c("","Used agricultural area on which slurry is applied","Total","UAA % band (^2^)")))
+sapm<-rbind(sapm,t(c("","Used agricultural area on which slurry is applied","With immediate incorporation","UAA % band (^2^)")))
+sapm<-rbind(sapm,t(c("","Percent of the total produced manure exported from the holding","","Percentage band (^3^)")))
+sapm<-rbind(sapm,t(c("Manure storage and treatment facilities","Storage facilities for:","Solid dung","Yes/No")))
+sapm<-rbind(sapm,t(c("","","Liquid manure","Yes/No")))
+sapm<-rbind(sapm,t(c("","","Slurry: Slurry tank","Yes/No")))
+sapm<-rbind(sapm,t(c("","","Slurry: Lagoon","Yes/No")))
+sapm<-rbind(sapm,t(c("","Are the storage facilities covered?","Solid dung","Yes/No")))
+sapm<-rbind(sapm,t(c("","","Solid dung","Yes/No")))
+sapm<-rbind(sapm,t(c("","","Slurry","Yes/No")))
+names(sapm)<-c("Characteristic","&#09;","&#09;","Units/categories")
+```
+
+
+`r tabs("sapmcharachteristics",display="full")`
 
  
+`r pander(pandoc.table(sapm, justify = c('left')))`
+
+Note&nbsp;1:&#09;Utilised agricultural area (UAA) percentage band: (0), (> 0-< 25), (=25-< 50), (=50-< 75), (=75)
+
+Note&nbsp;2:&#09;Percentage band: (0), (> 0-< 25), (=25-< 50), (=50-< 75), (=75).
+
+
+[^fss2008]: &#09;http://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32008R1166
+[^sapm2009]: &#09;http://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1448050507039&uri=CELEX:32009R1200
+
+#### The LiveDate project on Nitrogen Excretion factors
+
+The key indicator 'Gross Nutrient Balance' (GNB) is part of the set of agri-environmental indicators defined in the Commission Communication on the "Development of agri-environmental indicators for monitoring the integration of environmental concerns into the common agricultural policy"[^irena]. The Eurostat/OECD Methodology and Handbook on Nutrient Budgets has been updated and amended in 2013[^eurostatnbudget]. Nitrogen excretion coefficients have been identified of a major source of uncertainty for the estimation of the GNB, with high relevance for other reporting obligations, including the nitrate directive, reporting of ammonia emissions under the CLRTAP and the NEC directive, as well (and importantly) for the quantification of N2O emissions from manure management and agricultural soils. An expert workshop was therefore organized on 28/03/2014 at Eurostat to discuss the possibility to improve the quality of N-excretion data by using a common improved methodology. A recommendation on such a common methodology served as the basis for discussion. The workshop was co-organized by JRC under the WG on Annual GHG inventories under the EU Climate Change Committee and was attended by agricultural experts of the EU GHG inventory system.
+
+The following gives some information on the project that prepared the recommendations, as extracted from the report from Oenema et al. (2014)[^livedatereport].
+
+> The general objective of the study "Nitrogen and phosphorus excretion coefficients for livestock;    Methodological studies in the field of Agro-Environmental Indicators; Lot1" (2012/S 87-142068)  is "to bring clarity into the issue of excretion coefficients so that a recommendation on a single, common methodology to calculate N and P excretion coefficients can be identified". The recommendation for a uniform and standard methodology for estimating N and P excretion coefficients must be based on a thorough analysis of the strength and weaknesses of the existing methodologies and on the data availability and quality in the Member States. 
+
+> The specific objectives of the study were:
+
+> * To create an overview of the different methodologies used in Europe to calculate excretion factors for N and P, and analyse their strengths and weaknesses;
+> *	To set up a database with the excretion factors presently used in different reporting systems and describe the main factors that cause distortion within a country and across the EU;
+> *	To provide guidelines for a coherent methodology, consistent with IPCC and CLTRP guidelines, for calculating N and P excretion factors, and taking into consideration the animal balance and taking into account different methodologies identifies under the first bullet point;
+> *	To create default P-excretion factors that can be used by the countries who do not have yet own factors calculated;
+
+The recommendations of the LiveDate project from the authors of the report were:
+
+> *	It is recommended to use the mass balance as a common and universally applicable method to estimate N and P excretion coefficients per animal category across EU-28: 
+
+> * * N~excretion~ = N~intake~ - N~retention~
+
+> * * P~excretion~ = P~intake~ - P~retention~
+
+> *    We recommend that the European Commission encourages Member States to invest in Tier 2 and 3 methods for key animal categories (and hence in country-specific, region-specific and/or year-specific excretion coefficients). 
+
+> *    We recommend that the European Commission encourages Member States to use a 3-Tier approach for the collection of data and information needed to estimate N and P excretion coefficients, so as to address differences between countries in livestock production and data collecting/processing infrastructure, and to economize on data collection/processing efforts. The three Tiers differ in the origin, scale and frequency of data and information collection.  
+
+> *    We recommend that the European Commission encourages Member States to use a Tier 3 approach for all key animal categories when livestock density in a country is > 2 livestock units per ha (>2 LSU per ha), equivalent to an excretion of about > 200 kg N or the inter-annual variation in N excretion by key animal categories is relatively large due to the effects of changing weather conditions and market prices.
+> *    We recommend that the European Commission encourages Member States to use a Tier 2 approach for all main animal categories when livestock density in a country is between 0.5 and 2 LSU per ha (equivalent to an excretion of between about 50 and 200 kg N, under the condition that the inter-annual variation in N excretion by key animal categories is relatively small.
+
+> *    We recommend that the European Commission reviews the current default N and P excretion coefficients of all animal categories and decides on a list of N and P excretion coefficients. Member States are recommended to use this list as a Tier 1 approach for all animal categories within a country when livestock density is <0.5 livestock units per ha (<0.5 LSU per ha, also at regional levels), which is equivalent to about 50 kg N and 10 kg P per ha agricultural land per year. 
+
+> *    We recommend that the European Commission encourages Member States to use region-specific N and P excretion coefficients when N and P excretion coefficients of the main animal categories differ significantly (>20%) between regions.
+
+> *    We recommend that the European Commission makes computer programs available to Member States to encourage the calculation of the N and P excretion per animal category at regional and national levels in a uniform way. It is also recommended to provide training courses for the use of these programs and the calculation of the N and P excretion coefficients. 
+
+> *    We recommend that the European Commission encourages Member States to have well-documented and accessible methods for the estimation of N and P excretion coefficients per animal category. These reports should be updated once every 3-5 years and reviewed by external experts.
+
+> *    We recommend that the European Commission encourages Member States to harmonise the various animal categories in formal policy reporting. We recommend that the FSS categorization is taken as the main list of animal categories for policy reporting, also because the inventory of the number of animals takes place regularly according to the FSS list of animal categories. We recommend also that a transparent scheme and computer program is developed for translating the inventory data of FSS into the animal categories of secondary databases (e.g., UNFCCC/IPCC-2006, EMEP/EEA, Nitrates Directive, FAO and OECD). The development of a uniform nomenclature for animal categories would be useful too, which should include definitions about key, main, minor, primary, secondary, functional categories 
+
+> *    We recommend that the European Commission encourages Member States to conduct a secondary animal categorization for key animal categories (e.g., cattle, pigs and poultry), when more than 20% of the animals are in another system and when the N and/or P excretion coefficients differ by more than 20% from the overall mean N and P excretion coefficients. We recommend that the following aspects are considered for distinguishing different production systems:
+> * * Fast-growing and heavy breeds vs slow-growing breeds
+> * * Organic production systems vs common production systems
+> * * Housed ruminants vs grazing ruminants
+> * * Caged poultry vs free-range poultry
+> * Equally important is that the excretion coefficients can be translated in a transparent and well-documented manner from such secondary categories to the main categories of the FSS.
+
+> * We recommend that the European Commission conducts a review of the diversity of production systems and feeding practices within a country for the main animal categories cattle, pigs and poultry once in 5 yrs, so as to trace changes in production systems, including organic versus conventional systems, housed vs grazing ruminants, caged versus free range poultry, and fast growing breeds versus slow growing breeds. 
+
+> * We recommend that the European Commission encourages Member States to review and update the N and P retention coefficients for all animal categories once in 5-10 yrs. All data should be stored in a database accessible by all Member States.
+
+> * We recommend that the European Commission conducts a review and adjusts/modifies/updates the classification system of livestock units (as presented also in Table 5 of this report), and livestock density, so as to better reflect the diversity of animals within an category and more in general the impact of livestock on the environment. 
+
+
+[^irena]: &#09;http://epp.eurostat.ec.europa.eu/portal/page/portal/agri_environmental_indicators/introduction
+[^eurostatnbudget]: &#09;http://epp.eurostat.ec.europa.eu/portal/page/portal/agri_environmental_indicators/documents/Nutrient_Budgets_Handbook_%28CPSA_AE_109%29_corrected3.pdf
+[^livedatereport]: &#09;Oenema, O., Sebek, L., Kros, H., Lesschen, J.P., van Krimpen, M., Bikker, P., van Vuuren, A., Velthof, G., 2014. Guidelines for a common methodology to estimate nitrogen and phosphorus excretion coefficients per animal category in eu-28. final report to eurostat, in: Eurostat (Ed.), Methodological studies in the field of Agro-Environmental Indictors. Eurostat, Luxembourg, pp. 1?108.
+
+
+#### Regionalisation of the Gross Nutrient Budget with the CAPRI model 
+
+The JRC was cooperating with EUROSTAT on a methodology to use the CAPRI model[^capriweb] for the regionalisation of the Gross Nutrient Budget (GNB) indicators (nitrogen and phosphorus) that needs to be reported regularly by countries to EUROSTAT and OECD. The GNBs are identified as one of the key agro-environmental indicators. Current reporting occurs at the national level. For policy making, a higher resolution, matching with legislative and environmental boundaries (NVZ, watershed) rather than administrative boundaries (country) is required. The CAPRI model is an economic model for agriculture, which has an environmental accounting model integrated. It has a spatial resolution of NUTS2 and reports, a.o. Nitrogen Balances at this level. The CAPRI model has a down-scaling module integrated which estimates land use shares and environmental indicators at the pixel level (1 km by 1 km). The use of the CAPRI model is motivated in view of the lack of methodology for regionalisation of the GNB and the high costs associated with building up such systems in the countries at one hand, and the thrive to harmonise the conceptual approaches. 
+
+[^capriweb]: &#09;http://www.capri-model.org/
+
+The Working Group (WG) on agri-environmental indicators (AEI, February 2012) and the subsequent Standing Committee for Agricultural Statistics (CPSA, May 2012) decided to start a pilot projects on regionalising Gross Nitrogen Balance (GNB) with the CAPRI model. The objective of the pilot project is to evaluate differences between national GNB and the GNB calculated with CAPRI at the country and the NUTS2 scale. Italy, France, Germany and Hungary volunteered for this pilot project. The RegNiBal project (Regionalisation of Nitrogen Balances with the CAPRI Model - Pilot Project) started in February 2013. The overall goal was to use the CAPRI model to provide (operationally) regional GNB data to complement the national Eurostat/OECD GNBs.
+
+Four countries volunteered to share their national GNB estimates with the CAPRI team which were analysed on differences with CAPRI estimates and recommendations were formulated to improve both national methods and the CAPRI model:
+
+* France
+* Germany
+* Italy
+* Hungary
+
+The conclusions formulated in the final RegNiBal report[^regnibal] included:
+
+> A total of 31 'issues' were identified that were related to major discrepancies between the methods and warranted further assessment. At the end of the project, 12 of the identified issues were solved, one was partially solved and 18 could not be solved, but some progress was achieved and concrete recommendations were made for almost all of them. The results and achievements of RegNiBal are summarised in Annex 12.
+
+> At the start of the RegNiBal project CAPRI data was generally judged to be more reliable than national data. The situation has changed with the improvements described above; at present, further analysis is needed to see whether CAPRI or national data is ?better? with regard to the remaining unresolved issues.
+
+> Overall, N excretion by swine and N removal by grass are considered the most important unresolved issues because of their considerable impact on N-input and N-output. The animal budget analysis for swine of DE and FR shows that CAPRI estimates higher feed intake than the national methodologies. Countries are not always sufficiently accurate in estimating and/or using the average number of animals and N-excretion coefficients in N manure excretion estimations. For the estimates of dry matter yields of grassland, the differentiation of permanent grassland according to the proposal of the GRASSDATE project (Velthof et al 2014)[^velthof2014] would likely help (grassland out of production but maintained, unimproved grassland (including both sole use and  common land) and improved grassland (by N-input levels <50, 50-100, >100 kg N/ha/yr, sole use and common land). 
+
+[^velthof2014]: &#09;Velthof, G.L., Lesschen, J.P., Schils, R.L.M., Smit, A., Elbersen, B.S., Hazeu, G.W., Mucher, C.A., Oenema, O., 2014. Grassland areas , production and use. Lot 2. Methodological studies in the field of Agro-Environmental Indicators. Alterra Wageningen UR, Wageningen, The Netherlands.
+
+> The CAPRI model is very strong in several parts of GNB calculations, and the RegNiBal project enabled us to identify several possible improvements in national data and methods. The use of the animal budget to estimate N excretion is a major asset in the CAPRI methodology, but runs the risk of outliers if the use of feed in the statistical sources is overestimated. There is large uncertainty in grass yield and other (non-marketable) fodder yield and their N content. This affects the accuracy of national data as well. The other major areas of difficulties for the CAPRI model are the following: (i) Seed and planting materials should be explicit in the CAPRI GNB; (ii) N from organic fertilisers (other than manure) and manure withdrawal, stocks, and import estimations are not considered in the CAPRI model.
+
+> The CAPRI model can be used to calculate both land N budgets (GNB) and farm N budgets. The possibility of comparing the GNB with the farm N-budget helps to constrain the N-surplus results. For the farm N-budget, feed and fodder produced in the country (or region) and manure excreted and applied within the country (or region) are considered as internal flows and thus do not need to be estimated to quantify the N-surplus; data on imported feed and exported animal products are needed instead (for details on the comparison of the two approaches, see Leip et al 2011[^leip2011nbudgets]). In the CAPRI model, data on animal products and imported feeds are available from statistical sources and are thus more reliable than the data on the N intake of fodder and manure excretion, which would not be required. 
+> Generally, the RegNiBal project showed that the CAPRI model could be adequate to provide national (and later regional and spatially explicit) GNBs. However, for the four countries assessed, additional work needs to be carried out to understand residual disagreements in the data.
+
+[^regnibal]: &#09;&#214;zbek, F.S., Leip, A., Weiss, F., Grassart, L., Hofmeier, M., Kukucka, M., Pallotti, A., Patay, A., Thuen, T., 2015. Regionalisation of Nitrogen Balances with the CAPRI Model ( RegNiBal ) Pilot project in support of the Eurostat Working Group on Agri-Environmental Indicators. Publications Office of the European Union, Luxembourg. doi: http://dx.doi.org/10.2788/078406.
+
+[^leip2011nbudgets]: &#09;Leip, A., Britz, W., Weiss, F., de Vries, W., 2011. Farm, land, and soil nitrogen budgets for agriculture in Europe calculated with CAPRI. Environ. Pollut. 159, 3243?53. doi: http://dx.doi.org/10.1016/j.envpol.2011.01.040.
+
+
+#### Workshop on improving national inventories for agriculture (2014)
+
+Under the WG1 on Annual GHG inventories under the EU Climate Change Committee a workshop on improving GHG inventories in the sector agriculture was organized by the Joint Research Centre as part of the 7^th^ Non-CO2 Greenhouse Gas Conference (NCGG7), held November 5-7, 2014 Amsterdam, the Netherlands[^ncggweb]. The workshop was co-organized by CEH in support of the UK greenhouse gas inventory programme. 
+
+[^ncggweb]: &#09;http://www.ncgg.info/ 
+
+The session raised a high interest, contained high quality presentations and allowed scientists, IPCC and FAO representatives and country delegates to discuss about greenhouse accounting methods, their difficulties and challenges to use IPCC guidelines, to select the appropriate tier methods and to design country-specific methodologies which allow reducing uncertainties. From a total attendance of about 200 conference participants and five parallel sessions, this session was temporary attended by almost 100 scientists.
+
+The workshop focused on N2O emissions from agricultural soils, as they are highly uncertain yet are often estimated with default methodology in lack of country-specific data of sufficient quality. N2O emissions from agricultural soils are dominating the uncertainty of the total GHG emissions for many countries. The programme included presentations covering the whole range of aspects of N2O emission estimates: the availability of flux data in Europe and network design strategies (Rene Dechow, Thuenen Institute, DE),  use of process-based models in GHG inventories (Steve del Grosso, USDA) to inverse methods to estimated national total N2O emissions (Rona Thompson, NILU, NO). Further presentation gave national examples on GHG improvements, such as UK (general), NZ (pasture emissions), Thailand (emissions from rice), Norway (emissions from dairy farms) and on the link to IPCC guidelines and the IPCC Emission Factor Database (Kiyoto Tanabe (see below) and Baasansuren Jamsranjav, IPCC TFI TSU). A broader picture was given on the basis of the FAOSTAT GHG Database (FrancescoTubiello) and the CAPRI model (Carmona and Leip: The calculation of greenhouse gas emissions in the European agricultural sector; how much does the method matter?). Introduction and expectations were formulated by a presentation from Velina Pendolovska (DG Climate Action).
+
+A final brainstorming exercise was done about how modelling and measurements could be improved in a way to reduce uncertainties, improve accuracy of measures and optimise resources. There was a debate around whether new models are needed or focusing on reducing the uncertainty in current models would be preferable, for example using the results of inverse modelling to contrast results. There is an agreement on the acceptability of simple models or inverse models for emission accounting at high scales, while more complex process-based models are needed when designing mitigation options. The problem of nitrogen surplus was pointed out as a proxy of N2O emissions, which also informs about other additional pollution problems. About the estimation of uncertainties, the group agreed on the need, first of all, to improve their estimation. It seemed a general impression that uncertainties are usually overestimated, but it is difficult to quantify objectively. Another point that needs attention is the activity data: statistics do not always match at national level, and sometimes models demand a high quantity of data which is not available. Getting better activity data is important prior to focus on emission estimations.
+
+As a conclusion, the combination of an expert meeting in support of the EU GHG inventory system and an international scientific conference was very successful, as it provided a high density of expertise that country delegates could use. The NCGG conference series is ideal for this purpose.
+
+
+
+### Verification
+
+#### Allocation to climate regions
+
+In the year 2013, an analysis was performed to compare the allocation of livestock over the IPCC climate regions at the national scale between data available at high spatial resolution at the Joint Research Centre and data provided in the national GHG inventory reports.
+
+For the submission in the year 2014, this section had been updated and is available at the JRC website[^allocation]
+
+
+[^allocation]: &#09;ftp://mars.jrc.ec.europa.eu/Afoludata/Public/363_eughginventory2014/koeble_leip2014.livestockallocation.pdf
+
+
+
+
+#### Comparison of national inventories with EU-wide calculations with the CAPRI model
+
+```{r capricomparison,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+#source("curplot.r")
+load(file=paste0(invloc2,"_clean_plotmeasademnir-capri.RData"), verbose = TRUE)
+multisource<-unique(plotdata$datasource)
+multiref<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC"}else if(x=="fao") {"FAO"}else if(x=="capri"){"CAPRI"}))
+multirefl<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC GHG inventories"}else if(x=="fao") {"FAO GHG database"}else if(x=="capri"){"CAPRI"}))
+
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Non-Dairy Cattle"
+curmea<-"POP"
+
+capri_comp_plots <- "D:\\dev\\CAPRImodel\\CAPRI_R_TRUNK_15022019\\results\\inventories/"
+cursubm <- "20190315"
+#tabs("caprit1","")
+#tabs("caprit2","")
+#tabs("caprit3","")
+#
+#paste0("comp1", "3.A.1", "Non-Dairy Cattle", "trendem")
+figs("capriFig1", compademplots(eukp, "3.A.1", "Non-Dairy Cattle"))
+#figs("capriFig1","")
+#figs("capriFig2","")
+figs("capriFig2","")
+#figs("capriFig3","")
+#figs("capriFig4","")
+#figs("capriFig5","")
+#figs("capriFig6","")
+##figs("capriFig7","")
+```
+
+
+
+In the context of the GGELS project (http://afoludata.jrc.ec.europa.eu/group/ggels-results), an in-depth comparison between data provided by Parties in the national inventories and greenhouse gases estimates as calculated with the CAPRI model for the year 2002 was done. A summary of this project was included in previous EU GHG emission inventories in the agriculture chapter. The Joint Research Centre is working on a more comprehensive comparison between CAPRI and the national GHG inventories and compare the development of emissions over the timespan 1990 to last reported year. 
+
+To this purpose, for the submission in the year 2016, a pilot project was carried out to provide a preliminary comparison. In the CAPRI model, GHG emissions are calculated based on activity data contained in the CAPRI database drawing mainly from data obtained from Eurostat and complemented with other sources (e.g. FAOSTAT)). First results of that project were presented in the EU National Inventory Report of the year 2016. 
+
+The results revealed considerable differences for certain sub-categories of emissions, due to diverse reasons such as: some discrepancies in population numbers, the use of different emission factors, underlying assumptions taken in the model for certain parameters, and different methodologies for the calculation of emissions. For example, for the nitrogen compounds emitted, CAPRI uses a mass-preserving N balance approach, which consistently accounts for all nitrogen flows and quantifies available N at each step of the system (see [^leip2010], [^Velthof2007]). Furthermore, while countries may use different Tiers according to the emission category and their availability of resources, and often country specific methods and parameters, CAPRI applies the same calculation method for all reporting parties, always in compliance with 2006 IPCC guidelines.
+
+Since 2016, we have been working on the improvement of a comparison module in the CAPRI model, which incorporates some elements allowing the comparison with national inventory data along the whole time series. The module considers dynamic evolution of parameters which were originally considered as fixed, and in particular feed requirements. It is now possible to compare data for the whole time series from 1990 until the last year that is available in the CAPRI data base, which is currently the year 2014. For the year 2016, a CAPRI 'now-casting' is made. This is a projection of the data for the year 2016 based on a trend analysis keeping consistency between all variables (i.e., areas and herd sizes, yields, production volumes, technology development etc.).
+
+Preliminary results show that for some emission categories there are differences whose reasons have to be analysed. For example, `r figs("capriFig1",display="cite")` shows emissions from enteric fermentation from non-dairy cattle. As we can see, emissions calculated by CAPRI are higher than emissions reported by NI. According to `r figs("capriFig2",display="cite")`, differences in population between the two databases are much smaller, therefore another reason other than activity data must be behind discrepancies in emissions (for example feed rations or feed digestibility etc).
+
+
+`r figs("capriFig1", display="full")`
+![](D:/dev/CAPRImodel/CAPRI_R_TRUNK_15022019/results/inventories/20190315/valueadem/3A1Non-DairyCattle-EntericFermentationCH4EM-nircaprivalue.jpg) 
+
+
+`r #figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
+`r figs("capriFig2", display="full")`
+
+`r # ![](../ecir/plots/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) `
+
+![](D:/dev/CAPRImodel/CAPRI_R_TRUNK_15022019/results/inventories/20190315/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nircaprivalue.jpg) 
+
+
+
+
+
+
+
+[^leip2010]: &#09;Leip, A., 2010. Quantitative quality assessment of the greenhouse gas inventory for agriculture in Europe. Clim. Change. 103, 245-261. doi:http://dx.doi.org/10.1007/s10584-010-9915-5.
+[^Velthof2007]: &#09;Velthof, G.L., D.A. Oudendag, and O. Oenema. 2007. Development and application of the integrated nitrogen model MITERRA-EUROPE. Task 1 of Service contract "Integrated measures in agriculture to reduce ammonia emissions. Alterra Rep.1663.1. Alterra, Wageningen, the Netherlands.
+
+#### Comparison of activity data in the FAO GHG database on the national inventory reports
+
+```{r nirfaopop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+#source("curplot.r")
+load(file=paste0(csvfil,"_clean_plotmeasademnir-fao.RData"))
+acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+multisource<-unique(plotdata$datasource)
+multiref<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC"}else if(x=="fao") {"FAO"}else if(x=="capri"){CAPRI}))
+multirefl<-as.vector(sapply(multisource,function(x) 
+    if(x=="nir"){"UNFCCC GHG inventories"}else if(x=="fao") {"FAO GHG database"}else if(x=="capri"){CAPRI}))
+cursec<-"3.A.1"
+curseclong<-"Enteric Fermentation"
+curcat<-"Dairy Cattle"
+curmea<-"POP"
+curvar<-getvariableUID(DF=plotdata,sec=cursec,cat=curcat,mt=curmea,gas="no gas")
+curdata<-plotdata[plotdata$variableUID==curvar,]
+curmeasure<-plotmeas$measure[plotmeas$variableUID==curvar]
+source("nircatdata2.r")
+figs(paste0("comp1",cursec,curcat,curmea),compademplots(eukp,cursec,curcat))
+figs(paste0("comp2",cursec,curcat,curmea),compareplots(eukp,cursec,curcat))
+figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),compademplots(eukp,cursec,"Non-Dairy Cattle"))
+figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),compareplots(eukp,cursec,"Non-Dairy Cattle"))
+figs(paste0("comp1",cursec,"Sheep",curmea),compademplots(eukp,cursec,"Sheep"))
+figs(paste0("comp2",cursec,"Sheep",curmea),compareplots(eukp,cursec,"Sheep"))
+figs(paste0("comp1",cursec,"Swine",curmea),compademplots(eukp,cursec,"Swine"))
+figs(paste0("comp2",cursec,"Swine",curmea),compareplots(eukp,cursec,"Swine"))
+figs(paste0("comp1",cursec,"Poultry",curmea),compademplots(eukp,cursec,"Poultry"))
+figs(paste0("comp2",cursec,"Poultry",curmea),compareplots(eukp,cursec,"Poulry"))
+```
+
+
+```{r nirfaooverview,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+sel<-plotdata$category=="Dairy Cattle"
+plotdata$sector_number[sel]<-paste0(plotdata$sector_number[sel],".1")
+sel<-plotdata$category=="Non-Dairy Cattle"
+plotdata$sector_number[sel]<-paste0(plotdata$sector_number[sel],".1")
+sel<-plotdata$measure=="Emissions"&plotdata$party==eusubm
+compsecs<-unique(agrigen$sector_number)
+compsecs<-compsecs[grepl("[ABCDF]",compsecs)]
+compsecs<-compsecs[!compsecs=="3.D.1"]
+curtable<-plotdata[sel&plotdata$sector_number%in%compsecs,]
+compsecs<-unique(agrimix$sector_number)
+compsecs<-compsecs[grepl("3.D.1",compsecs)]
+curtable<-rbind(curtable,plotdata[sel&plotdata$sector_number%in%compsecs,])
+compsecs<-unique(agrigen$sector_number)
+compsecs<-compsecs[grepl("[GHIi]",compsecs)]
+curtable<-rbind(curtable,plotdata[sel&plotdata$sector_number%in%compsecs,])
+curtable<-curtable[order(curtable$sector_number),]
+
+convertfields<-c("gas","unit",years)
+curtable[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(curtable)),function(x) Reduce(cbind,convert2co2eq(curtable[x,convertfields]))))
+curtable<-curtable[curtable$gas!="NMVOC",]
+curtemp<-curtable
+curtemp[curtemp==0]<-NA
+#xavi20180327: curtemp<-(apply(curtemp[,years],2,mean))
+curtemp<-(apply(curtemp[,years],2,mean, na.rm=TRUE))
+curtemp<-curtemp[!is.na(curtemp)]
+yearsavailable<-(as.numeric(names(curtemp)))
+faoyears<-as.character(yearsavailable)
+faolast<-faoyears[length(faoyears)]
+
+#For some years not all countries report: check for the example of Enteric Fermentation
+cntmissing<-apply(as.data.frame(is.na(filter(plotdata,sector_number=="3.A",meastype=="EM")[,faoyears])),2,sum)
+cntthere<-faoyears[which(cntmissing==0)]
+
+comprange<-paste0(cntthere[1]," to ",cntthere[length(cntthere)])
+comprange2<-paste0("(",cntthere[1],"-",cntthere[length(cntthere)],")")
+curtable$comp<-apply(curtable[,cntthere],1,mean,na.rm=TRUE)
+curtable$what<-sapply(1:nrow(curtable),function(x) 
+    seccatsou(curtable$sector_number[x],curtable$category[x],curtable$classification[x],
+              curtable$target[x],curtable$type[x]))
+curtable$what<-as.character(curtable$what)
+curtable$what<-gsub(" and NMVOC","",curtable$what)
+curtable$what<-gsub(" From Managed Soils$","",curtable$what)
+curtable$what<-gsub(" From Managed Soils"," - ",curtable$what)
+curtable<-dcast(curtable,what + gas ~ datasource,value.var="comp",fun.aggregate=sum)
+comptots<-apply(curtable[,c("fao","nir")],2,sum,na.rm=TRUE)
+curtable$shfao<-curtable$fao/comptots["fao"]
+curtable$shnir<-curtable$nir/comptots["nir"]
+compf<-c("nir","shnir","fao","shfao")
+comptots<-as.data.frame(t(apply(curtable[,compf],2,sum,na.rm=TRUE)))
+comptots$what<-"Total"
+comptots$gas<-"GHGs"
+curtable<-rbind(curtable[,c("what","gas",compf)],comptots[,c("what","gas",compf)])
+curtable[,c("shnir","shfao")]<-100*curtable[,c("shnir","shfao")]
+names(curtable)<-c("Source category","Gas","NIR [kt CO2-eq yr-1]","NIR [%]",
+                   "FAO [kt CO2-eq yr-1]","FAO [%]")
+panderOptions('table.alignment.default',c('left','left',rep('right',4)))
+panderOptions('round',c(0,1,0,1))
+panderOptions('digits',c(5,3,5,3))
+panderOptions('table.style','rmarkdown')
+pander(curtable[,3:6],emphasize.strong.cols=1:2,graph.background=grey)
+
+
+curdiffs<-curtable[,c(1:3,5)]
+curdiffs$diff<-curdiffs[,3]-curdiffs[,4]
+curdiffs<-curdiffs[order(abs(curdiffs$diff),na.last = TRUE,decreasing = TRUE),]
+curdiffs<-curdiffs[!grepl("^3.[GHIJ]|Total|^3.D.1.5",curdiffs$`Source category`),]
+curdiffs$reldiff<-round(100*curdiffs$diff/curdiffs$`NIR [kt CO2-eq yr-1]`,1)
+curdiffs$difftot<-round(curdiffs$diff/curtable[nrow(curtable),3]*100,1)
+curdiffs$relnir<-round(curdiffs$`NIR [kt CO2-eq yr-1]`/curtable[nrow(curtable),3]*100,1)
+curdiffs$relfao<-round(curdiffs$`FAO [kt CO2-eq yr-1]`/curtable[nrow(curtable),3]*100,1)
+
+curdiffr<-curdiffs[order(abs(curdiffs$reldiff),decreasing=TRUE),]
+curdiffs$diff<-round(curdiffs$diff,0)
+
+```
+
+The Food and Agriculture Organization of the United Nations (FAO) has developed a database of greenhouse gas emissions, contained in FAOSTAT, which provides estimations of the emissions of main gases in the agricultural sector (CH4 and N2O) and statistics on the activity data related to these emissions that generally cover the period 1990-`r faolast`. The database can be consulted at the following link:
+
+http://faostat3.fao.org/faostat-gateway/go/to/download/G1/*/E 
+
+Emissions are specified for the different agricultural sub-domains, estimated by FAO following Tier 1 approach from the 2006 IPCC Guidelines for National GHG Inventories (IPCC, 2006), using activity data provided by countries and default emission factors by IPCC. The data provided by FAO does not necessarily match the numbers reported by countries to the UNFCCC in their national inventory reports.
+
+
+```{r nirfaotabexp,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+# EU values for FAO are calculated as average of country-sums.
+# As some countries do not report for early years ()
+tabs("nirfaotab",paste0("GHG emissions from the agricultural sector by emission source category, in kt CO2-eq/year and % of total emissions, for the whole EU-28+ISL, averaged over the years ",comprange,", for which reported data from all countries are available in both the FAOSTAT and the UNFCCC databases are available."))
+# see http://rapporter.github.io/pander/
+```
+
+The FAOSTAT database is intended primarily as a service to help member countries assess and report their emissions, as well as a useful international benchmark.  FAOSTAT emissions data are disseminated publicly to facilitate continuous feedback from member countries. The following table presents total GHG emissions of the agricultural sector by emission source category for the whole EU-28+Iceland and year `r faolast` (last year available in FAOSTAT). It compares emission values and the share of emissions by category in FAOSTAT database vs. UNFCCC values reported by countries in their National Inventory Reports (NIR).
+
+`r tabs("nirfaotab",display='full')`
+`r pander(curtable,emphasize.strong.cols=1:2,emphasize.verbatim.rows=2:4,round=c(0,0,0,1,0,1),digits=c(0,0,3,5,3,5))`&nbsp;
+
+Comparing both databases, we can see that UNFCCC reports slightly higher total emissions than FAOSTAT (`r round(sum(curtable[1:(nrow(curtable)-1),3])/1000,1)` versus `r round(sum(curtable[1:(nrow(curtable)-1),5])/1000,1)`) Mt CO2-eq yr-1, even if categories 3.D.1.5, 3.G, 3.H and 3.I are not estimated in FAOSTAT (`r round(sum(curdiffs[,3])/1000,1)` versus `r round(sum(curdiffs[,4])/1000,1)`) Mt CO2-eq yr-1. Looking at the individual emission categories, we can also identify differences between the two databases, which can be due to different reasons: 
+
+1. Differences in the methodology used for the estimation of emissions. While countries apply tier 1 to tier 3 approaches, depending on the emission category, FAOSTAT estimations are based on a tier 1 approach, using always default emission factors. 
+2. The use of different activity data, coming from different sources or suffering different processing after data collection.
+
+Comparing the estimations of FAOSTAT with the UNFCCC inventory data, we find that the biggest absolute difference corresponds to: 
+
+* `r checkcurdif("diff",1)`, followed by 
+* `r checkcurdif("diff",2)` and 
+* `r gsub("indirect", "Indirect", checkcurdif("diff",3))`. 
+
+These three emission categories represent a significant  share of the total agricultural emissions in the NIR and FAO databases, accounting for `r paste(range(curdiffs[1,c("relnir","relfao")]),collapse="-")`%, `r paste(range(curdiffs[2,c("relnir","relfao")]),collapse="-")`% and `r paste(range(curdiffs[3,c("relnir","relfao")]),collapse="-")`%, respectively. 
+
+The largest three differences in relative terms are: 
+
+* `r checkcurdif("reldiff",1)`, followed by 
+* `r checkcurdif("reldiff",2)` and 
+* `r checkcurdif("reldiff",3)`. 
+
+The three source categories with the hightest absolute and relative differences are `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[1],])`, `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[2],])` and `r checkcurems(curdiffs[which(rank(rank(curdiffs$reldiff)+rank(curdiffs$diff))<3)[3],])`.
+
+In the next sections, we will focus on the comparison of activity data, trying to find out if the differences found in both databases can explain the differences in emissions, analysing the trends of livestock population, fertiliser use and cultivated area along the inventory years (1990-`r faolast`).
+
+We will employ two types of figures throughout this section. Figure of the type as in `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` show the trend of `r eukp` for both NIR and FAO, similar to the Figures used also in Section 5.2. The upper panel of the figure shows the trend in the data from NIR, and the lower panel shows the trend in the FAO data. The 10 most important countries are plotted explicitly with the pattern used also in the previous sections. The share of AD in the last reported year given next to the legend, and all other countries lumped together into the category 'Other'. This category contains only the 'other' countries with respect to the database, thus the countries could be different for NIR and FAO.
+
+Figures of the type as in `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="cite")` show three different perspectives on the comparison of the two data sets, using the average of data for the years 1990-`r faolast`: the chart on the left side shows the reported values in absolute units for both NIR and FAO; the chart in the middle shows the relative difference between both data sets, calculated as (FAO-NIR)/NIR. Thus, positive values indicate that the value from FAO are larger than the value from NIR, and negative values indicate that the values from NIR are larger. Large relative differences indicate a problem in data reporting by the countries, but is not necessarily an indication that this has a large impact for the overall total EU emissions. Therefore, the chart on the right side shows the importance of the difference observed in each countries, as compared to the `r eukp` total: (FAO~country~-NIR~country~)/NIR~EU~.
+
+
+##### Animal populations 
+Trends of population data in the two data sets and a comparison of average data in the period 1990 to `r faolast` are shown for dairy Cattle (`r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="cite")`), non-dairy Cattle (`r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="cite")`), sheep (`r figs(paste0("comp1",cursec,"Sheep",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Sheep",curmea),display="cite")`), swine (`r figs(paste0("comp1",cursec,"Swine",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Swine",curmea),display="cite")`) and poultry (`r figs(paste0("comp1",cursec,"Poultry",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Poultry",curmea),display="cite")`). The trends in the NIR data are discussed in detail in Section 5.2.
+
+`r eutotdiff(makecurdiff("POP","Dairy Cattle","3.A"))`
+
+`r eutotdiff(makecurdiff("POP","Non-Dairy Cattle","3.A"))`
+
+`r eutotdiff(makecurdiff("POP","Sheep","3.A"))`
+
+```{r curdifswine,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curdiff<-makecurdiff("POP","Swine","3.A")
+```
+`r eutotdiff(curdiff)`
+
+
+```{r curdifsheep,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curdiff<-makecurdiff("POP","Poultry","3.A")
+```
+`r eutotdiff(curdiff)`
+
+
+`r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
+
+`r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3A1DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
+
+
+`r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3A1Non-DairyCattle-EntericFermentationPOP-nirfaocompare.jpg) 
+
+
+`r figs(paste0("comp1",cursec,"Sheep",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A2Sheep-EntericFermentationPOP-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Sheep",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3A2Sheep-EntericFermentationPOP-nirfaocompare.jpg) 
+
+`r figs(paste0("comp1",cursec,"Swine",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A3Swine-EntericFermentationPOP-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Swine",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3A3Swine-EntericFermentationPOP-nirfaocompare.jpg) 
+
+`r figs(paste0("comp1",cursec,"Poultry",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3A47Poultry-EntericFermentationPOP-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Poultry",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3A47Poultry-EntericFermentationPOP-nirfaocompare.jpg) 
+
+
+```{r nirfaonex,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmeasure<-"Total nitrogen excretion"
+cursec<-"3.B.2"
+figs(paste0("comp1",cursec,"Dairy Cattle",curmea),compademplots(eukp,cursec,"Dairy Cattle"))
+figs(paste0("comp2",cursec,"Dairy Cattle",curmea),compareplots(eukp,cursec,"Dairy Cattle"))
+figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),compademplots(eukp,cursec,"Non-Dairy Cattle"))
+figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),compareplots(eukp,cursec,"Non-Dairy Cattle"))
+figs(paste0("comp1",cursec,"Sheep",curmea),compademplots(eukp,cursec,"Sheep"))
+figs(paste0("comp2",cursec,"Sheep",curmea),compareplots(eukp,cursec,"Sheep"))
+figs(paste0("comp1",cursec,"Swine",curmea),compademplots(eukp,cursec,"Swine"))
+figs(paste0("comp2",cursec,"Swine",curmea),compareplots(eukp,cursec,"Swine"))
+figs(paste0("comp1",cursec,"Poultry",curmea),compademplots(eukp,cursec,"Poultry"))
+figs(paste0("comp2",cursec,"Poultry",curmea),compareplots(eukp,cursec,"Poulry"))
+```
+##### Nitrogen excretion
+
+In addition to population data, nitrogen excretion data is another parameter with a high influence on emissions, notably on N2O emissions from manure in various emission categories. FAOSTAT calculates N excretion based on default typical animal mass and nitrogen excretion per animal mass unit, while UNFCCC provides national data, calculated with different methodologies. `r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="cite")` through `r figs(paste0("comp2",cursec,"Poultry",curmea),display="cite")` compare UNFCCC vs. FAOSTAT data related to N excretion rate for the main livestock categories: dairy cattle, non-dairy cattle, sheep, swine and poultry. 
+
+
+`r eutotdiff(makecurdiff("EM","Dairy Cattle","3.B.2"))`
+
+`r eutotdiff(makecurdiff("EM","Non-Dairy Cattle","3.B.2"))`
+
+`r eutotdiff(makecurdiff("EM","Sheep","3.B.2"))`
+
+`r eutotdiff(makecurdiff("EM","Swine","3.B.2"))`
+
+`r eutotdiff(makecurdiff("EM","Poultry","3.B.2"))`
+
+
+`r figs(paste0("comp1",cursec,"Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+
+`r figs(paste0("comp2",cursec,"Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3B21DairyCattle-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+
+
+`r figs(paste0("comp1",cursec,"Non-Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Non-Dairy Cattle",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+
+
+`r figs(paste0("comp1",cursec,"Sheep",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B22Sheep-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Sheep",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3B22Sheep-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+
+`r figs(paste0("comp1",cursec,"Swine",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B23Swine-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Swine",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3B23Swine-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+
+`r figs(paste0("comp1",cursec,"Poultry",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Poultry",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3B247Poultry-N2OandNMVOCEmissionsEM-nirfaocompare.jpg) 
+
+```{r nirfaonexsum,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+avallrel<-allcompar(curmeastype = "EM",cursec = "3.B.2")
+compcats<-c(livestock,"Poultry")
+avallrel<-avallrel[avallrel$category%in%compcats,]
+maxcat<-which(abs(avallrel$mean)==max(abs(avallrel$mean)))
+
+alldiffs<-rankalldiffs(curmeastype = "EM",cursec = "3.B.2")
+
+```
+
+Comparing N excretion from the different livestock categories between the two databases, we can see that, for most of them, FAOSTAT presents lower values, being these differences highest for (`r tolower(avallrel$category[maxcat])` (`r avallrel$mean[maxcat]`) the EU28+ISL average). Only for swine, approximately half of the countries are reporting higher values in their NIR than FAOSTAT. Individual differences by country for dairy cattle range from -50 to 5%, with a much more defined decrease time trend in the NIR data and differences between databases getting smaller along time for the EU28+ISL totals. For most the countries NIR values are larger, being Greece the only country with larger numbers in FAO (5%). Germany holds the highest difference share in absolute values (4% of total EU28+ISL), followed by France and the Netherlands (3.2 and 3.0%, respectively). Similarly, for N excretion from non-dairy cattle most countries present higher values in the NIR, where data is also (but more smoothly) decreasing in time and decreasing differences with FAO, which shows more stable values. Differences in individual countries range from -40 to 50% (Romania) for the average of the time series. Compared to EU28+ISL totals, France is, by far, responsible for the highest share in the total differences FAO-NIR (10% of the total), followed by United Kingdom (4%) and Ireland (3%). Not only differences for the EU totals but also for individual countries are highest for sheep, always bigger in the NIR database and ranging from nearly 0% in Romania to around 80% in many of the countries. Countries with the highest shares of Nex are also the responsible for the highest shares of total EU differences between databases: France, UK, Italy and Greece (15, 15, 14 and 12% of total EU28+ISL differences, respectively). N excretion from swine also shows a decreasing trend in the UNFCCC database, while FAO data is more stable in time. For the individual countries, differences in the average values along the total period range from -30% in the Czech Republic to 40% in Croatia and Luxemburg. Regarding their contribution to total EU28+ISL differences, Poland is in the first place with 2%, followed by Romania (1.8%). The contribution to the total differences is more equally distributed than in previous livestock categories. Regarding poultry, total N excretion for EU28+ISL is slightly increasing in time in FAO database and more irregularly fluctuating according to NIR data, but it is also lower in FAO, both for EU totals and for most of the countries. Individual country differences range from -40% in Romania and Slovakia to 85% in Luxemburg. Regarding country contribution to total EU differences, the biggest share corresponds to Romania with 7%, followed by Poland with 3.5%, and United Kingdom with 3%. Only for non-dairy cattle there is one country clearly dominating the differences in EU28+ISL N excretion, while the other livestock categories do not have one only main contributor.
+
+
+
+```{r nirfaoarea,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"Area"
+curmeasure<-"Area"
+cursec<-"3.C"
+figs(paste0("comp1",cursec,"Rice",curmea),compademplots(eukp,cursec,"Rice"))
+figs(paste0("comp2",cursec,"Rice",curmea),compareplots(eukp,cursec,"Rice"))
+```
+##### Rice cultivation
+
+Regarding CH4 emissions from rice cultivation, the related activity data is the rice cultivated area. `r figs(paste0("comp1",cursec,"Rice",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Rice",curmea),display="cite")` compare rice area of both databases, UNFCCC inventories and FAOSTAT, first total values for all EU-28 countries together, and then differences between databases by country.
+
+`r eutotdiff(makecurdiff("AREA","Farming","3.C"))`
+
+
+`r figs(paste0("comp1",cursec,"Rice",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3CFarming-RiceCultivationAREA-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Rice",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3CFarming-RiceCultivationAREA-nirfaocompare.jpg) 
+
+
+
+
+```{r nirfaoninput,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"AD"
+curmeasure<-"N input"
+cursec<-"3.D"
+figs(paste0("comp1",cursec,"min",curmea),compademplots(eukp,cursec,"Inorganic N fertilizers"))
+figs(paste0("comp2",cursec,"min",curmea),compareplots(eukp,cursec,"Inorganic N fertilizers"))
+figs(paste0("comp1",cursec,"man",curmea),compademplots(eukp,cursec,"Organic N fertilizers"))
+figs(paste0("comp2",cursec,"man",curmea),compareplots(eukp,cursec,"Organic N fertilizers"))
+figs(paste0("comp1",cursec,"cres",curmea),compademplots(eukp,cursec,"Crop residues"))
+figs(paste0("comp2",cursec,"cres",curmea),compareplots(eukp,cursec,"Crop residues"))
+```
+##### Nitrogen input to agricultural soils
+
+Nitrogen input to agricultural soils is an important factor both direct and indirect N2O emissions from managed soils. New nitrogen is added with synthetic fertilisers, while other nitrogen sources are recycling nitrogen that comes from livestock and manure management systems, food or other organic waste (compost) or from sewage systems. In the following we compare nitrogen input agricultural soils as mineral fertilisers (`r figs(paste0("comp1",cursec,"min",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"min",curmea),display="cite")`), applied organic fertilisers (`r figs(paste0("comp1",cursec,"man",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"man",curmea),display="cite")`), and crop residues (`r figs(paste0("comp1",cursec,"cres",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"cres",curmea),display="cite")`).
+
+`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.1"))` 
+
+`r eutotdiff(makecurdiff("AD","Direct N2O Emissions From Managed Soils","3.D.1.2"))`
+
+`r eutotdiff(makecurdiff("AD","Crop Residues","3.D.1.4"))`
+
+
+`r gsub("inorganic n", "Inorganic N", figs(paste0("comp1",cursec,"min",curmea),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"min",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3D11DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsInorganicNFertilizersAD-nirfaocompare.jpg) 
+
+`r gsub("organic n", "Organic N", figs(paste0("comp1",cursec,"man",curmea),display="full"))`
+
+![](../ecir/plots/$cursubm$/valueadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaovalue.jpg) 
+
+
+`r gsub("Organic N fertilisers N input", "N input from organic fertilisers", figs(paste0("comp2",cursec,"man",curmea),display="full"))`
+
+![](../ecir/plots/$cursubm$/compareadem/3D12DirectN2OEmissionsFromManagedSoils-AgriculturalSoilsOrganicNFertilizersAD-nirfaocompare.jpg) 
+
+`r figs(paste0("comp1",cursec,"cres",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D14CropResidues-AgriculturalSoilsN2OEM-nirfaovalue.jpg)
+
+
+`r figs(paste0("comp2",cursec,"cres",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3D14CropResidues-AgriculturalSoilsAD-nirfaocompare.jpg) 
+
+From the three nitrogen sources analysed above, all three present higher total values in the NIR data, but differences are highest in synthetic fertilisers applied. Time trends are quite smooth in the first two cases, with some sudden steps in crop residues applied to soils, which are probably due to climatic reasons and captured by both databases.
+
+
+
+##### Cultivation of histosols
+
+```{r nirfaoarea1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+curmea<-"Area"
+curmeasure<-"Area"
+cursec<-"3.D.1.6"
+figs(paste0("comp1",cursec,"Histosols",curmea),compademplots(eukp,cursec,"Histosols"))
+figs(paste0("comp2",cursec,"Histosols",curmea),compareplots(eukp,cursec,"Histosols"))
+```
+
+Focusing on the area of cultivated organic soils, we can see in `r figs(paste0("comp1",cursec,"Histosols",curmea),display="cite")` and `r figs(paste0("comp2",cursec,"Histosols",curmea),display="cite")` that total EU-28 area provided by FAOSTAT is higher than the area reported by countries to UNFCCC, constant in both databases for nearly the whole time series.
+
+`r #eutotdiff(makecurdiff("AREA","Cultivation of Organic Soils","3.D.1.6"))`
+
+`r figs(paste0("comp1",cursec,"Histosols",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/valueadem/3D16CultivationofOrganicSoils-AgriculturalSoilsAREA-nirfaovalue.jpg) 
+
+
+`r figs(paste0("comp2",cursec,"Histosols",curmea),display="full")`
+
+![](../ecir/plots/$cursubm$/compareadem/3D16CultivationofOrganicSoils-AgriculturalSoilsAREA-nirfaocompare.jpg) 
+
+
+```{r histosols,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+figs("fighist","&#09;Area of cultivated organic soils based on two studies and the values given in the National Inventory Reports (2013) for the year 2006")
+```
+
+An in-depth comparison of the area of cultivated organic soils as reported by the FAO, in the NIRs, and with calculations done at the JRC has been performed by JRC in October 2013.
+
+The FAO (FAO, 2103) provides area of cultivated organic soils on country level. The analysis is based on the Harmonized World Soil Database - HWSD - (FAO/IIASA/ISRIC/ISSCAS/JRC, 2009) and the Global Land Cover data set for the year 2000 (GLC2000). 
+
+At JRC the area of cultivated organic soils for the single countries in EU27 has been derived from overlaying the HWSD with the CORINE Land Use/Cover data set - CLC2006 (EEA, 2011) for the year 2006 (for some countries 2000). Both data sets have been resampled to a 1km by 1km raster cell size.
+
+Definition of organic soils as given in IPCC (2006) based on FAO (1998): 
+Soils are organic if they satisfy the requirements 1 and 2, or 1 and 3 below (FAO, 1998): 
+
+#. Thickness of 10 cm or more. A horizon less than 20 cm thick must have 12 percent or more organic carbon when mixed to a depth of 20 cm; 
+#.	If the soil is never saturated with water for more than a few days, and contains more than 20 percent (by weight) organic carbon (about 35 percent organic matter); 
+#.	If the soil is subject to water saturation episodes and has either: (i) at least 12 percent (by weight) organic carbon (about 20 percent organic matter) if it has no clay; or (ii) at least 18 percent (by weight) organic carbon (about 30 percent organic matter) if it has 60 percent or more clay; or (iii) an intermediate, proportional amount of organic carbon for intermediate amounts of clay (FAO, 1998).
+
+FAO gave larger area of organic soils cultivated compared to JRC results for all countries except Germany `r figs("fighist",display="cite")`. This was mainly due to different source data sets for delineation of cropland area and the assumptions regarding the land use classification.
+
+In the JRC approach Soil Typological Units (STU) of the HWSD are defined as 'organic soils' 
+
+(#) if the topsoil organic carbon content is > 18% or 
+(#) if the topsoil organic carbon content is higher than the topsoil clay content * 0.1 + 12. All STUs in the EU27 of the HWSD which have been classified as 'organic soils' showed an organic carbon content of >30%, thus de facto only criterion (1) was applied.
+
+To delineate 'cropland area' in the land use/cover map, FAO considers pure cropland classes as well as mixed cropland/other land use classes. For the latter, assumptions were made on the share of cropland within these mixed classes. However,  the JRC approach takes assumes that in case of mixed land use classes the probability of the different land uses happening on organic soils are not the same, in contract to the approach of the FAO, which distribute land cover proportionally.  As some crops do not grow well on organic soils it might occur that the land uses are not distributed equally on the mineral and organic soil but that 100% of the forest is grown an organic soil and the crops are cultivated only on mineral soils.
+
+In the JRC analysis mixed land use classes are not taken into account as the shares of cropland within these classes are given as ranges in the legend of CORINE. The cropland/other land use shares in the mixed land use classes might also vary between regions. Thus, by excluding mixed land use classes, the estimate of cropland area on organic soils can be considered as conservative compared to the FAO approach.
+
+
+`r figs("fighist",display="full")`
+
+![](../2016/eureport/cropland_on_organic_soils_eu27.png)
+
+
+
+
+##### Conclusion
+
+**xxxTODOxxx Here some summary that combines the findings from the comparison of the emissions in the intro with the findings of the AD comparison. E.g. which AD might be most culprit for differences? we can focus on organic soils, 3b2 and indirect N2O emissions, and rice cultivation. In the discussion we could use info from the 'methodologies', e.g. for indirect emissions if most countries use country-specific fractions, than this explains it??? for 3b2 which animal type??**
+
+
+## Sector-specific recalculations, including changes in response of to the review process and impact on emission trend
+
+```{r nirrecalc,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
+captextch4<-paste0("Contribution of MS to EU-28+ISL recalculations in CH4 emissions for 1990 and ",lastyear," (difference between latest submission and previous submissions in kt CO2 equivalents and percent)")
+captextn2o<-paste0("Contribution of MS to EU-28+ISL recalculations in N2O emissions for 1990 and ",lastyear," (difference between latest submission and previous submissions in kt CO2 equivalents and percent)")
+
+tabs("nirrecalc3A",paste0("3A Enteric fermentation: ",captextch4))
+tabs("nirrecalc3B1",paste0("3B Manure Management: ",captextch4))
+tabs("nirrecalc3B2",paste0("3B Manure Management: ",captextn2o))
+tabs("nirrecalc3D",paste0("3D Agricultural Soils: ",captextn2o))
+```
+
+`r tabs("nirrecalc3A",display="cite")` to `r tabs("nirrecalc3D",display="cite")` provide information on the contribution of Member States to EU-28+ISL recalculations in sectors 3A (CH4), 3B (CH4 and N2O) and 3D (N2O) for 1990 and `r lastyear` and main explanations for the largest recalculations in absolute terms.
+
+
+`r tabs("nirrecalc3A",display="full")`
+
+
+`r tabs("nirrecalc3B1",display="full")`
+
+
+`r tabs("nirrecalc3B2",display="full")`
+
+
+`r tabs("nirrecalc3D",display="full")`
 

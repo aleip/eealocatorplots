@@ -9,6 +9,7 @@ ifil=CRF_MMR_20160420.txt
 ifil=CRF_MMR_20160810.txt
 subyear=2018
 subyear=2019
+subyear=2020
 submission=20170123
 submission=20170317
 submission=20170509
@@ -19,6 +20,8 @@ submission=${subyear}0508
 submission=${subyear}0115
 submission=${subyear}0315
 submission=${subyear}0508
+submission=${subyear}0115
+
 ifil=CRF_MMR_${submission}.txt
 direct=../${subyear}/eealocator/
 

@@ -103,6 +103,7 @@ gwps<-gwpsar4
 #(one with overseas territories 'GBR' and the other without 'GBE').  We should improve this next year. 
 
 countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" ,"FM" ,"GB" ,"UK" ,"GR" ,"HR" ,"HU" ,"IE" ,"IS" ,"IT" ,"LT" ,"LU" ,"LV" ,"MT" ,"NL" , "NO","PL" ,"PT" ,"RO" ,"SK" ,"SI" ,"SE" )
+CAPRIcntrs<-c("AT" ,"BL" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" , ""  , "",  "UK" ,"EL" ,"HR" ,"HU" ,"IR" , "",  "IT" ,"LT" , "",  "LV" ,"MT" ,"NL" , "NO","PL" ,"PT" ,"RO" ,"SK" ,"SI" ,"SE" )
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
 eu<-c("EUA","EUC")
@@ -125,7 +126,8 @@ countries4plot<-gsub("United Kingdom.*","United Kingdom",countriesl)
 country4sub<-as.data.frame(c(countries2,eu))
 country4sub$countries3<-c(countries3,eu)
 country4sub$countriesl<-c(countriesl,eul)
-names(country4sub)<-c("code2","code3","long")
+country4sub$capri <- c(CAPRIcntrs, eu)
+names(country4sub)<-c("code2","code3","long", "capri")
 country4sub$EU28<-1
 country4sub$EUA<-1
 country4sub$EUC<-1

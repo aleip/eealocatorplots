@@ -11,7 +11,7 @@ $ontext
 
    @author     : Adrian Leip
    @date       : 2018-04-30
-   @last update: 2018-12-07
+   @last update: 2020-01-30
    @basedon    : CAPRI_NIR_Sets.gms created by S. Marquardt 2016-02
    @calledby   : eealocatorplots.r (step 9: FAO and CAPRI comparison)
 
@@ -24,14 +24,14 @@ $offtext
 $SETGLOBAL NrateCattle eugirp3B210CattttleNRA0000000000N20000
 $SETGLOBAL NrateDairy 79EE7C56-1ECE-4484-80AB-03062CE3FCFA
 $SETGLOBAL NrateNDairy 73188A0A-13BD-4E90-AAD8-FEDC097BB7CE
-$SETGLOBAL NrateSheep 98555F37-0F50-48DF-8BCA-DD57EB7E160C
+$SETGLOBAL NrateSheep B6ADC2B8-CD2F-43BC-BBC1-ACAE4D83072E
 $SETGLOBAL NrateSwine 9C754B49-4CB9-4A48-905C-0816529DC9B2
 
 $SETGLOBAL NexCattle eugirp3B210CattttleEM00000000000no0000
 $SETGLOBAL NexDairy 43430FA4-F810-440C-B162-653A5E397DB1
 $SETGLOBAL NexNDairy D111BD96-9E34-4EE7-B191-10FB3E1B5858
 $SETGLOBAL NexSheep 068CD34B-9068-4502-8D91-1711C6DA94D7
-$SETGLOBAL NexSwine C0CBD1EE-FE26-4671-8D3E-EDD08C6E08DF
+$SETGLOBAL NexSwine 3B1A4414-A756-4FC6-9553-0E15F1D76654
 
 $SETGLOBAL PopCattle eugirp3A100CattttlePOP0000000000no0000
 $SETGLOBAL PopDairy A5D9804F-99F0-49A8-9E3C-5422EF839F39
@@ -42,7 +42,7 @@ $SETGLOBAL PopSwine D0F2AEE2-7CDA-49E2-953C-EABAC2A63D4D
 $SETGLOBAL NinSynfert 81698429-9A0A-4581-A5FD-E2E51136F494
 $SETGLOBAL NinOrgfert 55762DBD-C95D-4CDC-BF06-BFC614E5948D
 $SETGLOBAL NinManure 11A3B4C7-8D11-499F-831B-F86155A901FD
-$SETGLOBAL NinGrazing 
+$SETGLOBAL NinGrazing eugirp3D130UrinmalsAD0ktNyea00000no0000
 $SETGLOBAL NinCropres 91D64DBE-F344-426A-9097-9DEFFD731DF0
 $SETGLOBAL NinAtmdep FD253921-C432-4B94-9D0A-2B1BEBAAAFC2
 $SETGLOBAL NinLeach 47A679D1-E78C-45F4-89D3-9775B22E92E3
@@ -70,9 +70,9 @@ SET variableUID 'IPCC unique identifier in allagri'/
 
 *  --- Emissions in kt of gas
 
+"6BE90122-C924-441C-A545-4FFD5294C1E5"    "EM,N2O,kt,Emissions,3,Farming,*,Agriculture,*,*,*,"
 "7E14217F-992A-447B-8BDE-D1DF6983657C"    "EM,CH4,kt,Emissions,3,Farming,*,Agriculture,*,*,*,"
 "C25717DE-689C-497A-824B-09CD99ECF463"    "EM,CO2,kt,Emissions,3,Farming,*,Agriculture,*,*,*,"
-"6BE90122-C924-441C-A545-4FFD5294C1E5"    "EM,N2O,kt,Emissions,3,Farming,*,Agriculture,*,*,*,"
 
 *  --- Enteric Fermentation IPCC 3.A
 
@@ -81,7 +81,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "C1B82D3E-5D07-483B-8A6E-7E2DA2A127DE"    "EM,CH4,kt,Emissions,3.A.1,Dairy Cattle,*,Enteric Fermentation,*,*,*,"
 "2F742951-9B92-45C3-99F2-65547EDC4271"    "EM,CH4,kt,Emissions,3.A.1,Non-Dairy Cattle,*,Enteric Fermentation,*,*,*,"
 "B34B3E53-0112-41A0-AD31-8EF5180B0BD5"    "EM,CH4,kt,Emissions,3.A.2,Sheep,*,Enteric Fermentation,*,*,*,"
-"6D3E0AAF-9851-4110-B390-80302A38DDF4"    "EM,CH4,kt,Emissions,3.A.3,Swine,*,Enteric Fermentation,*,*,*,"
+"BA59E1AA-8682-40DD-92BD-6055528111C1"    "EM,CH4,kt,Emissions,3.A.3,Swine,*,Enteric Fermentation,*,*,*,"
 "2B8098FD-3F22-4652-A283-2FD42F754070"    "EM,CH4,kt,Emissions,3.A.4.7,Poultry,*,Enteric Fermentation,*,*,*,"
 
 *  --- Manure Management CH4 IPCC 3.B.1
@@ -92,7 +92,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "5F44FD41-114C-49B4-B9AB-C89A5A0E417B"    "EM,CH4,kt,Emissions,3.B.1.1,Dairy Cattle,*,CH4 Emissions,*,*,*,"
 "5817C8C5-0D22-4A71-B460-B289621EA924"    "EM,CH4,kt,Emissions,3.B.1.1,Non-Dairy Cattle,*,CH4 Emissions,*,*,*,"
 "08CEBAE2-D4C5-4C7E-8315-F78C314676AF"    "EM,CH4,kt,Emissions,3.B.1.2,Sheep,*,CH4 Emissions,*,*,*,"
-"252829AA-3E89-479C-A652-5E458CA59CCB"    "EM,CH4,kt,Emissions,3.B.1.3,Swine,*,CH4 Emissions,*,*,*,"
+"0C2E3015-C6BD-41F0-A3E0-54E9B026E353"    "EM,CH4,kt,Emissions,3.B.1.3,Swine,*,CH4 Emissions,*,*,*,"
 "19664B9A-9F23-4041-9C46-7698E2260549"    "EM,CH4,kt,Emissions,3.B.1.4.7,Poultry,*,CH4 Emissions,*,*,*,"
 
 *  --- Manure Management N2O IPCC 3.B.2
@@ -103,7 +103,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "BB47CC01-777F-4394-AD0A-1C6E99EFC8CA"    "EM,N2O,kt,Emissions,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,*,*,*,"
 "AFD31612-BE01-4F42-842E-EC2A74F4C995"    "EM,N2O,kt,Emissions,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,*,*,*,"
 "AD5A71B5-6761-4D06-BAA0-E6CA8AADB947"    "EM,N2O,kt,Emissions,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,*,*,*,"
-"F56815AC-FE4F-4E37-A7D4-965970F1CF23"    "EM,N2O,kt,Emissions,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
+"AB1CC8F6-D71C-46A1-A846-B5E76E2DE3A2"    "EM,N2O,kt,Emissions,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
 "E5A04DEA-B818-41B3-85FA-611F0BBCCA4F"    "EM,N2O,kt,Emissions,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,*,*,*,"
 "8332828A-BBF4-4C8B-B6FD-AE2553118257"    "EM,N2O,kt,Emissions,3.B.2.5,Farming,*,Indirect N2O Emissions,*,*,*,"
 
@@ -184,7 +184,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "43430FA4-F810-440C-B162-653A5E397DB1"    "EM,no gas,kt N/year,Total N excreted,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,*,*,*,"
 "D111BD96-9E34-4EE7-B191-10FB3E1B5858"    "EM,no gas,kt N/year,Total N excreted,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,*,*,*,"
 "068CD34B-9068-4502-8D91-1711C6DA94D7"    "EM,no gas,kt N/year,Total N excreted,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,*,*,*,"
-"C0CBD1EE-FE26-4671-8D3E-EDD08C6E08DF"    "EM,no gas,kt N/year,Total N excreted,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
+"3B1A4414-A756-4FC6-9553-0E15F1D76654"    "EM,no gas,kt N/year,Total N excreted,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
 "048DC73A-72DC-4376-AEFC-F8ACBB99DFFF"    "EM,no gas,kt N/year,Total N excreted,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,*,*,*,"
 
 *  --- Nitrogen excretion rate IPCC 3.B.2
@@ -192,7 +192,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "eugirp3B210CattttleNRA0000000000N20000"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,*,*,*,"
 "79EE7C56-1ECE-4484-80AB-03062CE3FCFA"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,*,*,*,"
 "73188A0A-13BD-4E90-AAD8-FEDC097BB7CE"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,*,*,*,"
-"98555F37-0F50-48DF-8BCA-DD57EB7E160C"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,*,*,*,"
+"B6ADC2B8-CD2F-43BC-BBC1-ACAE4D83072E"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,*,*,*,"
 "9C754B49-4CB9-4A48-905C-0816529DC9B2"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
 "FE2B256C-5F85-4EBB-BCDF-8AEA5E08747A"    "NRATE,no gas,kg/head/year,Nitrogen excretion rate,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,*,*,*,"
 
@@ -204,52 +204,53 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "eugirp3B210CattttleNEX00000Ot000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,Other,*,*,"
 "eugirp3B210CattttleNEX00000Pa000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,Pasture  range and paddock,*,*,"
 "eugirp3B210CattttleNEX00000So000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
-"eugirp3B210CattttleNEX00000Da000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,Daily spread,*,*,"
 "eugirp3B210CattttleNEX00000An000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
-"9C78ECF8-1D2F-4170-B412-123BC8FD19D8"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Composting,*,*,"
-"7BD8C59E-A474-489C-891E-7FC6AA590017"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Digesters,*,*,"
-"EE5F1943-C0C3-438B-81C1-E87D32E57736"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Liquid system,*,*,"
-"58254B70-16BF-4F01-AB5C-D3582F21A0DB"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Other,*,*,"
+"eugirp3B210CattttleNEX00000Da000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Cattle,*,N2O and NMVOC Emissions,Daily spread,*,*,"
 "3CFC3C5B-4E75-43D0-923A-144022CFE313"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Pasture  range and paddock,*,*,"
+"58254B70-16BF-4F01-AB5C-D3582F21A0DB"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Other,*,*,"
+"7BD8C59E-A474-489C-891E-7FC6AA590017"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Digesters,*,*,"
+"9C78ECF8-1D2F-4170-B412-123BC8FD19D8"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Composting,*,*,"
 "D6897BEB-9D08-4520-A966-A59899C07834"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
+"EE5F1943-C0C3-438B-81C1-E87D32E57736"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Liquid system,*,*,"
 "1DA96649-5E23-45FC-9EFC-5163B006734F"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Daily spread,*,*,"
-"eugirp3B210DairttleNEX00000An000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
-"2C5F250B-871E-4083-BE06-9A549648BF5F"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Composting,*,*,"
+"E8A57895-51BF-459D-813C-6390EC6C3C59"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Dairy Cattle,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
 "18901CEC-A16A-4808-880B-6FF671EA0536"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Digesters,*,*,"
+"2C5F250B-871E-4083-BE06-9A549648BF5F"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Composting,*,*,"
+"31E7BC5E-8FE1-476E-977E-DF1424493295"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
 "55CB462A-56EC-4DEE-AC04-0FDD30DE796F"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Liquid system,*,*,"
 "8FF29ED7-438B-4B09-91A2-DFBE0E1FA27A"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Other,*,*,"
 "B7BD3158-E56C-4CFB-9B9A-257EC73988FF"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Pasture  range and paddock,*,*,"
-"31E7BC5E-8FE1-476E-977E-DF1424493295"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
+"A270FCE5-22F8-4AC3-8022-A2F9F612F87D"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
 "BC1BC6BD-2FF3-4FB5-80B1-96D36E989734"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Daily spread,*,*,"
-"eugirp3B210NonDttleNEX00000An000no0000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.1,Non-Dairy Cattle,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
 "27F7C980-43A5-45D1-B8B8-2BEBE2090CB6"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,Pasture  range and paddock,*,*,"
 "3564BF98-D065-4347-8ADB-B692E3B528E2"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
 "EB63177D-D2DD-47A1-805E-36B6D3761C75"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,Other,*,*,"
 "2AB66188-D49F-4A11-A392-276C57D934CF"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,Daily spread,*,*,"
 "6CB83B55-0ADF-446B-914F-5A5C2DB16B23"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,Liquid system,*,*,"
+"6562ED4E-6E62-4B2C-B46B-60EB49EAC16B"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Other,*,*,"
 "9E5B7921-BECD-494C-AA70-4AA8ACDBA931"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Composting,*,*,"
 "A6996EB0-88FD-48F9-BCA9-34A7979CD640"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Digesters,*,*,"
+"AC010177-61D1-4033-98AD-D60E29983130"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
 "FB46F3E0-3436-4338-BEFA-3E5FD8E07B10"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Liquid system,*,*,"
-"833B185F-D3F5-4158-AF65-92732E4F1C0D"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Other,*,*,"
-"E4FC6621-0F3B-4663-B0FC-BC8791AAA8A5"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
+"F204D87A-FEC9-4FD9-9763-9A31793DEE26"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
 "3FB36E10-9143-4C0C-968B-A2479C3EE2DB"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Pasture  range and paddock,*,*,"
-"C746D2DA-BFA9-4C6D-B088-54EE330520DF"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
 "95F34440-63D1-4F17-ACA6-EE5BA5383693"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.3,Swine,*,N2O and NMVOC Emissions,Daily spread,*,*,"
-"DE1696EB-AE14-492B-BEBD-B39702B1DD34"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Digesters,*,*,"
-"90DBF972-D2A4-405F-B685-AD3A0F8210AD"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Liquid system,*,*,"
-"7D5E0EAC-9E94-4EAC-AA47-80EADE9D6CC8"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
-"4E4AF5F2-2230-41FA-B039-F985BCAF5A17"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Other,*,*,"
 "35F7DB90-099F-4CC1-9984-CBCFBA597A74"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Pasture  range and paddock,*,*,"
-"0BF88A08-A423-4211-88D0-C8355BBB0561"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Burned for fuel or as waste,*,*,"
+"7D5E0EAC-9E94-4EAC-AA47-80EADE9D6CC8"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Solid storage and dry lot,*,*,"
+"DE1696EB-AE14-492B-BEBD-B39702B1DD34"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Digesters,*,*,"
+"4E4AF5F2-2230-41FA-B039-F985BCAF5A17"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Other,*,*,"
+"90DBF972-D2A4-405F-B685-AD3A0F8210AD"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Liquid system,*,*,"
+"6551969D-8138-4BDF-8372-8EBAD8B6E959"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Anaerobic lagoon,*,*,"
 "515D8BFB-349A-4E18-8235-775F59062D14"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.4.7,Poultry,*,N2O and NMVOC Emissions,Daily spread,*,*,"
 "158363A3-51A4-4420-8C88-045290B9D0DD"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,*,*,*,"
-"B00F4F7D-EC3F-4099-8AA8-6D4CF963F134"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Composting,*,*,"
+"2FE45373-5914-4606-AADB-1CE3B5CD9306"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Solid storage and dry lot,*,*,"
+"57802A86-7543-46B6-B43E-7E02AE46D909"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Other,*,*,"
 "7B571BD0-BF84-4273-9B23-00F0E760DBBE"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Digesters,*,*,"
 "83A02133-0E7B-4EF5-A531-072095966125"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Liquid system,*,*,"
-"57802A86-7543-46B6-B43E-7E02AE46D909"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Other,*,*,"
-"2FE45373-5914-4606-AADB-1CE3B5CD9306"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Solid storage and dry lot,*,*,"
+"B00F4F7D-EC3F-4099-8AA8-6D4CF963F134"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Composting,*,*,"
 "67BD75D6-EFC0-449A-9105-6B8A4774783A"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Daily spread,*,*,"
 "C3656187-EC99-4EFC-80E5-C958B8FCC4D5"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,*,N2O Emissions per MMS,Anaerobic lagoon,*,*,"
+"eugirp3B25NFarmmingNEXktNyeaPa00000000"    "NEXC,no gas,kt N/year,Nitrogen excretion per MMS,3.B.2.5 N2O Emissions per MMS,Farming,pasture total not reported,*,Pasture  range and paddock,*,*,"
 
 
 
@@ -264,6 +265,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "634E61C2-7C5C-403F-8F12-C6149FD2D0F0"    "AD,no gas,kt N/year,N in mineral soils that is mineralized in association with loss of soil C,3.D.1.5,Mineralization of Soil Organic Matter,*,Agricultural Soils,*,*,*,"
 "FD253921-C432-4B94-9D0A-2B1BEBAAAFC2"    "AD,no gas,kt N/year,Volatilized N from agricultural inputs of N,3.D.2.1,Farming,*,Agricultural Soils,*,Atmospheric Deposition,*,"
 "47A679D1-E78C-45F4-89D3-9775B22E92E3"    "AD,no gas,kt N/year,N from fertilizers and other agricultural inputs that is lost through leaching and run-off,3.D.2.2,Farming,*,Agricultural Soils,*,Nitrogen Leaching and Run-off,*,"
+"eugirp3D130UrinmalsAD0ktNyea00000no0000"    "AD,no gas,kt N/year,*,3.D.1.3,Urine and Dung Deposited by Grazing Animals,AD for grazing animals missing,*,*,*,*,"
 
 
 
@@ -280,7 +282,7 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "10F410FB-6F10-4B09-8572-9772A2DCC6A9"    "POP,no gas,1000s,Population,3.B.1.2,Sheep,*,CH4 Emissions,*,*,*,"
 "BC5A63BA-2DF1-45B8-9B58-3E3AD8C6EE61"    "POP,no gas,1000s,Population,3.B.1.3,Swine,*,CH4 Emissions,*,*,*,"
 "C329A125-EA9A-4B2C-A2B8-784B18D1BF55"    "POP,no gas,1000s,Population,3.B.2.2,Sheep,*,N2O and NMVOC Emissions,*,*,*,"
-"DD226591-C2F4-4200-90BF-BB0668DAE323"    "POP,no gas,1000s,Population,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
+"1E78E006-F4A6-4410-AB92-3095B414C09D"    "POP,no gas,1000s,Population,3.B.2.3,Swine,*,N2O and NMVOC Emissions,*,*,*,"
 
 
 
@@ -315,8 +317,8 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "D8C75D74-F22F-44F9-8B77-F85B05E3A615"    "EM,N2O,kt,Emissions,4.B.1 ,Wildfires,*,Cropland,Cropland,Cropland,*,"
 "0675B2EC-2F2D-49AA-9FC3-6FE9212C738E"    "EM,CO2,kt,Emissions,4.B.1 ,Wildfires,*,Cropland,Cropland,Cropland,*,"
 "F2D00C20-40B8-45EA-A7DB-547EF296C2EE"    "EM,CO2,kt,Emissions,4.B.2 ,Carbon stock change,*,Cropland,Land,Cropland,*,"
-"12C683A0-1CC4-408B-8C56-4B6E7EDF3492"    "EM,N2O,kt,Emissions,4.B.2 ,Wildfires,*,Cropland,Land,Cropland,*,"
 "510D5595-56C0-4E88-A5CA-9547A4420831"    "EM,CH4,kt,Emissions,4.B.2 ,Wildfires,*,Cropland,Land,Cropland,*,"
+"12C683A0-1CC4-408B-8C56-4B6E7EDF3492"    "EM,N2O,kt,Emissions,4.B.2 ,Wildfires,*,Cropland,Land,Cropland,*,"
 "C72D99E3-5DF7-458E-B236-96EBCB7A3E9A"    "EM,CO2,kt,Emissions,4.B.2 ,Wildfires,*,Cropland,Land,Cropland,*,"
 "28A0938F-9F1C-4486-B855-F5E6BEF454AF"    "EM,N2O,kt,Emissions,4.B.2 Direct N2O Emissions,Direct N2O Emissions from N Mineralization/Immobilization,*,Cropland,Land,Cropland,*,"
 "53420BAF-E541-499D-A744-7953F29B35D7"    "EM,CO2,kt,Emissions,4.B.2.1,Carbon stock change,*,Cropland,Forest Land,Cropland,*,"
@@ -335,9 +337,9 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "BD322158-494A-4BC0-AA2B-9821F925CB7E"    "EM,CO2,kt,Emissions,4.C.1 ,Wildfires,*,Grassland,Grassland,GrassLand,*,"
 "AFEC4F85-59DF-4DBC-9239-BC7FE3827A84"    "EM,N2O,kt,Emissions,4.C.1 Direct N2O Emissions,Direct N2O Emissions from N Mineralization/Immobilization,*,Grassland,Grassland,GrassLand,*,"
 "84ED4711-2022-4279-B3FB-9F2B8C1CE9DC"    "EM,CO2,kt,Emissions,4.C.2 ,Carbon stock change,*,Grassland,Land,GrassLand,*,"
+"528D6131-884C-4C2B-BBD7-0A636FC45106"    "EM,CH4,kt,Emissions,4.C.2 ,Wildfires,*,Grassland,Land,GrassLand,*,"
 "20E05F7F-EC4F-402E-99F0-0AA96CB11B24"    "EM,N2O,kt,Emissions,4.C.2 ,Wildfires,*,Grassland,Land,GrassLand,*,"
 "F343083D-309D-4C26-B8F5-7DC18077236F"    "EM,CO2,kt,Emissions,4.C.2 ,Wildfires,*,Grassland,Land,GrassLand,*,"
-"528D6131-884C-4C2B-BBD7-0A636FC45106"    "EM,CH4,kt,Emissions,4.C.2 ,Wildfires,*,Grassland,Land,GrassLand,*,"
 "273E00E3-30DF-4A19-A2F0-E859B5BFC4B6"    "EM,N2O,kt,Emissions,4.C.2 Direct N2O Emissions,Direct N2O Emissions from N Mineralization/Immobilization,*,Grassland,Land,GrassLand,*,"
 "C69CC7F2-6897-4496-A3AF-F9263B48E344"    "EM,CO2,kt,Emissions,4.C.2.1,Carbon stock change,*,Grassland,Forest Land,GrassLand,*,"
 "A5505411-C5E5-431C-BB58-25E152436833"    "EM,N2O,kt,Emissions,4.C.2.1,Direct N2O Emissions from N Mineralization/Immobilization,*,Grassland,Forest Land,GrassLand,*,"
@@ -346,11 +348,12 @@ SET variableUID 'IPCC unique identifier in allagri'/
 "C4E49FAD-2069-4EAB-ABA5-C72AF8CA8693"    "EM,CO2,kt,Emissions,4.C.2.3,Carbon stock change,*,Grassland,Wetlands,GrassLand,*,"
 "29D1D560-ACF2-487D-9AF0-291BF6750BE0"    "EM,N2O,kt,Emissions,4.C.2.3,Direct N2O Emissions from N Mineralization/Immobilization,*,Grassland,Wetlands,GrassLand,*,"
 "1D6F0093-7358-4ABE-AB55-33F7CEF26306"    "EM,CO2,kt,Emissions,4.C.2.4,Carbon stock change,*,Grassland,Settlements,GrassLand,*,"
+"D8ECB802-B474-4EFD-8A83-0BA019E9B019"    "EM,N2O,kt,Emissions,4.C.2.4,Direct N2O Emissions from N Mineralization/Immobilization,*,Grassland,Settlements,GrassLand,*,"
 "3DCD3BD5-8450-4ACE-B4D8-BA20A231DC60"    "EM,CO2,kt,Emissions,4.C.2.5,Carbon stock change,*,Grassland,Other Land,GrassLand,*,"
 "80B07305-B404-47CE-A5D5-3ED168FDA08D"    "EM,N2O,kt,Emissions,4.C.2.5,Direct N2O Emissions from N Mineralization/Immobilization,*,Grassland,Other Land,GrassLand,*,"
 "56A0BC26-BD55-4F3C-A309-116D9D54E030"    "EM,CO2,kt,Emissions,4.D.1 ,Carbon stock change,*,Wetlands,Wetlands,Wetlands,*,"
-"37C50CDE-1882-4306-B2D6-A65E0DB807A0"    "EM,N2O,kt,Emissions,4.D.1 ,Wildfires,*,Wetlands,Wetlands,Wetlands,*,"
 "A6030BF7-E907-4F54-9643-7D96DA94EFA4"    "EM,CH4,kt,Emissions,4.D.1 ,Wildfires,*,Wetlands,Wetlands,Wetlands,*,"
+"37C50CDE-1882-4306-B2D6-A65E0DB807A0"    "EM,N2O,kt,Emissions,4.D.1 ,Wildfires,*,Wetlands,Wetlands,Wetlands,*,"
 "683C1433-C078-4BC5-B9B2-6DA6D7326699"    "EM,N2O,kt,Emissions,4.D.1 Direct N2O Emissions,Direct N2O Emissions from N Mineralization/Immobilization,*,Wetlands,Wetlands,Wetlands,*,"
 "4A8F08F2-A8FA-48EB-9857-580E66982324"    "EM,CO2,kt,Emissions,4.D.1.1,Carbon stock change,*,Wetlands,Peatland,Peatland,*,"
 "9C8B0443-936D-4D72-BD7A-8110947C1F0F"    "EM,CO2,kt,Emissions,4.D.1.2,Carbon stock change,*,Wetlands,Flooded Land,Flooded Land,*,"

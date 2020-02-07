@@ -129,7 +129,8 @@ agridet3bind<-agridet3bind[agridet3bind$measure!="Emissions",]
 agridet3bind<-agridet3bind[agridet3bind$meastype=="EM",]
 agridet3bind<-agridet3bind[grepl("Indirect",agridet3bind$classification),]
 
-con<-file(paste0(invloc,"\\eealocator\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt")
+#con<-file(paste0(invloc,"\\eealocator\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt") # Alex 20200128 new name of the eealocator directory
+con<-file(paste0(invloc,"\\tables4eu\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt")
 writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
 writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
 writeLines(paste0("# Data from submission: ",cursubm),con)

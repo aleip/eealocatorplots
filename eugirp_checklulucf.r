@@ -1,3 +1,5 @@
+source("curplot.r")
+require(openxlsx)
 
 # Check 1: Table 4(I) input of mineral and organic fertilizer to lands
 #          Issue: if countries cannot separate they should report IRL and report data under 3.D
@@ -10,32 +12,34 @@ minfinagri<-allagri[allagri$meastype=="AD"&(allagri$sector_number=="3.D.1.1" |al
 minfinagri<-subset(minfinagri,select=c("party",years))
 minfinagri<-aggregate(minfinagri[,years],by = list(minfinagri$party),sum)
 
-ninlulucfratio<-function(v1,v2,x){
+ninlulucfratio<-function(v1,v2,vy){
     if(nrow(v1)==0&nrow(v2)==0){
-        ratio<-rep("no agri and lulucf",nyears)
+        flag<-"no agri and lulucf"
     }else{
         if(nrow(v1)>0){
             if(nrow(v2)>0){
                 if(sum(v2,na.rm=TRUE)>0){
                     ratio<-v1/v2
+                    ratio <- signif(ratio, 3)
                 }else{
-                    ratio<-rep("NA",nyears)
+                    ratio<-NA
                 }
+              flag <- "OK"
             }else{
-                ratio<-rep("no agri",nyears)
-                ratio<-paste(v1," no agri")
+                flag <-"no agri"
+                ratio<-signif(v1, 3)
             }
         }else{
-            ratio<-rep("no lulucf",nyears)
-            ratio<-paste(v2," no lulucf")
+            flag <-"no lulucf"
+            ratio<-signif(v2, 3)
         }
     }
-    return(ratio)
+    return(list(ratio, flag))
 }
     
 nratio<-ninlulucf
 nratio[,years]<-Reduce(rbind,lapply(c(1:nrow(ninlulucf)),function(x) 
-    (ninlulucfratio(ninlulucf[x,years]/1000000,minfinagri[x,years],x))
+    (ninlulucfratio(ninlulucf[x,years]/1000000,minfinagri[x,years],x)[[1]])
     ))
 nratioflag<-nratio[,years]>0.1
 
@@ -54,7 +58,7 @@ orgsoilinagri<-allagri[grepl("3.D",allagri$sector_number)&allagri$meastype=="ARE
 orgsoilinagri[,years]<-orgsoilinagri[,years]/1000
 
 sratio<-Reduce(rbind,lapply(as.vector(unlist(countries)),function(x) 
-    ninlulucfratio(orgsoilinlulucf[orgsoilinlulucf$party==x,years],orgsoilinagri[orgsoilinagri$party==x,years],x)
+    ninlulucfratio(orgsoilinlulucf[orgsoilinlulucf$party==x,years],orgsoilinagri[orgsoilinagri$party==x,years],x)[[1]]
 ))
 sratio$party<-countries$party
 names(sratio)<-c(years,"party")
@@ -63,23 +67,104 @@ sratio<-sratio[,c("party",years)]
 # Check 3: Net carbon stock change in soils in Table 4.B.1
 # Issue: Consistency between C losses and N mineralized in Table 3.D
 # Check: Caluclate the C/N ratio and flag those which are very different from default (to be checked)
-ktcreleasedmineral<-alldata[grepl("4.B.1",alldata$sector_number)&alldata$measure=="Net carbon stock change in soils"&alldata$type=="Mineral soils",]
-kgnmineralised<-allagri[grepl("3.D.1.5",allagri$sector_number)&allagri$meastype=="AD",]
-ktcreleasedmineral[,years]<-as.numeric(as.matrix(ktcreleasedmineral[,years]))
-kgnmineralised[,years]<-as.numeric(as.matrix(kgnmineralised[,years]))
 
-cnratio<-Reduce(rbind,lapply(as.vector(unlist(countries)),function(x) 
-    ninlulucfratio(ktcreleasedmineral[ktcreleasedmineral$party==x,years],kgnmineralised[kgnmineralised$party==x,years],x)
+# Unit in CRF (unchanged): kt C/yr
+# (4) The signs for estimates of gains in carbon stocks are positive (+) and for losses in carbon stocks are negative (-).  
+ktcreleasedmineral<-alldata[grepl("4.B",alldata$sector_number)&
+                              alldata$measure=="Net carbon stock change in soils"&
+                              alldata$type=="Mineral soils"&
+                              alldata$source=="",]
+ktcreleasedmineral<-alldata[grepl("4.B",alldata$sector_number)&alldata$measure=="Net carbon stock change in soils"&alldata$type=="Mineral soils",]
+ktcreleasedmineral<-alldata[grepl("4.B.1",alldata$sector_number)&alldata$measure=="Net carbon stock change in soils"&alldata$type=="Mineral soils",]
+ktcreleasedmineral <- as.data.table(ktcreleasedmineral)
+
+# Get Carbon stock changes from Cropland remaining Cropland from CRF-files
+# The data for mineral soils have been extracted for the years 1990, 2005 and 2018 into a single file for all countries
+# Note (email Raul 20200226 - N emissions from land converted to cropland are reported in Table4(III))
+# Unit in CRF (unchanged): kt C/yr
+# (4) The signs for estimates of 
+# gains in carbon stocks are positive # (+) and 
+# for losses in carbon stocks are negative (-) ==> Consider only losses  
+table4b <- loadWorkbook(file = crffile)
+cntr <- names(table4b)
+
+cmin <- lapply(1:length(cntr), function(x) {
+  data <- as.data.table(read.xlsx(crffile, sheet=cntr[x], startRow = 2))
+  data$party <- cntr[x]
+  return(data)
+})
+cmin <- Reduce(rbind, cmin)
+cmin <- melt.data.table(cmin, id.vars = c("X1", "party"), variable.name = "years")
+cmin <- cmin[! value %in% c("NO", "NE")]
+cmin <- cmin[, value := as.numeric(value)]
+cmin <- cmin[value < 0]
+cmin <- cmin[X1 != "1. Cropland remaining cropland" ]
+
+cmintot <- cmin[, sum(value), by=.(party, years)]
+ktcreleasedmineral <- dcast.data.table(cmintot, party ~ years, value.var = "V1")
+ktcreleasedmineral$element <- "C"
+
+# Load from preprocessed
+#source(paste0(invloc, "/checks/lulucf/prepareCRFs4lulucf.r"))
+load(paste0(invloc, "/checks/lulucf/table4B1_Clossesmineralsoils.rdata"))
+ktC <- table4bsum
+ktC$element <- "C"
+
+# Note in CRF data in kg N/yr. Converted to 1000 t N/yr (dividing by 1000,000)
+kgnmineralised <- as.data.table(allagri[grepl("3.D.1.5",allagri$sector_number)&allagri$meastype=="AD",])
+ktN <- kgnmineralised[, .SD, .SDcols = c("party", years)]
+ktN$element <- "N"
+
+ktCN <- rbind(ktC, ktN)
+ktCN <- melt.data.table(ktCN, id.vars = c("party", "element"))
+ktCN <- dcast.data.table(ktCN, party + variable ~ element, value.var = "value")
+ktCN <- ktCN[, .(party, year=variable, C, N, cnratio = C/N)]
+ktCN <- ktCN[! is.na(cnratio)]
+
+cnratio <- dcast.data.table(ktCN, party ~ year, value.var="cnratio")
+
+lulucffile <- paste0(invloc, "/checks/lulucf/table4B1_Clossesmineralsoils.xlsx")
+if(file.exists(lulucffile)){unlink(lulucffile)}
+wb <- createWorkbook(creator = "Adrian Leip", title = "LULUCF check 2020 Jan", subject="Consistency between C and N losses from mineralization of mineral soils", category="EUGIRP-agricheckshecks")
+addWorksheet(wb, sheetName="C and N losses")
+addWorksheet(wb, sheetName="CN ratio")
+writeData(wb, sheet="CN ratio", x=cnratio)
+writeData(wb, sheet="C and N losses", x=ktCN)
+saveWorkbook(wb, file=lulucffile)
+
+
+
+cnratio<-Reduce(rbind,lapply(as.vector(unlist(countries)),function(x) {
+    aa <- 
+      ninlulucfratio(ktcreleasedmineral[party==x,years, with=FALSE],
+                     kgnmineralised[party==x,years, with=FALSE],x)
+    ab <- cbind(aa[[1]])
+    ab <- cbind(aa[[2]], aa[[1]])
+    names(ab)[1] <- 'flag'
+    return(ab)
+}
 ))
 cnratio$party<-countries$party
-names(cnratio)<-c(years,"party")
-cnratio<-cnratio[,c("party",years)]
+yrs <- as.character(seq(1990, lastyear)) 
+
+cnratio <- cnratio[, min := min(.SD, na.rm=TRUE), .SDcols = yrs, by=1:nrow(cnratio)]
+cnratio <- cnratio[, max := max(.SD, na.rm=TRUE), .SDcols = yrs, by=1:nrow(cnratio)]
+
+cnratio<-cnratio[, .SD, .SDcols=c("party", "flag", "min", "max", years)]
+
+cnresults <- ktcreleasedmineral[, .SD, .SDcols=c("party", yrs)]
+cnresults$element <- "C"
+cnresults2 <- kgnmineralised[, .SD, .SDcols=c("party", yrs)]
+cnresults2$element <- "N"
+cnresults <- rbind(cnresults, cnresults2)
+
 
 if (! file.exists(paste0(invloc,"/checks/lulucf"))){dir.create(file.path(paste0(invloc,"/checks/lulucf")),showWarnings=FALSE)}
 write.csv(nratio,file=paste0(invloc,"/checks/lulucf/ratioNinlulucf_vs_ninagri.csv"))
 write.csv(sratio,file=paste0(invloc,"/checks/lulucf/ratioOrgsoilsinlulucf_vs_Orgsoilsinagri.csv"))
 write.csv(cnratio,file=paste0(invloc,"/checks/lulucf/CNratioCinlulucf_vs_Ninagri.csv"))
 
+ktcreleasedmineral[party=='AUT', .(source, `1990`, `2000`, `2010`, `2018`)]
+cnresults[party=='AUT', .(source, `1990`, `2000`, `2010`, `2018`)]
 
-
-
+crffile <- paste0(invloc, "/checks/lulucf", "/Croplands_ALL_1990-2005-2018.xlsx")

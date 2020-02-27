@@ -46,6 +46,8 @@ if (!grepl("CAPRI", getwd())) {
     adrian<-"\\\\s-jrciprap246p.jrc.it\\dev\\ghginventory/"
   }else if(mypc=="S-JRCIPRAP246P"){ 
     adrian<-"D:\\dev\\ghginventory\\"
+  }else if(mypc=="BARAGOON"){ 
+    adrian<-"c:\\dev\\ghginventory\\"
   }else{
     adrian<-"C:/Adrian/"
   }
@@ -53,6 +55,7 @@ if (!grepl("CAPRI", getwd())) {
   if(mypc=="D01RI1600881") iam="adrianjrc"
   if(mypc=="L01RI1203587") iam="testcapri"
   if(mypc=="L01RI1203587") iam="adrianlaptop"
+  if(mypc=="BARAGOON") iam="adrianbaragoon"
   if(mypc=="S-JRCIPRAP246P") iam="serverJRC"
   if(mypc=="D01RI1701864") iam="PCxavi"
   if(mypc=="D01RI1600850") iam="PCGema"
@@ -62,6 +65,7 @@ if (!grepl("CAPRI", getwd())) {
   if(grepl("adrianjrc",iam))locplots<-paste0(adrian,"/eealocatorplots")           #!!!
   if(iam=="testcapri")locplots<-paste0("c:\\ecampa3\\gams\\comparisonplots") 
   if(iam=="serverJRC")locplots<-paste0(adrian,"/eealocatorplots")
+  if(iam=="adrianbaragoon")locplots<-paste0(adrian,"/eealocatorplots")
   if(iam=="PCGema")locplots<-paste0(adrian,"/eealocatorplots")
   if(iam=="PCxavi")locplots<-paste0(adrian,"/eealocatorplots")
   #remote2server <- 1

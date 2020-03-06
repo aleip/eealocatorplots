@@ -1236,6 +1236,7 @@ export4uba<-function(allagri){
                  with=FALSE]
     t3s1<-t3s1[order(party,gas,sector_number,category)]
 # alex20200130    write.csv(t3s1,file=paste0(invloc,"/eealocator/table3s1_",cursubm,"~",curdate(),".csv"))
+    write.csv(t3s1,file=paste0(invloc,"/tables4eu/table3s1_",cursubm,".csv"))
     write.csv(t3s1,file=paste0(invloc,"/tables4eu/table3s1_",cursubm,"~",curdate(),".csv"))
     
     
@@ -1249,6 +1250,7 @@ export4uba<-function(allagri){
                   with=FALSE]
     t3as1<-t3as1[order(party,gas,meastype,sector_number,category)]
 #alex20200130    write.csv(t3as1,file=paste0(invloc,"/eealocator/tablet3as1_",cursubm,"~",curdate(),".csv"))
+    write.csv(t3as1,file=paste0(invloc,"/tables4eu/tablet3as1_",cursubm,".csv"))
     write.csv(t3as1,file=paste0(invloc,"/tables4eu/tablet3as1_",cursubm,"~",curdate(),".csv"))
     View(t3as1)
     
@@ -1262,6 +1264,7 @@ export4uba<-function(allagri){
                   with=FALSE]
     t3as2<-t3as2[order(party,gas,meastype,sector_number,category)]
 #alex20200130   write.csv(t3as2,file=paste0(invloc,"/eealocator/tablet3as2_",cursubm,"~",curdate(),".csv"))
+    write.csv(t3as2,file=paste0(invloc,"/tables4eu/tablet3as2_",cursubm,".csv"))
     write.csv(t3as2,file=paste0(invloc,"/tables4eu/tablet3as2_",cursubm,"~",curdate(),".csv"))
     View(t3as2)
     
@@ -1275,6 +1278,7 @@ export4uba<-function(allagri){
                    with=FALSE]
     t3bas1<-t3bas1[order(party,gas,meastype,sector_number,category)]
 #alex20200130    write.csv(t3bas1,file=paste0(invloc,"/eealocator/tablett3bas1_",cursubm,"~",curdate(),".csv"))
+    write.csv(t3bas1,file=paste0(invloc,"/tables4eu/tablett3bas1_",cursubm,".csv"))
     write.csv(t3bas1,file=paste0(invloc,"/tables4eu/tablett3bas1_",cursubm,"~",curdate(),".csv"))
     View(t3bas1)
     
@@ -1288,10 +1292,12 @@ export4uba<-function(allagri){
                  with=FALSE]
     t3bb<-t3bb[order(party,gas,meastype,source,sector_number,category)]
 #alex20200130    write.csv(t3bb,file=paste0(invloc,"/eealocator/tablett3bb_",cursubm,"~",curdate(),".csv"))
+    write.csv(t3bb,file=paste0(invloc,"/tables4eu/tablett3bb_",cursubm,".csv"))
     write.csv(t3bb,file=paste0(invloc,"/tables4eu/tablett3bb_",cursubm,"~",curdate(),".csv"))
     View(t3bb)
     
 #alex20200130    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/eealocator/tablett3_",cursubm,"~",curdate(),".RData"))
+    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,".RData"))
     save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,"~",curdate(),".RData"))
     
     # Add Grazing shares

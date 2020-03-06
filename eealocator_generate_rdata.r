@@ -1,5 +1,5 @@
 
-# ---> Read text-file if no RData file exists of if the text file is more recent
+# ---> Read text-file if no RData file exists or if the text file is more recent
 rdatfile<-paste0(csvfil,".RData")
 if(!file.exists(rdatfile)){
     print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
@@ -64,35 +64,41 @@ if(!file.exists(rdatfile)){
     
     # Adrian / Alex 2020-01-21 curbsum is not known yet here by drive_ls (googledrive command), but is necessary for googledrive 
     # therefore we will make it (drive_mkdir) as curbsum is known by drive_mkdir command
-    if(!c(cursubm) %in%  drive_ls("eealocatorplots")$name){
-      drive_mkdir(paste0("eealocatorplots/", cursubm))
+    #if(!c(cursubm) %in%  drive_ls("eealocatorplots")$name){
+    # Alex 2020-03-05; renaming directory "eealocatorplots" to "eugirp" 
+    if(!c(cursubm) %in%  drive_ls("eugirp")$name){
+     # Alex 2020-3-05 drive_mkdir(paste0("eealocatorplots/", cursubm))
+      drive_mkdir(paste0("eugirp/", cursubm))
     }
-    if(!c("nir") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
-      drive_mkdir(paste0("eealocatorplots/", cursubm, "/nir/"))  # make folder in home Drive directory
-      for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
-        drive_upload(media = fls, 
-                     path = as_dribble(paste0("eealocatorplots/", cursubm, "/nir/")), 
-                     #name = NULL, type = NULL, 
-                     verbose = FALSE)
-      }
+    # if(!c("nir") %in% drive_ls(paste0("eugirp/", cursubm))$name){
+    # 
+    #   # Alex 2020-03-05  drive_mkdir(paste0("eealocatorplots/", cursubm, "/nir/"))  # make folder in home Drive directory
+    #   # Stop uploading NIRs automatically - might fill-up the drive. 
+    #   # Instead put the NIRs manually (always latest - delete older ones)
+    #   # under drive_ls/eugirp/nirs_latest
+    #   drive_mkdir(paste0("eugirp/", cursubm, "/nir/"))  # make folder in home Drive directory
+    # }
+    # for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
+    #   drive_upload(media = fls, 
+    #                # Alex 2020-03-05  path = as_dribble(paste0("eealocatorplots/", cursubm, "/nir/")), 
+    #                path = as_dribble(paste0("eugirp/", cursubm, "/nir/")),
+    #                #name = NULL, type = NULL, 
+    #                verbose = FALSE)
+      
 
-    }else{
-      #for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
-      #  drive_update(file = paste0("eealocatorplots/", cursubm, "/nir/", sub('.*\\/', '', fls)), 
-      #               media = fls, 
-      #               verbose = TRUE)
-      #}
-    }
-    
-    if(!c("crfs") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
-      drive_mkdir(paste0("eealocatorplots/", cursubm, "/crfs/"))  # make folder in home Drive directory
-      for(fls in (list.files(paste0(adrian, "/crfs/"), full.names = TRUE))){
-        drive_upload(media = fls, 
-                     path = as_dribble(paste0("eealocatorplots/", cursubm, "/crfs/")), 
-                     #name = NULL, type = NULL, 
-                     verbose = FALSE)
-      }
-    }
+    # # renaming direcotry eealocatorplots to eugirp
+    # if(!c("crfs") %in% drive_ls(paste0("eugirp/", cursubm))$name){
+    # # Alex 2020-03-05  drive_mkdir(paste0("eealocatorplots/", cursubm, "/crfs/"))  # make folder in home Drive directory
+    # # Same as for NIRs - don't do this automatically
+    #   drive_mkdir(paste0("eugirp/", cursubm, "/crfs/"))  # make folder in home Drive directory
+    # }
+    # for(fls in (list.files(paste0(adrian, "/crfs/"), full.names = TRUE))){
+    #   drive_upload(media = fls, 
+    #                # Alex 202-03-05  path = as_dribble(paste0("eealocatorplots/", cursubm, "/crfs/")), 
+    #                path = as_dribble(paste0("eugirp/", cursubm, "/crfs/")),
+    #                #name = NULL, type = NULL, 
+    #                verbose = FALSE)
+    # }
     
 }else{
     print(paste0("Retrieve ",rdatfile))

@@ -774,33 +774,13 @@ if(stepsdone==7) {
     #save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     save(list=savelist,file=rdatallem)
-    # Alex 2020-03-05 if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
-    if(nrow(drive_find(paste0("eugirp"))) == 0) drive_mkdir("eugirp")
-    # Alex 2020-03-05 if(!cursubm %in% drive_ls("eealocatorplots/")$name) drive_mkdir(cursubm, "eealocatorplots")
-    if(!cursubm %in% drive_ls("eugirp/")$name) drive_mkdir(cursubm, "eugirp")
-    # Alex 2020-03-05 
-    # Alex if(!cursubm %in% drive_ls("eugirp/")$name) drive_mkdir(cursubm, "eealocatorplots")
-    if(!cursubm %in% drive_ls("eugirp/")$name) drive_mkdir(cursubm, "eugirp")
+    
+    
+    ##-----------------------------
+    ##  SAVE TO GOOGLE DRIVE
+    ##-----------------------------
     source("eugirp_files2googleddrive.r")
-    if(nrow(drive_find(paste0("eealocator_", cursubm, "_clean.RData"))) == 0){
-      for(f2d in files2upload){
-        drive_upload(media = f2d, 
-                    # Alex 2020-03-05 path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
-                     path = as_dribble(paste0("eugirp/", cursubm, "/")), 
-                     #name = NULL, type = NULL, 
-                     verbose = FALSE)
-      }
-    }else{
-      for(f2d in files2upload){
-        drive_update(file = paste0("eealocatorplots/", cursubm, "/", sub('.*\\/', '', f2d)), 
-                     media = f2d, 
-                     verbose = TRUE)
-      }
-    }
-    #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-    #             #path = NULL, 
-    #             #name = NULL, type = NULL, 
-    #             verbose = FALSE)
+    
     source("curplot.r")
 }else if(stepsdone>7){
     print(paste0("Step 7: Sector 3 checks 1 already done"))

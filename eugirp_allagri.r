@@ -131,11 +131,18 @@ agridet3bind<-agridet3bind[grepl("Indirect",agridet3bind$classification),]
 
 #con<-file(paste0(invloc,"\\eealocator\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt") # Alex 20200128 new name of the eealocator directory
 con<-file(paste0(invloc,"\\tables4eu\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt")
-writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
-writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
-writeLines(paste0("# Data from submission: ",cursubm),con)
-writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")),con)
-write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
+  writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
+  writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
+  writeLines(paste0("# Data from submission: ",cursubm),con)
+  writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")),con)
+  write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
+close(con)
+con<-file(paste0(invloc,"\\tables4eu\\agridet_emissions4capri_", cursubm,".csv"),open = "wt")
+  writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
+  writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
+  writeLines(paste0("# Data from submission: ",cursubm),con)
+  writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")),con)
+  write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
 close(con)
 
 

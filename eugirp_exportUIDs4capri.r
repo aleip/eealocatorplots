@@ -327,11 +327,13 @@ close(cong)
 # saving to Google Drive
 if(nrow(drive_find(paste0("eealocatorplots/", cursubm, "/uid_to_ghg.set"))) == 0){
   drive_upload(media = "D:/dev/ghginventory/eealocatorplots/uid_to_ghg.set", 
-               path = as_dribble(paste0("eealocatorplots/", cursubm, "/")),  
+            # Alex 2020-03-05   path = as_dribble(paste0("eealocatorplots/", cursubm, "/")),  
+               path = as_dribble(paste0("eugirp/", cursubm, "/")), 
                #name = NULL, type = NULL, 
                verbose = FALSE)
   drive_upload(media = "D:/dev/ghginventory/eealocatorplots/variableuid.set", 
-               path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
+            # Alex 2020-03-05   path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
+               path = as_dribble(paste0("eugirp/", cursubm, "/")), 
                #name = NULL, type = NULL, 
                verbose = FALSE)
 }else{

@@ -106,13 +106,19 @@ countries2<-c("AT" ,"BE" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" ,
 CAPRIcntrs<-c("AT" ,"BL" ,"BG" ,"CY" ,"CZ" ,"DE" ,"DK" ,"ES" ,"EE" ,"FI" ,"FR" , ""  , "",  "UK" ,"EL" ,"HR" ,"HU" ,"IR" , "",  "IT" ,"LT" , "",  "LV" ,"MT" ,"NL" , "NO","PL" ,"PT" ,"RO" ,"SK" ,"SI" ,"SE" )
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBR","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
-eu<-c("EUA","EUC")
+eu<-c("EU", "EU28","EUC")
 if(!is.null(keepNORout)){ 
-  eum<-c("EU28","EU28+ISL")
-  eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL)")
+  eum<-c("EU", "EU28","EU28+ISL")
+  eul<-c(
+    "EU Member States (territorial coverage)",
+    "EU Member States + UK",
+    "EU geographical coverage under KP (EU+UK+ISL)")
 }else{
-  eum<-c("EU28","EU28+ISL+NOR")
-  eul<-c("EU territorial coverage (Convention=EU28)","EU geographical coverage under KP (EU28+ISL+NOR)")
+  eum<-c("EU", "EU28","EU28+ISL+NOR")
+  eul<-c(
+    "EU Member States (territorial coverage)",
+    "EU Member States + UK",
+    "EU geographical coverage under KP (EU+UK+ISL+NOR)")
 }
 
 
@@ -128,57 +134,67 @@ country4sub$countries3<-c(countries3,eu)
 country4sub$countriesl<-c(countriesl,eul)
 country4sub$capri <- c(CAPRIcntrs, eu)
 names(country4sub)<-c("code2","code3","long", "capri")
+country4sub$EU<-1
 country4sub$EU28<-1
-country4sub$EUA<-1
 country4sub$EUC<-1
+country4sub$EU[country4sub$code3=="ISL"]<-0
 country4sub$EU28[country4sub$code3=="ISL"]<-0
-country4sub$EUA[country4sub$code3=="ISL"]<-0
 
 if(!is.null(keepNORout)){ 
+  country4sub$EU[country4sub$code3=="NOR"]<-0
   country4sub$EU28[country4sub$code3=="NOR"]<-0
-  country4sub$EUA[country4sub$code3=="NOR"]<-0
   country4sub$EUC[country4sub$code3=="NOR"]<-0
 }else{
+  country4sub$EU[country4sub$code3=="NOR"]<-0
   country4sub$EU28[country4sub$code3=="NOR"]<-0
-  country4sub$EUA[country4sub$code3=="NOR"]<-0
 }
 
 
 # France: EU28 and EU-inventory for UNFCCC: France excluding Mayotte
 #         Kyoto: France including Mayotte
-country4sub$EU28[country4sub$code2=="FR"]<-0
-country4sub$EUA[country4sub$code2=="FR"]<-0
 #FM not reported any more in 2017
+country4sub$EU[country4sub$code2=="FR"]<-1
 country4sub$EU28[country4sub$code2=="FR"]<-1
-country4sub$EUA[country4sub$code2=="FR"]<-1
-country4sub$EUC[country4sub$code2=="FM"]<-0
-country4sub$EUA[country4sub$code2=="FM"]<-0
+country4sub$EUC[country4sub$code2=="FR"]<-1
+country4sub$EU[country4sub$code2=="FM"]<-0
 country4sub$EU28[country4sub$code2=="FM"]<-0
+country4sub$EUC[country4sub$code2=="FM"]<-0
 
-#
-country4sub$EU28[country4sub$code3=="GBR"]<-0
-country4sub$EUA[country4sub$code3=="GBK"]<-0
-country4sub$EUC[country4sub$code3=="GBE"]<-0
-#country4sub$EUC[country4sub$code3=="GBK"]<-0
-country4sub$EU28[country4sub$code3=="EUC"]<-0
-country4sub$EU28[country4sub$code3=="EUA"]<-0
-country4sub$EUA[country4sub$code3=="EU28"]<-0
-country4sub$EUA[country4sub$code3=="EUC"]<-0
+#GBE
+country4sub$EU[country4sub$code2=="UK"]<-1
+country4sub$EU28[country4sub$code2=="UK"]<-1
+country4sub$EUC[country4sub$code2=="UK"]<-0
+#GBK
+country4sub$EU[country4sub$code2=="GB"]<-0
+country4sub$EU28[country4sub$code2=="GB"]<-0
+country4sub$EUC[country4sub$code2=="GB"]<-1
+
+country4sub$EU[country4sub$code3=="EU"]<-1
+country4sub$EU28[country4sub$code3=="EU"]<-0
+country4sub$EUC[country4sub$code3=="EU"]<-0
+country4sub$EU[country4sub$code3=="EU28"]<-0
+country4sub$EU28[country4sub$code3=="EU28"]<-1
 country4sub$EUC[country4sub$code3=="EU28"]<-0
-country4sub$EUC[country4sub$code3=="EUA"]<-0
+country4sub$EU[country4sub$code3=="EUC"]<-0
+country4sub$EU28[country4sub$code3=="EUC"]<-0
+country4sub$EUC[country4sub$code3=="EUC"]<-1
 
 country4sub$name<-country4sub$long
 country4sub$name[grepl("United",country4sub$name)]<-"United Kingdom"
 country4sub$name[grepl("France",country4sub$name)]<-"France"
 country4sub$name[country4sub$code3=="EUA"]<-"EU28"
 
+country4sub$name[country4sub$code3=="EUA"]<-"EU"
+country4sub$name[country4sub$code3=="EU28"]<-"EU+UK"
 if(!is.null(keepNORout)){ 
-  country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL"
+  country4sub$name[country4sub$code3=="EUC"]<-"EU+UK+ISL"
 }else{
   country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL+NOR"
 }
 
 country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Czech Republic","Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
+country4sub <- as.data.table(country4sub)
+write.xlsx(country4sub, file=paste0("country4sub.xlsx"))
 
 if(!is.null(keepNORout)){ 
   countries4plot <- country4sub$name[!country4sub$name %in% c("EU28", "EU28+ISL", "France incl Mayotte")]
@@ -191,11 +207,11 @@ countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","
 eunames<-as.data.frame("EU28")
 names(eunames)<-"EUA"
 if(!is.null(keepNORout)){ 
-  eunames$EUC<-"EU28+ISL"
+  eunames$EUC<-"EU+UK+ISL"
 }else{
-  eunames$EUC<-"EU28+ISL+NOR"
+  eunames$EUC<-"EU+UK+ISL+NOR"
 }
-eukp<-eunames[,eusubm]
+EUC<-eunames[,eusubm]
 
 
 ## Parameters ###

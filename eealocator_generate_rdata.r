@@ -1,106 +1,134 @@
 
-# ---> Read text-file if no RData file exists or if the text file is more recent
+# ---> Read text-file if no RData file exists of if the text file is more recent
 rdatfile<-paste0(csvfil,".RData")
 if(!file.exists(rdatfile)){
-    print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
-    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999", quote = "")
-    
-    #Correction of PL 2F1 and 2F1a for May 2019
-    if(cursubm == "20190508" & file.info(paste0(csvfil,".txt"))$ctime < "2019-05-11 15:11:54 CEST"){
-      levels(alldata$value) <- c(levels(alldata$value), as.character(c(146800, 52000)))
-      alldata[alldata$variableUID == "E92759E4-BD91-46D2-BEE4-B21C3C0D3207" & alldata$year == 1995 & alldata$party == "PL", names(alldata) %in% c("value")] <- 146800
-      alldata[alldata$variableUID == "131C4470-1F4D-4A5C-93F9-094BC7BA86F9" & alldata$year == 1995 & alldata$party == "PL", names(alldata) %in% c("value")] <- 52000
+  print(paste0("Load ",csvfil,".txt and generate new ",rdatfile))
+  
+  alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999", quote = "")
+  alldata <- as.data.table(alldata)
+  #fread produces a data.table directly.
+  #it failed because of some lines having insufficient fields.
+  #needs to be clarified.
+  #alldata<-fread(paste0(csvfil,".txt"),na.strings = "-999", quote = "", fill = TRUE)
+  
+  save(alldata, file=paste0(csvfil,"_temp.RData"))
+  
+  #Correction of PL 2F1 and 2F1a for May 2019
+  if(cursubm == "20190508" & file.info(paste0(csvfil,".txt"))$ctime < "2019-05-11 15:11:54 CEST"){
+    levels(alldata$value) <- c(levels(alldata$value), as.character(c(146800, 52000)))
+    alldata[alldata$variableUID == "E92759E4-BD91-46D2-BEE4-B21C3C0D3207" & alldata$year == 1995 & alldata$party == "PL", names(alldata) %in% c("value")] <- 146800
+    alldata[alldata$variableUID == "131C4470-1F4D-4A5C-93F9-094BC7BA86F9" & alldata$year == 1995 & alldata$party == "PL", names(alldata) %in% c("value")] <- 52000
+  }
+  
+  
+  #Correction of CY 3.A.1 GE for 2014 
+  if(cursubm == "20180508"){
+    levels(alldata$value) <- c(levels(alldata$value), as.character(6855418.00/25330))
+    alldata[alldata$variableUID == "323AB36B-6A46-4EDE-A81C-11235D6CB9BA" & alldata$year == 2014 & alldata$party == "CY", names(alldata) %in% c("value")] <- 6855418.00/25330
+  }
+  
+  ct2check <- countries2[!countries2 %in% c("FM")]
+  ct2check <- ct2check[!ct2check %in% unique(alldata$party)]
+  if (length(ct2check) >= 1){
+    answ1 <- readline(prompt = paste0("There is no data for: ", ct2check, "\nIf you are NOT happy with that, quit by pressing [n]+[enter]; \notherwise, press [enter] or any other key to continue processing the data..."))
+    if (answ1 == "n") stop("killing...")
+  }
+  
+  cat("The following 'countries' are in alldata (total: ", 
+      length(unique(alldata$party)), "elements):\n")
+  print(unique(alldata$party))
+  
+  
+  answer <- "n"; trial <- 0
+  while(answer != "y"){
+    if(trial == 0){
+      answer <- readline("Please confirm to proceed (y) or to stop here if you need to check (n): ")
+    }else if(trial==5){
+      question <- paste0("Answer ", trial, " (", answer, ")", 
+                         " not foreseen. Too many trials - program stops. ")
+      stop(question)      
+    }else{
+      question <- paste0("Answer ", trial, " (", answer, ")", " not foreseen. Please select 'y' or 'n': ")
+      answer <- readline(question)
     }
-    
-    
-    #Correction of CY 3.A.1 GE for 2014 
-    if(cursubm == "20180508"){
-      levels(alldata$value) <- c(levels(alldata$value), as.character(6855418.00/25330))
-      alldata[alldata$variableUID == "323AB36B-6A46-4EDE-A81C-11235D6CB9BA" & alldata$year == 2014 & alldata$party == "CY", names(alldata) %in% c("value")] <- 6855418.00/25330
+    if(answer=="n"){stop("Program stopped. Please make your checks!")
     }
-    
-    ct2check <- countries2[!countries2 %in% c("FM")]
-    ct2check <- ct2check[!ct2check %in% unique(alldata$party)]
-    
-    if (length(ct2check) >= 1){
-      answ1 <- readline(prompt = paste0("There is no data for: ", ct2check, "\nIf you are NOT happy with that, quit by pressing [n]+[enter]; \notherwise, press [enter] or any other key to continue processing the data..."))
-      if (answ1 == "n") stop("killing...")
-    }
-      
-    names(alldata)[1] <- "party_2char"
-    alldata$party_3char <- substring(alldata$filename, 1, 3)
-    party_2_3char <- unique(alldata[,names(alldata) %in% c("party_2char", "party_3char", "country_name")])
-
-    party_2_3char <- merge(country4sub, party_2_3char, by.x = c("code2"), by.y = c("party_2char"), all = TRUE)
-    party_2_3char <- party_2_3char[(!party_2_3char$country_name == "" | is.na(party_2_3char$country_name)) & !is.na(party_2_3char$long), ]
-    party_2_3char <- party_2_3char[!as.vector(apply(party_2_3char, 1, function(x) sum(is.na(x))) == ncol(party_2_3char)), ]
-    party_2_3char$party_3char <- ifelse(is.na(party_2_3char$party_3char) == TRUE, party_2_3char$code3, party_2_3char$party_3char) 
-    party_2_3char$country_name <- ifelse(is.na(party_2_3char$country_name) == TRUE, party_2_3char$long, as.vector(party_2_3char$country_name)) 
-    party_2_3char$code3 <- party_2_3char$party_3char
-    party_2_3char$long <- party_2_3char$country_name
-    party_2_3char <- party_2_3char[, !names(party_2_3char) %in% c("party_3char", "country_name")]
-    party_2_3char <- party_2_3char[order(party_2_3char$code3), ]
-      
-    View(party_2_3char)
-    write.csv(party_2_3char, paste0(csvfil1, "party_2_3char.csv"), row.names = FALSE)
-
-    answ <- readline(prompt = "Please, check country codes in 'party_2_3char'.\nIf you find errors, quit by pressing [n]+[enter]; \notherwise, press [enter] or any other key to update 'country4sub' and to continue...")
-    if (answ == "n") stop("killing...")
-    
-    sel <- party_2_3char$EU28 == 0 & party_2_3char$EUA == 0 & party_2_3char$EUC == 0
-    country4sub <- party_2_3char[!sel, ]
-
-    alldata <- alldata %>% select(party_3char, names(alldata)[-c(1,3)])
-    names(alldata)[1] <- "party"
-    
-    #if(is.factor(alldata$value) == FALSE) alldata$value <- as.factor(alldata$value)
-    
-    print(paste0("saving  ", rdatfile))
-    save(alldata,file=rdatfile)
-    #}else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
-    #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
-    #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
-    #    save(alldata,file=rdatfile)
-    
-    # Adrian / Alex 2020-01-21 curbsum is not known yet here by drive_ls (googledrive command), but is necessary for googledrive 
-    # therefore we will make it (drive_mkdir) as curbsum is known by drive_mkdir command
-    #if(!c(cursubm) %in%  drive_ls("eealocatorplots")$name){
-    # Alex 2020-03-05; renaming directory "eealocatorplots" to "eugirp" 
-    if(!c(cursubm) %in%  drive_ls("eugirp")$name){
-     # Alex 2020-3-05 drive_mkdir(paste0("eealocatorplots/", cursubm))
-      drive_mkdir(paste0("eugirp/", cursubm))
-    }
-    # if(!c("nir") %in% drive_ls(paste0("eugirp/", cursubm))$name){
-    # 
-    #   # Alex 2020-03-05  drive_mkdir(paste0("eealocatorplots/", cursubm, "/nir/"))  # make folder in home Drive directory
-    #   # Stop uploading NIRs automatically - might fill-up the drive. 
-    #   # Instead put the NIRs manually (always latest - delete older ones)
-    #   # under drive_ls/eugirp/nirs_latest
-    #   drive_mkdir(paste0("eugirp/", cursubm, "/nir/"))  # make folder in home Drive directory
-    # }
-    # for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
-    #   drive_upload(media = fls, 
-    #                # Alex 2020-03-05  path = as_dribble(paste0("eealocatorplots/", cursubm, "/nir/")), 
-    #                path = as_dribble(paste0("eugirp/", cursubm, "/nir/")),
-    #                #name = NULL, type = NULL, 
-    #                verbose = FALSE)
-      
-
-    # # renaming direcotry eealocatorplots to eugirp
-    # if(!c("crfs") %in% drive_ls(paste0("eugirp/", cursubm))$name){
-    # # Alex 2020-03-05  drive_mkdir(paste0("eealocatorplots/", cursubm, "/crfs/"))  # make folder in home Drive directory
-    # # Same as for NIRs - don't do this automatically
-    #   drive_mkdir(paste0("eugirp/", cursubm, "/crfs/"))  # make folder in home Drive directory
-    # }
-    # for(fls in (list.files(paste0(adrian, "/crfs/"), full.names = TRUE))){
-    #   drive_upload(media = fls, 
-    #                # Alex 202-03-05  path = as_dribble(paste0("eealocatorplots/", cursubm, "/crfs/")), 
-    #                path = as_dribble(paste0("eugirp/", cursubm, "/crfs/")),
-    #                #name = NULL, type = NULL, 
-    #                verbose = FALSE)
-    # }
-    
+    trial <- trial +1
+  }
+  
+  setnames(alldata, "party", "party_2char")
+  alldata$party_3char <- substring(alldata$filename, 1, 3)
+  party_2_3char <- unique(alldata[,names(alldata) %in% c("party_2char", "party_3char", "country_name"), with=FALSE])
+  
+  # NOT all=TRUE to make sure we see if a coutnry is missing
+  party_2_3char <- merge(country4sub, party_2_3char, by.x = c("code2"), 
+                         by.y = c("party_2char"), all.x = TRUE)
+  party_2_3char <- party_2_3char[, .(code2, code3, party_3char, long, capri, EU, EU28, EUC, name, thename, country_name)]
+  #party_2_3char <- party_2_3char[(!party_2_3char$country_name == "" | is.na(party_2_3char$country_name)) & !is.na(party_2_3char$long), ]
+  #party_2_3char <- party_2_3char[!as.vector(apply(party_2_3char, 1, function(x) sum(is.na(x))) == ncol(party_2_3char)), ]
+  #party_2_3char$party_3char <- ifelse(is.na(party_2_3char$party_3char) == TRUE, party_2_3char$code3, party_2_3char$party_3char) 
+  #party_2_3char$country_name <- ifelse(is.na(party_2_3char$country_name) == TRUE, party_2_3char$long, as.vector(party_2_3char$country_name)) 
+  #party_2_3char$code3 <- party_2_3char$party_3char
+  #party_2_3char$long <- party_2_3char$country_name
+  #party_2_3char <- party_2_3char[, !names(party_2_3char) %in% c("party_3char", "country_name"), with=FALSE]
+  #party_2_3char <- party_2_3char[order(party_2_3char$code3), ]
+  
+  View(party_2_3char)
+  write.csv(party_2_3char, paste0(csvfil1, "party_2_3char.csv"), row.names = FALSE)
+  
+  answ <- readline(prompt = "Please, check country codes in 'party_2_3char'.\nIf you find errors, quit by pressing [n]+[enter]; \notherwise, press [enter] or any other key to update 'country4sub' and to continue...")
+  if (answ == "n") stop("killing...")
+  
+  sel <- party_2_3char$EU28 == 0 & party_2_3char$EUA == 0 & party_2_3char$EUC == 0
+  country4sub <- party_2_3char[!sel, ]
+  
+  alldata <- alldata %>% select(party_3char, names(alldata)[-c(1,3)])
+  names(alldata)[1] <- "party"
+  
+  #if(is.factor(alldata$value) == FALSE) alldata$value <- as.factor(alldata$value)
+  
+  print(paste0("saving  ", rdatfile))
+  save(alldata,file=rdatfile)
+  #}else if(file.info(paste0(csvfil,".txt"))$mtime>file.info(rdatfile)$mtime){
+  #    print(paste0("Load updated",csvfil,".txt and generate new ",rdatfile))
+  #    alldata<-read.csv(paste0(csvfil,".txt"),na.string="-999")
+  #    save(alldata,file=rdatfile)
+  
+  # Adrian / Alex 2020-01-21 curbsum is not known yet here by drive_ls (googledrive command), but is necessary for googledrive 
+  # therefore we will make it (drive_mkdir) as curbsum is known by drive_mkdir command
+  if(!c(cursubm) %in%  drive_ls("eealocatorplots")$name){
+    drive_mkdir(cursubm, path = "eugirp")
+  }
+  
+  # upload NIRS and CRFs manually - no need to do that here.
+  # if(!c("nir") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
+  #   drive_mkdir(paste0("eealocatorplots/", cursubm, "/nir/"))  # make folder in home Drive directory
+  #   for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
+  #     drive_upload(media = fls, 
+  #                  path = as_dribble(paste0("eealocatorplots/", cursubm, "/nir/")), 
+  #                  #name = NULL, type = NULL, 
+  #                  verbose = FALSE)
+  #   }
+  
 }else{
-    print(paste0("Retrieve ",rdatfile))
-    load(rdatfile)
+  #for(fls in (list.files(paste0(adrian, "/nir/"), full.names = TRUE))){
+  #  drive_update(file = paste0("eealocatorplots/", cursubm, "/nir/", sub('.*\\/', '', fls)), 
+  #               media = fls, 
+  #               verbose = TRUE)
+  #}
+  #}
+  
+  # if(!c("crfs") %in% drive_ls(paste0("eealocatorplots/", cursubm))$name){
+  #   drive_mkdir(paste0("eealocatorplots/", cursubm, "/crfs/"))  # make folder in home Drive directory
+  #   for(fls in (list.files(paste0(adrian, "/crfs/"), full.names = TRUE))){
+  #     drive_upload(media = fls, 
+  #                  path = as_dribble(paste0("eealocatorplots/", cursubm, "/crfs/")), 
+  #                  #name = NULL, type = NULL, 
+  #                  verbose = FALSE)
+  #   }
+  # }
+  
+#}else{
+  print(paste0("Retrieve ",rdatfile))
+  load(rdatfile)
 }

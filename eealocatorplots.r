@@ -17,6 +17,8 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
   adrian <- "\\\\s-jrciprap246p.jrc.it/dev/ghginventory/"
 }else if(Sys.info()[4]=="D01RI1701864"){
   adrian<-"E:/ghginventory/"
+}else if(Sys.info()[4]=="BARAGOON"){
+  adrian<-"C:/dev/ghginventory/"
 }else if(Sys.info()[4]=="MARSBL1BHL"){
   adrian<-"X:\\Agrienv\\ghginventory\\"
 }else if(Sys.info()[4]=="D01RI1600850"){# Gema PC
@@ -29,6 +31,7 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
 
 locplots<-paste0(adrian,"/data/inventories/ghg/unfccc/eealocatorplots")           #!!!
 if(Sys.info()[4]=="MARSBL1BHL")locplots<-paste0(adrian,"/eealocatorplots")
+if(Sys.info()[4]=="BARAGOON")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1701864")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1600881")locplots<-paste0(adrian,"/eealocatorplots")
 if(Sys.info()[4]=="D01RI1600850")locplots<-paste0(adrian,"/eealocatorplots")
@@ -605,6 +608,7 @@ if(stepsdone==5){
     paramcheck[x1:x2,flag4issues]<-test
 
     #Load now solved issues!
+    # --> function addsolved2check in file eugirp_functions.r (ca line 1160)
     paramcheck<-addsolved2check(paramcheck,c("recalc"))
     cof<-names(paramcheck)
     
@@ -774,13 +778,27 @@ if(stepsdone==7) {
     #save(list=savelist,file=rdatallem)
     save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
     save(list=savelist,file=rdatallem)
-    
-    
-    ##-----------------------------
-    ##  SAVE TO GOOGLE DRIVE
-    ##-----------------------------
+    if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
+    if(!cursubm %in% drive_ls("eealocatorplots/")$name) drive_mkdir(cursubm, "eealocatorplots")
     source("eugirp_files2googleddrive.r")
-    
+    if(nrow(drive_find(paste0("eealocator_", cursubm, "_clean.RData"))) == 0){
+      for(f2d in files2upload){
+        drive_upload(media = f2d, 
+                     path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
+                     #name = NULL, type = NULL, 
+                     verbose = FALSE)
+      }
+    }else{
+      for(f2d in files2upload){
+        drive_update(file = paste0("eealocatorplots/", cursubm, "/", sub('.*\\/', '', f2d)), 
+                     media = f2d, 
+                     verbose = TRUE)
+      }
+    }
+    #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+    #             #path = NULL, 
+    #             #name = NULL, type = NULL, 
+    #             verbose = FALSE)
     source("curplot.r")
 }else if(stepsdone>7){
     print(paste0("Step 7: Sector 3 checks 1 already done"))

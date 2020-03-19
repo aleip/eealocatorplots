@@ -21,6 +21,7 @@ submission=${subyear}0115
 submission=${subyear}0315
 submission=${subyear}0508
 submission=${subyear}0115
+submission=${subyear}0315
 
 ifil=CRF_MMR_${submission}.txt
 direct=../${subyear}/eealocator/
@@ -39,6 +40,8 @@ cut -d$'\t' -f1,2,3,5-12 $ifil | \
   sed -e 1's/,name,/,classification,category,measure,gas,unit,source,method,target,option,type,/g' \
   > $ofil
 
+echo 'grepping to $ofilsub'
 grep ^party $ofil > ${direct}/$ofilsub
+echo 'redirecting to ${direct}/$ofilsub '
 grep $submission $ofil >>${direct}/$ofilsub
 rm $ofil

@@ -26,6 +26,7 @@ if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-p
 } else {library(readxl)}
 if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
 } else {library(plyr)}
+if(require(openxlsx)==FALSE){install.packages("openxlsx", repos = "https://cloud.r-project.org")}; library(openxlsx)
 
 
 #require(dtplyr)
@@ -116,6 +117,7 @@ cursubm <- "20190315"                                                       #!!!
 cursubm <- "20190508"                                                       #!!!
 cursubm <- "20190115"                                                       #!!!
 cursubm <- "20200115"                                                       #!!!
+cursubm <- "20200315"                                                       #!!!
 
 invyear<-2020
 # Define location of the *RData files.This is generally NOT in 

@@ -26,14 +26,16 @@ if(generatealldata==1){
     print("Store allmethods")
     methods<-as.character(unique(alldata$method))
     allmethods<-alldata[alldata$measure=="Method",]
-    allmethods<-simplifytestmatrix(allmethods,"year",years2keep)
+    allmethods<-simplifytestmatrix(as.data.frame(allmethods),"year",years2keep)
+    allmethods <- as.data.table(allmethods)
     alldata<-alldata[! alldata$measure=="Method",]
     
     print("Store allinfos")
     infos<-c("Documentation box","Emission factor information","Type")
     measures<-as.character(unique(alldata$measure))
     allinfos<-alldata[alldata$measure %in% infos,]
-    allinfos<-simplifytestmatrix(allinfos,"year",years2keep)
+    allinfos<-simplifytestmatrix(as.data.frame(allinfos),"year",years2keep)
+    allinfos <- as.data.table(allinfos)
     alldata<-alldata[! alldata$measure %in% infos,]
 
     notations<-levels(alldata$notation)
@@ -66,7 +68,8 @@ if(generatealldata==1){
     notationkeys<-"[CS,NO,NE,IRL,NA,D,T1,T2,JRC_NotatKey]"
     allnotations<-alldata[grepl(notationkeys,alldata$notation),]
     alldata<-alldata[! grepl(notationkeys,alldata$notation),]
-    allnotations<-simplifytestmatrix(allnotations,"year",years2keep)
+    allnotations<-simplifytestmatrix(as.data.frame(allnotations),"year",years2keep)
+    allnotations <- as.data.table(allnotations)
     alldata<-unique(alldata)
    
 
@@ -80,7 +83,7 @@ if(generatealldata==1){
     arrange<-as.formula(paste(cols2leave,"~ year"))
     
     #todo!! Convert values immediately to numeric maybe before in the 'value' column
-    alldata<-dcast(alldata,arrange,value.var="value")
+    alldata<-dcast.data.table(alldata,arrange,value.var="value")
     #finished<-Sys.time()
     #print(finished-startt)
     

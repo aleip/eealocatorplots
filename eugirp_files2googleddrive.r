@@ -13,6 +13,9 @@
 #       - cursubm indicating the date of the current submissions.
 #       - files2upload indicating the 
 #cursubm <- '20190115'
+
+# NOTE - for authentification check help("drive_auth") and further functions referred to there.
+
 if(nrow(drive_find(paste0("eugirp"))) == 0) drive_mkdir("eugirp")
 if(!cursubm %in% drive_ls("eugirp/")$name) drive_mkdir(cursubm, "eugirp")
 

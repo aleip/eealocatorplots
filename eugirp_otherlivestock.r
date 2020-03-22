@@ -1,5 +1,6 @@
 # Next line converts values to numeric - should already be done during dcase in eugirpA.1_eealocator.r
-allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
+#allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
+allagri <- allagri[, (years) := lapply(.SD, as.numeric), .SDcols=years]
 
 #Slovakia: remove Other.swine.sine
 #sel<-allagri$party=="SVK"&allagri$category=="Other Swine.swine"
@@ -66,11 +67,19 @@ fillother<-function(x,tables4sect,allother){
         }
         #print(secn)
         #print(paste(mea,cla,secn,sep="-"))
-        if(length(secn)>1)print(x)
+        if(length(secn)>1){
+          print(x)
+          message("There is a duplicate sector_number identified.")
+          print(paste0(sec, cla, mea, secn))
+          message("Please find out why and solve the problem before proceeding!")
+          stop()
+        }
+        
     #}
     return(secn)
 }
-allother$sector_number<-unlist(lapply(c(1:nother),function(x) fillother(x,tables4sect,allother)))
+allother$sector_number<-unlist(lapply(c(1:nother),function(x) 
+  fillother(x,tables4sect,allother)))
 #Recombine
 allagri$sector_number[allagri$category%in%otherlivestock]<-allother$sector_number
 
@@ -125,7 +134,7 @@ allagri98<-allagri
 #allagri <- allagri98
 # Method-column gives problems for merge (20160819 - never previously)
 allagrimethod<-allagri$method
-allagri<-allagri[,-which(names(allagri)=="method")]
+allagri<-allagri[,-which(names(allagri)=="method"), with=FALSE]
 
 
 #Remove duplicate lines (e.g. 'Swine' and 'Other swine') for agri
@@ -165,16 +174,16 @@ usefields<-c(sectfields,metafields,measfields)
 usefields<-usefields[usefields!="method"]
 allfields<-allfields[allfields!="method"]
 #allagri$method<-as.character(allagri$method)
-swineuids<-unique(allagri[allagri$category=="Swine",c(usefields,"variableUID")])
+swineuids<-unique(allagri[allagri$category=="Swine",c(usefields,"variableUID"), with=FALSE])
 swineuids<-swineuids[order(swineuids$sector_number,swineuids$measure),]
-swineuidsn<-unique(swineuids[,usefields])
+swineuidsn<-unique(swineuids[,usefields, with=FALSE])
 swineuidsn$nvariableUID<-unlist(lapply(c(1:nrow(swineuidsn)),function(x) 
     swineuids$variableUID[row.names(swineuids)==row.names(swineuidsn)[x]]))
 
 allagri<-merge(allagri,swineuidsn,by=usefields,all.x=TRUE)
 agriselect<-!is.na(allagri$nvariableUID)
 allagri$variableUID[agriselect]<-allagri$nvariableUID[agriselect]
-allagri<-allagri[,allfields]
+allagri<-allagri[,allfields, with=FALSE]
 
 #Clean up swine and sheep categories
 selectsw<-grepl("sheep",tolower(allagri$category))
@@ -213,20 +222,26 @@ selectsw<-grepl("sheep",tolower(allagri$category))
 sheeps<-unique(allagri$category[selectsw])
 
 #Harmonize UIDs
-sheepuids<-unique(allagri[allagri$category=="Sheep",c(usefields,"variableUID")])
+sheepuids<-unique(allagri[allagri$category=="Sheep",c(usefields,"variableUID"),with=FALSE])
 sheepuids<-sheepuids[order(sheepuids$sector_number,sheepuids$measure),]
-sheepuidsn<-unique(sheepuids[,usefields])
+sheepuidsn<-unique(sheepuids[,usefields, with=FALSE])
 sheepuidsn$nvariableUID<-unlist(lapply(c(1:nrow(sheepuidsn)),function(x) 
     sheepuids$variableUID[row.names(sheepuids)==row.names(sheepuidsn)[x]]))
 
 allagri<-merge(allagri,sheepuidsn,by=usefields,all.x=TRUE)
 agriselect<-!is.na(allagri$nvariableUID)
 allagri$variableUID[agriselect]<-allagri$nvariableUID[agriselect]
-allagri<-allagri[,allfields]
+allagri<-allagri[,allfields, with=FALSE]
 
-if(nrow(unique(allagri[allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3"  & allagri$category == "Swine", years])) > 1){
-  sel <- grepl("[Ss]wine", allagri$category) & allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3"
-  allagri[sel, names(allagri) %in% years] <- round(allagri[sel, names(allagri) %in% years], 5)
+if(nrow(unique(allagri[allagri$party == "MLT" & 
+                       allagri$meastype == "POP" & 
+                       allagri$sector_number == "3.A.3"  & 
+                       allagri$category == "Swine", years, with=FALSE])) > 1){
+  sel <- grepl("[Ss]wine", allagri$category) & 
+    allagri$party == "MLT" & 
+    allagri$meastype == "POP" & 
+    allagri$sector_number == "3.A.3"
+  allagri <- allagri[sel, (years) := round(.SD), .SDcols=years]
   #allagri[grepl("[Ss]wine", allagri$category) & allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3",]
 }
 allagri<-unique(allagri)

@@ -30,8 +30,8 @@ alldairy<-c("Dairy Cattle","Mature Dairy Cattle","Dairy Cows","Other Cattle.Dair
 allnondairy<-unique(curagri$category[curagri$meastype=="POP"&grepl("3.A.1",curagri$sector_number)&(!curagri$category%in%alldairy)])
 
 cattleuid<-unique(curagri$variableUID[curagri$category%in%allcattle & ssummable])
-cattleuid<-unique(curagri[curagri$category%in%allcattle & ssummable & !(grepl("Option",curagri$sector_number)),uniquefields])
-cattleuid<-unique(curagri[curagri$category%in%allcattle & ssummable ,uniquefields])
+cattleuid<-unique(curagri[curagri$category%in%allcattle & ssummable & !(grepl("Option",curagri$sector_number)),uniquefields, with=FALSE])
+cattleuid<-unique(curagri[curagri$category%in%allcattle & ssummable ,uniquefields, with=FALSE])
 for(cat in allcattle){
     for(sec in c("3.A.1","3.B.1.1","3.B.2.1")){
         for(mea in c("POP","EM","NEXC")){
@@ -44,7 +44,7 @@ for(cat in allcattle){
                         sou==cattleuid$source
                     if(sum(select)==0){
                         newcuid<-cattleuid[1,]
-                        newcuid[,names(newuid)]<-""
+                        newcuid[,names(newcuid)]<-""
                         newcuid$sector_number<-sec
                         newcuid$category<-cat
                         newcuid$meastype<-mea
@@ -61,7 +61,8 @@ for(cat in allcattle){
         }
     }
 }
-cattleuid<-cattleuid[order(cattleuid$sector_number,cattleuid$category),]
+cattleuid <- cattleuid[order(cattleuid$sector_number,cattleuid$category),]
+cattleuid <- cattleuid[, -"option", with=FALSE]
 #cvuid<-as.character(cattleuid$variableUID)
 #cvuidex<-sapply(1:length(cvuid),function(x) 
 #    if(grepl("Other [cC]attle.[DN]",unique(curagri$category[curagri$variableUID==cvuid[x]]))){FALSE}else{TRUE}
@@ -70,11 +71,10 @@ cattleuid<-cattleuid[order(cattleuid$sector_number,cattleuid$category),]
 
 sdairy<-curagri$category%in%alldairy[!alldairy%in%"Dairy Cattle"]
 dairy<-curagri[sdairy & ssummable,]
+
 aggfields<-dairy[,allfields[!allfields%in%c("category",years,"variableUID")]]
-aggvalues<-dairy[,years]
-dairyagg<-aggregate(aggvalues,by=as.list(aggfields),sum,na.rm=TRUE)
-dairyagg$category<-"Dairy Cattle"
-#dairyagg$variableUID<-unlist(lapply(c(1:nrow(dairyagg)),function(x) newuid()))
+dairyagg <- dairy[, lapply(.SD, sum, na.rm=TRUE), by=aggfields, .SDcols=years]
+dairyagg$category <- "Dairy Cattle"    
 
 getcatuid<-function(line,cattleuid){
     selection<-line$sector_number==cattleuid$sector_number & 
@@ -97,33 +97,34 @@ getcatuid<-function(line,cattleuid){
 
 temp<-unlist(lapply(c(1:nrow(dairyagg)),function(x) getcatuid(dairyagg[x,],cattleuid)))
 dairyagg$variableUID<-temp
-dairyagg<-dairyagg[,allfields]
+dairyagg<-dairyagg[,allfields, with=FALSE]
 
 snondairy<-curagri$category%in%allnondairy[!allnondairy%in%"Non-Dairy Cattle"]
 nondairy<-curagri[snondairy & ssummable,]
 aggfields<-nondairy[,allfields[!allfields%in%c("category",years,"variableUID")]]
-aggvalues<-nondairy[,years]
-nondairyagg<-aggregate(aggvalues,by=as.list(aggfields),sum,na.rm=TRUE)
-nondairyagg$category<-"Non-Dairy Cattle"
+nondairyagg <- nondairy[, lapply(.SD, sum, na.rm=TRUE), by=aggfields, .SDcols=years]
+nondairyagg$category <- "Non-Dairy Cattle"    
+
 temp<-unlist(lapply(c(1:nrow(nondairyagg)),function(x) getcatuid(nondairyagg[x,],cattleuid)))
 nondairyagg$variableUID<-temp
-nondairyagg<-nondairyagg[,allfields]
+nondairyagg<-nondairyagg[,allfields, with=FALSE]
 
 dairyagg$method<-""
 nondairyagg$method<-""
 curagri<-rbind(curagri,dairyagg,nondairyagg)
+
 ssummable<-curagri$meastype%in%c("POP","EM","NEXC")
 
 # Now sum-up dairy and non-dairy
 scattle<-curagri$category%in%allcattle[!allcattle%in%"Cattle"]
 cattle<-curagri[scattle & ssummable,]
 aggfields<-cattle[,allfields[!allfields%in%c("category",years,"variableUID")]]
-aggvalues<-cattle[,years]
-cattleagg<-aggregate(aggvalues,by=as.list(aggfields),sum,na.rm=TRUE)
+cattleagg <- cattle[, lapply(.SD, sum, na.rm=TRUE), by=aggfields, .SDcols=years]
 cattleagg$category<-"Cattle"
+
 temp<-unlist(lapply(c(1:nrow(cattleagg)),function(x) getcatuid(cattleagg[x,],cattleuid)))
 cattleagg$variableUID<-temp
-cattleagg<-cattleagg[,allfields]
+cattleagg<-cattleagg[,allfields, with=FALSE]
 cattleagg$method<-""
 
 curagri<-rbind(curagri,cattleagg)

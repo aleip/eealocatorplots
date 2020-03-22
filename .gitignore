@@ -6,3 +6,4 @@ nir/*
 versions/
 *lnk
 .httr-oauth
+tmp*

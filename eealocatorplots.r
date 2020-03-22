@@ -79,8 +79,8 @@ if(stepsdone==1){
   # Deal with other animals and animal types without sector number
   selection<-alldata$sector_number=="" & alldata$classification%in%mslivestockclass
   selection<-selection | grepl("^3",alldata$sector_number)
-  allagri<-alldata[selection,allfields]
-  alldata<-alldata[!selection,allfields]
+  allagri<-alldata[selection,allfields, with=FALSE]
+  alldata<-alldata[!selection,allfields, with=FALSE]
   save(allagri,file="tmpallagri60.rdata")
   #load("tmpallagri60.rdata", verbose = TRUE)
   #stop("Plause")
@@ -106,23 +106,6 @@ if(stepsdone==1){
   savelist<-c(savelist,"alltotals")
   save(list=savelist,file=rdatallem)
   save(list=savelist,file=gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem))
-  #if(nrow(drive_find(paste0("eealocatorplots"))) == 0) drive_mkdir("eealocatorplots")
-  #if(!cursubm %in% drive_ls("eealocatorplots/")$name) drive_mkdir(cursubm, "eealocatorplots") 
-  #if(nrow(drive_find(paste0("eealocatorplots/", cursubm, "/eealocator_", cursubm, "_clean.RData"))) == 0){
-  #  drive_upload(media = rdatallem, 
-  #               path = as_dribble(paste0("eealocatorplots/", cursubm, "/")), 
-  #               #name = NULL, type = NULL, 
-  #               verbose = FALSE)
-  #}else{
-  #  drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
-  #               media = rdatallem, 
-  #               verbose = FALSE)
-  #}
-  #drive_upload(media = gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem), 
-  #             #path = NULL, 
-  #             #name = NULL, type = NULL, 
-  #             verbose = FALSE)
-  #drive_download("eealocator_20190115_clean.RData", path = "D:\\dev\\ghginventory/eealocator_20190115_clean.RData", overwrite = TRUE)
   source("curplot.r")
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")

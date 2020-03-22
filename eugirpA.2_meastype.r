@@ -40,7 +40,7 @@ alldata$meastype[alldata$category == "Fraction of livestock N excretion"]<-"Frac
 alldata$meastype[alldata$category == "Fraction of N input to managed soils"]<-"FracLEACH"
 alldata$meastype[alldata$category == "Fraction of synthetic fertilizer"]<-"FracGASF"
 
-alldata<-alldata[,allfields]
+alldata<-alldata[,allfields, with=FALSE]
 
 # The word 'Farming' in 'allmethods' not required for upper-level animal types/category
 alldata$method[alldata$method == "Tier 2"]<-""
@@ -57,13 +57,20 @@ alldata$category<-unlist(lapply(c(1:nrow(alldata)),function(x) gsub("livestock",
 #alldata$method<-as.character(alldata$method)
 alldata$sector_number<-unlist(lapply(c(1:nrow(alldata)),function(x) gsub(alldata$category[x],"",alldata$sector_number[x])))
 
-#Duplicates with same UID but different sector_number
-tmp1<-subset(alldata,select=sector_number)
-tmp2<-unique(subset(alldata,select=-sector_number))
-tmp1$rn<-row.names(tmp1)
-tmp2$rn<-row.names(tmp2)
-alldata<-merge(tmp1,tmp2,by="rn")
-alldata<-alldata[,allfields]
+# Duplicates with same UID but different sector_number
+#al202003 Note : there was something wrong in the previous calculation. 
+#                Adding rownumbers before making unique distroys unique, and 
+#                making unique before doesn't add same numners and distroys the merge
+a <- alldata
+alldata <- a
+save(a, file='a.rdata')
+
+# ---> Sort data such that first come those with sector_number
+#      then those without.
+#      Reason: if duplicates are removed, then those without sector_number
+alldata <- alldata[order(sector_number, decreasing = TRUE)]
+alldata <- alldata[ ! duplicated(subset(alldata,select=-sector_number))]
+alldata <- alldata[,allfields,with=FALSE]
 
 measures<-unique(subset(alldata,select=uniquefields))
 
@@ -84,11 +91,10 @@ if(nrow(measures)==length(measures$variableUID)){print("No duplicate UIDs")}else
     }
 }
 
-for(tosp in c("target","source","option","type","method")){
-    no2emtpy<-paste("no",tosp)
-    alldata[alldata[,tosp]==no2emtpy,tosp]<-""
-}
-
+alldata <- alldata[target == "no target", target := ""]
+alldata <- alldata[source == "no source", source := ""]
+alldata <- alldata[type == "no type", type := ""]
+alldata <- alldata[method == "no method", method := ""]
 
 #al20150809 - cleanCattle not really needed any more .... it is contained in Option
 #allagri<-alldata[grepl("^3",alldata$sector_number),allfields]
@@ -101,3 +107,4 @@ for(tosp in c("target","source","option","type","method")){
 # allagri<-rbind(catothe,allagri)
 # alldata<-allagri[order(as.numeric(row.names(allagri))),allfields]
 # rm(allagri,catothe)
+

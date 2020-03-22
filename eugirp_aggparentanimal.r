@@ -6,6 +6,7 @@ allswines<-unique(addparentanimal$category[grepl("^3.A.3",addparentanimal$sector
 allsheeps<-unique(addparentanimal$category[grepl("^3.A.2",addparentanimal$sector_number)])
 #if(parent=="Sheep") childs<-allsheeps[!allsheeps%in%parent]
 
+message("Calculate aggregate values for 'parent' animal types: ")
 #parent<-"Sheep"
 for(parent in sheepswine){
     cat("\n", parent)
@@ -24,7 +25,7 @@ for(parent in sheepswine){
     #curcatego<-"^3.B.1"
     curcategos<-c("^3.A","^3.B.1","^3.B.2")
     for(curcatego in curcategos){
-        #cat(" ",curcatego)
+        cat(" ",curcatego)
         if(curcatego=="^3.A")   {curmeasures<-measta2weight;curgas<-"CH4"}
         if(curcatego=="^3.B.1") {curmeasures<-meastb12weight;curgas<-"CH4"}
         if(curcatego=="^3.B.2") {curmeasures<-meastb22weight;curgas<-"N2O"}
@@ -84,10 +85,10 @@ for(parent in sheepswine){
                                 #at<-curchilds[1]
                                 for(at in curchilds){
                                     #print(paste0("5",at))
-                                    tmpval<-agrimissing[seltemp & agrimissing$category==at,years]
+                                    tmpval<-agrimissing[seltemp & agrimissing$category==at,years, with=FALSE]
                                     tmpval[is.nan(tmpval)]<-NA
                                     if(ms=="POL"&parent=="Non-Dairy Cattle") {curat<-"Non-Dairy Cattle"}else{curat<-at}
-                                    tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==curat & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
+                                    tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==curat & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years, with=FALSE])
                                     #tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
                                     #if(curmeasty=="WEIGHT" & at=="Dairy Cattle"&ms=="GBK")stop()
                                     #if(curmeasty=="WEIGHT" & at=="Non-Dairy Cattle"&ms=="HRV")stop()
@@ -118,8 +119,11 @@ for(parent in sheepswine){
                                     #print(tmps)
                                 }
                                 if(!noparent){
-                                    tmpn<-tmpp/tmps
-                                    newline[years]<-tmpn
+                                    tmpn <-tmpp/tmps
+                                    tmpn <- rbindlist(list(newline, tmpn), fill = TRUE)
+                                    tmpnh <- setdiff(names(tmpn), years)
+                                    tmpn <- tmpn[2, (tmpnh) := sss[1,  .SD, .SDcols = tmpnh]]
+                                    newline <- tmpn[2]
                                 }
                                 addparentanimal<-rbind(addparentanimal,newline)
                                 #if(ms=="POL"&curmeasty=="IEF"&curcatego=="^3.B.1"&parent=="Non-Dairy Cattle") stop()

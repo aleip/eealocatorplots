@@ -205,7 +205,7 @@ eu28wei1<-as.data.frame(matrix(ncol=0,nrow=0))
 #print("Alex 13 in EUweightedaverages")
 for(euneeded in c("EUC","EUA")) {
   print(paste("calculating averages for ", euneeded))
-  acountry<-as.character(country4sub[country4sub[, euneeded]==1,"code3"])
+  acountry<-curcountries[variable==euneeded & value==1]$code3
   #if(!is.null(keepNORout)) acountry <- acountry[!acountry %in% c("NOR")]
     
   eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))

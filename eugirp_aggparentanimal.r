@@ -6,7 +6,7 @@ allswines<-unique(addparentanimal$category[grepl("^3.A.3",addparentanimal$sector
 allsheeps<-unique(addparentanimal$category[grepl("^3.A.2",addparentanimal$sector_number)])
 #if(parent=="Sheep") childs<-allsheeps[!allsheeps%in%parent]
 
-message("Calculate aggregate values for 'parent' animal types: ")
+message("\n\nCalculate aggregate values for 'parent' animal types: ")
 #parent<-"Sheep"
 for(parent in sheepswine){
     cat("\n", parent)

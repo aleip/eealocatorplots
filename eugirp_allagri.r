@@ -1,12 +1,17 @@
 
 #if(!is.null(keepNORout)) alldata <- rbind(alldata, alldata_NOR) 
+convertCO2eq <- function(dt){
+  dt <- merge(dt, gwps, by="gas")
+  dt <- dt[, (years) := .SD * gwp, .SDcols=years]
+  dt <- dt[, unit := "kt CO2 equivalent"]
+}
 
 agriselect<-grepl("^3",alldata$sector_number) 
 allagri<-alldata[agriselect,]
-acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+acountry<-curcountries[variable==eusubm & value==1]$code3
 o<-order(allagri$sector_number,allagri$category)
 allagri<-allagri[o,]
-allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
+#allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 
 #xavi20180219: allagri<-eu28sums(A = allagri,years = years)    #xavi20180219: already calculated sooner for EUC (I think EUA is not necessary)
 agriselect<-grepl("^3",allmethods$sector_number) 
@@ -84,29 +89,23 @@ agridet$sector_number[agridet$category=="Dairy Cattle"]<-paste0(agridet$sector_n
 agridet$sector_number[agridet$category=="Non-Dairy Cattle"]<-paste0(agridet$sector_number[agridet$category=="Non-Dairy Cattle"],".2")
 agridet<-agridet[agridet$party%in%acountry,]
 
-agriemissions<-allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,]
-convertfields<-c("gas","unit",years)
-agriemissions[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agriemissions)),function(x) Reduce(cbind,convert2co2eq(agriemissions[x,convertfields]))))
-agriemissions<-agriemissions[order(agriemissions$sector_number,agriemissions$category),]
-lastyear<-years[length(years)]
-agriemissions_GBE <- agriemissions[agriemissions$party %in% c("GBE"), ] #UK (Kyoto Protocol)
-agriemissions<-agriemissions[agriemissions$party%in%acountry,]
+agriemissions<-convertCO2eq(allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,])
+agriemissions <- agriemissions[party %in% acountry]
 
-agrigeneu<-agrigen[agrigen$party==eusubm&agrigen$meastype=="EM"&agrigen$gas!="no gas",]
-agrimixeu<-agrimix[agrimix$party==eusubm&agrimix$meastype=="EM"&agrimix$gas!="no gas",]
-agrideteu<-agridet[agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas!="no gas",]
-agrigeneu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrigeneu)),function(x) Reduce(cbind,convert2co2eq(agrigeneu[x,convertfields]))))
-agrimixeu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrimixeu)),function(x) Reduce(cbind,convert2co2eq(agrimixeu[x,convertfields]))))
-agrideteu[,convertfields]<-Reduce(rbind,lapply(c(1:nrow(agrideteu)),function(x) Reduce(cbind,convert2co2eq(agrideteu[x,convertfields]))))
-agrigeneu<-agrigeneu[order(agrigeneu[,lastyear],decreasing=TRUE),]
-agrimixeu<-agrimixeu[order(agrimixeu[,lastyear],decreasing=TRUE),]
-agrideteu<-agrideteu[order(agrideteu[,lastyear],decreasing=TRUE),]
+agrigeneu<-convertCO2eq(agrigen[party==eusubm&meastype=="EM"&gas!="no gas",])
+agrimixeu<-convertCO2eq(agrimix[party==eusubm&meastype=="EM"&gas!="no gas",])
+agrideteu<-convertCO2eq(agridet[party==eusubm&meastype=="EM"&gas!="no gas",])
+
+lastyear<-years[length(years)]
+agrigeneu<-agrigeneu[order(agrigeneu[,lastyear, with=FALSE],decreasing=TRUE),]
+agrimixeu<-agrimixeu[order(agrimixeu[,lastyear, with=FALSE],decreasing=TRUE),]
+agrideteu<-agrideteu[order(agrideteu[,lastyear, with=FALSE],decreasing=TRUE),]
 
 v<-agrigeneu$sector_number
 sel<-agrimixeu$category=="Farming"
 agrimixeu$category[sel]<-paste(agrimixeu$classification[sel],agrimixeu$target[sel]," ")
-x<-lapply(c(1:(length(v)-1)),function(x) makepie(agrimixeu,0.9,"agrimixeu",agrigeneu$sector_number[x]))
-makepie(agrigeneu,0.9,"agrigeneu","")
+x<-lapply(c(1:(length(v)-1)),function(x) makepie(piedata = agrimixeu,pieradius = 0.9,piename = "agrimixeu",piegrep = agrigeneu$sector_number[x]))
+#makepie(agrigeneu,0.9,"agrigeneu","")
 #View(agrid1);View(agrid2);View(agrid3);View(agrid4);View(agrid5)
 
 
@@ -130,21 +129,16 @@ agridet3bind<-agridet3bind[agridet3bind$meastype=="EM",]
 agridet3bind<-agridet3bind[grepl("Indirect",agridet3bind$classification),]
 
 #con<-file(paste0(invloc,"\\eealocator\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt") # Alex 20200128 new name of the eealocator directory
-con<-file(paste0(invloc,"\\tables4eu\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt")
-  writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
-  writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
-  writeLines(paste0("# Data from submission: ",cursubm),con)
-  writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")),con)
-  write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
-close(con)
-con<-file(paste0(invloc,"\\tables4eu\\agridet_emissions4capri_", cursubm,".csv"),open = "wt")
-  writeLines(paste0("# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)"),con)
-  writeLines(paste0("# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other"),con)
-  writeLines(paste0("# Data from submission: ",cursubm),con)
-  writeLines(paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")),con)
-  write.csv(rbind(agridetcapri,agridet3bind),con,row.names=FALSE)
-close(con)
-
+f1 <- paste0(invloc,"\\tables4eu\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".xlsx")
+wb <- createWorkbook(creator = eugirp.fullname)
+wbs <- addWorksheet(wb, sheetName = "agridet_emissions")
+wbs <- writeData(wb, sheet = "agridet_emissions", x = "# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)", startRow = 1)
+wbs <- writeData(wb, sheet = "agridet_emissions", x = "# Processing: animal types NOT reported: Buffalo|Mules|Deer|Horses|Other", startRow = 2)
+wbs <- writeData(wb, sheet = "agridet_emissions", x = paste0("# Data from submission: ",cursubm), startRow = 3)
+wbs <- writeData(wb, sheet = "agridet_emissions", x = paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")), startRow = 4)
+wbs <- writeData(wb, sheet = "agridet_emissions", x = rbind(agridetcapri,agridet3bind), startRow = 5)
+saveWorkbook(wb, file = f1, overwrite = TRUE)
+file.copy(from = f1, to = paste0(invloc,"\\tables4eu\\agridet_emissions4capri_", cursubm,".xlsx"), overwrite = TRUE)
 
 # removing again NOR data
 if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 

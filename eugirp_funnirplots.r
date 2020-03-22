@@ -112,7 +112,8 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     plotdata<-plotdata[apply(plotdata[,years],1,sum,na.rm=TRUE)!=0,]
     years2keep<-as.character(years2keep)
     if(rundata=="adem"){
-        acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code3"])
+        #acountry<-as.character(country4sub[country4sub[,subcountries]==1,"code3"])
+        acountry<-curcountries[variable%in%subcountries & value==1]$code3
         acountry<-acountry[!acountry%in%eu]
         plotdata<-plotdata[plotdata$party%in%acountry,]
         plotdata<-eu28sums(A = plotdata,aeu = subcountries,years=years2keep)
@@ -305,7 +306,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     relavs<-NULL
     nmain<-NULL
     nothers<-NULL
-    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+    acountry<-curcountries[variable==eusubm & value==1]$code3
     acountryminus<-acountry[!acountry%in%eu]
     #eukp<-eunames[,eusubm]
     
@@ -1107,7 +1108,8 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     topnos<-unlist(plotted[[2]][[4]])
     
     # Retrieve ordering info
-    acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+    #acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+    acountry<-curcountries[variable==eusubm & value==1]$code3
     acountry<-acountry[!acountry%in%eu]
     #eukp<-eunames[,eusubm]
     
@@ -1748,6 +1750,7 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2013){
     
     test<-test[order(test$relimpr,na.last=FALSE),]
     ctr3 <- country4sub$code3[!country4sub$code3 %in% eu]
+    ctr3 <- unique(curcountries[! code3 %in% eu]$code3)
     testc<-sapply(test$party,function(x) countries4plot[which(ctr3==x)])
     
     datasource<-names(test)[!names(test)=="party"]

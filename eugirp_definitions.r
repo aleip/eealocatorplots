@@ -86,6 +86,11 @@ gwpsar4<-c(25,1,298,1,0,1,1,1)
 gwpsar5<-c(28,1,265,1,0,1,1)
 
 gwps<-gwpsar4
+gwps <- data.table(
+  gas = gases,
+  gwp = gwpsar4
+)
+
 
 
 #email david 20160203
@@ -194,6 +199,7 @@ if(!is.null(keepNORout)){
 
 country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Czech Republic","Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 country4sub <- as.data.table(country4sub)
+curcountries <- melt.data.table(country4sub, id.vars = "code3", measure.vars = eu)
 write.xlsx(country4sub, file=paste0("country4sub.xlsx"))
 
 if(!is.null(keepNORout)){ 

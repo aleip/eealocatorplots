@@ -26,6 +26,16 @@ firstup<-function(string){
     rstring<-gsub(" n "," N ",rstring)
     rstring<-paste0(toupper(substr(rstring,0,1)),substr(rstring,2,nchar(rstring)))
 }
+
+savestep <- function(stepsdone, savelist){
+  
+  savefile <- gsub("_s[0-9]", "", rdatallem)
+  save(list=savelist,file=savefile)
+  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
+  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+  
+}
+
 uidall<-function(D,uid){D[D$variableUID%in%uid,]}
 viewuid<-function(D,uid){
     View(uidall(D,uid),
@@ -239,6 +249,33 @@ sumovercountries<-function(D,uid,y,c){
     return(s)
 }
 
+eusums_NEW <- function(A, aeu=eu, years){
+  
+  A <- A[! party %in% aeu]
+  
+  # Aggregate only the 'summable' meastypes
+  AB <- A[! meastype %in% meas2sum]
+  AC <- A[  meastype %in% meas2sum]
+  
+  # Remove fields such as notes etc.
+  AC <- AC[, -"notation", with=FALSE]
+  
+  for(i in aeu){
+    # Aggregate over countries
+    ac <- curcountries[variable == i & value == 1]$code3
+    ac <- ac[! grepl("^EU", ac)]
+    AD <- AC[party %in% ac]
+    AD <- AD[, lapply(.SD, sum, na.rm=TRUE), by = setdiff(names(AD), c(years, "party")), .SDcols = years]
+    AD$party <- i
+    AD$notation <- "eugirp"
+    
+    A <- rbind(A, AD, fill = TRUE)
+    # Add 
+  }
+  
+  return(A)
+  
+}
 eu28sums<-function(A,aeu=eu,years=years){
     A[,years]<-apply(A[,years],2,function(x) as.numeric(x))
     afields<-names(A)
@@ -441,29 +478,8 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE, cursubm = curs
     
     # Extracts data for one variableUID and 
     # Resorts them thus that the eu-countries (EUC, EUA etc) which are in 'c' and in the data are last
-    c<-as.data.frame(c)
-    names(c)<-"party"
-    #DF<-droplevels(DF)
-    #if(length(levels(DF$variableUID))<length(levels(uid))) levels(DF$variableUID)<-levels(uid)
-#    if (cursubm == "20190115" & uid == "eugirp3B220SheeheepTNEktNyea0000000000"){
-#      tmp1 <- DF[DF[,"variableUID"]==uid,c("party",years2keep)]
-#      tmp1[, -1] <- round(tmp1[, -1], 4)
-#      tmp1<-unique(tmp1)
-#    }else{
-      tmp1<-unique(DF[DF[,"variableUID"]==uid,c("party",years2keep)])
-#    }
-    tmp1<-tmp1[! is.na(tmp1$party),]
-    ntmp<-nrow(tmp1)
-    tmp1<-merge(c,tmp1,by="party",all=TRUE,sort=TRUE)
-    tmp1<-tmp1[tmp1$party %in% c$party,]
-    
-    eucountries<-eu
-    x<-tmp1[order(tmp1$party),]
-    tmp1<-x[!(x$party %in% eucountries),]
-    if(!noeu){tmp1<-rbind(tmp1,x[ (x$party %in% eucountries),])}
-    tmp1<-tmp1[,as.character(years2keep)]
-    if(narm) tmp1[is.na(tmp1)]<-0
-    tmp1<-as.matrix(tmp1)
+      tmp1<-unique(DF[variableUID==uid,c("party",years2keep), with=FALSE])
+      tmp1 <- rbind(tmp1[! party %in% eu], tmp1[party %in% eu])
     return(tmp1)
 }
 
@@ -1479,15 +1495,19 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
             #    setwd(file.path(mainDir, figdate))
         }
         
+        # ??? why agrigeneu ???
         piegen<-agrigeneu
-        piegen[,years]<-t(apply(piegen[,years],1,"/",apply(piegen[,years],2,sum)))
-        select<-piegen[,lastyear]<0.01
-        temp<-piegen[nrow(piegen),]
-        temp$sector_number<-"Other"
-        temp$category<-""
-        temp[,years]<-apply(piegen[select,years],2,sum)
-        piegen<-piegen[!select,]
-        piegen<-rbind(piegen,temp)
+        pyears <- t(apply(piegen[,years, with=FALSE],1,"/",apply(piegen[,years, with=FALSE],2,sum)))
+        piegen <- cbind(piegen[, -years, with=FALSE], pyears)
+        
+        
+        # Aggregate small sectors 
+        sel<-as.logical(piegen[,lastyear, with=FALSE]<0.01)
+        piegen <- piegen[sel, sector_number:="Other"]
+        piegen <- piegen[, c("sector_number", lastyear), with=FALSE][, value := sum(.SD), by="sector_number", .SDcols=lastyear]
+        piegen <- unique(piegen[, .(sector_number, value)])
+        
+
         v<-piegen$sector_number
         n<-nrow(piegen)
         lin<-rep(1,n)
@@ -1502,9 +1522,10 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
         par(omd=c(0,1,0,1))
         par(mar=c(0,0,0,0)) #bot,lef,top,rig
         par(lwd=0.5)
-        pie(piegen[,lastyear],init.angle=180,
+        pie(piegen[,value],
+            init.angle=180,
             radius=pieradius,
-            label=paste(piegen$sector_number," ",100*round(piegen[,lastyear],3),"%"),
+            label=paste(piegen$sector_number," ",100*round(piegen[,value],3),"%"),
             clockwise=TRUE,
             col=grey(lin),
             cex=piefont
@@ -1512,26 +1533,17 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
         #graphics.off()
         
         
-        piedata[,years]<-t(apply(piedata[,years],1,"/",apply(piedata[,years],2,sum)))
-        select<-piedata[,lastyear]<0.01
-        temp<-piedata[nrow(piedata),]
-        temp$sector_number<-"Other"
-        temp$category<-""
-        temp[,years]<-apply(piedata[select,years],2,sum)
-        piedata<-piedata[!select,]
-        if(temp[,lastyear]>0.05) piedata<-rbind(piedata,temp)
+        pyears<-t(apply(piedata[,years, with=FALSE],1,"/",apply(piedata[,years, with=FALSE],2,sum)))
+        piedata <- cbind(piedata[, -years, with=FALSE], pyears)
+        select<-as.logical(piedata[,lastyear, with=FALSE]<0.01)
+        piedata <- piedata[select, sector_number:="Other"]
+        piedata <- piedata[, c("sector_number", lastyear), with=FALSE][, value := sum(.SD), by="sector_number", .SDcols=lastyear]
+        piegen <- unique(piegen[, .(sector_number, value)])
         
-        #figname<-paste0(figdir,"/",cursubm,piename,piegrep,".",plotformat,collapse=NULL)
-        #if(plotformat=="pdf") pdf(file=figname,width=piewidth,height=pieheight)
-        #if(plotformat=="png") png(file=gsub("pdf","png",figname),width=piewidth,height=pieheight,unit="in",res=pieresolution)
-        #if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
-        
-        #par(omd=c(0,1,0,1))
-        #par(mar=c(0,0,0,0)) #bot,lef,top,rig
         par(lwd=0.5)
-        pie(piedata[,lastyear],init.angle=180,
+        pie(piedata[,value],init.angle=180,
             radius=pieradius,
-            label=paste(piedata$sector_number," ",100*round(piedata[,lastyear],3),"%"),
+            label=paste(piedata$sector_number," ",100*round(piedata[,value],3),"%"),
             clockwise=TRUE,col=gray(seq(0.3, 1.0, length = nrow(piedata))),
             cex=piefont
         )
@@ -1547,7 +1559,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     pheight=pwidth/1.833
     plotresolution<-plotresolution
     
-    acountry<-as.character(country4sub[country4sub[,eukp]==1,"code3"])
+    acountry<-curcountries[variable==eukp & value==1]$code3
     dfm<-DF[DF$measure=="Emissions"&grepl(sec,DF$sector_number)&DF$party%in%acountry,]
     if(grepl("A|B",sec)){
         #dfm<-agridet[agridet$measure=="Emissions"&grepl(sec,agridet$sector_number)&!grepl(paste0(sec,".4"),agridet$sector_number),]
@@ -1557,11 +1569,11 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
             dfm<-allagri[allagri$meastype=="NEXC"&grepl("3.B.2.5",allagri$sector_number)&allagri$source!=""&allagri$party%in%acountry,]
         }
     }
-    dfm<-filter(dfm,gas!="NMVOC")
+    dfm<-dfm[gas!="NMVOC"]
     dfp<-acountry[as.character(unique(dfm$party))%in%acountry]
     dfc<-sapply(dfp,function(x) country4sub[country4sub$code3==x,"code3"])
     if(sec=="3.B.2.5"){
-        dfm<-dcast(dfm,source +gas ~ party,value.var = lastyear)
+        dfm<-dcast.data.table(dfm,source +gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
         dfl<-dfm$source
         dfo<-order(sapply(dfl,function(x) which(x==manureSystems)))
@@ -1571,7 +1583,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
         print(dfl)
         dfm<-dfm[dfo,]
     }else if(grepl("A|B",sec)){
-        dfm<-dcast(dfm,category + gas ~ party,value.var = lastyear)
+        dfm<-dcast.data.table(dfm,category + gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
         dfl<-dfm$category
         dfo<-order(sapply(dfl,function(x) which(x==c(livestock,otherlivestock,"Farming"))))
@@ -1579,7 +1591,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
         dfl<-gsub("Farming","Indirect emissions",dfl)
         dfm<-dfm[dfo,]
     }else{
-        dfm<-dcast(dfm,sector_number + gas ~ party,value.var = lastyear)
+        dfm<-dcast.data.table(dfm,sector_number + gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
         dfl<-paste(dfm$sector_number,dfm$gas,sep="-")
     }
@@ -1587,7 +1599,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     dmt<-as.vector(apply(dfm[,3:ncol(dfm)],2,sum))
     
     dfms<-rbind(sapply(1:nrow(dfm),function(x) dfm[x,3:ncol(dfm)]/dmt))
-    row.names(dfms)<-colnames(dfm[3:ncol(dfm)])
+    #row.names(dfms)<-colnames(dfm[3:ncol(dfm)])
     #View(dfms)
     
     figname<-paste0(plotsdir,"/",cursubm,"emissionshare_",sec,".",plotformat,collapse=NULL)
@@ -1617,7 +1629,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     }else{
         curcols<-rev(brewer.pal(length(dfl),"Blues"))
     }
-    print(curcols)
+    #print(curcols)
     if(plotformat=="pdf"){
       barplot(t(dfms),horiz = FALSE,las=2,cex.axis = 1.5, cex.names = 1.5,offset = 0,col = curcols)
       legend("topright",inset=c(-0.25,0), legend=dfl,fill=curcols,cex=1.5)

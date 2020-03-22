@@ -106,6 +106,7 @@ if(generatealldata==1){
     stepsdone<-1
     savelist<-c("stepsdone","savelist","alldata","allnotations","allinfos","allmethods","alldatanosector", "country4sub")
     save(list=savelist,file=rdatallem)
+    save(list=savelist,file=gsub(".RData",paste0("_s1",".RData"),rdatallem))
     save(list=savelist,file=gsub(".RData",paste0("_s1~",figdate,".RData"),rdatallem))
     save(measures,parties,years,notations,classifications,categories,sources,methods,
          targets,options,types,gases,units,sectors,uids,file=rdatmeta)

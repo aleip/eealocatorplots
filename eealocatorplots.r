@@ -45,6 +45,11 @@ options(warn=0) #warn=2 turns warnings into errors; set to 0 if this should be a
 options(error=recover) #error=recover goes into debug mode
 options(error=NULL) #error=recover goes into debug mode
 
+
+### RESTART OPTION
+restartatstep <- 2 #Clean version of step (restartatstep - 1) will be loaded
+rm(restartatstep)
+
 # PART A: Link with EEA locator tool ----
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
 # Return:
@@ -104,8 +109,10 @@ if(stepsdone==1){
   alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
   stepsdone<-2
   savelist<-c(savelist,"alltotals")
-  save(list=savelist,file=rdatallem)
-  save(list=savelist,file=gsub(".RData",paste0("_s2~",figdate,".RData"),rdatallem))
+  savefile <- gsub("_s[0-9]", "", rdatallem)
+  save(list=savelist,file=savefile)
+  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
+  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
   source("curplot.r")
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")
@@ -124,6 +131,8 @@ if(stepsdone==2){
   
   alldata<-alldata[alldata$party!="EU28",]
   alldata$datasource<-"nir"
+  
+  # Extract calceu from alldata - combine at the end
   calceu<-alldata[grepl("^3",alldata$sector_number),]
   alldata<-alldata[!grepl("^3",alldata$sector_number),]
   
@@ -131,128 +140,71 @@ if(stepsdone==2){
   measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
   lc<-measures2sum[grepl("^3",measures2sum$sector_number),]
   
-  #eu28sum<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(measures2sum)),ncol=ncol(calceu),nrow=nrow(measures2sum)))
-  #names(eu28sum)<-names(calceu)
-  #eu28sum[,names(measures2sum)]<-measures2sum[,names(measures2sum)]
-  #eu28sum[,years]<-euvalue("sum",eu28sum,calceu,years,countriesic)
-  #eu28sum[,"party"]<-rep("EU28",nrow(eu28sum))
-  #eu28sum$notation[eu28sum$notation==0]<-""
-  #calceu<-rbind(alldata,eu28sum)
   print("Calculate EU-sums")
-  #xavi20180504: calceu[,years]<-apply(calceu[,years],2,function(x) as.numeric(x))
-  #xavi20180504: calceu<-eu28sums(calceu,"EUC",years = years)
-  #xavi20180504: eu28sum<-calceu[calceu$meastype %in% meas2sum & calceu$party=="EUC",]
-  #xavi20180504: calceu <- calceu[!calceu$party=="EUC",] #xavi20180219:removing EUC sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
-  calceu <- eu28sums(A = calceu,years = years) #xavi20180504: to calculate sums for EUA and EUC
+  calceu <- eusums_NEW(A = calceu,years = years) #xavi20180504: to calculate sums for EUA and EUC
   eu28sum <- calceu[calceu$meastype %in% meas2sum & calceu$party %in% eu,]
+  
   calceu <- calceu[!calceu$party %in% eu,] #xavi20180219:removing EUC and EUA sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
   calceu <- rbind(calceu, eu28sum) #xavi20180219: so that calceu keeps only EUC and EUA sums for those that can be summed (i.e. meas2sum), but all the sector n.3 (agri)
   agrisummeas<-measures2sum[grepl("^3",measures2sum$sector_number),]
   
   # Check on outliers in AD and EMs: no country should really dominate unless it is the only country reporting
+  checkADoutliers <- calceu[grepl("^3",sector_number) & meastype %in% meas2sum]
+  checkADoutliers <- melt.data.table(checkADoutliers, measure.vars = years, variable.name = "years")
+  checkADoutliers <- unique(checkADoutliers)
+  dofrom <- paste(setdiff(names(checkADoutliers), c("value", "party", "notation")), collapse = " + ")
+  cntrs <- unique(checkADoutliers$party)
+  checkADoutlms <- dcast.data.table(checkADoutliers, as.formula(paste0(dofrom, " ~ party")), value.var = "value", fill = FALSE)
+  checkshares <- checkADoutlms[, (cntrs) := .SD/EUC, .SDcols=cntrs]
+  checkshares <- checkshares[, maxshare := do.call(pmax, .SD), .SDcols = setdiff(cntrs, eu)]
   
-  sharecalc<-function(uid,D,E,x, cursubm){
-    #print(x)
-    uid<-as.vector(unlist(uid))
-    #xavi20180504: alc<-c(1:length(countriesnoeu))
-    countriesnoeu1 <- countriesnoeu[countriesnoeu %in% as.character(country4sub[country4sub[,"EUC"]==1,"code3"])]
-    if(!is.null(keepNORout)){
-      countriesnoeu1 <- countriesnoeu1[!countriesnoeu1 %in% c("NOR")]
-      D <- D[!D$party %in% c("NOR"), ]
-    } 
-    alc<-c(1:length(countriesnoeu1))
-    coval<-extractuiddata(DF = D,uid = uid,c = countriesnoeu1,narm = FALSE, cursubm = cursubm)
-    ncoval<-coval[apply(coval,1,sum,na.rm=TRUE)!=0,]
-    if(is.matrix(ncoval)){ncoval<-nrow(ncoval)}else{ncoval<-0}
-    
-    #xavi20180504: euval<-E[E$variableUID==uid,years]
-    euval<-E[E$variableUID==uid,]
-    euval<-euval[euval$party=="EUC",years]
-    #euval<-euval[E$category[E$variableUID%in%uid]%in%c("Other Cattle.Non-dairy cattle","Other Cattle.Dairy cattle"),]
-    euval<-as.numeric(matrix(euval))
-    if(ncoval>3) {
-      share<-t(apply(coval, 1, "/", euval))
-      v<-which(share>0.95,arr.ind=TRUE)
-      if(nrow(v)>0){
-        nc<-rep(ncoval,nrow(v))
-        uids<-rep(uid,nrow(v))
-        pa<-countriesnoeu[v[,1]]
-        averagepa<-unlist(lapply(c(1:nrow(v)),function(x) mean(coval[v[x,1]],na.rm=TRUE)))
-        averagepa<-round(averagepa,3)
-        averageot<-mean(coval[alc[!alc%in%pa]],na.rm=TRUE)
-        averageot<-rep(round(averageot,3),nrow(v))
-        yr<-years[v[,2]]
-        v1<-v[,1]
-        shares<-as.vector(t(Reduce(rbind,lapply(c(1:nrow(v)),function(x) share[v[x,1],v[x,2]]))))
-        shares<-round(shares,3)
-        return(list(nc,pa,yr,shares,uids,averagepa,averageot))
-      }else{return(NULL)}
-    }else{return(NULL)}
-  }
-  cat("\n")
-  print("Calculate calcshare")
-  calcshare<-lapply(c(1:nrow(agrisummeas)),function(x) 
-    Reduce(rbind,sharecalc(uid=agrisummeas$variableUID[x],D=calceu,E=eu28sum,x, cursubm = cursubm)))
-  calcshare<-as.data.frame(t(Reduce(cbind,calcshare)))
-  names(calcshare)<-c("ncountries","party","year","share","variableUID","mean","meanother")
-  ademoutl<-merge(calcshare,agrisummeas,by="variableUID")
-  ademoutl<-simplifytestmatrix(check = ademoutl,group = c("year","share"),compare = list(years,"range"))
-  ok1<-ademoutl$party=="ITA"&ademoutl$category=="Buffalo"
-  ok2<-ademoutl$party=="DNM"&ademoutl$source=="Digesters"
-  ok3<-ademoutl$party=="NLD"&ademoutl$option=="Option B"
-  ok4<-ademoutl$party=="ROU"&grepl("^3.F.",ademoutl$sector_number)
-  ok6<-ademoutl$party=="ESP"&grepl("^3.F.",ademoutl$sector_number) #20170127 burning of agricultural residues, no area burnt is reported (NA) but some biomass available (table 3.F, column C) from soybean and other non-specified. Reported emissions are NO.
-  ok5<-ademoutl$party=="SWE"&grepl("^3.*8$",ademoutl$sector_number)
-  ademoutl<-ademoutl[!(ok1 | ok2 | ok3 | ok4 | ok5 | ok6),]
-  ademoutl$correction<-0
-  ademoutl<-ademoutl[order(ademoutl$party,ademoutl$sector_number),]
-  if(nrow(ademoutl)>0){write.csv(ademoutl,file=paste0(invloc,"/checks/checks",cursubm,"ADEMoutliers.csv"))}
+  # Select those with a share > 0.95
+  checkshares <- checkshares[maxshare > 0.95 & maxshare < 1]
   
+  # Allow some special cases
+  checkshares<-checkshares[ ! (ROU > 0.95  & grepl("^3.F.",sector_number))]
+  checkshares<-checkshares[ ! (ESP > 0.95  & grepl("^3.F.",sector_number))]
   
-  #source("eugirp_simplifyunit.r")
-  #     selection<- (calceu$unit=="t N/year")
-  #     calceu$unit[selection]<-"kt N/year"
-  #     calceu[selection,years]<-calceu[selection,years]/1000
+  checkshares<-checkshares[ ! (category == "Buffalo")]
+  checkshares<-checkshares[ ! (category == "Growing Lambs")]
+  checkshares<-checkshares[ ! (source == "Digesters")]
+  checkshares<-checkshares[ ! (option == "Option B")]
+  checkshares<-checkshares[ ! (option == "Option C")]
   
-  #save alldata before unit conversion as backup
-  #xavi20180219: save(alldata,eu28sum,file=gsub("_clean","_nounitconv",rdatallem))
+  checkshares<-checkshares[ ! (grepl("^3.*8..$", sector_number))]
+  checkshares<-checkshares[ ! (grepl("^3.J", sector_number))]
+  write.xlsx(checkshares, file=paste0(invloc,"/checks/checks",cursubm,"ADEMoutliers.xlsx"))
+  
   save(alldata,eu28sum, calceu,file=gsub("_clean","_nounitconv",rdatallem))
   
   # NEXC must be all changed, even if for one MMS the values are small
   
-  if(!is.null(keepNORout)){
-    alldata_NOR_agri <- alldata_NOR[grepl("^3", alldata_NOR$sector_number), ]
-    alldata_NOR_notAgri <- alldata_NOR[!grepl("^3", alldata_NOR$sector_number), ]
-    calceu <- rbind(calceu, alldata_NOR_agri)
-  }
-  selection<- (grepl("^3",calceu$sector_number) & calceu$unit=="kg N/year")
-  calceu$unit[selection]<-"kt N/year"
-  calceu[selection,years]<-calceu[selection,years]/1000000
+  calceu <- calceu[unit == "kg N/year", (years) := .SD/1000000, .SDcols = years]
+  calceu <- calceu[unit == "kg N/year", unit := "kt N/year"]
   
-  if(!is.null(keepNORout)){
-    alldata<-rbind(alldata, alldata_NOR_notAgri, calceu)
-  }else{
-    alldata<-rbind(alldata, calceu)
-  }
-  
+  alldata <- rbind(alldata, calceu)  
   o<-order(alldata$sector_number,alldata$category,alldata$meastype,alldata$classification,alldata$party)
-  alldata<-alldata[o,allfields]
+  alldata<-alldata[o,allfields, with=FALSE]
   
   #stop("pause")
   source("eugirp_allagri.r")  #20190125: allagri data WITH Norway (alldata WITHOUT Norway)
   
   stepsdone<-3
   emplotsdone<-0
-  savelist<-c(savelist,"emplotsdone","eu28sum","ademoutl","allagri","agrimethods","agriemissions", "agriemissions_GBE","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
-  save(list=savelist,file=rdatallem)
-  save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-  #drive_update(file = paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-  #             media = rdatallem, 
-  #             verbose = FALSE)
-  #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-  #             #path = NULL, 
-  #             #name = NULL, type = NULL, 
-  #             verbose = FALSE)
+  savelist<-c(savelist,"emplotsdone","eu28sum","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
+  savefile <- gsub("_s[0-9]", "", rdatallem)
+  save(list=savelist,file=savefile)
+  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
+  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+  
+  # Update latest clean version
+  # drive_update(file = paste0("eugirp/rdatabase/", "eealocator_", cursubm, "_clean.RData"),
+  #              media = rdatallem, 
+  #              verbose = TRUE)
+  # drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
+  #              #path = NULL, 
+  #              #name = NULL, type = NULL, 
+  #              verbose = FALSE, overwrite = TRUE)
   source("curplot.r")
 }else if(stepsdone>2){
   print("Step 3a: EU sums already calculated")

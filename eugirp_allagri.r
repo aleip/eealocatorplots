@@ -6,6 +6,9 @@ convertCO2eq <- function(dt){
   dt <- dt[, unit := "kt CO2 equivalent"]
 }
 
+if(! dir.exists(paste0(plotsdir,"/",cursubm))){dir.create(paste0(plotsdir,"/",cursubm))}
+if(! dir.exists(paste0(plotsdir,"/",cursubm, "/mixplots"))){dir.create(paste0(plotsdir,"/",cursubm, "/mixplots"))}
+
 agriselect<-grepl("^3",alldata$sector_number) 
 allagri<-alldata[agriselect,]
 acountry<-curcountries[variable==eusubm & value==1]$code3
@@ -130,6 +133,7 @@ agridet3bind<-agridet3bind[grepl("Indirect",agridet3bind$classification),]
 
 #con<-file(paste0(invloc,"\\eealocator\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".csv"),open = "wt") # Alex 20200128 new name of the eealocator directory
 f1 <- paste0(invloc,"\\tables4eu\\agridet_emissions4capri",format(Sys.time(), "%Y%m%d"),".xlsx")
+f2 <- paste0(invloc,"\\tables4eu\\agridet_emissions4capri_", cursubm,".xlsx")
 wb <- createWorkbook(creator = eugirp.fullname)
 wbs <- addWorksheet(wb, sheetName = "agridet_emissions")
 wbs <- writeData(wb, sheet = "agridet_emissions", x = "# Data Source: EU-GIRP: GHG emissions by source category (detailed - agridet)", startRow = 1)
@@ -138,7 +142,8 @@ wbs <- writeData(wb, sheet = "agridet_emissions", x = paste0("# Data from submis
 wbs <- writeData(wb, sheet = "agridet_emissions", x = paste0("# Countries included: ",paste(unique(agridetcapri$party),collapse="-")), startRow = 4)
 wbs <- writeData(wb, sheet = "agridet_emissions", x = rbind(agridetcapri,agridet3bind), startRow = 5)
 saveWorkbook(wb, file = f1, overwrite = TRUE)
-file.copy(from = f1, to = paste0(invloc,"\\tables4eu\\agridet_emissions4capri_", cursubm,".xlsx"), overwrite = TRUE)
+file.copy(from = f1, to = f2, overwrite = TRUE)
+drive_upload(media = f2, path = paste0("eugirp/", cursubm, "/"), overwrite = TRUE, verbose = TRUE)
 
 # removing again NOR data
 if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 

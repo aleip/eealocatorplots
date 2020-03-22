@@ -10,6 +10,7 @@
 # Adrian Leip <adrian.leip@jrc.ec.europa.eu>
 
 # current inventory year
+gdrive <- NULL
 if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
   adrian<-"D:/Users/leipadr/adrian/"
 }else if(Sys.info()[4]=="D01RI1600881"){
@@ -19,6 +20,7 @@ if(Sys.info()[4]=="L01RI1203587"){ #checks machine name
   adrian<-"E:/ghginventory/"
 }else if(Sys.info()[4]=="BARAGOON"){
   adrian<-"C:/dev/ghginventory/"
+  gdrive <- "c:/Users/adrian/google/projects/eugirp/"
 }else if(Sys.info()[4]=="MARSBL1BHL"){
   adrian<-"X:\\Agrienv\\ghginventory\\"
 }else if(Sys.info()[4]=="D01RI1600850"){# Gema PC
@@ -197,14 +199,17 @@ if(stepsdone==2){
   save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
   save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
   
-  # Update latest clean version
-  # drive_update(file = paste0("eugirp/rdatabase/", "eealocator_", cursubm, "_clean.RData"),
-  #              media = rdatallem, 
-  #              verbose = TRUE)
-  # drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-  #              #path = NULL, 
-  #              #name = NULL, type = NULL, 
-  #              verbose = FALSE, overwrite = TRUE)
+  mixplotsfiles <- list.files(paste0(plotsdir, cursubm, "/mixplots/"), pattern = ".*jpg|.*png", full.names = TRUE)
+  if(!is.null(gdrive)){
+    # Not at the server - files can be copied locally and will be updloaded by Backup
+    file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
+    x <- lapply(1:length(mixplotsfiles), function(x) 
+      file.copy(from = mixplotsfiles[x], to = paste0(gdrive, cursubm, "/mixplots/", basename(mixplotsfiles[x])), overwrite =  TRUE))
+  }else{
+    #drive_update
+    drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
+    drive_update(media = mixplotsfiles[x], path = paste0(gdrive, cursubm, "/mixplots/"), overwrite = TRUE, verbose = TRUE) 
+  }
   source("curplot.r")
 }else if(stepsdone>2){
   print("Step 3a: EU sums already calculated")
@@ -280,7 +285,7 @@ if(stepsdone>2){
     }
 }
 
-#stop("plots done")
+stop("plots done")
 #++++ END OF GENERAL PART 
 #++++ BELOW SECTOR-3 SPECIFIC PART
 # 2019: Norway is included in all checks

@@ -1514,7 +1514,7 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
         lin<-rep(0.9,n)
         lin[which(v==piegrep)]<-0.6
         
-        figname<-paste0(figdir,"/",cursubm,"agrimixeu",piegrep,".",plotformat,collapse=NULL)
+        figname<-paste0(figdir,"/", cursubm, "/mixplots/",cursubm,"agrimixeu",piegrep,".",plotformat,collapse=NULL)
         if(plotformat=="pdf") pdf(file=figname,width=piewidth,height=pieheight)
         if(plotformat=="png") png(file=gsub("pdf","png",figname),width=piewidth,height=pieheight,unit="in",res=pieresolution)
         if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
@@ -1602,7 +1602,7 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
     #row.names(dfms)<-colnames(dfm[3:ncol(dfm)])
     #View(dfms)
     
-    figname<-paste0(plotsdir,"/",cursubm,"emissionshare_",sec,".",plotformat,collapse=NULL)
+    figname<-paste0(plotsdir,"/",cursubm, "/mixplots/", cursubm,"emissionshare_",sec,".",plotformat,collapse=NULL)
     
     if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
     if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)

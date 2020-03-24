@@ -274,16 +274,25 @@ if(stepsdone>2){
                           "secJ", "secK", "secN", "secS", "valueadem")
             ok <- sapply(secs2zip, function(x) zipplots(x))
             
-            #Data not yet checked - no weighted average
-            #rundata<-"ief"
-            #plotparamcheck<-0
-            #source("eugirp_prepareplots.r")
-            
             emplotsdone<-1
             
             savelist<-c(savelist,"emplotsdone","plotmeas")
-            save(list=savelist,file=rdatallem)
-            save(list=savelist,file=gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem))
+            savefile <- gsub("_s[0-9]", "", rdatallem)
+            save(list=savelist,file=savefile)
+            save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
+            save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+            mixplotsfiles <- list.files(paste0(plotsdir, cursubm, "/valueadem/"), pattern = ".*jpg|.*png", full.names = TRUE)
+            if(!is.null(gdrive)){
+              # Not at the server - files can be copied locally and will be updloaded by Backup
+              file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
+              if(!dir.exists(paste0(gdrive, cursubm, "/valueadem"))){dir.create(paste0(gdrive, cursubm, "/valueadem"))}
+              x <- lapply(1:length(mixplotsfiles), function(x) 
+                file.copy(from = mixplotsfiles[x], to = paste0(gdrive, cursubm, "/valueadem/", basename(mixplotsfiles[x])), overwrite =  TRUE))
+            }else{
+              #drive_update
+              drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
+              drive_update(media = mixplotsfiles[x], path = paste0(gdrive, cursubm, "/valueadem/"), overwrite = TRUE, verbose = TRUE) 
+            }
             #stop("End of general part (Emission plots done!)")
         }else{
             print("Step 4: Emission plots already done")
@@ -294,7 +303,7 @@ if(stepsdone>2){
     }
 }
 
-stop("plots done")
+#stop("plots done")
 #++++ END OF GENERAL PART 
 #++++ BELOW SECTOR-3 SPECIFIC PART
 # 2019: Norway is included in all checks
@@ -314,76 +323,107 @@ if(stepsdone==3){
     
     # Agrishares as agriemissions relative to total emissions ####
     # 2019: both 'alltotals' and 'agriemissions' include Norway
-    totaluid<-as.vector(unique(alltotals$variableUID[alltotals$classification==signclass&alltotals$type==signtype&alltotals$gas=="Aggregate GHGs"]))
-    totalval<-alltotals[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs",]
-    totalval<-extractuiddata(DF = alltotals,uid = totaluid,c = allcountries,narm=FALSE, cursubm = cursubm)
-    totalval<-apply(totalval,2,function(x) as.numeric(x))
-    agrishares<-unique(agriemissions[,allfields[!allfields%in%c("party",years,"notation")]])
-    shareuids<-unique(agrishares$variableUID)
-    if(nrow(agrishares)!=length(shareuids)){stop("number of uids inconsistent with data frame agrishares")}
-    tmp<-Reduce(rbind,lapply(c(1:length(shareuids)),function(x) 
-        calculateshares(x,shareuids[x],agriemissions,totalval)))
+    totalval <- alltotals[alltotals$classification==signclass&alltotals$gas=="Aggregate GHGs",]
     
-    selection<-is.na(apply(tmp[,years],1,sum,rm.na=TRUE)) | apply(tmp[,years],1,sum,rm.na=TRUE)==0
-    tmp<-tmp[!selection,]
-    agrishares<-merge(agrishares,tmp,by=c("variableUID"))
-    agrishares$notation<-""
-    agrishares<-agrishares[order(agrishares$sector_number,agrishares$category,agrishares$party),allfields]
+    # Add totals agriculture emissions
+    agriCO2eq <- dt2CO2eq(allagri[meastype=="EM"])
+    totalagg <- agriCO2eq[sector_number=="3" & gas=="Aggregate GHGs"]
+    
+    # Combine and melt
+    totalcom <- rbind(totalval, totalagg, fill=TRUE)
+    totalcom <- melt.data.table(totalcom[, .SD, .SDcols=c("type", "party", years)], id.vars = c("party", "type"), value.name = "totalvalue")
+    #setnames(totalval, "classification", "total")
+    totalval <- dcast.data.table(totalcom, party + variable ~ type, value.var = "totalvalue")
+    totalval <- totalval[, .(party, variable, agri=V1, withLULUCF=`Total (with LULUCF)`, woLULUCF=`Total (without LULUCF)`)]
+    
+    # Calculate shares and clean data table
+    agrishares <- melt.data.table(agriemissions[, -"notation", with=FALSE], measure.vars = years)
+    agrishares <- merge(agrishares, totalval, by=c("party", "variable"))
+    agrishares <- agrishares[, `:=` (agri = value/agri, wLULUCF=value/withLULUCF, woLULUCF=value/woLULUCF)]
+    agrishares <- melt.data.table(agrishares, measure.vars = c("agri", "wLULUCF", "woLULUCF"), value.name = "share", variable.name = "shtype")
+    aform <- paste(setdiff(names(agrishares), c("variable", "share", "value", "withLULUCF")), collapse="+")
+    agrishares <- dcast.data.table(agrishares[share != 0], as.formula(paste0(aform, " ~ variable")), value.var = "share")
+    agrishares <- agrishares[, `:=` (meastype='share',unit=shtype, measure=paste0("Share from Totals ", shtype))]
+    agrishares <- agrishares[, -'shtype', with=FALSE]
+    
+    f1 <- paste0(gsub("eealocator_", "agridata", csvfil), "_shares.xlsx")
+    f2 <- paste0(gsub("eealocator_", "agridata", csvfil), "_CO2eq.xlsx")
+    write.xlsx(agrishares, file = f1, asTable = TRUE, overwrite=TRUE)
+    write.xlsx(agriCO2eq, file = f2, asTable = TRUE, overwrite=TRUE)
     
     # Signnificant categories on the basis of the share threshold criterium only ####
     otheryears<-years[!years%in%signyear]
     
-    signcategories<-agrishares[allfields[!allfields%in%otheryears]]
-    signcategories[,"maxshare"]<-apply(agrishares[,years],1,max)
-    signshares<-c(signyear,"maxshare")
-    signcategories[,"potsig"]<-whichmatrix(D = signcategories[,as.character(signyear)],v = which(signcategories[,as.character(signyear)]>signthreshold,arr.ind = TRUE))    
-    signcategories$potsig[signcategories$potsig>0]<-1
-    shiftfields<-c(metafields,"meastype","unit","measure","notation")
-    sigfield<-c(allfields[!allfields%in%c(years,"variableUID",shiftfields)],"potsig",signyear,"maxshare","variableUID",shiftfields)
-    signcategories<-signcategories[order(signcategories$sector_number,signcategories$category),sigfield]
+    signcategories<-agrishares[, -otheryears, with=FALSE]
+    if(signtype == "Total (without LULUCF)") {
+      signcategories <- signcategories[unit=="woLULUCF"]
+    }else{
+      signcategories <- signcategories[unit=="wLULUCF"]
+    }
     
-    if (! file.exists(paste0(invloc,"/checks/significant/"))){dir.create(file.path(paste0(invloc,"/checks/significant")),showWarnings = FALSE )}
-    fileunder<-paste0(invloc,"/checks/significant/signcategories~",figdate,".csv")
+    #### This needs to be redone!!!
+    # Determination of potentially significant issues using the shares vs total
+    # Questions: only for last year, or using max share?
+    # Other questions: 
+    dontdoforthemoment <- TRUE
+    if(! dontdoforthemoment){
+      signcategories[,"maxshare"]<-apply(agrishares[,years],1,max)
+      signshares<-c(signyear,"maxshare")
+      signcategories[,"potsig"]<-whichmatrix(D = signcategories[,as.character(signyear)],v = which(signcategories[,as.character(signyear)]>signthreshold,arr.ind = TRUE))    
+      signcategories$potsig[signcategories$potsig>0]<-1
+      shiftfields<-c(metafields,"meastype","unit","measure","notation")
+      sigfield<-c(allfields[!allfields%in%c(years,"variableUID",shiftfields)],"potsig",signyear,"maxshare","variableUID",shiftfields)
+      signcategories<-signcategories[order(signcategories$sector_number,signcategories$category),sigfield]
+      
+      if (! file.exists(paste0(invloc,"/checks/significant/"))){dir.create(file.path(paste0(invloc,"/checks/significant")),showWarnings = FALSE )}
+      fileunder<-paste0(invloc,"/checks/significant/signcategories~",figdate,".csv")
+      con<-file(fileunder,open = "wt")
+      writeLines(signcatexp,con)
+      write.csv(signcategories,con)
+      close(con)
+    }
     
-    con<-file(fileunder,open = "wt")
-    writeLines(signcatexp,con)
-    write.csv(signcategories,con)
-    close(con)
-    
-    alltrend<-as.data.frame(matrix(0,rep(0,ncol(allagri)),ncol=ncol(allagri)))
-    alltrend<-allagri[allagri$meastype %in% meas2sum,]
-    alltrend[,period2]<-allagri[allagri$meastype %in% meas2sum,period2]-allagri[allagri$meastype %in% meas2sum,period1]
+    tmp <- as.data.frame(allagri)
+    alltrend<-as.data.frame(matrix(0,rep(0,ncol(tmp)),ncol=ncol(tmp)))
+    alltrend<-allagri[tmp$meastype %in% meas2sum,]
+    alltrend[,period2]<-tmp[tmp$meastype %in% meas2sum,period2]-tmp[tmp$meastype %in% meas2sum,period1]
     alltrend[,years[1]]<-NA
     
     mgrowth<-c(meas2popweight,meas2clima,meas2mcf)
-    allgrowth<-as.data.frame(matrix(0,rep(0,ncol(allagri)),ncol=ncol(allagri)))
-    #allgrowth<-allagri[allagri$meastype %in% mgrowth,]
-    #allgrowth[,period2]<-allagri[allagri$meastype %in% mgrowth,period2]/allagri[allagri$meastype %in% mgrowth,period1]
-    allgrowth<-allagri
-    allgrowth[,period2]<-allagri[,period2]/allagri[,period1]
+    allgrowth<-as.data.frame(matrix(0,rep(0,ncol(tmp)),ncol=ncol(allagri)))
+    allgrowth<-tmp
+    allgrowth[,period2]<-tmp[,period2]/tmp[,period1]
     allgrowth[is.nan(allgrowth)] <- 0
     allgrowth[is.infinite(allgrowth)] <- 1
     allgrowth[,years]<-round(allgrowth[,years],3)
     allgrowth[,years[1]]<-NA
+    allgrowth <- as.data.table(allgrowth)
     
     stepsdone<-4
     checksteps<-4
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
-    save(list=savelist,file=rdatallem)
-    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-    #             media = rdatallem, 
-    #             verbose = FALSE)
-    #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-    #             #path = NULL, 
-    #             #name = NULL, type = NULL, 
-    #             verbose = FALSE)
+    savefile <- gsub("_s[0-9]", "", rdatallem)
+    save(list=savelist,file=savefile)
+    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
+    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+    if(!is.null(gdrive)){
+      # Not at the server - files can be copied locally and will be updloaded by Backup
+      file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
+      if(!dir.exists(paste0(gdrive, cursubm, "/valueadem"))){dir.create(paste0(gdrive, cursubm, "/valueadem"))}
+      file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
+      file.copy(from = f2, to = paste0(gdrive, cursubm, "/", basename(f2)), overwrite =  TRUE)
+    }else{
+      #drive_update
+      drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
+      drive_update(media = f2, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+      drive_update(media = f2, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+    }
     source("curplot.r")
 }else if(stepsdone>3){
     print("Step 4: Trends and growth rates already calculated")
 }
 
-#stop("step 4 done")
+stop("step 4 done")
 # A.4 NE-check and check on unit errors. Prepare for outlier check ####
 if(stepsdone==4){
     print("# A.4 NE-check and check on unit errors. Prepare for outlier check ####")
@@ -400,14 +440,12 @@ if(stepsdone==4){
     allagri<-allagri[allagri$party!="EU28",]
     #xavi20180220: allagri<-eu28sums(allagri,aeu = c("EUC","EUA"),years = years)    #xavi20180220: this is already done for EUC (I think not necessary for EUA?)
     allagri<-allagri[order(allagri$sector_number,allagri$category,allagri$meastype),]
+    
     #remove option from Cattle, Dairy Cattle, Non-Dairy Cattle
     allcattle<-c("Cattle","Dairy Cattle","Non-Dairy Cattle")
     allagri$option[allagri$category%in%allcattle]<-""
     allagri<-unique(allagri)
     curnames<-c("sector_number","category","meastype","option","party","variableUID",years)
-    #checksteps<-"4a"
-    #save(checksteps,file="checksteps.RData")
-    #}   
     
     # Create table with statistical info for each variable
     agrimeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
@@ -415,15 +453,16 @@ if(stepsdone==4){
     #agrimeas<-merge(agrimeas,parammeas,by="variableUID",all.x = TRUE)
     agrimeas<-agrimeas[order(agrimeas$sector_number,agrimeas$category),]
     
-    #if(checksteps == "4a"){
-    print(paste0("Step ",stepsdone+1,"b: Check NEs"))
-    if (! file.exists(paste0(invloc,"/checks/nechecks"))){
+    ### NE check sone manually with EEA tables
+    dontdonecheck <- TRUE
+    if(! dontdonecheck){
+      print(paste0("Step ",stepsdone+1,"b: Check NEs"))
+      if (! file.exists(paste0(invloc,"/checks/nechecks"))){
         dir.create(file.path(paste0(invloc,"/checks/necheck/")))}
-    source("eugirp_checknes.r")
+      source("eugirp_checknes.r")
+    }
+    
     #checksteps<-"4b"
-    #save(checksteps,file="checksteps.RData")
-    #}
-    #if(checksteps == "4b"| checksteps=="4c"){
     print(paste0("Step ",stepsdone+1,"c: Check units"))
     if (! file.exists(paste0(invloc,"/checks/autocorrections"))){dir.create(file.path(paste0(invloc,"/checks/autocorrections/")))}
     source("eugirp_checkunits.r")

@@ -174,18 +174,6 @@ brief<-function(text){
 
 linkto<-function(text){text<-paste0("=HYPERLINK(\"",text,"\")")}
 
-calculateshares<-function(x,uid,curval,totalval){
-    # Calculate the share of a time series (curval) for all MS against a give total (totalval)
-    #print(x)
-    val<-extractuiddata(DF = curval,uid = uid,c = allcountries,narm = FALSE, cursubm = cursubm)
-    val<-apply(val,2,function(x) as.numeric(x))
-    res<-val/totalval
-    res<-as.data.frame(res)
-    res$party<-allcountries
-    res$variableUID<-uid
-    #stop()
-    return(res)
-}
 selquantiles<-function(D){
     #View(D)
     quantls<-c(0.25, 0.5, 0.75)
@@ -428,6 +416,12 @@ euvalue<-function(todo,E,D,y,c){
 #     
 #     return(myobject)
 # }
+
+dt2CO2eq <- function(dt){
+  dt <- merge(dt, gwps, by="gas")
+  dt <- dt[, (years) := .SD * gwp, .SDcols=years]
+  dt <- dt[, unit := "kt CO2 equivalent"]
+}
 
 convert2co2eq<-function(line){
     #Converts data into CO2eq 

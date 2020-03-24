@@ -1,11 +1,5 @@
 
 #if(!is.null(keepNORout)) alldata <- rbind(alldata, alldata_NOR) 
-convertCO2eq <- function(dt){
-  dt <- merge(dt, gwps, by="gas")
-  dt <- dt[, (years) := .SD * gwp, .SDcols=years]
-  dt <- dt[, unit := "kt CO2 equivalent"]
-}
-
 if(! dir.exists(paste0(plotsdir,"/",cursubm))){dir.create(paste0(plotsdir,"/",cursubm))}
 if(! dir.exists(paste0(plotsdir,"/",cursubm, "/mixplots"))){dir.create(paste0(plotsdir,"/",cursubm, "/mixplots"))}
 
@@ -92,12 +86,12 @@ agridet$sector_number[agridet$category=="Dairy Cattle"]<-paste0(agridet$sector_n
 agridet$sector_number[agridet$category=="Non-Dairy Cattle"]<-paste0(agridet$sector_number[agridet$category=="Non-Dairy Cattle"],".2")
 agridet<-agridet[agridet$party%in%acountry,]
 
-agriemissions<-convertCO2eq(allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,])
+agriemissions<-dt2CO2eq(allagri[allagri$meastype=="EM"&allagri$gas!="no gas"&noagg,])
 agriemissions <- agriemissions[party %in% acountry]
 
-agrigeneu<-convertCO2eq(agrigen[party==eusubm&meastype=="EM"&gas!="no gas",])
-agrimixeu<-convertCO2eq(agrimix[party==eusubm&meastype=="EM"&gas!="no gas",])
-agrideteu<-convertCO2eq(agridet[party==eusubm&meastype=="EM"&gas!="no gas",])
+agrigeneu<-dt2CO2eq(agrigen[party==eusubm&meastype=="EM"&gas!="no gas",])
+agrimixeu<-dt2CO2eq(agrimix[party==eusubm&meastype=="EM"&gas!="no gas",])
+agrideteu<-dt2CO2eq(agridet[party==eusubm&meastype=="EM"&gas!="no gas",])
 
 lastyear<-years[length(years)]
 agrigeneu<-agrigeneu[order(agrigeneu[,lastyear, with=FALSE],decreasing=TRUE),]

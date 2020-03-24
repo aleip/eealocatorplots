@@ -49,7 +49,7 @@ parammeas<-parammeas[order(parammeas$sector_number,parammeas$category),]
 paramdata<-paramdata[paramdata$variableUID %in% parammeas$variableUID,]
 paramdata<-paramdata[paramdata$party!="EU28",]
 paramdata<-paramdata[order(paramdata$sector_number,paramdata$category),]
-
+paramdata <- as.data.frame(paramdata)
 # Autocorrections - detected errors in units etc. ####
 #empty data.frame http://stackoverflow.com/questions/10689055/create-an-empty-data-frame
 autocorrections<-data.frame(Characters=character(),Characters=character(),Ints=integer())

@@ -143,7 +143,7 @@ if(stepsdone==2){
   lc<-measures2sum[grepl("^3",measures2sum$sector_number),]
   
   print("Calculate EU-sums")
-  calceu <- eusums_NEW(A = calceu,years = years) #xavi20180504: to calculate sums for EUA and EUC
+  calceu <- eu28sums(A = calceu,years = years) #xavi20180504: to calculate sums for EUA and EUC
   eu28sum <- calceu[calceu$meastype %in% meas2sum & calceu$party %in% eu,]
   
   calceu <- calceu[!calceu$party %in% eu,] #xavi20180219:removing EUC and EUA sums, both well and wrongly calculated (i.e. meas2popweight, CLIMA and MCF, which need to be averaged)
@@ -244,19 +244,35 @@ if(stepsdone>2){
             plotdata$autocorr<-NA
             plotdata$correction<-1
             plotmeas<-temp[[2]]
+            plotmeas<-plotmeas[, i := .I, by=1:nrow(plotmeas)]
             adddefault<-temp[[3]]
             sharesexist<-temp[[4]]
 
             x1<-368;x2<-nrow(plotmeas)
             x1<-155;x2<-156
+            x1<-1;x2<-2
             x1<-167; x2<-nrow(plotmeas)
             x1<-1; x2<-nrow(plotmeas)
             #imeas <- 171
             #loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")
             #View(alldata[alldata$variableUID == "91817067-8DB6-41D6-A348-57E2C17B655D", ])
-            for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
+            for(imeas in x1:x2){
+              loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")
+            }
             plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
             write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
+            
+            zipplots <- function(sec){
+              lfil <- list.files(path = paste0(plotsdir,cursubm, "/", sec), 
+                                 pattern = "*jpg", full.names = TRUE)
+              if(length(lfil)>0){
+                cat("\nzipping ", sec, "to ", paste0(plotsdir,cursubm, "_", sec, ".zip"))
+                zipr(zipfile = paste0(plotsdir,cursubm, "_", sec, ".zip"), files = lfil)
+              }
+            }
+            secs2zip <- c("sec1", "sec2", "sec4", "sec5", "sec6", 
+                          "secJ", "secK", "secN", "secS", "valueadem")
+            ok <- sapply(secs2zip, function(x) zipplots(x))
             
             #Data not yet checked - no weighted average
             #rundata<-"ief"
@@ -268,13 +284,6 @@ if(stepsdone>2){
             savelist<-c(savelist,"emplotsdone","plotmeas")
             save(list=savelist,file=rdatallem)
             save(list=savelist,file=gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem))
-            #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"), 
-            #             media = rdatallem, 
-            #             verbose = FALSE)
-            #drive_upload(media = gsub(".RData",paste0("_plots","~",figdate,".RData"),rdatallem), 
-            #             #path = NULL, 
-            #             #name = NULL, type = NULL, 
-            #             verbose = FALSE)
             #stop("End of general part (Emission plots done!)")
         }else{
             print("Step 4: Emission plots already done")

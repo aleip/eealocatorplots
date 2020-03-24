@@ -249,7 +249,7 @@ sumovercountries<-function(D,uid,y,c){
     return(s)
 }
 
-eusums_NEW <- function(A, aeu=eu, years){
+eu28sums <- function(A, aeu=eu, years){
   
   A <- A[! party %in% aeu]
   
@@ -276,7 +276,7 @@ eusums_NEW <- function(A, aeu=eu, years){
   return(A)
   
 }
-eu28sums<-function(A,aeu=eu,years=years){
+eu28sums_old<-function(A,aeu=eu,years=years){
     A[,years]<-apply(A[,years],2,function(x) as.numeric(x))
     afields<-names(A)
     #cat(years,allfields)
@@ -478,8 +478,8 @@ extractuiddata<-function(DF=NULL,uid=NULL,c,narm=TRUE,noeu=FALSE, cursubm = curs
     
     # Extracts data for one variableUID and 
     # Resorts them thus that the eu-countries (EUC, EUA etc) which are in 'c' and in the data are last
-      tmp1<-unique(DF[variableUID==uid,c("party",years2keep), with=FALSE])
-      tmp1 <- rbind(tmp1[! party %in% eu], tmp1[party %in% eu])
+    tmp1 <- unique(DF[variableUID==uid,c("party",years2keep), with=FALSE])
+    tmp1 <- rbind(tmp1[! party %in% eu], tmp1[party %in% eu])
     return(tmp1)
 }
 

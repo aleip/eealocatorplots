@@ -415,7 +415,7 @@ if(stepsdone==3){
     }else{
       #drive_update
       drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
-      drive_update(media = f2, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+      drive_update(media = f1, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
       drive_update(media = f2, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
     }
     source("curplot.r")
@@ -423,7 +423,7 @@ if(stepsdone==3){
     print("Step 4: Trends and growth rates already calculated")
 }
 
-stop("step 4 done")
+#stop("step 4 done")
 # A.4 NE-check and check on unit errors. Prepare for outlier check ####
 if(stepsdone==4){
     print("# A.4 NE-check and check on unit errors. Prepare for outlier check ####")
@@ -468,8 +468,7 @@ if(stepsdone==4){
     source("eugirp_checkunits.r")
     
     print(paste0("Step ",stepsdone+1,"d: Calculation statistics distribution for parameters and growth"))
-    newcols<-c("min","p25","median","p75","max")
-    source("eugirp_paramdata.r")
+    source("eugirp_calcstats.r")
     #checksteps<-"4c"
     #save(checksteps,file="checksteps.RData")
     
@@ -477,23 +476,29 @@ if(stepsdone==4){
     #if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 
     
     stepsdone<-5
-    savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
-    save(list=savelist,file=rdatallem)
-    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-    #             media = rdatallem, 
-    #             verbose = FALSE)
-    #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-    #             #path = NULL, 
-    #             #name = NULL, type = NULL, 
-    #             verbose = FALSE)
+    #savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
+    savelist<-c(savelist,"agrimeas","paramstats","growthstats","autocorrections")
+    savefile <- gsub("_s[0-9]", "", rdatallem)
+    save(list=savelist,file=savefile)
+    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
+    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+    if(!is.null(gdrive)){
+      # Not at the server - files can be copied locally and will be updloaded by Backup
+      file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
+      if(!dir.exists(paste0(gdrive, cursubm, "/valueadem"))){dir.create(paste0(gdrive, cursubm, "/valueadem"))}
+      file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
+    }else{
+      #drive_update
+      drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
+      drive_update(media = f1, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+    }
     source("curplot.r")
 }else if(stepsdone>4){
     print("Step 5: NEchecks and Unitchecks done; param and growth prepared for outlier checks.")
 }
 
 
-#stop("step 5 done")
+stop("step 5 done")
 # A.3 Check for outlier errors and write outlier lists ####
 if(stepsdone==5){
     

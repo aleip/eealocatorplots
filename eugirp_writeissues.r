@@ -666,7 +666,7 @@ writecorrection<-function(v,P,mult,name){
 }
 writeautoc<-function(v,A,P,mult,fn){
     if(nrow(v)>0) {
-        newA<-subset(paramdata[v[,1],],select=c("variableUID","party"),row.names=F)
+        newA<-subset(P[v[,1],],select=c("variableUID","party"),row.names=F)
         newA$autocorr<-mult
         newA[,"file"]<-paste0("=HYPERLINK(\"",fn,"\")")
         A<-rbind(A,unique(newA))

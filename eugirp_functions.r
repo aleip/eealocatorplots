@@ -5,7 +5,7 @@ is.infinite.data.frame <- function(x) do.call(cbind, lapply(x, is.infinite))
 view<-function(D){View(D)}
 viewlast<-function(n,allagri=allagri){View(allagri[(nrow(allagri)-n):nrow(allagri),])}
 newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
-    paste("EUGIRP",substr(cursubm,3,nchar(cursubm)),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
+    #paste("EUGIRP",substr(cursubm,3,nchar(cursubm)),"-",format(Sys.time(),"%Y%m%d-%H%M.%S"),"-",MHmakeRandomString(1,6),sep="")
     sector<-substring(paste0(gsub(" ","",gsub("\\.","",gsub("\\^","",sector))),"0000"),1,5) #5
     categ1<-gsub(" ","",gsub("-","",categ))
     categ<-substring(paste0(substring(categ1,1,4),substring(categ1,nchar(categ1)-3,nchar(categ1)),"00000"),1,8) #8
@@ -14,6 +14,8 @@ newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
     sourc<-substring(paste0(gsub(" ","",gsub("-","",sourc)),"00000"),1,2) #2
     targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #1
     gasun<-substring(paste0(gasun,"0"),1,2)                               #2
+    optio <- as.character(optio)
+    #save(sector,categ,meast,units,metho,sourc,targe,optio,gasun, file="a.rdata")
     optio<-if(optio!=""){substring(optio,nchar(optio),nchar(optio))}else{"0"}   #1
     metho<-substring(paste0(gsub(" ","",gsub("-","",metho)),"00000"),1,3) #3
     newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun,optio,metho)

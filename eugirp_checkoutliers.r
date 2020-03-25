@@ -49,7 +49,7 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
     Doutl$party<-D$party
     Doutl$variableUID<-D$variableUID
     
-    Doutllist<-melt(Doutl,id.vars=c("party","variableUID"),na.rm=F)
+    Doutllist<-melt.data.table(as.data.table(Doutl),id.vars=c("party","variableUID"),na.rm=F)
     select<-! is.na(Doutllist$value)
     Doutllist<-Doutllist[! is.na(Doutllist$value),]
     Doutllist<-Doutllist[Doutllist$value !=0,]
@@ -62,30 +62,28 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
     Doutlvalues<-subset(Doutllist,select=c(value,party,variableUID))
     Doutllist<-subset(Doutllist,select=-value)
     
-    Dcheck<-simplifytestmatrix(check = Doutllist,group = "variable",compare = years)
+    Dcheck<-simplifytestmatrix(check = as.data.frame(Doutllist),group = "variable",compare = years)
     Dcheckv<-aggregate(value ~ party + variableUID,data =Doutlvalues,mean)
     if(type=="growth"){
         x<-simplifytestmatrix(check = Doutlvalues, group = "value")
         Dcheck<-merge(Dcheck,x,by=c("variableUID","party"))
-        Dcheck<-merge(Dcheck,allagri[c(sectfields,measfields,metafields,"variableUID","party",years)],by=c("variableUID","party"),all=FALSE)
+        #Dcheck<-merge(Dcheck,allagri[c(sectfields,measfields,metafields,"variableUID","party",years)],by=c("variableUID","party"),all=FALSE)
     } else if (type=="param"){
         Dcheck<-merge(Dcheck,Dcheckv,by=c("variableUID","party"))
-        Dcheck<-merge(Dcheck,allagri[c(sectfields,measfields,metafields,"variableUID","party")],by=c("variableUID","party"),all=FALSE)
+        #Dcheck<-merge(Dcheck,as.data.frame(allagri)[c(sectfields,measfields,metafields,"variableUID","party")],by=c("variableUID","party"),all=FALSE)
         
     }
     Dcheck<-merge(Dcheck,D,by=c("variableUID","party"))
     Dcheck<-cbind(cursubm,Dcheck,row.names=NULL)                 
     Dcheck$correction<-""
+    Dcheck <- as.data.table(Dcheck)
+    
     if(type=="param"){
-        Dcheck[,resolved]<-""
-        #Dcheck[,docfields]<-""
-        Dcheck$rellim<-unlist(lapply(c(1:nrow(Dcheck)),function(x)
-            if(Dcheck$value[x]>Dcheck$ulim[x]){
-                round((Dcheck$value[x]-Dcheck$median[x])/(Dcheck$ulim[x]-Dcheck$median[x]),2)
-                }else if(Dcheck$value[x]<Dcheck$llim[x]){
-                    round((Dcheck$value[x]-Dcheck$median[x])/(Dcheck$llim[x]-Dcheck$median[x]),2)
-                    }else{1}))
+    Dcheck <- Dcheck[, rellim := ifelse(value>ulim, round((value-median)/(ulim-median), 2),
+                                        ifelse(value<llim, round((value-median)/(llim-median), 2), 1))]
+    Dcheck <- merge(allagri, Dcheck, by=intersect(names(allagri), names(Dcheck)))
     }
+    
     n3<-c("gas","method","classification","source","target","type","option","measure","variableUID","cursubm")
     
     
@@ -93,10 +91,10 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
         n<-c(n1,paste0(years,".x"),paste0(years,".y"),n3)
         o<-order(Dcheck$party,Dcheck$sector_number,Dcheck$category)
     } else if (type=="param"){
-        n<-c(n1,years,n3)
+        n<-intersect(names(Dcheck), c(n1,years,n3))
         o<-order(Dcheck$meastype,Dcheck$sector_number,Dcheck$category,Dcheck$party)
     }
-    Dcheck<-Dcheck[o,n]
+    Dcheck<-Dcheck[o,n, with=FALSE]
     
     n[which(n=="variable")]<-"years"
     names(Dcheck)<-n
@@ -143,12 +141,30 @@ crdir<-paste0(issuedir,"countryoutliers/checks");if (! file.exists(crdir)){dir.c
 # Calculate outliers (method) ####
 if(outcheck=="param"){
     # 'SERIOUS' ERRORS, LIKLY DUE TO COMMA-PROBLEM
-    param<-param[!param$party%in%eu,]
-    #comment - this is the parameter value which is unlikely <1000 but not necessarily due to 'serious' mistake?
-    paramV<-param[unique(which(param[years]>1000,arr.ind = TRUE)[,1]),]
+    param<-merge(paramdata, paramstats, by=intersect(names(paramdata), names(paramstats)))
+      
+    param <- param[!param$party%in%eu,]
+    setnames(param, c("0%", "50%", "100%", "sd"), c("min", "median", "max", "std"))
+    #comment - this is the parameter value which is unlikely <1000 but not necessarily 
+    #          due to 'serious' mistake?
+    paramV<-param[unique(which(param[, years, with=FALSE]>1000,arr.ind = TRUE)[,1]),]
+    # Note: this takes the assumption that 'party' is the last column before years and other numerica values
+    paramV <- paramV[, 1:15]
+    paramV <- paramV[, s := 0]
     
-    paramcheck<-identifyoutliers(trendoutlmethod,param,"param")
+    
+    paramcheck<-identifyoutliers(outlmethod = trendoutlmethod,
+                                 D = as.data.frame(param),
+                                 type = "param")
     #View(paramcheck)
+    serious<-function(P,uid,c){
+        if(uid %in% P$variableUID){if(c %in% P$party[P$variableUID==uid]){s<-"0"}else{s<-""}
+        }else{s<-""}
+        return(s)
+    }
+    
+    test <- merge(paramcheck, paramV, by=intersect(names(paramcheck), names(paramV)))
+    
     paramcheck$correction<-unlist(lapply(c(1:nrow(paramcheck)),function(x)
         serious(paramV,paramcheck$variableUID[x],paramcheck$party[x])))
     ## Current manual changes to paramcheck

@@ -1,137 +1,74 @@
 options(warn=2)
 options(error=NULL) 
 
+message("\n\nCalculate aggregate values for 'parent' animal types: ")
+
 #addparentvalues<-function(addparentanimal){
-allswines<-unique(addparentanimal$category[grepl("^3.A.3",addparentanimal$sector_number)])
-allsheeps<-unique(addparentanimal$category[grepl("^3.A.2",addparentanimal$sector_number)])
+allswines<-unique(allagri$category[grepl("^3.A.3",allagri$sector_number)])
+allsheeps<-unique(allagri$category[grepl("^3.A.2",allagri$sector_number)])
 #if(parent=="Sheep") childs<-allsheeps[!allsheeps%in%parent]
 
-message("\n\nCalculate aggregate values for 'parent' animal types: ")
-#parent<-"Sheep"
-for(parent in sheepswine){
-    cat("\n", parent)
-    if(parent=="Sheep")            childs<-allsheeps[!allsheeps%in%parent]
-    if(parent=="Swine")            childs<-allswines[!allswines%in%parent]
-    if(parent=="Cattle")           childs<-allcattle[!allcattle%in%parent]
-    if(parent=="Dairy Cattle")     childs<-alldairy[!alldairy%in%parent]
-    if(parent=="Non-Dairy Cattle") childs<-allnondairy[!allnondairy%in%parent]
-    if(parent=="Sheep")            subcat<-2
-    if(parent=="Swine")            subcat<-3
-    if(parent=="Cattle")           subcat<-1
-    if(parent=="Dairy Cattle")     subcat<-1
-    if(parent=="Non-Dairy Cattle") subcat<-1
-    #print(paste0("1",parent,paste(childs,collapse="-")))
-    
-    #curcatego<-"^3.B.1"
-    curcategos<-c("^3.A","^3.B.1","^3.B.2")
-    for(curcatego in curcategos){
-        cat(" ",curcatego)
-        if(curcatego=="^3.A")   {curmeasures<-measta2weight;curgas<-"CH4"}
-        if(curcatego=="^3.B.1") {curmeasures<-meastb12weight;curgas<-"CH4"}
-        if(curcatego=="^3.B.2") {curmeasures<-meastb22weight;curgas<-"N2O"}
-        
-        #print(paste0("2",curcatego))
-        
-        #curmeasty<-"VSEXC"
-        for(curmeasty in curmeasures){
-            #cat(" ",curmeasty)
-            #print(paste0("3",curmeasty))
-            targets<-""
-            if(curmeasty=="CLIMA") targets<-c("Cool","Temperate","Warm")
-            for(targ in targets){
-                #cat(" ",targ)
-                selectiontar<-addparentanimal$meastype==curmeasty & addparentanimal$target==targ & grepl(paste0(curcatego,".",subcat),addparentanimal$sector_number) 
-                tarstart<-addparentanimal[selectiontar,]
-                tarstart<-tarstart[!tarstart$party=="EU28",]
-                #View(addparentanimal[selection,])
-                #save(addparentanimal,file="addparentanimal.RData")
-                countrieschilds<-unique(tarstart$party[tarstart$category%in%childs])
-                countriesparent<-unique(tarstart$party[tarstart$category%in%parent])
-                countriesmissig<-countrieschilds[!countrieschilds%in%countriesparent]
-                
-                sources<-""
-                if(curmeasty=="CLIMA") sources<-c(sources,manureSystems)
-                for(sour in sources){                
-                    #cat(" ",sour)
-                    parentuid<-unique(tarstart$variableUID[tarstart$party%in%countriesparent & tarstart$category==parent & tarstart$source==sour])
-                    #if(length(unique(allagri$category[allagri$variableUID%in%parentuid]))) parentuid<-parentuid[!grepl("Other [cC]attle.[DN]",unique(allagri$category[allagri$variableUID%in%parentuid]))]    
-                    if(length(parentuid)>1) View(tarstart[tarstart$party%in%countriesparent & tarstart$category==parent & tarstart$source==sour,])
-                    if(length(parentuid)==0) parentuid<-newuid(sector = paste0(curcatego,".",subcat),categ = parent,meast = curmeasty,units = "",metho = "",sourc = sour,targe = targ,opti = "",gasun = curgas)
-                    #if(length(parentuid)==0) countriesmissig<-""
-                    #View(tarstart[tarstart$party%in%countriesparent & tarstart$category==parent,])
-                    selection<-tarstart$party%in%countriesmissig & tarstart$category%in%childs & tarstart$source==sour
-                    agrimissing<-tarstart[selection,]
-                    #View(agrimissing)
-                    #ms<-"ISL"
-                    for(ms in countriesmissig){
-                        #cat(" ",ms)
-                        #if(curmeasty=="WEIGHT" & parent=="Non-Dairy Cattle"&ms=="HRV")stop()
-                        #print(paste0("4",ms))
-                        seltemp<-agrimissing$party==ms
-                        if(length(seltemp)>0){
-                            curchilds<-agrimissing$category[seltemp]
-                            newline<-agrimissing[seltemp & agrimissing$category==curchilds[1],]
-                            if(nrow(newline)>0) {
-                                # Childs must be all for which population data are availabe
-                                # otherwise a bias will be generated
-                                # ... but setting back to all 'childs' creates problems if some childs are truly not used
-                                # curchilds<-childs
-                                tmpp<-vector(length = length(years))
-                                tmps<-vector(length = length(years))
-                                newline$category<-parent
-                                newline$notation<-"eugirp"
-                                noparent<-FALSE
-                                if(length(parentuid)>0) newline$variableUID<-parentuid
-                                #at<-curchilds[1]
-                                for(at in curchilds){
-                                    #print(paste0("5",at))
-                                    tmpval<-agrimissing[seltemp & agrimissing$category==at,years, with=FALSE]
-                                    tmpval[is.nan(tmpval)]<-NA
-                                    if(ms=="POL"&parent=="Non-Dairy Cattle") {curat<-"Non-Dairy Cattle"}else{curat<-at}
-                                    tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==curat & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years, with=FALSE])
-                                    #tmppop<-unique(addparentanimal[addparentanimal$party==ms & addparentanimal$category==at & grepl("^3.A",addparentanimal$sector_number) & addparentanimal$meastype=="POP",years])
-                                    #if(curmeasty=="WEIGHT" & at=="Dairy Cattle"&ms=="GBK")stop()
-                                    #if(curmeasty=="WEIGHT" & at=="Non-Dairy Cattle"&ms=="HRV")stop()
-                                    
-                                    nopop<-nrow(tmppop)==0
-                                    noval<-nrow(tmpval)==0
-                                    if(!nopop)nopop<-sum(tmppop,na.rm=TRUE)==0
-                                    if(!noval)noval<-sum(tmpval,na.rm=TRUE)==0
-                                    
-                                    if(!nopop & noval){
-                                        # Aggregate value for parent cannot be calculated
-                                        newline[,years]<-NA
-                                        newline$notation<-paste0("NE - values for ",at," are missing")
-                                        noparent<-TRUE
-                                        #stop(newline$notation)
-                                    }else 
-                                        if(nopop & !noval){
-                                        stop(paste0("There are values for parameter",curmeasty," but no population data of ",at," in ",ms," for ",curcatego))
-                                    }else if(nopop & noval){
-                                        #... Otherwise this child does not exist and does not have to be considered
-                                        #print(paste0("No population data or values for ",curmeasty," of ",at," in ",ms))
-                                    }else if(!nopop & !noval){
-                                        tmpp<-tmpp + tmpval * tmppop
-                                        tmps<-tmps + tmppop
-                                        noparent<-FALSE
-                                    }
-                                    #print(tmpp)
-                                    #print(tmps)
-                                }
-                                if(!noparent){
-                                    tmpn <-tmpp/tmps
-                                    tmpn <- rbindlist(list(newline, tmpn), fill = TRUE)
-                                    tmpnh <- setdiff(names(tmpn), years)
-                                    tmpn <- tmpn[2, (tmpnh) := sss[1,  .SD, .SDcols = tmpnh]]
-                                    newline <- tmpn[2]
-                                }
-                                addparentanimal<-rbind(addparentanimal,newline)
-                                #if(ms=="POL"&curmeasty=="IEF"&curcatego=="^3.B.1"&parent=="Non-Dairy Cattle") stop()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+allchilds <- c(allsheeps, allswines, alldairy, allnondairy)
+allparents <- c("Dairy Cattle", "Non-Dairy Cattle", "Cattle", "Sheep", "Swine")
+family <- data.table(
+    child = allchilds,
+    parent = c(rep("Sheep", length(allsheeps)),
+                 rep("Swine", length(allswines)),
+                 rep("Dairy Cattle", length(alldairy)),
+                 rep("Non-Dairy Cattle", length(allnondairy))
+))
+
+# Duplicate cattle categories so that aggregation is done to Dairy and Non-Dairy
+# at the same time as to 'Cattle'
+agriNonParents <- allagri[! category %in% c(allparents)]
+agriLivestock <- allagri[category %in% c(allchilds, allparents)]
+addparentanimal <- merge(agriLivestock, family, by.x="category", by.y="child")
+cattle <- addparentanimal[parent %in% allcattle]
+cattle <- cattle[, parent := "Cattle"]
+
+addparentanimal <- rbind(addparentanimal, cattle)
+addparentanimal <- addparentanimal[parent=="Dairy Cattle", sector_number := paste0(sector_number, ".1")]
+addparentanimal <- addparentanimal[parent=="Non-Dairy Cattle", sector_number := paste0(sector_number, ".2")]
+
+
+# Remove Options from Cattle
+addparentanimal <- addparentanimal[option %in% c("Option A", "Option B", "Option C"), option := ""]
+addparentanimal <- addparentanimal[, sector_number := gsub(" Option [ABC]", "", sector_number)]
+
+# Create data table with variables to weight for aggregation and popolation data
+m2w <- c(measta2weight, meastb12weight, meastb22weight)
+m2s <- setdiff(addparentanimal$meastype, m2w)
+addparentanimal <- addparentanimal[, weigh := ifelse(meastype%in% m2w, 1, 0)]
+addpar <- melt.data.table(addparentanimal, measure.vars = years, variable.name = "years")
+
+# Population data are sometimes missing for some sectors, but should be equal
+# Therefore, the mean of all existing secor_numbers is used
+pop <- melt.data.table(addparentanimal[meastype == "POP"], measure.vars = years, variable.name = "years", value.name = "pop")
+pop <- pop[, .(pop=mean(pop)), by=.(parent, category, party, years)]
+addpar <- merge(addpar, pop, by=c("parent", "category", "party", "years"))
+parents <- addpar[, total := value *  pop]
+parents <- parents[, .(value=sum(value), pop=sum(pop), total=sum(total)), 
+                   by=setdiff(names(parents), c("category", "variableUID", "value", "pop", "total", "notation"))]
+parents <- parents[, value := ifelse(weigh==1, total/pop, value)]
+setnames(parents, "parent", "category")
+
+# Calculate total ParPop = Value*Pop
+dfrom <- paste0(paste(setdiff(names(parents), c("weigh", "pop", "total", "value", "years")), collapse = " + "), " ~ years")
+parentsy <- dcast.data.table(parents, as.formula(dfrom), value.var="value")
+
+keyvalues <- intersect(names(parentsy), c(names(agrimeas)))
+parentsy <- merge(parentsy, agrimeas, by=keyvalues, all.x=TRUE)
+
+# Generate variableUIDs if they do not yet exist
+parentz <- parentsy[! is.na(variableUID)]
+parenty <- parentsy[  is.na(variableUID)]
+
+x <- parenty[, variableUID := newuid(sector_number,category,meastype,unit,method,source,target,option,gas), 
+              by=1:nrow(parenty)]
+
+parents <- rbind(parentz, x)
+allagri <- rbind(agriNonParents, parents, fill=TRUE)
+allagri <- unique(allagri)
+
+rm(parents, parentsy, parenty, parentz, addpar, addparentanimal, agriLivestock, agriNonParents)
+

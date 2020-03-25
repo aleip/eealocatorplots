@@ -89,23 +89,11 @@ if(stepsdone==1){
   allagri<-alldata[selection,allfields, with=FALSE]
   alldata<-alldata[!selection,allfields, with=FALSE]
   save(allagri,file="tmpallagri60.rdata")
-  #load("tmpallagri60.rdata", verbose = TRUE)
-  #stop("Plause")
   source("eugirp_otherlivestock.r")
-  # Calculate parameter for parent category 'swine' and 'sheep ####
-  allagri$method<-""
-  allagri65<-allagri #keep 65 here!
-  sheepswine<-c("Sheep","Swine")
-  addparentanimal<-allagri #needs addparentanimal
+  
+  # Calculate parameters for Cattle, Swine and Sheep as aggregate of 'childs'
+  # Note:  completely rewritten 20200325
   source("eugirp_aggparentanimal.r")
-  
-  allagri70<-addparentanimal 
-  curagri<-addparentanimal  #needs curagri
-  source("eugirp_cattle.r")
-  allagri177<-curagri
-  allagri<-curagri
-  allagri$option[allagri$category%in%allcattle]<-""
-  
   
   alldata<-rbind(alldata,allagri)
   alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
@@ -113,8 +101,8 @@ if(stepsdone==1){
   savelist<-c(savelist,"alltotals")
   savefile <- gsub("_s[0-9]", "", rdatallem)
   save(list=savelist,file=savefile)
-  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
-  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
   source("curplot.r")
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")
@@ -196,8 +184,8 @@ if(stepsdone==2){
   savelist<-c(savelist,"emplotsdone","eu28sum","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
   savefile <- gsub("_s[0-9]", "", rdatallem)
   save(list=savelist,file=savefile)
-  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
-  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
   
   mixplotsfiles <- list.files(paste0(plotsdir, cursubm, "/mixplots/"), pattern = ".*jpg|.*png", full.names = TRUE)
   if(!is.null(gdrive)){
@@ -279,8 +267,8 @@ if(stepsdone>2){
             savelist<-c(savelist,"emplotsdone","plotmeas")
             savefile <- gsub("_s[0-9]", "", rdatallem)
             save(list=savelist,file=savefile)
-            save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
-            save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+            file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+            file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
             mixplotsfiles <- list.files(paste0(plotsdir, cursubm, "/valueadem/"), pattern = ".*jpg|.*png", full.names = TRUE)
             if(!is.null(gdrive)){
               # Not at the server - files can be copied locally and will be updloaded by Backup
@@ -404,8 +392,8 @@ if(stepsdone==3){
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
     savefile <- gsub("_s[0-9]", "", rdatallem)
     save(list=savelist,file=savefile)
-    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
-    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
     if(!is.null(gdrive)){
       # Not at the server - files can be copied locally and will be updloaded by Backup
       file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
@@ -477,11 +465,11 @@ if(stepsdone==4){
     
     stepsdone<-5
     #savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
-    savelist<-c(savelist,"agrimeas","paramstats","growthstats","autocorrections")
+    savelist<-c(savelist,"agrimeas", "paramdata","paramstats","growthstats","autocorrections")
     savefile <- gsub("_s[0-9]", "", rdatallem)
     save(list=savelist,file=savefile)
-    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
-    save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
     if(!is.null(gdrive)){
       # Not at the server - files can be copied locally and will be updloaded by Backup
       file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
@@ -618,8 +606,10 @@ if(stepsdone==5){
     
     stepsdone<-6
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
-    save(list=savelist,file=rdatallem)
-    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
+    savefile <- gsub("_s[0-9]", "", rdatallem)
+    save(list=savelist,file=savefile)
+    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
     #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
     #             media = rdatallem, 
     #             verbose = FALSE)

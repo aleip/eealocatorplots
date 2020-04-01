@@ -49,6 +49,8 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
     Doutl$party<-D$party
     Doutl$variableUID<-D$variableUID
     
+    firstyear <- setdiff(years, "1990")
+    if(type=="growth") Doutl <- Doutl[, c(firstyear, "party", "variableUID")]
     Doutllist<-melt.data.table(as.data.table(Doutl),id.vars=c("party","variableUID"),na.rm=F)
     select<-! is.na(Doutllist$value)
     Doutllist<-Doutllist[! is.na(Doutllist$value),]
@@ -65,7 +67,7 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
     Dcheck<-simplifytestmatrix(check = as.data.frame(Doutllist),group = "variable",compare = years)
     Dcheckv<-aggregate(value ~ party + variableUID,data =Doutlvalues,mean)
     if(type=="growth"){
-        x<-simplifytestmatrix(check = Doutlvalues, group = "value")
+        x<-simplifytestmatrix(check = as.data.frame(Doutlvalues), group = "value")
         Dcheck<-merge(Dcheck,x,by=c("variableUID","party"))
         #Dcheck<-merge(Dcheck,allagri[c(sectfields,measfields,metafields,"variableUID","party",years)],by=c("variableUID","party"),all=FALSE)
     } else if (type=="param"){
@@ -90,14 +92,15 @@ identifyoutliers<-function(outlmethod,D,type,ming=0.03){
     if(type=="growth"){
         n<-c(n1,paste0(years,".x"),paste0(years,".y"),n3)
         o<-order(Dcheck$party,Dcheck$sector_number,Dcheck$category)
+        Dcheck<-Dcheck[o]
     } else if (type=="param"){
         n<-intersect(names(Dcheck), c(n1,years,n3))
         o<-order(Dcheck$meastype,Dcheck$sector_number,Dcheck$category,Dcheck$party)
+        Dcheck<-Dcheck[o,n, with=FALSE]
+        n[which(n=="variable")]<-"years"
+        names(Dcheck)<-n
     }
-    Dcheck<-Dcheck[o,n, with=FALSE]
     
-    n[which(n=="variable")]<-"years"
-    names(Dcheck)<-n
     
     return(Dcheck)
     
@@ -121,13 +124,18 @@ outlierintimeseries<-function(paramcheckfew,x,conv=0,allow=0.15){
     curymin<-min(cury)
     curymax<-max(cury)
     curt1<-NA;curt2<-NA
-    if(curymin>1990){curt1<-abs(1-paramcheckfew[x,as.character(curymin)]/paramcheckfew[x,as.character(curymin-1)])}
-    if(curymax<(invyear-2)){curt2<-abs(1-paramcheckfew[x,as.character(curymax)]/paramcheckfew[x,as.character(curymax+1)])}
-    curok<-mean(c(curt1,curt2),na.rm=TRUE)<allow
+    if(curymin>1990){curt1<-abs(1-paramcheckfew[x,as.character(curymin), with=FALSE]/paramcheckfew[x,as.character(curymin-1), with=FALSE])}
+    if(curymax<(invyear-2)){curt2<-abs(1-paramcheckfew[x,as.character(curymax), with=FALSE]/paramcheckfew[x,as.character(curymax+1), with=FALSE])}
+    curok<-mean(unlist(c(curt1,curt2)),na.rm=TRUE)<allow
     curok[is.na(curok)]<-FALSE
     return(curok)
 }
 
+serious<-function(P,uid,c){
+    if(uid %in% P$variableUID){if(c %in% P$party[P$variableUID==uid]){s<-"0"}else{s<-""}
+    }else{s<-""}
+    return(s)
+}
 
 
 # Calculate statistical moments (call functions) ####
@@ -157,13 +165,8 @@ if(outcheck=="param"){
                                  D = as.data.frame(param),
                                  type = "param")
     #View(paramcheck)
-    serious<-function(P,uid,c){
-        if(uid %in% P$variableUID){if(c %in% P$party[P$variableUID==uid]){s<-"0"}else{s<-""}
-        }else{s<-""}
-        return(s)
-    }
     
-    test <- merge(paramcheck, paramV, by=intersect(names(paramcheck), names(paramV)))
+    #test <- merge(paramcheck, paramV, by=intersect(names(paramcheck), names(paramV)))
     
     paramcheck$correction<-unlist(lapply(c(1:nrow(paramcheck)),function(x)
         serious(paramV,paramcheck$variableUID[x],paramcheck$party[x])))
@@ -190,7 +193,9 @@ if(outcheck=="param"){
     # Assume that those which are within 10% of their 'neighbour' point are OK
     # Note that problems flagged with 'trend' do not need to be followed-up
     paramcheckfew<-paramcheck[! grepl("all",paramcheck$years),]
-    paramcheckfewok<-unlist(lapply(c(1:nrow(paramcheckfew)),function(x) outlierintimeseries(paramcheckfew,x,0,allow = 0.1)))    
+    
+    
+    paramcheckfewok<-unlist(lapply(c(1:nrow(paramcheckfew)),function(x) outlierintimeseries(paramcheckfew = paramcheckfew,x = x,conv = 0,allow = 0.1)))    
     paramcheckfew$correction[paramcheckfewok]<-"trend"
     #do not list the issues that might just be a trend
     paramcheckfew<-paramcheckfew[!paramcheckfewok,]
@@ -209,10 +214,16 @@ if(outcheck=="param"){
     
     paramcheck$check<-"outlier"
     
+    # Don't check Cattle - the level of checks is Dairy and Non-dairy
+    paramcheck <- paramcheck[category != "Cattle"]
+    paramcheck <- paramcheck[order(party, sector_number, category)]
+    
 }
 if(outcheck=="growth"){
+    growth<-merge(growthdata, growthstats, by=intersect(names(paramdata), names(paramstats)))
+    setnames(growth, c("0%", "50%", "100%", "sd"), c("min", "median", "max", "std"))
     growth<-growth[!growth$party%in%eu,]
-    growthcheck<-identifyoutliers(trendoutlmethod,growth,"growth",ming=ming)
+    growthcheck<-identifyoutliers(outlmethod = trendoutlmethod,D = as.data.frame(growth),type = "growth",ming=ming)
     growthcheck<-growthcheck[!growthcheck$party%in%eu,]
     growthcheck<-growthcheck[remagglevel(growthcheck,mt = 1),]
     growthcheck<-growthcheck[growthcheck$sector_number!="3.i",]

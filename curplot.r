@@ -31,7 +31,7 @@ if(require(openxlsx)==FALSE){install.packages("openxlsx", repos = "https://cloud
 
 #require(dtplyr)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)
-#rm(list=objects())
+rm(list=setdiff(objects(), c("adrian", "gdrive", "locplots")))
 # Define the folder all the process should run, usually the folder of the 
 #       current inventory year
 
@@ -208,7 +208,6 @@ topn<-10
 # Load functions
 source("eugirp_functions.r")
 # Load general definitions
-source("eugirp_definitions.r")
 if (!grepl("CAPRI", getwd())) {
   generatealldata <- 1
   if(file.exists(rdatallem)){
@@ -220,6 +219,7 @@ if (!grepl("CAPRI", getwd())) {
   }
 }
 if(Sys.Date() == "2019-05-16") country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Czech Republic","Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
+source("eugirp_definitions.r")
 
 
 ##############################################################################

@@ -12,7 +12,7 @@ if(nrow(growthcheck)>0){
     writeLines(colexpl2, con)
     writeLines(colexpl3, con)
     writeLines(paste0("# years.growth: growth rates calculated as y{t}/y{t-1}"), con)
-    growthcheck<-growthcheck[,cog]
+    growthcheck<-growthcheck[,cog, with=FALSE]
     write.csv(growthcheck,con)
     close(con)
 }

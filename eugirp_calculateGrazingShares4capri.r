@@ -39,7 +39,7 @@ msmatch <- msmatch[capri !="" & !grepl("EU", capri)]
 mmsd <- merge(mmsd, msmatch, by.x="party", by.y="code3")
 
 # Generate map to CAPRI MAACT
-m_lvstk <- unique(FracGraz$category)
+#m_lvstk <- unique(FracGraz$category)
 s_maact <- as.data.table(c("DCOL", "DCOH", "BULL", "BULH", "HEIL", "HEIH", 
              "SCOW", "HEIR", "CAMF", "CAFF", "CAMR", "CAFR", 
              "PIGF", "SOWS", "SHGM", "SHGF", "HENS", "POUF"))

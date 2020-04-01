@@ -18,7 +18,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     }
     
     # Add first layer data to the plots!!
-    plotdata <- rbind(plotdata, alldata[grepl("^[1-6].$", sector_number)])
+    plotdata <- rbind(plotdata[, .SD, .SDcols=intersect(names(plotdata), names(alldata))], alldata[grepl("^[1-6].$", sector_number)])
     
     plotdata$datasource<-"nir"
     chrfields <- setdiff(names(plotdata), years)
@@ -100,7 +100,10 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     # IEF plots 
     # The plots are needed also at the highest disaggregated level, as outliers might be
     # generated or removed if aggregated due to AD share changes.
-    if(rundata=="adem"){
+    # ...--> HOWEVER the large number of plots makes it very intransparent.
+    #        Therefore also IEF plots are restricted. There will be the need to
+    #        Flag those countries that do aggregates.
+    #if(rundata=="adem"){
         # Select uids if they belong to one of agrimix, gen, or det  - of if they are not agriculture
         agriuids<-unique(c(as.character(agridet$variableUID),as.character(agrimix$variableUID),as.character(agrigen$variableUID)))
         select<-!grepl("^3",plotmeas$sector_number) | plotmeas$variableUID%in%agriuids
@@ -110,7 +113,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
         select <- select | plotmeas$variableUID%in%agriuids
         
         plotmeas<-plotmeas[select,]
-    }
+    #}
     plotmeas<-plotmeas[order(plotmeas$sector_number,plotmeas$category),]
     if(plotparamcheck==1){plotmeas<-paramcheck}
     plotdata<-plotdata[plotdata$variableUID %in% plotmeas$variableUID,]
@@ -135,7 +138,7 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     if(length(datasource)==1){
         if(rundata=="ief" & datasource=="nir" & runfocus!="range"){
             adddefault<-1
-            plotmeas<-loadipccdefaults(plotmeas,1,nrow(plotmeas))
+            plotmeas<-loadipccdefaults(as.data.frame(plotmeas),1,nrow(plotmeas))
         }}
     
     
@@ -154,13 +157,14 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     return(list(plotdata,plotmeas,adddefault,sharesexist))
 }
 loopoverplots<-function(imeas,runfocus="value",eusubm="EUC"){
-    if(plotmeas$meastype[imeas]=="Milk") plotdata[plotdata$party=="LUX",years, with=FALSE]<-NA
+    if(plotmeas$meastype[imeas]=="Milk") plotdata <- plotdata[party=="LUX", (years) := NA]
     curuid<-plotmeas$variableUID[imeas]
     multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
     #plotmeas <- as.data.frame(plotmeas)
     #plotdata <- as.data.frame(plotdata)
     plotted<-prepareplot(imeas,plotmeas,plotdata,runfocus,rundata,eusubm,plotparamcheck,multisource,adddefault)        
-    if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,dsource,plotted,multisource, yr2share = plotted[[5]])
+    if(!is.null(plotted[[1]])) plotlegend(curuid,fdata = plotdata,runfocus,rundata,eusubm,dsource,plotted,multisource, 
+                                          yr2share = plotted[[5]])
     #if(!is.null(plotted[[1]])) plotlegend(curuid,plotdata,runfocus,rundata,eusubm,multisource,plotted)
     graphics.off()
 }
@@ -305,12 +309,16 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     #runfoc<-paste0(runfoc,)
     #print(runfocus)
     runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
+    plotmeas[is.na(plotmeas)]<-""
     dfplotmeas <- as.data.frame(plotmeas)
-    figname<-plotname(paste0(unique(plotdata$datasource),collapse=""),plotsdir,issuedir,runid,
-                      dfplotmeas[imeas,sectfields],
-                      dfplotmeas[imeas,metafields],
-                      dfplotmeas[imeas,measfields],
-                      runfocus,figdate,plotformat,rundata,cursubm,plotparamcheck=0)
+    figname<-plotname(dsource = paste0(unique(plotdata$datasource),collapse=""),
+                      plotsdir,issuedir,
+                      imeas = runid,
+                      runsect = dfplotmeas[imeas,sectfields],
+                      runmeta = dfplotmeas[imeas,metafields],
+                      runmeas = dfplotmeas[imeas,measfields],
+                      runfoc = runfocus,figdate,plotformat,rundata,cursubm,
+                      plotparamcheck=0)
     nplots<-length(unique(plotdata$datasource))
     #par(mfrow = c(1,length(unique(plotdata$datasource))))
     #multisource<-unique(plotdata$datasource)
@@ -394,7 +402,10 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         autocorr<-paste(autocorr,collapse=", ")
         if(autocorr!="") autocorr<-paste0("Data correction: ",autocorr)
         serious<-which(acountryminus%in%plotdatacur$party[plotdatacur$correction==0])
-        if(dsource=="nir")plotdatacur<-plotdatacur[plotdatacur$correction!=0|plotdatacur$party%in%eu,]
+        if(dsource=="nir"){
+          if("correction" %in% names(plotdatacur)) plotdatacur<-plotdatacur[plotdatacur$correction!=0]
+        }
+        plotdatacur <- plotdatacur[! party%in%eu]
         if(length(serious)==0)serious=""
         if(dsource!="nir") serious<-""
         if(nrow(plotdatacur)>0){
@@ -564,15 +575,14 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                         
                     }
                     if(trendoutlmethod==3){
-                        plotquant<-t(plotmatr)
-                        euquant<-as.data.frame(t(Reduce(cbind,lapply(c(1:nrow(plotquant)),function(x) selmeansd(as.matrix(plotquant[x,]))))))
-                        euquant<-as.data.frame(t(euquant))
-                        names(euquant)<-years
-                        euquant1<-euquant
-                        euquant[2,]<-euquant1[1,]
-                        euquant[1,]<-euquant1[1,]-bxplf*euquant1[2,]
-                        euquant[3,]<-euquant1[1,]+bxplf*euquant1[2,]
-                    }
+                      
+                      euquant <- melt.data.table(plotdatacur, measure.vars = years, variable.name = "years")
+                      euquant <- euquant[, .(mean=mean(value), sd = sd(value)), 
+                                                 by=setdiff(names(euquant), c("party", 'value'))]
+                      euquant <- euquant[,  .(low=mean-bxplf*sd, mean, high=mean+bxplf*sd)]
+                      
+                      euquant <- t(as.matrix(euquant))
+                     }
                     #Box-whisker method: 0.953 times the difference to the mean from 25 and 75 percentiles
                     #                    to determine the upper and lower whisker
                     if(sum(eu28,na.rm=TRUE)==0){ 
@@ -650,7 +660,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     defaults<-NULL
                 }
                 #print(eu28fin)
-                if(!(sum(eu28fin,na.rm=TRUE)==0)) {
+                if(!(sum(rowSums(eu28fin, na.rm = TRUE))==0)) {
                   if ( tmin > 0.01){
                     plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
                                      multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,
@@ -696,7 +706,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         }
         #stop()
     }
-    save(plotmatr, rel, curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
+      save(plotmatr, rel, curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
          multisource,tmin,tmax,tmag,defaults,
          serious, mstp, plotinitialized, file="tmp_prepareplot_line695.rdata")
     return(list(plotted,ploteuvals,plotinitialized,multisource, yr2share))
@@ -906,9 +916,9 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
                  axes=F, xlab="", ylab="", type="n")
             ypos<--0.5
             xpos<--0.5
-            lines(c(1:length(years)),euquant[1,],ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=3,new=FALSE)
-            lines(c(1:length(years)),euquant[2,],ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=1,new=FALSE)
-            lines(c(1:length(years)),euquant[3,],ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=3,new=FALSE)
+            lines(c(1:length(years)),euquant[1,],ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=3,new=FALSE) #Low
+            lines(c(1:length(years)),euquant[2,],ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=1,new=FALSE) #Mean
+            lines(c(1:length(years)),euquant[3,],ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=3,new=FALSE) #High
             
             #lines(c(length(years):(length(years)+0.2)),rep(euquant[1,length(years)],2),ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=3,new=FALSE)
             #lines(c(length(years):(length(years)+0.2)),rep(euquant[2,length(years)],2),ylim=c(tmin,tmax),col="grey20",lwd=1.5,lty=1,new=FALSE)
@@ -1512,7 +1522,9 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
                 textiefval4<-paste0("The ",topntext," reporting countries are displayed. ")
                 textiefval5<-paste0("")
             }
-            textorder<-paste0(textiefval1,textiefval2,textiefval3,textiefval4,textiefval5)
+          # unclear why textiefval2 was not set
+          textiefval2 <- ""
+          textorder<-paste0(textiefval1,textiefval2,textiefval3,textiefval4,textiefval5)
         }
         
         if(length(textorder)>0){

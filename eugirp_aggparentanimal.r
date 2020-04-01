@@ -70,5 +70,4 @@ parents <- rbind(parentz, x)
 allagri <- rbind(agriNonParents, parents, fill=TRUE)
 allagri <- unique(allagri)
 
-rm(parents, parentsy, parenty, parentz, addpar, addparentanimal, agriLivestock, agriNonParents)
 

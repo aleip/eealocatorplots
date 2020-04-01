@@ -33,8 +33,15 @@ savestep <- function(stepsdone, savelist){
   
   savefile <- gsub("_s[0-9]", "", rdatallem)
   save(list=savelist,file=savefile)
-  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone,".RData"),savefile))
-  save(list=savelist,file=gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile))
+  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
+  if(!is.null(gdrive)){
+    # Not at the server - files can be copied locally and will be updloaded by Backup
+    file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
+  }else{
+    #drive_update
+    drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
+  }
   
 }
 
@@ -390,7 +397,7 @@ euvalue<-function(todo,E,D,y,c){
     if(todo=="sum")l<-lapply(c(1:nrow(E)),function(x) sumovercountries(D,E$variableUID[x],y,c))  #xavi20180411: I think this is no longer used. Instead, eu28sum
     if(todo=="weight"){
         
-      l<-lapply(c(1:nrow(E)),function(x) weightovercountries(D,E$aduids[x],E$variableUID[x],E$adpars[x],y,c, x))
+      l<-lapply(c(1:nrow(E)),function(x) weightovercountries(D,Auid = E$aduids[x],Puid = E$variableUID[x],ok = E$adpars[x],y,c, x))
      # AL20200130 for debugging
        #x <- 1200:1260
       #cat("\n", x)
@@ -777,7 +784,7 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
     #             acc. to the significance threshold. Uses data frame significantcategories
     #             calculated earlier
     median<-line$median
-    y<-line[,signyear]
+    y<-line[,signyear, with=FALSE]
     lastyr<-line$years
     sect<-line$sector_number
     categ<-line$category
@@ -816,7 +823,7 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
     selection<-S$sector_number==sect & S$category==categ & 
         S$target==targ & S$method==line$method & S$option==line$option &
         S$type==type & S$source==line$source & S$party==line$party
-    if(sum(selection)==0){
+    if(sum(selection, na.rm = TRUE)==0){
         lastyr<-0
         relmedian<-0
         share<-"no emissions reported"
@@ -882,19 +889,8 @@ keycategories<-function(){
     keycategories<-read.csv(paste0(issuedir,"../keycategories/EUkeycategoryanalysis_variables_JRC.csv"),stringsAsFactors = FALSE)
     keycategories<-keycategories$variable_UID
     potkeycategories<-alldata[alldata$variableUID%in%keycategories,]
-#    if(cursubm == "20190115"){ 
-#      gwps2019 <- gwps
-#      gwps[6:8] <- 0  
-#    }else{
-#      stop("Check if the problem with 2.F.1. persists...")
-#    }
-
-    
-    gasf<-sapply(1:nrow(potkeycategories),function(x) gwps[which(gases==potkeycategories$gas[x])])
-    
-    if(cursubm == "20190115") gwps <- gwps2019
-    
-    potkeycategories[,lastyear]<-as.numeric(potkeycategories[,lastyear])*gasf
+    potkeycategories <- merge(potkeycategories, gwps, by="gas")
+    potkeycategories <- potkeycategories[, (years) := .SD * gwp, .SDcols = years]
     
     cols2leave<-paste(names(potkeycategories)[!names(potkeycategories)%in%c(years,"party","notation")],collapse="+")
     arrange<-as.formula(paste(cols2leave,"~ party"))
@@ -946,12 +942,13 @@ keycateuc<-function(){
   agrikey<-agrikey[order(agrikey$sector_number),]
   
   keyeu<-rbind(keyeu[names(agrikey)],agrikey)
-  keyeu<-keyeu[order(keyeu$sector_number,keyeu$category),]
-  gasf<-sapply(1:nrow(keyeu),function(x) gwps[which(gases==keyeu$gas[x])])
-  keyeu[,years]<-(keyeu[,years])*gasf
-  keyeu[keyeu$unit=="t CO2 equivalent",years]<-keyeu[keyeu$unit=="t CO2 equivalent",years]/1000
+  keyeu<-as.data.table(keyeu[order(keyeu$sector_number,keyeu$category),])
+  keyeu <- merge(keyeu, gwps, by="gas")
+  keyeu <- keyeu[, (years) := .SD * gwp, .SDcols=years]
+  #keyeu <- keyeu[unit=="t CO2 equivalent", years := .SD/1000, .SDcols=years]
   
   rankcategories<-function(testkey,y){
+    testkey <- as.data.frame(testkey)
     testkey[,paste0(y,"rank")]<-frankv(x=abs(testkey[,y]),order=-1,na.last=TRUE,ties.method="first")
     testkey<-testkey[order(testkey[,paste0(y,"rank")]),]
     testkey[,paste0(y,"cumul")]<-sapply(1:nrow(testkey),function(x) sum(testkey[1:x,y],na.rm=TRUE))
@@ -959,7 +956,7 @@ keycateuc<-function(){
     testkey[,paste0(y,"key")]<-testkey[,paste0(y,"cumrel")]<=0.95
     return(testkey)
   }
-  keyeu<-rankcategories(keyeu,"1990")
+  keyeu<-rankcategories(testkey = keyeu,y = "1990")
   keyeu<-rankcategories(keyeu,lastyear)
   keyeuagri<-keyeu
   #keyeuagri<-filter(keyeu,grepl("^3",sector_number))
@@ -1238,12 +1235,14 @@ export4uba<-function(allagri){
     #     but it is not yet used.
     #alex20191204: source("eugirp_calculateGrazingShares4capri.r")
   
+    f4uba <- createWorkbook(creator = "EU-GIRP")  
+  
     dtagri<-as.data.table(allagri)
     col2show<-c("party","gas","meastype","source","target","classification","sector_number","category",years,"variableUID")
     t3s1<-dtagri[grepl("EUC|EUA",party)&meastype=="EM"&
-                     grepl("3.A|3.B.",sector_number)&
-                     category%in%c(livestock,otherlivestock)&
-                     gas%in%c("CH4","N2O","NMVOC"),
+                   grepl("3.A|3.B.",sector_number)&
+                   category%in%c(livestock,otherlivestock)&
+                   gas%in%c("CH4","N2O","NMVOC"),
                  col2show,
                  with=FALSE]
     t3s1<-t3s1[order(party,gas,sector_number,category)]
@@ -1251,6 +1250,9 @@ export4uba<-function(allagri){
     write.csv(t3s1,file=paste0(invloc,"/tables4eu/table3s1_",cursubm,".csv"))
     write.csv(t3s1,file=paste0(invloc,"/tables4eu/table3s1_",cursubm,"~",curdate(),".csv"))
     
+    s4uba <- "Table3s1"
+    addWorksheet(f4uba, sheetName = s4uba)
+    writeData(f4uba, sheet = s4uba, x = t3s1)
     
     t3as1<-dtagri[grepl("EUC|EUA",party)&
                       meastype%in%c("POP","GEav","YM","IEF","EM")&
@@ -1264,7 +1266,10 @@ export4uba<-function(allagri){
 #alex20200130    write.csv(t3as1,file=paste0(invloc,"/eealocator/tablet3as1_",cursubm,"~",curdate(),".csv"))
     write.csv(t3as1,file=paste0(invloc,"/tables4eu/tablet3as1_",cursubm,".csv"))
     write.csv(t3as1,file=paste0(invloc,"/tables4eu/tablet3as1_",cursubm,"~",curdate(),".csv"))
-    View(t3as1)
+
+    s4uba <- "Table3.As1"
+    addWorksheet(f4uba, sheetName = s4uba)
+    writeData(f4uba, sheet = s4uba, x = t3as1)
     
     t3as2<-dtagri[grepl("EUC|EUA",party)&
                       meastype%in%c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE","DIGEST")&
@@ -1278,7 +1283,10 @@ export4uba<-function(allagri){
 #alex20200130   write.csv(t3as2,file=paste0(invloc,"/eealocator/tablet3as2_",cursubm,"~",curdate(),".csv"))
     write.csv(t3as2,file=paste0(invloc,"/tables4eu/tablet3as2_",cursubm,".csv"))
     write.csv(t3as2,file=paste0(invloc,"/tables4eu/tablet3as2_",cursubm,"~",curdate(),".csv"))
-    View(t3as2)
+
+    s4uba <- "Table3.As2"
+    addWorksheet(f4uba, sheetName = s4uba)
+    writeData(f4uba, sheet = s4uba, x = t3as2)
     
     t3bas1<-dtagri[grepl("EUC|EUA",party)&
                        meastype%in%c("POP","MASS","VSEXC","B0","EM","CLIMA","MCF")&
@@ -1292,7 +1300,10 @@ export4uba<-function(allagri){
 #alex20200130    write.csv(t3bas1,file=paste0(invloc,"/eealocator/tablett3bas1_",cursubm,"~",curdate(),".csv"))
     write.csv(t3bas1,file=paste0(invloc,"/tables4eu/tablett3bas1_",cursubm,".csv"))
     write.csv(t3bas1,file=paste0(invloc,"/tables4eu/tablett3bas1_",cursubm,"~",curdate(),".csv"))
-    View(t3bas1)
+    
+    s4uba <- "Table3.B(a)s1"
+    addWorksheet(f4uba, sheetName = s4uba)
+    writeData(f4uba, sheet = s4uba, x = t3bas1)
     
     t3bb<-dtagri[grepl("EUC|EUA",party)&
                      meastype%in%c("POP","NRATE","NEXC","WEIGHT","EM")&
@@ -1306,11 +1317,14 @@ export4uba<-function(allagri){
 #alex20200130    write.csv(t3bb,file=paste0(invloc,"/eealocator/tablett3bb_",cursubm,"~",curdate(),".csv"))
     write.csv(t3bb,file=paste0(invloc,"/tables4eu/tablett3bb_",cursubm,".csv"))
     write.csv(t3bb,file=paste0(invloc,"/tables4eu/tablett3bb_",cursubm,"~",curdate(),".csv"))
-    View(t3bb)
+    
+    s4uba <- "Table3.B(b)"
+    addWorksheet(f4uba, sheetName = s4uba)
+    writeData(f4uba, sheet = s4uba, x = t3bb)
     
 #alex20200130    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/eealocator/tablett3_",cursubm,"~",curdate(),".RData"))
     save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,".RData"))
-    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,"~",curdate(),".RData"))
+    saveWorkbook(f4uba, paste0(invloc,"/tables4eu/CRF-EU_",cursubm,".xlsx"))
     
     # Add Grazing shares
     mms <- t3bb[meastype == "EM"]
@@ -1350,81 +1364,6 @@ MHmakeRandomString <- function(n=1, lenght=12)
 
 
 # FUNCTIONS REQUIRED FOR PLOTTING #####
-
-plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri,export=FALSE){
-    
-    #if(is.null(pr)){return("no country indicated")}
-    graphics.off()
-    if(is.null(mt)){return("no meastype")}
-    
-    sel<-rep(1,nrow(DF))
-    if(!is.null(pr))sel<-sel & DF$party==pr
-    if(!is.null(sc))sel<-sel & grepl(sc,DF$sector_number)
-    if(!is.null(source))sel<-sel & grepl(source,DF$source)
-    if(!is.null(mt))sel<-sel & DF$meastype==mt
-    if(!is.null(ct))sel<-sel & DF$category==ct
-    time_series<-DF[sel,]
-    timelabel<-paste0(time_series[1,"measure"]," - ",time_series[1,"sector_number"]," ",
-                      time_series[1,"category"]," [",time_series[1,"unit"],"]")
-    timemin<-1*min(time_series[,years],na.rm=TRUE)
-    timemax<-max(time_series[,years],na.rm=TRUE)
-    timemax<-timemax+0.22*(timemax-timemin)
-    timelegend<-subset(time_series,select=c("party","sector_number","category"))
-    timelegend$leg<-""
-    if(length(unique(timelegend$party))>1)timelegend$leg<-paste0(timelegend$party)
-    if(length(unique(timelegend$category))>1){
-        timelegend$leg<-paste0(timelegend$leg,timelegend$category)
-    }
-    View(time_series)
-    write.csv(time_series,file="time_series.csv")
-    
-    okplot<-function(){
-        if(nrow(time_series)>1){
-            plot(years,time_series[1,years],ylim=c(timemin,timemax),ylab=timelabel)
-            for(i in c(2:nrow(time_series))){
-                #print(paste(i,time_series[i,"party"]))
-                points(years,as.data.frame(time_series)[i,years],pch=i%%26)
-            }
-        }else{
-            plot(years,as.data.frame(time_series)[1,years],ylim=c(timemin,timemax),ylab=timelabel)
-            #plot(years,as.data.frame(time_series)[1,years],ylim=c(min(time_series,na.rm=TRUE),max(time_series,na.rm=TRUE)))
-        }
-        if(nrow(time_series)>1) legend(x="topleft",ncol=5,legend=timelegend$leg,pch=seq(1,nrow(time_series))%%26)
-    }
-    if(export==TRUE){
-        graphics.off()
-        plotformat<-"jpg"
-        pwidth=3*2
-        pheight=4
-        pfont<-1.6*pheight/6
-        presolution=1000
-        figdir<-paste0(gsub("checks","plots",issuedir),"/trend")
-        if (! file.exists(gsub("/$","",figdir))){
-            dir.create(file.path(figdir))
-            #    setwd(file.path(mainDir, figdate))
-        }
-        #par(new=TRUE)
-        cts<-paste(ct,collaps="-")
-        mts<-paste(mt,collaps="-")
-        figname<-paste0(plotsdir,"/trend/",pr,"_",sc,cts,"_",mts,".",plotformat,collapse=NULL)
-        
-        if(plotformat=="pdf") pdf(file=figname,width=pwidth,height=pheight)
-        if(plotformat=="png") png(file=gsub("pdf","png",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
-        if(plotformat=="jpg") jpeg(file=gsub("pdf","jpg",figname),width=pwidth,height=pheight,unit="cm",res=plotresolution)
-        #Attention: par must be set AFTER device is open, otherwise opens another!
-        #Otherwise: figure margins too wide
-        par(mar=c(2,4,2,1)) #bot,lef,top,rig
-        par(omd=c(0.4,0.4,0,0))
-        par(omi=c(0,0,0,0))
-        par(oma=c(0,0,0,0))
-        par(cex=0.5)
-        okplot()
-        graphics.off()
-    }
-    okplot()
-    
-    
-}
 
 mtexttit<-function(runsect,runmeta,runmeas){
     runsect[1]<-gsub(paste0(" ",unlist(runmeta[2])),"",unlist(runsect[1]))
@@ -1651,10 +1590,12 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     #xavi20180201: t1<-growthcheck[grepl(secs,growthcheck$sector_number)&growthcheck$category%in%cats&growthcheck$meastype==meastype,]
     t1<-growthcheck[grepl(secs,growthcheck$sector_number)&growthcheck$category%in%cats&growthcheck$meastype==meastype&growthcheck$check=="timeseries",]   #xavi20180201: removing row which are not timeseries 
     
-    #Do not consider those where an explanation has been given  
-    t1<-t1[t1$explanation=="",]
-    #Do not consider those where a comment has been given  #xavi20180201: they don't have time series data (they are already resolved)
-    t1<-t1[t1$Comments=="",]                               #xavi20180201 
+    if("explanation" %in% names(t1)) {
+      # Do not consider those where an explanation has been given  
+      t1<-t1[t1$explanation=="",]
+      #Do not consider those where a comment has been given  #xavi20180201: they don't have time series data (they are already resolved)
+      t1<-t1[t1$Comments=="",]                               #xavi20180201 
+    }
     #cat(secs,cats,meastype)
     nparties<-nrow(t1)
     if(nparties==0){return(1)}
@@ -1689,8 +1630,11 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
     pars<-unique(as.vector(unlist(t1$party)))
     for(par in pars){
         #print(paste0("par=",par))  #uncommented Alex
-        if(par=="CYP" & meastype == "IEF") next  #xavi20183001: included this because there is an error that needs to be fixed later (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
-        t2<-t1[t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype,]
+        #xavi20183001: included this because there is an error that needs to be fixed later 
+        # (the field "gas" is CH4-N2O, in the two rows, so it cannot separate the plots)
+        if(par=="CYP" & meastype == "IEF") next 
+        sel <- t1$party==par&grepl(secs,t1$sector_number)&t1$category%in%cats&t1$meastype==meastype
+        t2<-t1[sel]
         secsl<-unique(as.vector(unlist(t2$sector_number)))
         secsl<-secsl[!secsl=="3.B.2.5 N2O Emissions per MMS"]
         #print(secsl) #uncommented Alex
@@ -1699,18 +1643,21 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
             #if(par=="CYP" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later (it has no "classification")
             #if(par=="CYP" & meastype == "IEF" & sec == "3.F.1.2") next  #xavi20180321: included this because there is an error that needs to be fixed later
             #if(par=="DNM" & meastype == "AD" & sec == "3.D.1") next  #xavi20183001: included this because there is an error that needs to be fixed later
-            t2<-t1[t1$party==par&t1$sector_number==sec&t1$category%in%cats&t1$meastype==meastype,]
+          sel <- t1$party==par&t1$sector_number==sec&t1$category%in%cats&t1$meastype==meastype
+          t2<-t1[sel]
             catsl<-unique(as.vector(unlist(t2$category)))
            # print(paste0("cats=",cats)) #uncommented Alex
             for(cat in catsl){
                 #print(paste0("cat=",cat))
                 if(cat==0)View(t1)
-                t2<-t1[t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype,]
+              sel <- t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype
+                t2<-t1[sel]
                 #Needed for Rice
                 clal<-unique(as.vector(unlist(t2$classification)))
                 for(cla in clal){
                     #print(paste(par,sec,cat,sep="-"))
-                    t2<-t1[t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype&t1$classification==cla,]
+                  sel <- t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype&t1$classification==cla  
+                  t2<-t1[sel]
                     curplot<-curplot+1
                     if(curplot>maxperpage & plotformat!="pdf"){
                         graphics.off()
@@ -1724,18 +1671,20 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
                         if(plotformat=="jpg") jpeg(file=figname,width=piewidth,height=pieheight,unit="in",res=pieresolution)
                         par(mfrow = c(min(nparties,maxperpage),npiecols))
                     }
-                    t2x<-unique(t2[,paste0(years,".x")])
-                    t2y<-unique(t2[,paste0(years,".y")])
-                    values<-as.vector((unlist(t2x)))
-                    values<-as.vector((unlist(t2y)))
-                    #valuid<-as.vector(unlist(t2$variableUID))
-                    #print(values)
-                    #curves<-as.vector(unlist(allgcurve[allgcurve$party==par&allgcurve$variableUID==valuid,years]))
-                    t3<-t1$years[t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype]
+                    
+                    # Extract time series of growth rates
+                    values<-as.numeric(unlist(unique(t2[, .SD, .SDcols=years])))
+                    
+                    # Select the areas of concern that have been stored under 'variable'
+                    # Check which years they correspond to
+                    sel <- t1$party==par&t1$sector_number==sec&t1$category==cat&t1$meastype==meastype
+                    t3<-t1$variable[sel]
                     t3<-unlist(t3)
                     t3<-unlist(strsplit(t3," "))
                     t4<-match(years,as.numeric(t3))
                     t4<-which(!is.na(t4))
+                    
+                    # Write header title of the plot
                     cat4header<-cat
                     cat4header<-gsub("Emissions","Em.",cat4header)
                     cat4header<-gsub("Applied to Soils","Appl.",cat4header)
@@ -1743,6 +1692,7 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
                     cat4header<-gsub("Soil Organic Matter","SOM",cat4header)
                     if(nchar(cat4header)>20)cat4header<-substr(cat4header,1,20)
                     mtext<-paste(par,sec,cat4header,meastype,sep="-")
+                    
                     #cat("\n",par,"sec=",sec,"cat=",cat,"cla=",cla,meastype,length(years),length(values))
                     #print("here 6 in eugirp_functions") #Alex
                     
@@ -1754,7 +1704,7 @@ makegrowthplot<-function(pars,secs,cats="",meastype){
                     
                     plot(years,values,type="p",main=paste(mtext,": values"),pch=21,col="black",bg="black",cex=2)
                     #print("here 7 in eugirp_functions") #Alex
-                    points(years[t4],values[t4],type="p",pch=21,col="red",bg="red",cex=2.5,new=FALSE)
+                    points(as.numeric(years[t4]),values[t4],type="p",pch=21,col="red",bg="red",cex=2.5,new=FALSE)
                     if(curplot %% maxperpage == 1) mtext(paste0(mcommand," page ",page), outer = TRUE, cex = 1.5)
                     
                     #plot(years,growths-1,type="p",,main=paste(mtext,": 1st growth"),pch=21,col="grey20",bg="grey20",cex=2)

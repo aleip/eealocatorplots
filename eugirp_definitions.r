@@ -191,11 +191,7 @@ country4sub$name[country4sub$code3=="EUA"]<-"EU28"
 
 country4sub$name[country4sub$code3=="EUA"]<-"EU"
 country4sub$name[country4sub$code3=="EU28"]<-"EU+UK"
-if(!is.null(keepNORout)){ 
-  country4sub$name[country4sub$code3=="EUC"]<-"EU+UK+ISL"
-}else{
-  country4sub$name[country4sub$code3=="EUC"]<-"EU28+ISL+NOR"
-}
+country4sub$name[country4sub$code3=="EUC"]<-"EU-KP"
 
 country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Czech Republic","Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 country4sub <- as.data.table(country4sub)
@@ -212,11 +208,7 @@ countrieslthe<-as.vector(sapply(countriesl,function(x) if(x%in%c("Netherlands","
 
 eunames<-as.data.frame("EU28")
 names(eunames)<-"EUA"
-if(!is.null(keepNORout)){ 
-  eunames$EUC<-"EU+UK+ISL"
-}else{
-  eunames$EUC<-"EU+UK+ISL+NOR"
-}
+eunames$EUC<-"EU-KP"
 EUC<-eunames[,eusubm]
 
 

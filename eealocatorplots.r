@@ -99,10 +99,7 @@ if(stepsdone==1){
   alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
   stepsdone<-2
   savelist<-c(savelist,"alltotals")
-  savefile <- gsub("_s[0-9]", "", rdatallem)
-  save(list=savelist,file=savefile)
-  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
-  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
+  savestep(stepsdone, savelist)
   source("curplot.r")
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")
@@ -182,20 +179,14 @@ if(stepsdone==2){
   stepsdone<-3
   emplotsdone<-0
   savelist<-c(savelist,"emplotsdone","eu28sum","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
-  savefile <- gsub("_s[0-9]", "", rdatallem)
-  save(list=savelist,file=savefile)
-  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
-  file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
+  savestep(stepsdone, savelist)
   
   mixplotsfiles <- list.files(paste0(plotsdir, cursubm, "/mixplots/"), pattern = ".*jpg|.*png", full.names = TRUE)
   if(!is.null(gdrive)){
     # Not at the server - files can be copied locally and will be updloaded by Backup
-    file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
     x <- lapply(1:length(mixplotsfiles), function(x) 
       file.copy(from = mixplotsfiles[x], to = paste0(gdrive, cursubm, "/mixplots/", basename(mixplotsfiles[x])), overwrite =  TRUE))
   }else{
-    #drive_update
-    drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
     drive_update(media = mixplotsfiles[x], path = paste0(gdrive, cursubm, "/mixplots/"), overwrite = TRUE, verbose = TRUE) 
   }
   source("curplot.r")
@@ -390,19 +381,13 @@ if(stepsdone==3){
     stepsdone<-4
     checksteps<-4
     savelist<-c(savelist,"alltrend","allgrowth","agrishares","signcategories","signthreshold")
-    savefile <- gsub("_s[0-9]", "", rdatallem)
-    save(list=savelist,file=savefile)
-    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
-    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
+    savestep(stepsdone, savelist)
     if(!is.null(gdrive)){
       # Not at the server - files can be copied locally and will be updloaded by Backup
-      file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
       if(!dir.exists(paste0(gdrive, cursubm, "/valueadem"))){dir.create(paste0(gdrive, cursubm, "/valueadem"))}
       file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
       file.copy(from = f2, to = paste0(gdrive, cursubm, "/", basename(f2)), overwrite =  TRUE)
     }else{
-      #drive_update
-      drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
       drive_update(media = f1, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
       drive_update(media = f2, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
     }
@@ -419,14 +404,12 @@ if(stepsdone==4){
       print("Norway data is included for these checkings")
       alldata <- rbind(alldata, alldata_NOR)
     } 
-    #load("checksteps.Rdata")
-    #print(checksteps)
     
-    #if(checksteps == "4"){
     print(paste0("Step ",stepsdone+1,"a: Caluclate allagri for EU28"))
     allagri$datasource<-"nir"
     allagri<-allagri[allagri$party!="EU28",]
-    #xavi20180220: allagri<-eu28sums(allagri,aeu = c("EUC","EUA"),years = years)    #xavi20180220: this is already done for EUC (I think not necessary for EUA?)
+    #xavi20180220: allagri<-eu28sums(allagri,aeu = c("EUC","EUA"),years = years)    
+    #xavi20180220: this is already done for EUC (I think not necessary for EUA?)
     allagri<-allagri[order(allagri$sector_number,allagri$category,allagri$meastype),]
     
     #remove option from Cattle, Dairy Cattle, Non-Dairy Cattle
@@ -437,8 +420,6 @@ if(stepsdone==4){
     
     # Create table with statistical info for each variable
     agrimeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
-    #parammeas<-unique(subset(param,select=names(param)[!names(param) %in% c("notation","party",years)]))
-    #agrimeas<-merge(agrimeas,parammeas,by="variableUID",all.x = TRUE)
     agrimeas<-agrimeas[order(agrimeas$sector_number,agrimeas$category),]
     
     ### NE check sone manually with EEA tables
@@ -450,34 +431,21 @@ if(stepsdone==4){
       source("eugirp_checknes.r")
     }
     
-    #checksteps<-"4b"
     print(paste0("Step ",stepsdone+1,"c: Check units"))
     if (! file.exists(paste0(invloc,"/checks/autocorrections"))){dir.create(file.path(paste0(invloc,"/checks/autocorrections/")))}
     source("eugirp_checkunits.r")
     
     print(paste0("Step ",stepsdone+1,"d: Calculation statistics distribution for parameters and growth"))
     source("eugirp_calcstats.r")
-    #checksteps<-"4c"
-    #save(checksteps,file="checksteps.RData")
-    
-    # removing again NOR data
-    #if(!is.null(keepNORout)) alldata <- alldata[alldata$party != "NOR",] 
     
     stepsdone<-5
-    #savelist<-c(savelist,"agrimeas","agrinotations","param","growth","autocorrections")
-    savelist<-c(savelist,"agrimeas", "paramdata","paramstats","growthstats","autocorrections")
-    savefile <- gsub("_s[0-9]", "", rdatallem)
-    save(list=savelist,file=savefile)
-    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
-    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
+    savelist<-c(savelist,"agrimeas", "paramdata","paramstats", "growthdata","growthstats","autocorrections")
+    savestep(stepsdone, savelist)
     if(!is.null(gdrive)){
       # Not at the server - files can be copied locally and will be updloaded by Backup
-      file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
       if(!dir.exists(paste0(gdrive, cursubm, "/valueadem"))){dir.create(paste0(gdrive, cursubm, "/valueadem"))}
       file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
     }else{
-      #drive_update
-      drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
       drive_update(media = f1, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
     }
     source("curplot.r")
@@ -499,9 +467,13 @@ if(stepsdone==5){
     print(paste0("Step ",stepsdone+1,"a: Check for outlier errors on parameters @ ",curtime(1)))
     outcheck<-"param"
     source("eugirp_checkoutliers.r")
+    
+    #Why commented??
     #source("eugirp_ipccdefaults.r")
     print(paste0("Step ",stepsdone+1,"b: Check for outlier errors on growth @ ",curtime(1)))
     
+    # The outlier check for 'growth' is not really used as the plots are better to see problems
+    # It doesn't work as the 
     outcheck<-"growth"
     nyears<-length(years)
     source("eugirp_checkoutliers.r")
@@ -520,11 +492,15 @@ if(stepsdone==5){
     #        overnotlast ---> issue is a potential overestimation but last year is not identified
     #        oversource ---> issue interests a significant source category, but overestimation might be below threshold
     #        ... in analogy for 'under'
-    paramcheck[,testfields]<-Reduce(rbind,lapply(c(1:nrow(paramcheck)),function(x) Reduce(cbind,ispotentialissue(paramcheck[x,],signcategories,as.character(signyear),signthreshold))))
+    testfieldsvalues<-as.data.table(Reduce(rbind,lapply(c(1:nrow(paramcheck)),function(x) 
+      Reduce(cbind,ispotentialissue(line = paramcheck[x,],S = signcategories,signyear = as.character(signyear),signthreshold = signthreshold)))))
+    names(testfieldsvalues) <- testfields
+    paramcheck <- cbind(paramcheck, testfieldsvalues)
+    paramcheck[is.na(paramcheck)] <- ""
     paramchecked<-0
     
     # Load IPCC default values
-    paramcheck<-loadipccdefaults(paramcheck,1,nrow(paramcheck),insert="value")
+    paramcheck<-loadipccdefaults(as.data.frame(paramcheck),1,nrow(paramcheck),insert="value")
     write.csv(paramcheck,file="paramcheck_ipcc.csv")
 
     print(paste0("Step ",stepsdone+1,"c: Prepare for plot-names @ ",curtime(1)))
@@ -537,41 +513,66 @@ if(stepsdone==5){
         paste0("=HYPERLINK(\"",
                gsub(" ","",
                     gsub(plotsdir,"../../plots/",unlist(lapply(c(1:nrow(paramcheck)),function(x) 
-                        plotname("",plotsdir,issuedir,"*",paramcheck[x,sectfields],paramcheck[x,metafields],paramcheck[x,measfields],
-                                 paste0("nir",runfocus),figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
+                        plotname(dsource = "",plotsdir = plotsdir,issuedir = issuedir,imeas = "*",
+                                 runsect = paramcheck[x,sectfields],
+                                 runmeta = paramcheck[x,metafields],
+                                 runmeas = paramcheck[x,measfields],
+                                 runfoc = paste0("nir",runfocus),
+                                 figdate = figdate,plotformat = plotformat,rundata = rundata,cursubm = cursubm,
+                                 plotparamcheck=0))))),
                "\",\"Link to plot\")")
     t<-growthcheck
     co<-c("plot",names(growthcheck))
+    growthcheck[is.na(growthcheck)] <- ""
+    dfgrowth <- as.data.frame(growthcheck)
     growthcheck$plot<-
         paste0("=HYPERLINK(\"",
                gsub(" ","",
                     gsub(plotsdir,"../../plots/",unlist(lapply(c(1:nrow(growthcheck)),function(x) 
-                        plotname("",plotsdir,issuedir,"*",growthcheck[x,sectfields],growthcheck[x,metafields],growthcheck[x,measfields],
-                                 paste0("nir",runfocus),figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
+                        plotname("",plotsdir,issuedir,"*",dfgrowth[x,sectfields],dfgrowth[x,metafields],dfgrowth[x,measfields],
+                                runfoc=paste0("nir",runfocus),figdate,plotformat,rundata,cursubm,plotparamcheck=0))))),
                "\",\"Link to plot\")")
     
     
     print(paste0("Step ",stepsdone+1,"d: Calculate key categories @ ",curtime(1)))
-    source("eugirp_functions.r")
-    keycategories<-keycategories()
-    keyeuagri<-keycateuc()
     
+    dokeycategories <- FALSE
+    if(dokeycategories){
+      keycategories<-keycategories()
+      keyeuagri<-keycateuc()
+    }
     print(paste0("Step ",stepsdone+1,"e: Prepare flags @ ",curtime()))
     test0<-matrix(rep(0,nrow(growthcheck)*length(flag4issues)),ncol=length(flag4issues),nrow=nrow(growthcheck))
     test0<-as.data.frame(test0)
     names(test0)<-flag4issues
-    growthcheck<-growthcheck[,-which(names(growthcheck)=="gas")]
+    growthcheck<-growthcheck[,.SD, .SDcols=setdiff(names(growthcheck), "gas")]
     growthcheck<-cbind(growthcheck,test0)
-    growthcheck$party<-as.character(growthcheck$party)
+    #growthcheck$party<-as.character(growthcheck$party)
     print(paste0("Step ",stepsdone+1,"f: Integrate outcome into growthcheck and to writeoutlierlist @ ",curtime()))
     x1<-1;x2<-nrow(growthcheck)
-    test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(growthcheck[x,],"growth",x)))
-    test<-Reduce(rbind,test)
-    growthcheck[x1:x2,flag4issues]<-test
     
-    print(paste0("Step ",stepsdone+1,"g: Load now solved issues @ ",curtime()))
-    growthcheck<-addsolved2check(growthcheck,c("recalc"))
+    # This requires comnplete re-coding: 
+    # It uses files from 2015 that urgentely require update
+    # Also, it uses a lot of slow functions that certainly can be improved.
+    doaddflags <- FALSE
+    if(doaddflags){
+      test<-lapply(c(x1:x2),function(x) 
+        unlist(flags4newissue(line = as.data.frame(growthcheck)[x,],check = "growth",x = x)))
+      test<-Reduce(rbind,test)
+      growthcheck[x1:x2,flag4issues]<-test
+      print(paste0("Step ",stepsdone+1,"g: Load now solved issues @ ",curtime()))
+      growthcheck<-addsolved2check(growthcheck,c("recalc"))
+    }
+    
     cog<-names(growthcheck)
+    
+    print(paste0("Step ",stepsdone+1,"a: Making Growth plots @ ",curtime()))
+    mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
+    mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
+    for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
+    
+    
+    
     
     test0<-matrix(rep(0,nrow(paramcheck)*length(flag4issues)),ncol=length(flag4issues),nrow=nrow(paramcheck))
     test0<-as.data.frame(test0)
@@ -582,23 +583,24 @@ if(stepsdone==5){
     # !!
     print(paste0("Step ",stepsdone+1,"h: Integrate outcome into paramcheck and to writeoutlierlist @ ",curtime()))
     x1<-1;x2<-nrow(paramcheck)
-    source("eugirp_functions.r")
-    keycategories <- keycategories()  #xavi20180131
-    test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
-    test<-Reduce(rbind,test)
-    paramcheck[x1:x2,flag4issues]<-test
-
-    #Load now solved issues!
-    # --> function addsolved2check in file eugirp_functions.r (ca line 1160)
-    paramcheck<-addsolved2check(paramcheck,c("recalc"))
-    cof<-names(paramcheck)
-    
-    print(paste0("Step ",stepsdone+1,"i: Write country outlier list @ ",curtime()))
-    test<-as.data.frame(test)
-    names(test)<-flag4issues
-    write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
+    #source("eugirp_functions.r")
+    if(doaddflags){
+      keycategories <- keycategories()  #xavi20180131
+      test<-lapply(c(x1:x2),function(x) unlist(flags4newissue(paramcheck[x,],"outlier",x)))
+      test<-Reduce(rbind,test)
+      paramcheck[x1:x2,flag4issues]<-test
+      #Load now solved issues!
+      # --> function addsolved2check in file eugirp_functions.r (ca line 1160)
+      paramcheck<-addsolved2check(paramcheck,c("recalc"))
+      
+      print(paste0("Step ",stepsdone+1,"i: Write country outlier list @ ",curtime()))
+      test<-as.data.frame(test)
+      names(test)<-flag4issues
+      write.csv(test,file=paste0(filoutliers,"list_checked4emrt.csv"))
+    }
     
     print(paste0("Step ",stepsdone+1,"j: Write outlier list @ ",curtime(1)))
+    cof<-names(paramcheck)
     source("eugirp_writeoutlierlist.r")
     
     # removing again NOR data
@@ -606,32 +608,18 @@ if(stepsdone==5){
     
     stepsdone<-6
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
-    savefile <- gsub("_s[0-9]", "", rdatallem)
-    save(list=savelist,file=savefile)
-    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
-    file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
-    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-    #             media = rdatallem, 
-    #             verbose = FALSE)
-    #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-    #             #path = NULL, 
-    #             #name = NULL, type = NULL, 
-    #             verbose = FALSE)
+    savestep(stepsdone, savelist)
     source("curplot.r")
 }else if(stepsdone>5){
     print(paste0("Step 6: Check for outliers errors already done"))
 }
 
     
-#stop("step 6 done")
+stop("step 6 done")
 # Calculate EU weighted averages and make adem and ief plots####
 if(stepsdone==6){
     # Make growth plots to check ... improve loop!!
     #temporarycommented 
-    print(paste0("Step ",stepsdone+1,"a: Making Growth plots @ ",curtime()))
-    mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
-    mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
-    for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
     #stop("now write issues")
     #paramcheck$correction[paramcheck$party=="SWE"&paramcheck$meastype=="VSEXC"]<-0
@@ -643,6 +631,12 @@ if(stepsdone==6){
       allagri<-allagri[allagri$party != "NOR",]
     }
     source("eugirp_euweightedaverages.r")
+    f1 <- paste0(gsub("eealocator_", "agridata", csvfil), "_allagriEU.xlsx")
+    f2 <- paste0(gsub("eealocator_", "agridata", csvfil), "_allagriMS.xlsx")
+    write.xlsx(eusum, file = f1, asTable = TRUE, overwrite=TRUE)
+    write.xlsx(allagri[!party %in% eu], file = f2, asTable = TRUE, overwrite=TRUE)
+  
+  
     export4uba(allagri = allagri)
     
     # Including again Norway data
@@ -650,7 +644,6 @@ if(stepsdone==6){
       allagri_NOR$autocorr <- ""
       allagri_NOR$correction <- ""
       allagri <- rbind(allagri, allagri_NOR)
-      write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
     }  
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
     datasource<-"nir"
@@ -662,6 +655,9 @@ if(stepsdone==6){
     plotmeas<-temp[[2]]
     adddefault<-temp[[3]]
     sharesexist<-temp[[4]]
+    eukp <- 'EUC'
+    
+    plotdata<-plotdata[is.na(method), method:=""]
     
     x1<-942;x2<-nrow(plotmeas)
     x1<-31;x2<-33
@@ -673,22 +669,42 @@ if(stepsdone==6){
     
     
     stepsdone<-stepsdone+1
-    save(list=savelist,file=rdatallem)
-    save(list=savelist,file=gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem))
-    #drive_update(paste0("eealocatorplots/", cursubm, "/", "eealocator_", cursubm, "_clean.RData"),
-    #             media = rdatallem, 
-    #             verbose = FALSE)
-    #drive_upload(media = gsub(".RData",paste0("_s",stepsdone,"~",figdate,".RData"),rdatallem), 
-    #             #path = NULL, 
-    #             #name = NULL, type = NULL, 
-    #             verbose = FALSE)
+
+    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    savelist<-unique(c(savelist,"assignad2par"))
+    savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
+    savestep(stepsdone, savelist)
+    
+    f3 <- list.files(path = paste0(invloc, "/tables4eu"), pattern = paste0(cursubm))
+    f3 <- f3[! grepl("~", f3)]
+    f4 <- list.files(path = paste0(plotsdir, cursubm, "/valueief"), pattern = "jpg", full.names = TRUE)
+    f5 <- list.files(path = paste0(plotsdir, cursubm, "/rangeief"), pattern = "jpg", full.names = TRUE)
+    if(!is.null(gdrive)){
+      # Not at the server - files can be copied locally and will be updloaded by Backup
+      file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
+      file.copy(from = f2, to = paste0(gdrive, cursubm, "/", basename(f2)), overwrite =  TRUE)
+      x <- lapply(1:length(f3), function(x) 
+        file.copy(from = f3[x], to = paste0(gdrive, cursubm, "/", basename(f3[x])), overwrite =  TRUE))
+      if(!dir.exists(paste0(gdrive, cursubm, "/valueief"))){dir.create(paste0(gdrive, cursubm, "/valueief"))}
+      x <- lapply(1:length(f4), function(x) 
+        file.copy(from = f4[x], to = paste0(gdrive, cursubm, "/valueief/", basename(f4[x])), overwrite =  TRUE))
+      if(!dir.exists(paste0(gdrive, cursubm, "/rangeief"))){dir.create(paste0(gdrive, cursubm, "/rangeief"))}
+      x <- lapply(1:length(f5), function(x) 
+        file.copy(from = f5[x], to = paste0(gdrive, cursubm, "/rangeief/", basename(f5[x])), overwrite =  TRUE))
+    }else{
+      drive_update(media = f1, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+      drive_update(media = f2, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+    }
+    
     source("curplot.r")
     
 }else if(stepsdone>6){
     print(paste0("Step 7: Check for outlier errors already done"))
 }
 
-#stop("step 7 done")
+stop("step 7 done")
+# Note AL20200327 - up to Step 7 script revised to work with data.tables & various other improvements
+#                 - check github for issues that need to be addressed before next submission
 # C - Make checks for sector 3 ####
 #checksteps<-7
 if(stepsdone==7) {

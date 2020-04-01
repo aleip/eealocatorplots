@@ -403,7 +403,8 @@ keysourcecat<-function(line){
     #save(line,file="line")
     source("eugirp_functions.r")
     keycategories <- keycategories()
-    keyline<-keycategories[sapply(1:nrow(keycategories),function(x) grepl(keycategories$sector_number[x],line$sector_number)),]
+    keyline<-keycategories[sapply(1:nrow(keycategories),function(x) 
+      grepl(keycategories$sector_number[x],line$sector_number)),]
     keyeu<-as.logical(sum(keyline[,paste0("EUC","key")]))
     keyms<-as.logical(sum(keyline[,paste0(prt,"key")]))
     #if(length(keyms)==0)keyms<-0
@@ -505,10 +506,10 @@ flags4newissue<-function(line,check,x){
     revyear<-invyear
     sector<-emrtsector(line$sector_number)
     gas<-identifygas(line$sector_number)
-    if(line$years=="all" | line$years==""){
+    if(line$variable=="all" | line$years==""){
         yrs<-paste0("1990-",lastyear)
     }else{
-        yrs<-as.character(line$years)
+        yrs<-as.character(line$variable)
         #convert if this is 'except' years
         if(grepl("-",yrs)){
             yrs<-gsub("-"," ",yrs)

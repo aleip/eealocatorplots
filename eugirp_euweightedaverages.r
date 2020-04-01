@@ -1,3 +1,44 @@
+change2datatables <- FALSE
+if(change2datatables){
+  
+  joinADs2pars <- agrimeas[, .(meastype, gas, sector_number, category, type, variableUID)]
+  
+  #print(paste0("x<-",x,";sec<-",sec,";mea",mea,";cat<-",cat))
+  
+  # Use "Total Biomass burned [kt dm]" for IEF CH4 and N2O in Table 3.F
+  joinADs2pars <- joinADs2pars[grepl("^3.F",sector_number) & meastype=="IEF", avail := 'AD']
+  
+  # Use "Area burned [k ha/yr]" for YIELD "Biomass available [t dm/ha] in Table 3.F
+  joinADs2pars <- joinADs2pars[grepl("^3.F",sector_number) & meastype=="YIELD", avail := 'AREA']
+  
+  # Use "Crop production [t]" for parameters in 'Additional information' in Table 3.F
+  joinADs2pars <- joinADs2pars[grepl("^3.F",sector_number) & 
+                                 meastype%in%c("DM","FracBURN","FracOXIDIZED","Combustion","RatioResCrop"), avail := 'PROD']
+  
+  # Indirect emissions in Table 3.B.2
+  joinADs2pars <- joinADs2pars[grepl("^3.B.2.5",sector_number) & variableUID=="47100CA3-9371-4944-B302-BD76A154B0F4", avail := 'Nvol']
+  joinADs2pars <- joinADs2pars[grepl("^3.B.2.5",sector_number) & variableUID=="C548A926-2825-4F66-A6FE-DA55F429CB29", avail := 'Nleach']
+  # 3.B.2.5 N2O Emissions per MMS
+  joinADs2pars <- joinADs2pars[grepl("3.B.2.5 N2O Emissions per MMS",sector_number), avail := 'NEXC']
+  
+  # Solid waste disposal
+  joinADs2pars <- joinADs2pars[grepl("5.[AB].",sector_number), avail := 'AD']
+  # Waste incineration
+  joinADs2pars <- joinADs2pars[grepl("Clinical Waste",category) & type=="Biogenic", avail := 'ADbio']
+  joinADs2pars <- joinADs2pars[grepl("Clinical Waste",category) & type=="Non-biogenic", avail := 'ADnbio']
+  # Waste Water treatment and discharge
+  joinADs2pars <- joinADs2pars[grepl("5.D.",sector_number) & gas=="CH4", avail := 'ADORG']
+  joinADs2pars <- joinADs2pars[grepl("5.D.",sector_number) & gas=="N2O", avail := 'ADEFFLUENT']
+}
+
+fassign <- gsub("clean.RData", "assignad2par", rdatallem)
+if(file.exists(fassign)){
+  
+  # this part takes quite long and need to be improved to work faster
+  # for the moment run per submissions it once and then get it back from file.
+  load(file = fassign)
+}else{
+
 selectadmeasures<-function(request,M,A,meas2sum,x){
     avail<-meas2sum[!meas2sum%in%c("EM","NEXC")]
     sec<-A$sector_number[x]
@@ -121,48 +162,47 @@ listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2po
 
 # Set up table with infor AD to link with parameter
 #xavi20180221: assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
-assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure"))])
+assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure")), with=FALSE])
 assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-  selectadmeasures("meastype",calcmeas,assignad2par,meas2sum,x)))
+  selectadmeasures("meastype",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
 assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-  selectadmeasures("unit",calcmeas,assignad2par,meas2sum,x)))
+  selectadmeasures("unit",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
 assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-  selectadmeasures("variableUID",calcmeas,assignad2par,meas2sum,x)))
+  selectadmeasures("variableUID",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
 namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
                      "category","classification","source","target","option","variableUID","aduids")
-assignad2par<-assignad2par[,namesassignad2par]
+assignad2par<-assignad2par[,namesassignad2par, with=FALSE]
 measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
 if(sum(duplicated(measures2wei$variableUID))>0)  measures2wei <- measures2wei[!is.na(measures2wei$meastype),]
 parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
 
+save(assignad2par, file = fassign)
+}
 # CORRECTIONS
 
 # 1. Autocorrections have an identified reason - update the data table
 #xavi20180216: selection<-allagri$party%in%eu & allagri$meastype%in%meas2popweight
 #              MCF should be weighted by VS excretion * share in climate zone * share in system
 #              However as long as this is not implemented add to meas2popweight as a proxy
-selection<-allagri$party%in%eu & allagri$meastype%in%c(meas2popweight,meas2mcf,meas2clima)
-calceu<-allagri[!selection,]
+
+#selection<-allagri$party%in%eu & allagri$meastype%in%c(meas2popweight,meas2mcf,meas2clima)
+#calceu<-allagri[!selection,]
+calceu <- allagri
 
 if(exists("autocorrections")){
-    selection1<-autocorrections[!autocorrections$party%in%eu,c("party","variableUID","autocorr")]
-    calceu<-merge(calceu,selection1,by=c("party","variableUID"),all=TRUE)
-    if(any(names(calceu)=="autocorr")){                       #xavi201801301
-      selection1<-!is.na(calceu$autocorr)
-    }else{                                                     #xavi201801301
-      selection1<-!is.na(calceu$autocorr.x)                    #xavi201801301
-      calceu <- calceu[ !names(calceu) %in% c("autocorr.y")]   #xavi201801301
-      names(calceu) <- sub("autocorr.x", "autocorr", names(calceu))
-    }                                                          #xavi201801301
-    correctcorrection<-function(autocorrections,party,uid){
-        #xavi20180131: year<-autocorrections[autocorrections$party==party & autocorrections$variableUID==uid,years]
-        year<-autocorrections[autocorrections$party==party & as.character(autocorrections$variableUID)==as.character(uid),years]
-        return(year)
-    }
-    selc<-calceu[selection1,]
-    t<-Reduce(rbind,lapply(c(1:sum(selection1)),function(x) 
-        unlist(correctcorrection(autocorrections,selc$party[x],selc$variableUID[x]))))
-    calceu[selection1,years]<-t
+  
+  message("\nApply autocorrections to values")
+  autoc <- copy(as.data.table(autocorrections))
+  autoc <- autoc[!party %in% eu, c("party","variableUID", "autocorr", years), with=FALSE]
+  setnames(autoc, years, paste0("a", years))
+  autoc <- merge(calceu,autoc,by=c("party","variableUID"),all=TRUE)
+  
+  # Replace original values with the autocorrected ones
+  autoc <- autoc[!is.na(autocorr), (years) := .SD, .SDcols=paste0("a", years)]
+  autoc <- autoc[, .SD, .SDcols = setdiff(names(autoc), paste0("a", years))]
+  
+  calceu <- autoc  
+    
 }
 if(!is.null(keepNORout)){
   calceu <- calceu[calceu$party != "NOR", ]
@@ -177,16 +217,14 @@ if(exists("paramcheck")){
     # All time series which have not been identified in paramcheck are OK and receive
     # the correction-flag '1'
     if(any(names(calceu)=="correction")){                                 #xavi201801301
-      calceu$correction[is.na(calceu$correction)]<-1
-      calceu$correction[calceu$meastype=="Milk"&calceu$party=="LUX"]<-0
-      selection2<-calceu$correction==0
-    }else{                                                                #xavi201801301
-      calceu$correction.y[is.na(calceu$correction.y)]<-1                  #xavi201801301
-      calceu$correction.y[calceu$meastype=="Milk"&calceu$party=="LUX"]<-0  #xavi201801301
-      selection2<-calceu$correction.y==0                                  #xavi201801301
-      calceu <- calceu[ !names(calceu) %in% c("correction.y")]            #xavi201801301
+    }else if (any(names(calceu)=="correction.x")){
       names(calceu) <- sub("correction.x", "correction", names(calceu))
-    }                                                                     #xavi201801301
+    }else {
+      stop("Check calceu on why there is no field 'correction' in file eugirp_euweightedaverage.r line 218.")
+    }
+    calceu$correction[is.na(calceu$correction)]<-1
+    calceu$correction[calceu$meastype=="Milk"&calceu$party=="LUX"]<-0
+    selection2<-calceu$correction==0
     
     if(!is.null(keepNORout)){
       calceu <- calceu[calceu$party != "NOR", ]
@@ -199,36 +237,58 @@ if(exists("paramcheck")){
 }
 #allagri<-calceu
 
-#xavi20180411: acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
 
-eu28wei1<-as.data.frame(matrix(ncol=0,nrow=0))
-#print("Alex 13 in EUweightedaverages")
-for(euneeded in c("EUC","EUA")) {
-  print(paste("calculating averages for ", euneeded))
-  acountry<-curcountries[variable==euneeded & value==1]$code3
-  #if(!is.null(keepNORout)) acountry <- acountry[!acountry %in% c("NOR")]
-    
-  eu28wei<-as.data.frame(matrix(rep(0,ncol(calceu)*nrow(assignad2par)),ncol=ncol(calceu),nrow=nrow(measures2wei)))
-  names(eu28wei)<-names(calceu)
-  eu28wei[,names(measures2wei)]<-measures2wei[,names(measures2wei)]
-#  print("Alex EUW_euneeded 5")
-  eu28wei[,years]<-euvalue("weight",assignad2par,calceucor,years,acountry)
-#  print("Alex EUW_euneeded 6")
-  eu28wei[,"party"]<-rep(euneeded,nrow(eu28wei))
-  eu28wei$notation[eu28wei$notation==0]<-""
-  eu28wei1 <- rbind(eu28wei1, eu28wei)
-}
+calceu <- calceucor 
+calceu <- merge(calceu, assignad2par[, .(variableUID, aduids)], by="variableUID", all.x=TRUE)
+calceu <- melt.data.table(calceu, measure.vars = years, variable.name = "years", value.name = "par", na.rm = TRUE)
 
-eu28wei <- eu28wei1
+# Extract data table with Activity data
+advals <- allagri[variableUID %in% assignad2par$aduids]
+advals <- melt.data.table(advals, measure.vars = years, variable.name = "years", value.name = "ad", na.rm = TRUE)
+setnames(advals, "variableUID", "aduids")
 
-allfieldsplus<-c(allfields,"autocorr","correction")
-allagri<-rbind(calceu[,allfieldsplus],eu28wei[,allfieldsplus])
+# Multiply activity data with variable values 
+# For those variables that don't need to be weighted this will give zero 
+# (as the 'value' caclulated above resulted in NA)
+calceu <- merge(calceu, advals[, .(aduids, party, years, ad)], 
+                by=c("party", "years", "aduids"), all.x=TRUE)
+calceu <- calceu[, value := par * ad]
+calceu <- calceu[, correction := as.numeric(correction)]
 
-write.table(allagri,file=paste0(csvfil,"_agri.csv"),sep=",")
+# Calculate EU sums
+ceuc <- setdiff(country4sub[EUC==1]$code3, "EUC")
+ceu28 <- setdiff(country4sub[EU28==1]$code3, "EU28")
+calceuc <- calceu[party %in% ceuc]
+calceu28 <- calceu[party %in% ceu28]
 
-#Save already as this takes long time...
-save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-savelist<-unique(c(savelist,"assignad2par"))
-save(list=savelist,file=gsub(".RData",paste0("_euweightav.RData"),rdatallem))
+eucsum <- calceuc[, .(value=sum(value, na.rm=TRUE), 
+                      par=sum(par, na.rm=TRUE), 
+                      ad=sum(ad, na.rm=TRUE)),
+                    by = setdiff(names(calceu), 
+                                 c(c("par", "ad", "value",
+                                     "notation", "autocorr", "method", "party", "correction")))]
+eu28sum <- calceu28[, .(value=sum(value, na.rm=TRUE), 
+                      par=sum(par, na.rm=TRUE), 
+                      ad=sum(ad, na.rm=TRUE)),
+                    by = setdiff(names(calceu), 
+                                 c(c("par", "ad", "value",
+                                     "notation", "autocorr", "method", "party", "correction")))]
 
+
+# Calculate EU value: 
+# - for measures that require weighting use the sum of PAR=SUMi(ADi*PARi)/SUMi(ADi)
+# - for measures that need to be summed directly use PAR=SUMi(PARi)
+eucsum <- eucsum[, par := ifelse(is.na(aduids), par, value/ad)]
+eu28sum <- eu28sum[, par := ifelse(is.na(aduids), par, value/ad)]
+eucsum <- eucsum[, party := "EUC"]
+eu28sum <- eu28sum[, party := "EU28"]
+eusum <- rbind(eucsum, eu28sum)
+
+# Spread years again and combine with data table of individual countries
+dcastf <- paste0(paste(intersect(allfields, names(eusum)),collapse= " + "), " ~ years")
+eusum <- dcast.data.table(eusum, as.formula(dcastf), value.var = 'par')
+
+calceunew <- rbind(eusum, calceucor[!party %in% eu], fill = TRUE)
+eusum <- eusum[order(sector_number, category, gas, party)]
+allagri <- calceunew[order(sector_number, category, gas, party)]
 

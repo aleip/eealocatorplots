@@ -13,21 +13,20 @@
 
 if(require(ggplot2)==FALSE){install.packages("ggplot2", repos = "https://cloud.r-project.org"); library(ggplot2)} else {library(ggplot2)}
 if(require(reshape2)==FALSE){install.packages("reshape2", repos = "https://cloud.r-project.org"); library(reshape2)} else {library(reshape2)}
-if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
-if(require(tidyr)==FALSE){install.packages("tidyr", repos = "https://cloud.r-project.org"); library(tidyr)} else {library(tidyr)}
+#if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
+#if(require(tidyr)==FALSE){install.packages("tidyr", repos = "https://cloud.r-project.org"); library(tidyr)} else {library(tidyr)}
+if(TRUE){
 if(require(data.table)==FALSE){install.packages("data.table", repos = "https://cloud.r-project.org"); library(data.table)} else {library(data.table)}
 if(require(knitr)==FALSE){install.packages("knitr", repos = "https://cloud.r-project.org"); library(knitr)} else {library(knitr)}
 if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-project.org"); library(Matrix)} else {library(Matrix)}
 if(require(compare)==FALSE){install.packages("compare", repos = "https://cloud.r-project.org"); library(compare)} else {library(compare)}
 if(require(RColorBrewer)==FALSE){install.packages("RColorBrewer", repos = "https://cloud.r-project.org"); library(RColorBrewer)} else {library(RColorBrewer)}
 if(require(googledrive)==FALSE){install.packages("googledrive", repos = "https://cloud.r-project.org"); library(googledrive)} else {library(googledrive)}
-if(require(httpuv)==FALSE){install.packages("httpuv", repos = "https://cloud.r-project.org"); library(httpuv)} else {library(httpuv)}
-if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)
-} else {library(readxl)}
-if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)
-} else {library(plyr)}
+#if(require(httpuv)==FALSE){install.packages("httpuv", repos = "https://cloud.r-project.org"); library(httpuv)} else {library(httpuv)}
+#if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)} else {library(readxl)}
+#if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)} else {library(plyr)}
 if(require(openxlsx)==FALSE){install.packages("openxlsx", repos = "https://cloud.r-project.org")}; library(openxlsx)
-
+}
 
 #require(dtplyr)
 # library(mblm)  # needed for Theil Sen outl detection (see outl tool ... but not used in the excel output?)

@@ -113,7 +113,7 @@ countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK",
 countries3<-c("AUT","BEL","BGR","CYP","CZE","DEU","DNM","ESP","EST","FIN","FRK","FRK","GBK","GBE","GRC","HRV","HUN","IRL","ISL","ITA","LTU","LUX","LVA","MLT","NLD", "NOR", "POL", "PRT","ROU","SVK","SVN","SWE")
 eu<-c("EU", "EU28","EUC")
 if(!is.null(keepNORout)){ 
-  eum<-c("EU", "EU28","EU28+ISL")
+  eum<-c("EU", "EU+UK","EU-KP")
   eul<-c(
     "EU Member States (territorial coverage)",
     "EU Member States + UK",

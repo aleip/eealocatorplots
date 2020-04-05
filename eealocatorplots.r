@@ -63,8 +63,71 @@ rm(restartatstep)
 # - allinfos: Information given, e.g. in documentation boxes
 # - alldatanovalues
 # - measname
-source("eugirpA.1_eealocator.r")
+#source("eugirpA.1_eealocator.r")
+if(generatealldata==1){
+  source("eealocator_generate_rdata.r")
+  # Select gases ####
+  gases2keep<-c("Aggregate GHGs","CH4","no gas","CO2","N2O","NMVOC")
+  select<-alldata$gas %in% gases2keep
+  othergases<-read.table("plots_sec2othergases.txt")
+  select2<-alldata$variableUID%in%unlist(othergases)
+  select<-select | select2
+  alldata<-alldata[select,]
+  gases<-as.character(unique(alldata$gas))
+  # Select years ####
+  #years2delete<-as.vector(as.character(allyears[!(allyears %in% years2keep)]))
+  select<-alldata$year %in% years2keep
+  alldata<-alldata[select,]
+  years<-as.character(unique(alldata$year))
+  years<-sort(years)
+  parties<-as.character(unique(alldata$party))
+  classifications<-as.character(unique(alldata$classification))
+  categories<-as.character(unique(alldata$category))
+  sources<-as.character(unique(alldata$source))
+  targets<-as.character(unique(alldata$target))
+  options<-as.character(unique(alldata$option))
+  types<-as.character(unique(alldata$type))
+  units<-as.character(unique(alldata$unit))
+  sectors<-as.character(unique(alldata$sector_number))
+  uids<-as.character(unique(alldata$variableUID))
+  
+  submission_version<-as.character(unique(alldata$submission_version))    
+  submission_year<-as.character(unique(alldata$submission_year))
+  countries<-unique(alldata[,c("party","country_name")])
 
+  # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  # Generate data frame with one columns per year ----
+  # and the value in the corresponding column ---
+  # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  alldata<-subset(alldata,select=(! names(alldata) %in% c("country_name","submission_version","submission_year")))
+  print("Generate data frame with one columns per year")
+  #startt<-Sys.time()
+  cols2leave<-paste(names(alldata)[!names(alldata)%in%c("year","value")],collapse="+")
+  arrange<-as.formula(paste(cols2leave,"~ year"))
+  
+  alldata<-dcast.data.table(alldata,arrange,value.var="value")
+  # measureacronyms --------------------------------------------------------------
+  # Keep long text with the exception of 'measure' which is needed to identify
+  # if it is an activity data, emissions, emission factor or parameter or other
+  # alldata$measurelong<-alldata$measure
+  #measureacronyms<-read.csv("metadim_row8measure.txt",stringsAsFactors=FALSE)
+  #alldata<-subset(temp1,select=-dummy)
+  print("measureacronyms")
+  measureacronyms<-read.csv("measures_20150731.txt",stringsAsFactors=FALSE)
+  alldata<-merge(alldata,measureacronyms,by.x="measure",by.y="measname")
+  
+  stepsdone<-1
+
+  savelist<-c("stepsdone","savelist","alldata",
+              "gases","years","parties", "countries", "classifications", "categories", "sources", "targets", 
+              "options", "types", "units", "sectors", "uids","measureacronyms")
+  write.table(alldata[grepl("^3",alldata$sector_number),],file=paste0(csvfil,"_agri_s1.csv"),sep=",")
+  write.table(alldata[grepl("^4",alldata$sector_number),],file=paste0(csvfil,"_lulucs_s1.csv"),sep=",")
+  savestep(stepsdone, savelist)
+  source("curplot.r")
+  options(error=NULL) #error=recover goes into debug mode
+  options(warn=0)
+} 
 
 # A.2 Clean animal type names ####
 # Some animal types are given under 'allmethods', the options either 'sector_number' and/or 'allmethods'
@@ -80,11 +143,31 @@ if(stepsdone==1){
   # Remove GBE (use GBK) and remove Island ####
   
   alldata$datasource<-"nir"
-  alldata$notation<-""
   source("eugirpA.2_meastype.r")
+  sel <- alldata$meastype%in%c("PROD", "DM", "FracBURN", "FracOXIDIZED", "RatioResCrop")
+  alldata[sel & sector_number=="" &grepl("[Ss]orghum", category), sector_number := "3.F.1.4.1"]
+  alldata[sel & sector_number=="" &grepl("[Rr]ice", category), sector_number := "3.F.1.4.2"]
+  alldata[sel & sector_number=="" &grepl("[Rr]ye", category), sector_number := "3.F.1.4.3"]
+  alldata[sel & sector_number=="" &grepl("[Tr]ritical", category), sector_number := "3.F.1.4.4"]
+  alldata[sel & sector_number=="" &grepl("[Oa]ts", category), sector_number := "3.F.1.4.5"]
+  alldata[sel & sector_number=="" &grepl("[Cc]ereal|[Mm]illet", category), sector_number := "3.F.1.4.6"]
+  alldata[sel & sector_number=="" , sector_number := "3.F.5"]
+  
+  # Clean alldata
+  alldata <- alldata[, notation:= as.character(notation)]
+  alldata <- alldata[, method:= as.character(method)]
+  alldata <- alldata[, method := gsub("no method", "", option)]
+  alldata <- alldata[, option := gsub("no option", "", option)]
+  alldata <- alldata[, source := gsub("no source", "", source)]
+  alldata <- alldata[, target := gsub("no target", "", target)]
+  alldata <- alldata[, type := gsub("no type", "", type)]
+  
+  alldata <- unique(alldata)
+  save(alldata, file="checkotheranimals.rdata")
   
   # Deal with other animals and animal types without sector number
-  selection<-alldata$sector_number=="" & alldata$classification%in%mslivestockclass
+  alldata[sector_number=="NULL", sector_number:=""]
+  selection<-alldata$sector_number%in%"" & alldata$classification%in%mslivestockclass
   selection<-selection | grepl("^3",alldata$sector_number)
   allagri<-alldata[selection,allfields, with=FALSE]
   alldata<-alldata[!selection,allfields, with=FALSE]
@@ -93,13 +176,105 @@ if(stepsdone==1){
   
   # Calculate parameters for Cattle, Swine and Sheep as aggregate of 'childs'
   # Note:  completely rewritten 20200325
+  agrimeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
+  agrimeas<-agrimeas[order(agrimeas$sector_number,agrimeas$category),]
   source("eugirp_aggparentanimal.r")
   
   alldata<-rbind(alldata,allagri)
   alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
+  
+
+  print("Store Information in Documentation box")
+  agridocumentationbox <- alldata[measure=="Documentation box" & grepl("^3", sector_number)]
+  agridocumentationbox <- unique(agridocumentationbox[, .SD, .SDcols=setdiff(names(agridocumentationbox), years)])
+  agridocumentationbox <- agridocumentationbox[! notation %in% c("NA", "")]
+  agridocumentationbox <- agridocumentationbox[! is.na(notation)]
+  agridocumentationbox <- agridocumentationbox[, c("party", setdiff(names(agridocumentationbox), "party")), with=FALSE]
+  agridocumentationbox <- cleancolumns(agridocumentationbox)
+  
+  alldata <- alldata[! (measure=="Documentation box" & grepl("^3", sector_number))]
+  
+  print("Store Information on Emission Factors")
+  agriEFinfo <- alldata[measure=="Emission factor information" & grepl("^3", sector_number)]
+  # Some values are reported only for certain years - the information on the emission
+  # factor therefore changes and could be e.g. NA in some years (not applicable as no emissions
+  # occur) and CS in others (country-specific). Here this is merged.
+  # What counts for the evaluation at the end is the info for the years with emissions
+  agriEFinfo <- agriEFinfo[, paste(as.character(.SD), collapse="-"), 
+                           by=setdiff(names(agriEFinfo), c("notation", years)), 
+                           .SDcols="notation"]
+  agriEFinfo <- agriEFinfo[, V1 := gsub("[\",c,\\(,\\)]", "", V1)]
+  agriEFinfo <- agriEFinfo[! is.na(V1)]
+  
+  print("Store Information on Method")
+  agriMethods <- alldata[measure=="Method" & grepl("^3", sector_number)]
+  agriMethods <- agriMethods[, paste(as.character(.SD), collapse="-"), 
+                           by=setdiff(names(agriMethods), c("notation", years)), 
+                           .SDcols="notation"]
+  agriMethods <- agriMethods[, V1 := gsub("[\",c,\\(,\\)]", "", V1)]
+  agriMethods <- agriMethods[! is.na(V1)]
+  
+  agriMethods <- rbind(agriEFinfo, agriMethods)
+  setnames(agriMethods, "V1", "notation")
+  # EF info and Method have different variableUIDs
+  agriMethods <- dcast.data.table(agriMethods, party+sector_number+category+gas+method+classification+source+target+type+option~measure, value.var = "notation")
+  
+  # Separate NA in methods from rest to make less crowded
+  agriMethodsNA <- agriMethods[((is.na(`Emission factor information`) | `Emission factor information`=="NA") & (is.na(Method) | Method=="NA"))]
+  agriMethods <- agriMethods[! ((is.na(`Emission factor information`) | `Emission factor information`=="NA") & (is.na(Method) | Method=="NA"))]
+  
+  # Define 'higher Tier' or not
+  agriMethods <- agriMethods[, `Higher Tier` := ifelse(grepl("T2|T3", Method)|grepl("CS", `Emission factor information`), 1, 0)]
+  
+  # Remove info from alldata - other than agriculture sectors are not relevant
+  save(alldata, file="alldata.rdat")
+  alldata <- alldata[! (measure %in% c("Documentation box", 
+                                       "Emission factor information", 
+                                       "Method"))]
+  
+  
+  # Store notations in different data frame - delete from alldata ####
+  agrinotations <- alldata[grepl("^3", sector_number) & notation!=""]
+  agrinotations <- agrinotations[, paste(as.character(.SD), collapse="-"), 
+                                 by=setdiff(names(agrinotations), c("notation", years)), 
+                                 .SDcols="notation"]
+  agrinotations <- agrinotations[, V1 := gsub("[\",c,\\(,\\)]", "", V1)]
+  agrinotations <- agrinotations[! is.na(V1)]
+  agrinotations <- agrinotations[, c("party", setdiff(names(agrinotations), "party")), with=FALSE]
+  agrinotations <- cleancolumns(agrinotations)
+  # Remaining 'method's -> Tier 2 (CLIMA, MCF, non-agri) and other 
+  #                        Methods for LULUCF
+  # Remaining 'type's   -> Information item (links to fossil fuel)
+  #                        Additional variables (LULUCF) 
+  #                        Activity  A.1 / B.1 / A.2 (LULUCF)
+  #                        ... many others for LULUCF
+  #                        Inorganic / Organic N Fertilizers (AGRI)        
+  alldata <- alldata[notation==""]
+
+  
+  wb <- createWorkbook(creator = "EU-GIRP")
+  f1 <- paste0(gsub("eealocator_", "agridata", csvfil), "_methods.xlsx")
+  wbs <- addWorksheet(wb, sheetName = "Documentation Box")
+  wbs <- writeData(x = agridocumentationbox, wb = wb, sheet = "Documentation Box")
+  wbs <- addWorksheet(wb, sheetName = "Notation Keys")
+  wbs <- writeData(x = agrinotations, wb = wb, sheet = "Notation Keys")
+  wbs <- addWorksheet(wb, sheetName = "Methods")
+  wbs <- writeData(x = agriMethods, wb = wb, sheet = "Methods")
+  wbs <- addWorksheet(wb, sheetName = "Methods_NA")
+  wbs <- writeData(x = agriMethodsNA, wb = wb, sheet = "Methods_NA")
+  wbs <- addWorksheet(wb, sheetName = "Methods_sum")
+  wbs <- writeData(x = wbx, wb = wb, sheet = "Methods_sum")
+  wbx <- unique(agriMethods[, .(`Emission factor information`, Method)])
+  wbw <- saveWorkbook(wb, file=f1, overwrite = TRUE)
+    
   stepsdone<-2
-  savelist<-c(savelist,"alltotals")
+  savelist<-c(savelist,"alltotals", "agridocumentationbox", "agriMethods", "agriMethodsNA", "agrinotations")
   savestep(stepsdone, savelist)
+  if(!is.null(gdrive)){
+    file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
+  }else{
+    drive_update(media = f1, path = paste0(gdrive, cursubm, "/"), overwrite = TRUE, verbose = TRUE) 
+  }
   source("curplot.r")
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")

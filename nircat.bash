@@ -3,9 +3,9 @@ focus=none
 focus=last
 focus=faonir
 includeoverview=1
-focus=none
 focus=3d
 focus=all
+focus=none
 
 # Annual things to do manually
 #================================
@@ -48,10 +48,9 @@ echo Now replace the placeholders at $HOSTNAME
 echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
 sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
 sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
-sed -e 's/\$cursubm\$/20190508/g' tmp0 > tmp2
+sed -e 's/\$cursubm\$/20200315/g' tmp0 > tmp2
 
 mv tmp2 nir${focus}out.Rmd
-
 
 # Generate markdown file
 if [ "$HOSTNAME" = "s-jrciprap246p" ]; then
@@ -63,6 +62,13 @@ if [ "$HOSTNAME" = "s-jrciprap246p" ]; then
     
     /c/Apps/R/R-3.5.0/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
 
+
+elif [ "$HOSTNAME" = "baragoon" ] ; then
+	echo $HOSTNAME
+    wexe="/c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE"
+    pexe="pandoc"
+   	rexe="/c/Program\ Files/R/R-3.6.1/bin/Rscript.exe"
+    /c/Program\ Files/R/R-3.6.1/bin/Rscript.exe -e "library(knitr);knit('nir${focus}out.Rmd')"
 
 elif [ "$HOSTNAME" = "l01ri1203587" ] ; then
 	echo $HOSTNAME
@@ -108,7 +114,7 @@ test -e nir${focus}out.Rmd && {
 	/c/Program\ Files/RStudio/bin/pandoc/pandoc nir${focus}out.md --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output nir${focus}out.docx --highlight-style tango 
 
 	mv nir${focus}out* nir/
-    mv nir/nir${focus}out.docx nir/nir${focus}out~$(date +%Y%m%d).docx
+  mv nir/nir${focus}out.docx nir/nir${focus}out~$(date +%Y%m%d).docx
 
 	# Open word
     test -e nir/nir${focus}out~$(date +%Y%m%d).docx && /c/Program\ Files/Microsoft\ Office/Office16/WINWORD.EXE nir/nir${focus}out~$(date +%Y%m%d).docx &

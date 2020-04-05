@@ -30,14 +30,6 @@ if(generatealldata==1){
     allmethods <- as.data.table(allmethods)
     alldata<-alldata[! alldata$measure=="Method",]
     
-    print("Store allinfos")
-    infos<-c("Documentation box","Emission factor information","Type")
-    measures<-as.character(unique(alldata$measure))
-    allinfos<-alldata[alldata$measure %in% infos,]
-    allinfos<-simplifytestmatrix(as.data.frame(allinfos),"year",years2keep)
-    allinfos <- as.data.table(allinfos)
-    alldata<-alldata[! alldata$measure %in% infos,]
-
     notations<-levels(alldata$notation)
     
     parties<-as.character(unique(alldata$party))
@@ -57,22 +49,6 @@ if(generatealldata==1){
     alldata<-subset(alldata,select=(! names(alldata) %in% c("country_name","submission_version","submission_year")))
     
     
-    # Store notations in different data frame - delete from alldata ####
-    print("Store allnotations")
-    alldata$notation <- as.character(alldata$notation)
-    alldata$sector_number <- as.character(alldata$sector_number)
-    alldata[which(alldata$value == 0 & alldata$notation == "" & !is.na(alldata$notation) & (alldata$sector_number == "" | grepl("^3", alldata$sector_number))), ]$sector_number <- "JRC_NotatKey"
-    alldata$notation <- as.factor(alldata$notation)
-    alldata$sector_number <- as.factor(alldata$sector_number)
-    notationkeys<-"[CS,NO,NE,IRL,NA,D,T1,T2]"
-    notationkeys<-"[CS,NO,NE,IRL,NA,D,T1,T2,JRC_NotatKey]"
-    allnotations<-alldata[grepl(notationkeys,alldata$notation),]
-    alldata<-alldata[! grepl(notationkeys,alldata$notation),]
-    allnotations<-simplifytestmatrix(as.data.frame(allnotations),"year",years2keep)
-    allnotations <- as.data.table(allnotations)
-    alldata<-unique(alldata)
-   
-
     # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     # Generate data frame with one columns per year ----
     # and the value in the corresponding column ---

@@ -12,13 +12,14 @@ newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
     meast<-substring(paste0(meast,"00000"),1,3)                           #3
     units<-substring(paste0((gsub(" ","",gsub("\\/","",gsub("\\^","",units)))),"00000"),1,6) #6
     sourc<-substring(paste0(gsub(" ","",gsub("-","",sourc)),"00000"),1,2) #2
-    targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #1
+    targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #3
     gasun<-substring(paste0(gasun,"0"),1,2)                               #2
     optio <- as.character(optio)
     #save(sector,categ,meast,units,metho,sourc,targe,optio,gasun, file="a.rdata")
     optio<-if(optio!=""){substring(optio,nchar(optio),nchar(optio))}else{"0"}   #1
     metho<-substring(paste0(gsub(" ","",gsub("-","",metho)),"00000"),1,3) #3
-    newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun,optio,metho)
+    # char    =       6      + 5  + 8  + 3  +   6  +  2  +  3  +  2  +  1
+    newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun,optio)
     #cat("\n",nchar(newid),"-",newid)
     return(newid)
     
@@ -27,6 +28,14 @@ firstup<-function(string){
     rstring<-tolower(string)
     rstring<-gsub(" n "," N ",rstring)
     rstring<-paste0(toupper(substr(rstring,0,1)),substr(rstring,2,nchar(rstring)))
+}
+
+cleancolumns <- function(dt){
+  
+  dtnames <- names(dt)
+  dtlength <- sapply(1:length(dtnames), function(x) length(unlist(unique(dt[, x, with=FALSE]))))  
+  dt <- dt[, dtnames[dtlength>1], with=FALSE]
+  return(dt)
 }
 
 savestep <- function(stepsdone, savelist){

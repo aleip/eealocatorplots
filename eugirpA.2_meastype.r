@@ -42,11 +42,6 @@ alldata$meastype[alldata$category == "Fraction of synthetic fertilizer"]<-"FracG
 
 alldata<-alldata[,allfields, with=FALSE]
 
-# The word 'Farming' in 'allmethods' not required for upper-level animal types/category
-alldata$method[alldata$method == "Tier 2"]<-""
-# The work 'Tier 2' not required: differentiation by climate zone by MMS always Tier 2
-levels(alldata$classification)[levels(alldata$classification)=="Additional Information (for Tier 2)"]<-"Tier 2"
-alldata$type[alldata$type == "Additional Information"]<-""
 
 alldata$sector_number<-unlist(lapply(c(1:nrow(alldata)),function(x) gsub("Other \\(please specify\\)","",alldata$sector_number[x])))
 alldata$category<-unlist(lapply(c(1:nrow(alldata)),function(x) gsub("livestock","Livestock",alldata$category[x])))
@@ -58,13 +53,6 @@ alldata$category<-unlist(lapply(c(1:nrow(alldata)),function(x) gsub("livestock",
 alldata$sector_number<-unlist(lapply(c(1:nrow(alldata)),function(x) gsub(alldata$category[x],"",alldata$sector_number[x])))
 
 # Duplicates with same UID but different sector_number
-#al202003 Note : there was something wrong in the previous calculation. 
-#                Adding rownumbers before making unique distroys unique, and 
-#                making unique before doesn't add same numners and distroys the merge
-a <- alldata
-alldata <- a
-save(a, file='a.rdata')
-
 # ---> Sort data such that first come those with sector_number
 #      then those without.
 #      Reason: if duplicates are removed, then those without sector_number
@@ -90,21 +78,4 @@ if(nrow(measures)==length(measures$variableUID)){print("No duplicate UIDs")}else
         alldata$variableUID[alldata$variableUID==duplicateUID & alldata$sector_number==duplicateSEC]<-duplicateNEW
     }
 }
-
-alldata <- alldata[target == "no target", target := ""]
-alldata <- alldata[source == "no source", source := ""]
-alldata <- alldata[type == "no type", type := ""]
-alldata <- alldata[method == "no method", method := ""]
-
-#al20150809 - cleanCattle not really needed any more .... it is contained in Option
-#allagri<-alldata[grepl("^3",alldata$sector_number),allfields]
-#allagri$sector_number<-unlist(lapply(c(1:nrow(allagri)),function(x)
-#    cleanCattle(allagri$sector_number[x],allagri$category[x])))
-#allagri$option[grepl("Option",allagri$option)]<-""
-
-
-# catothe<-alldata[!grepl("^3",alldata$sector_number),]
-# allagri<-rbind(catothe,allagri)
-# alldata<-allagri[order(as.numeric(row.names(allagri))),allfields]
-# rm(allagri,catothe)
 

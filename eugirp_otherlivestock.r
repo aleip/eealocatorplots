@@ -107,7 +107,7 @@ select<-grepl("replacement",tolower(allother$category))
 if(sum(select)>0) allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
     paste0(assignab(allother$classification[select][x]),".2")))
 
-select<-grepl("swine|pig|boars|sow|gilt",tolower(allother$category))
+select<-grepl("swine|pig|boars|sow|gilt|weaner",tolower(allother$category))
 if(sum(select)>0) allother$sector_number[select]<-unlist(lapply(c(1:sum(select)),function(x) 
     paste0(assignab(allother$classification[select][x]),".3")))
 
@@ -134,7 +134,7 @@ allagri98<-allagri
 #allagri <- allagri98
 # Method-column gives problems for merge (20160819 - never previously)
 allagrimethod<-allagri$method
-allagri<-allagri[,-which(names(allagri)=="method"), with=FALSE]
+#20200404tryleavemethod allagri<-allagri[,-which(names(allagri)=="method"), with=FALSE]
 
 
 #Remove duplicate lines (e.g. 'Swine' and 'Other swine') for agri
@@ -171,8 +171,11 @@ swines<-unique(allagri$category[selectsw])
 
 #Harmonize UIDs
 usefields<-c(sectfields,metafields,measfields)
-usefields<-usefields[usefields!="method"]
-allfields<-allfields[allfields!="method"]
+#20200404tryleavemethod usefields<-usefields[usefields!="method"]
+#20200404tryleavemethod allfields<-allfields[allfields!="method"]
+allfields <- c(usefields, setdiff(allfields, usefields))
+
+
 #allagri$method<-as.character(allagri$method)
 swineuids<-unique(allagri[allagri$category=="Swine",c(usefields,"variableUID"), with=FALSE])
 swineuids<-swineuids[order(swineuids$sector_number,swineuids$measure),]
@@ -226,5 +229,6 @@ allagri<-allagri[,allfields, with=FALSE]
 allagri<-unique(allagri)
 
 # For some reason there are two rows with MLT and swine - remove one
-sel <- allagri$party == "MLT" & allagri$meastype == "POP" & allagri$sector_number == "3.A.3"  & allagri$category == "Swine"
+sel <- allagri$party == "MLT" & allagri$meastype == "POP" & 
+  allagri$sector_number == "3.A.3"  & allagri$category == "Swine"
 allagri <- rbind(allagri[!sel], allagri[sel][1])

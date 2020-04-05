@@ -6,6 +6,9 @@ message("\n\nCalculate aggregate values for 'parent' animal types: ")
 #addparentvalues<-function(addparentanimal){
 allswines<-unique(allagri$category[grepl("^3.A.3",allagri$sector_number)])
 allsheeps<-unique(allagri$category[grepl("^3.A.2",allagri$sector_number)])
+alldairy<-c("Dairy Cattle","Mature Dairy Cattle","Dairy Cows","Other Cattle.Dairy cattle")
+allnondairy<-unique(allagri[meastype=="POP"&grepl("3.A.1",sector_number)&(!category%in%alldairy)]$category)
+allcattle <- c(alldairy, allnondairy)
 #if(parent=="Sheep") childs<-allsheeps[!allsheeps%in%parent]
 
 allchilds <- c(allsheeps, allswines, alldairy, allnondairy)
@@ -62,6 +65,8 @@ parentsy <- merge(parentsy, agrimeas, by=keyvalues, all.x=TRUE)
 # Generate variableUIDs if they do not yet exist
 parentz <- parentsy[! is.na(variableUID)]
 parenty <- parentsy[  is.na(variableUID)]
+if(! "method" %in% names(parenty)) {parenty$method <- ""}
+if(! "method" %in% names(parentz)) {parentz$method <- ""}
 
 x <- parenty[, variableUID := newuid(sector_number,category,meastype,unit,method,source,target,option,gas), 
               by=1:nrow(parenty)]

@@ -1,9 +1,8 @@
 selmeasure<-"Emissions"
-trendmaincatsMS<-agrigen[agrigen$measure==selmeasure,]
-trendmaincatsMS<-trendmaincatsMS[trendmaincatsMS$gas!="NMVOC",]
-#trendmaincatsMS<-trendmaincatsMS[!grepl("^3.E",trendmaincatsMS$sector_number),]
-gasf<-sapply(1:nrow(trendmaincatsMS),function(x) gwps[which(gases==trendmaincatsMS$gas[x])])
-trendmaincatsMS[,years]<-(trendmaincatsMS[,years])*gasf
+trendmaincatsMS <- agrigen[agrigen$measure==selmeasure,]
+trendmaincatsMS <- trendmaincatsMS[trendmaincatsMS$gas!="NMVOC",]
+trendmaincatsMS <- merge(trendmaincatsMS, gwps, by='gas')
+trendmaincatsMS <- trendmaincatsMS[, (years) := .SD * gwp, .SDcols=years]
 trendmaincatsMS$unit<-"kt CO2 equivalent"
 
 eusel<-trendmaincatsMS$party==eusubm
@@ -13,14 +12,15 @@ trendmaincatsMS<-trendmaincatsMS[!eusel,]
 
 trenddetcatsMS<-agridet[agridet$measure==selmeasure,]
 trenddetcatsMS<-trenddetcatsMS[trenddetcatsMS$gas!="NMVOC",]
-#trenddetcatsMS<-trenddetcatsMS[!grepl("^3.E",trenddetcatsMS$sector_number),]
-gasf<-sapply(1:nrow(trenddetcatsMS),function(x) gwps[which(gases==trenddetcatsMS$gas[x])])
-trenddetcatsMS[,years]<-(trenddetcatsMS[,years])*gasf
+trenddetcatsMS<- merge(trenddetcatsMS, gwps, by='gas')
+trenddetcatsMS <- trenddetcatsMS[, (years) := .SD * gwp, .SDcols=years]
 trenddetcatsMS$unit<-"kt CO2 equivalent"
+
 eusel<-trenddetcatsMS$party==eusubm
 trenddetcatsMS<-trenddetcatsMS[!eusel,]
 
-
+trendmaincatsMS<-as.data.frame(trendmaincatsMS)
+trenddetcatsMS<-as.data.frame(trenddetcatsMS)
 
 rankcategories<-function(testkey,y){
     testkey[,paste0(y,"rank")]<-frankv(x=abs(testkey[,y]),order=-1,na.last=TRUE,ties.method="first")
@@ -33,47 +33,55 @@ rankcategories<-function(testkey,y){
 
 tmainsec<-unique(trendmaincatsMS$sector_number)
 tdetsec<-unique(trenddetcatsMS$sector_number)
+
 for (k in tmainsec){
-    test<-filter(trendmaincatsMS,sector_number==k)
-    assign(paste0("trend",k),test)
+    sel <-  trendmaincatsMS$sector_number==k 
+    save(tmainsec, trendmaincatsMS, sel, file="a.rdata")
+    assign(paste0("trend",k),trendmaincatsMS[sel,])
 }
 for (k in tdetsec){
-    test<-filter(trenddetcatsMS,sector_number==k)
-    assign(paste0("trend",k),test)
+    sel <-  trenddetcatsMS$sector_number==k 
+    assign(paste0("trend",k),trenddetcatsMS[sel,])
 }
 
 
-runi<-0
-for (j in paste0("trend",c("maincatsMS","maincatsEUC",union(tmainsec,tdetsec)))){
-    test<-get(j) 
-    test$sharefrom<-j
-    for (i in c("02","05","10","A")){
-        si<-paste0("share",i)
-        ti<-paste0("trend",i,"abs")
-        tr<-paste0("trend",i,"rel")
-        
-        if(i=="02") yy<-lastyear2
-        if(i=="05") yy<-years[length(years)-5]
-        if(i=="10") yy<-years[length(years)-10]
-        if(i=="A") yy<-firstyear
-        
-        
-        test[,tr]<-test[,lastyear]/test[,yy]
-        test[,ti]<-test[,lastyear]-test[,yy]
-        test[,si]<-test[,ti]/sum(test[,ti],na.rm=TRUE)
-        test<-rankcategories(test,si)
-        
-    }
-    if(runi==0){trendshares<-test}else{trendshares<-rbind(trendshares,test)}
-    runi<-runi+1
-}
 f1<-c("sharefrom","party","sector_number","category","gas")
 for (i in c("02","05","10","A")){
     f1<-c(f1,paste0("share",i),paste0("trend",i,"abs"),paste0("trend",i,"rel"),paste0("share",i,"rank"),paste0("share",i,"cum"))
 }
 f1<-c(f1,years)
-f1<-c(f1,setdiff(names(trendshares),f1))
-trendshares<-trendshares[,f1]
+runi<-0
+for (j in paste0("trend",c("maincatsMS","maincatsEUC",union(tmainsec,tdetsec)))){
+    test<-as.data.table(get(j))
+    test$sharefrom<-j
+    
+    ncls <- paste0("y", c("last", "02","05","10","A"))
+    test <- test[, (ncls) := .SD, .SDcols=c(lastyear,
+                                            lastyear2, 
+                                            years[length(years)-5], 
+                                            years[length(years)-10], 
+                                            firstyear)]
+    
+    ocls <- paste0("y", c("02","05","10","A"))
+    tcls <- paste0("trend", c("02","05","10","A"), "abs")
+    test <- test[, (tcls) := ylast-.SD, .SDcols=ocls]
+    ncls <- paste0("trend", c("02","05","10","A"), "rel")
+    test <- test[, (ncls) := ylast/.SD, .SDcols=ocls]
+    
+    ncls <- paste0("share", c("02","05","10","A"))
+    test <- test[, (ncls) := lapply(.SD, sum, na.rm=TRUE), .SDcols=tcls]
+    for (i in c("02","05","10","A")){
+        si<-paste0("share",i)
+        ti<-paste0("trend", i, "abs")
+        test <- test[, tempcol := .SD, .SDcols=si]
+        test <- test[, (si) := .SD/tempcol, .SDcols=ti, by=1:nrow(test)]
+        
+    }        
+    f2<-intersect(names(test),f1)
+    test<-test[,f2, with=FALSE]
+    if(runi==0){trendshares<-test}else{trendshares<-rbind(trendshares,test)}
+    runi<-runi+1
+}
 
 tdir<-paste0(invloc,"/trends")
 if(!dir.exists(tdir)){dir.create(tdir)}
@@ -100,22 +108,27 @@ writeLines(paste0("\n#",
 write.csv(trendshares,con)
 close(con)
 
-
-trsh_EUC <- trendshares[trendshares$party == "EUC" & !grepl("land", trendshares$sector_number), c( "sector_number", "gas", "share02", "trend02abs", "trend02rel", "share02cum", "shareA", "trendAabs", "trendArel", firstyear, lastyear)]
-trsh_EUC$shr <- unlist(lapply(trsh_EUC[, lastyear], function(x) round((x / sum(trsh_EUC[, lastyear])), 2)))
+cols <- intersect(c( "sector_number", "gas", "share02", "trend02abs", "trend02rel", "share02cum", "shareA", "trendAabs", "trendArel", firstyear, lastyear), names(trendshares))
+trsh_EUC <- trendshares[trendshares$party == "EUC" & !grepl("land", trendshares$sector_number), cols, with=FALSE]
+trsh_EUC$shr <- unlist(lapply(trsh_EUC[, lastyear,  with=FALSE], function(x) round((x / sum(trsh_EUC[, lastyear, with=FALSE])), 2)))
 trsh_EUC <- trsh_EUC[order(trsh_EUC$sector_number), ]
 trsh_EUC_tbl <- trsh_EUC[, c("sector_number", "gas", "shr", "shareA", "share02")]
 trsh_EUC_tbl$shareA <- round(trsh_EUC_tbl$shareA, 2)
 trsh_EUC_tbl$share02 <- round(trsh_EUC_tbl$share02, 2)
 
-names(trsh_EUC_tbl) <- c("Emission category", "Gas",
-                         paste0("Contribution to total agricultural emissions (", lastyear, ")"),
-                         paste0("Share of trend ", firstyear, "-", lastyear),	
-                         paste0("Share of trend ", lastyear2, "-", lastyear))
+trsh_EUC_tbl_n2 <- paste0("Contribution to total agricultural emissions (", lastyear, ")")
+trsh_EUC_tbl_n3 <- paste0("Share of trend ", firstyear, "-", lastyear)
+trsh_EUC_tbl_n4 <- paste0("Share of trend ", lastyear2, "-", lastyear)
+
+names(trsh_EUC_tbl) <- c("Emission category", "Gas",trsh_EUC_tbl_n2,trsh_EUC_tbl_n3, trsh_EUC_tbl_n4)
 row.names(trsh_EUC_tbl) <- NULL
 
 
-cattle_pop <- as.vector(unlist(allagri[allagri$meastype == "POP" & allagri$party == "EUC" & allagri$category == "Cattle", c(firstyear, lastyear)]))
-inorg_fert_AD <- as.vector(unlist(allagri[allagri$party == "EUC" & allagri$meastype == "AD" & allagri$sector_number == "3.D.1.1", c(firstyear, lastyear)]))
-org_fert_AD   <- as.vector(unlist(allagri[allagri$party == "EUC" & allagri$meastype == "AD" & allagri$sector_number == "3.D.1.2", c(firstyear, lastyear)]))
+cattle_pop <- as.vector(unlist(allagri[allagri$meastype == "POP" & allagri$party == "EUC" & allagri$category == "Cattle", c(firstyear, lastyear), with=FALSE]))
+inorg_fert_AD <- as.vector(unlist(allagri[allagri$party == "EUC" & allagri$meastype == "AD" & allagri$sector_number == "3.D.1.1", c(firstyear, lastyear), with=FALSE]))
+org_fert_AD   <- as.vector(unlist(allagri[allagri$party == "EUC" & allagri$meastype == "AD" & allagri$sector_number == "3.D.1.2", c(firstyear, lastyear), with=FALSE]))
+
+
+trsh_EUC <- as.data.frame(trsh_EUC)
+trsh_EUC_tbl <- as.data.frame(trsh_EUC_tbl)
 

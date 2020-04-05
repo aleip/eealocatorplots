@@ -1,6 +1,6 @@
 ### Functions that can be used in interactive data crunching ########
 
-## prottime --> Extract (multiple time series) ####
+## plottime --> Extract (multiple time series) ####
 plottime<-function(pr=NULL,sc=NULL,mt=NULL,ct=NULL,source=NULL,DF=allagri,export=FALSE){
     
     ## This functions extracts single or multiple time series and does

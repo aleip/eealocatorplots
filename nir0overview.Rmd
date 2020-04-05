@@ -41,34 +41,48 @@ In the year `r lastyear`, `r curgas[c(2,1)]` and `r curgas[3]` emissions from CR
 ## Emission trends
 ```{r sharetrends,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 source("nircattrend.r")
+
 # figs("figshare",sharefigurecaption(eukp,cursec,lastyear))
 tabs("trendtable1","Contribution of the different emission categories to the total trend in emissions from the agricultural sector, compared to the share of emissions of those categories from the total of the sector")
-tabs("trendtable2","This is the dummy header of Trendtable2")
+tabs("trendtable2",paste0("Contribution to EU emission trends (", 
+                          lastyear2, "-", lastyear, ") per country and emission (%)"))
 tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt). Emissions in kt CO2 eq.")
-trsh_EUC_tbl_sort <- trsh_EUC_tbl[order(trsh_EUC_tbl$`Share of trend 1990-2017`, decreasing = TRUE), ]
+trsh_EUC_tbl_sort <- trsh_EUC_tbl[order(trsh_EUC_tbl[, trsh_EUC_tbl_n3], decreasing = TRUE), ]
 totEM <- as.vector(apply(trsh_EUC[, c(firstyear, lastyear)], 2, sum))
-trnd_neg <- trsh_EUC_tbl[which(trsh_EUC_tbl[, "Share of trend 1990-2017"] < 0), 1]
-trnd_neg_val <- (trsh_EUC_tbl[which(trsh_EUC_tbl[, "Share of trend 1990-2017"] < 0), "Share of trend 1990-2017"] * 100)
+trnd_neg <- trsh_EUC_tbl[which(trsh_EUC_tbl[, trsh_EUC_tbl_n3] < 0), 1]
+trnd_neg_val <- (trsh_EUC_tbl[which(trsh_EUC_tbl[, trsh_EUC_tbl_n3] < 0), trsh_EUC_tbl_n3] * 100)
 if (length(trnd_neg)>1) {
   trnd_neg_txt <- paste0("impact (", paste0(trnd_neg_val, collapse = ", "), "% of agriculture total trend, respectively).")
 }else{
   trnd_neg_txt <- paste0("impact (", trnd_neg_val, "% of agriculture total trend).")
 }
 
-table52 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", "share02")]
+table52 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", "share02"), with=FALSE]
 table52 <- table52[!is.na(table52$share02), ]
 table52 <- table52[!table52$sector_number %in% c("3.C", "3.F", "3.I"), ]
-table52 <- spread(table52, sector_number, share02)
-table52[, - 1] <- table52[, - 1] * 100
+table52 <- dcast.data.table(table52, party ~ sector_number, value.var = "share02")
+table52 <- table52[, (names(table52)[-1]) := 100 * .SD, .SDcols=names(table52)[-1]]
 
-table52_1 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", lastyear)]
-table52_1 <- as.data.frame(table52_1 %>% group_by(party) %>% summarise_at(lastyear, sum, na.rm = TRUE))
-totEMeu_lastyear <- sum(table52_1[, lastyear])
-table52_1$share_lastyear <- (table52_1[, lastyear] / totEMeu_lastyear) * 100
+table52_1 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", lastyear), with=FALSE]
+table52_1 <- table52_1[, .(lastyear=sum(.SD, na.rm=TRUE)), .SDcols=lastyear, by="party"]
+table52_1 <- table52_1[, share_lastyear := sum(lastyear, na.rm=TRUE)]
+table52_1 <- table52_1[, share_lastyear := lastyear/share_lastyear * 100]
 
-table52 <- merge(table52, table52_1[, c(1, 3)], by = "party", all = TRUE)
+
+setnames(table52_1, "lastyear", lastyear)
+
+table52 <- merge(table52, table52_1[, .(party,share_lastyear )], by = "party", all = TRUE)
+
+
 table52 <- table52[order(table52$share_lastyear, decreasing = TRUE), ]
-table52[, - 1] <- round(table52[, - 1], 2)
+
+# Calculate sum
+table52total <- table52[, lapply(.SD, sum, na.rm=TRUE), .SDcols=names(table52)[-1]]
+table52total <- table52total[, party:="Total"]
+table52 <- rbind(table52, table52total)
+table52 <- table52[, (names(table52)[-1]) := round(.SD, 2), .SDcols=names(table52)[-1]]
+table52 <- table52[party=="Total", (names(table52)[-1]) := round(.SD, 1), .SDcols=names(table52)[-1]]
+
 names(table52)[1] <- "Country"
 names(table52)[length(table52)] <- paste0("Share of total EU emissions from agriculture in ", lastyear)
 rownames(table52) <- NULL
@@ -95,66 +109,7 @@ Looking at the data by country in `r tabs("trendtable2",display="cite")`, we can
 
 ```{r sourcecategs, results='hide', warning=FALSE, message=FALSE, echo=FALSE}
 
-alldata1 <- alldata
-load(paste0(locplots, "/../", invyear, "\\eealocator\\eealocator_", cursubm, ".RData"), verbose = FALSE)
-#load("D:\\dev\\ghginventory\\2019\\eealocator\\eealocator_20190508.RData", verbose = FALSE)
-alldata3 <- alldata[grepl("^3", alldata$sector_number), ]
-alldata <- alldata1
-alldata3_tiers <- alldata3[grepl(paste(c("T1", "T2", "T3", "CS"), collapse = "|"), alldata3$notation), ]
-alldata3_tiers_unique <- alldata3_tiers[!duplicated(alldata3_tiers[, !names(alldata3_tiers) %in% "year"]), ]
-alldata3_tiers_unique <- alldata3_tiers_unique[alldata3_tiers_unique$measure == "Method", ]
-#write.csv(alldata3_tiers_unique, "~/kk_tiers_unique.csv", row.names = F)
-
-keyeuagri <- keycateuc()
-keyeuagri_agri <- keyeuagri[grepl("^3", keyeuagri$sector_number), ]
-
-#keyeuagri_agri <- keyeuagri_agri[keyeuagri_agri[, paste0(lastyear, "key")] == TRUE, ]
-keyeuagri_agri <- keyeuagri_agri[order(keyeuagri_agri$sector_number), ]
-
-keyeuagri_agri_tbl <- keyeuagri_agri[, c("party", "sector_number", "classification", "category", "gas", firstyear, lastyear)]
-keyeuagri_agri_tbl <- keyeuagri_agri_tbl[grepl("A|B|D", keyeuagri_agri_tbl$sector_number), ]
-keyeuagri_agri_tbl$Trend <- 0
-keyeuagri_agri_tbl$`Level 1990` <- 0
-keyeuagri_agri_tbl$`Level 2017` <- 0
-keyeuagri_agri_tbl$`Share of Higher Tier` <- 1
-
-
-for (i in 1:nrow(keyeuagri_agri_tbl)){
-  #i <- 3
-  sect_i <- keyeuagri_agri_tbl$sector_number[i]
-  sect_i2 <- keyeuagri_agri_tbl$category[i]
-  
-  sel_sectr <- alldata3_tiers_unique[grepl(substr(sect_i, 1, 5), alldata3_tiers_unique$sector_number), ]
-  sel_sectr <- sel_sectr[sel_sectr$category %in% sect_i2, ]
-  sel_sectr <- sel_sectr[!sel_sectr$party %in% c("EUC", "EUA", "NOR", "GBE"), ]
-
-  if("T1" %in% unique(sel_sectr$notation)){
-    sel_sectr_1 <- !agriemissions$party %in% c("EUC", "EUA", "NOR", "GBE") & agriemissions$meastype == "EM" & grepl(substr(sect_i, 1, 5), agriemissions$sector_number) & agriemissions$category %in% sect_i2
-    
-    sum_tot <- sum(agriemissions[sel_sectr_1, lastyear], na.rm = TRUE)
-    sum_T1 <- sel_sectr[sel_sectr$notation == "T1", ]$party
-    sum_T1 <- sum(agriemissions[sel_sectr_1 & agriemissions$party %in% sum_T1, lastyear], na.rm = TRUE) 
-    sum_hig_tier <- 1 - (sum_T1 / sum_tot)
-    keyeuagri_agri_tbl[keyeuagri_agri_tbl$sector_number %in% sect_i, ]$`Share of Higher Tier` <- sum_hig_tier
-    
-  }else{
-    next
-  }
-}  
-
-keyeuagri_agri_tbl$`Share of Higher Tier` <- round(keyeuagri_agri_tbl$`Share of Higher Tier`, 2)
-
-keyeuagri_agri_tbl$`Source category gas` <- paste0(keyeuagri_agri_tbl$sector_number, " ", keyeuagri_agri_tbl$classification, ": ", keyeuagri_agri_tbl$category, " (", keyeuagri_agri_tbl$gas, ")")
-
-keyeuagri_agri_tbl <- keyeuagri_agri_tbl[, -c(1:5)]
-keyeuagri_agri_tbl <- keyeuagri_agri_tbl[, c(length(keyeuagri_agri_tbl), (1:(length(keyeuagri_agri_tbl)) - 1))]
-
-names(keyeuagri_agri_tbl)[2] <- paste0("Emissions ", firstyear)
-names(keyeuagri_agri_tbl)[3] <- paste0("Emissions ", lastyear)
-names(keyeuagri_agri_tbl)[5] <- paste0("Level ", firstyear)
-names(keyeuagri_agri_tbl)[6] <- paste0("Level ", lastyear)
-rownames(keyeuagri_agri_tbl) <- NULL
-
+source("nirTable53_keycategories.r")
 ```
 
 ## Source categories and methodological issues

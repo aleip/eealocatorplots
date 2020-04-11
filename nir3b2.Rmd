@@ -14,28 +14,31 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r text2sharems(sec=cursec)`
 
-Regarding the handling of manure in the different Member States, `r figs(paste0("fig","3.B.2.5","sharems"),display="cite")` shows the distribution of total manure nitrogen by manure system in all Member States and in the EU28. Each bar represents the total manure nitrogen handled in the current system for the country, where different shades of grey correspond to the emitting manure systems.
+Regarding the handling of manure in the different countries, `r figs(paste0("fig","3.B.2.5","sharems"),display="cite")` shows 
+the distribution of total manure nitrogen by manure system in all countries and in the `r eukp`. 
+Each bar represents the total manure nitrogen handled in the current system for the country, where different shades of grey correspond to the emitting manure systems.
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.B.2.png)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$agrimixeu3.B.2.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![]($eugirpplots$/$cursubm$emissionshare_3.B.2.jpg)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$emissionshare_3.B.2.jpg)
 
 `r figs(paste0("fig","3.B.2.5","sharems"),display="full")`
 
-![]($eugirpplots$/$cursubm$emissionshare_3.B.2.5.jpg)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$emissionshare_3.B.2.5.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"countries"])))`&nbsp;
+<!---
+![]($ubaimages$/$cursubm$/Table3B2ManureManagementotalGHGN2O.jpg) --->
 
-![]($ubaimages$/$cursubm$/Table3B2ManureManagementotalGHGN2O.jpg)
-
+**Please add UBA figure here!!!**
 
 #### Trends in Emissions and Activity Data
 ```{r 3B2adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -67,23 +70,25 @@ figs(paste0("fig3B212","trend",curmea),trendfigurecaption(eukp,curcattext,lastye
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()`. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represent the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+`r text2shareeu()`. `r figs(paste0("fig3B211","trend",curmea),display="cite")` and `r figs(paste0("fig3B212","trend",curmea),display="cite")` show the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figures represent the trend in N2O emissions from manure management for the different countries along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
+<!---
+![]($ubaimages$/$cursubm$/Table3B21CattleN2O.jpg) --->
 
-![]($ubaimages$/$cursubm$/Table3B21CattleN2O.jpg)
+**Please add UBA figure here!!!**
 
 `r gsub("Cattle", "Dairy cattle", figs(paste0("fig3B211","trend",curmea),display="full"))`
 
-![]($eugirpplots$/$cursubm$/valueadem/3B21DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3B211DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 `r gsub("Cattle", "Non-dairy cattle", figs(paste0("fig3B212","trend",curmea),display="full"))`
 
-![]($eugirpplots$/$cursubm$/valueadem/3B21Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3B212Non-DairyCattle-N2OandNMVOCEmissionsN2OEM-nirvalue.jpg) 
 
 ```{r 3B21pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 curmea<-"POP"
@@ -105,7 +110,7 @@ curmea<-"EM"
 source("nircatdata.r")
 
 subcategssel<-grepl("3.B.2.3.",agridet$sector_number) & agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas==curgas
-subcategdet<-agridet[subcategssel,]
+subcategdet<-as.data.frame(agridet[subcategssel,])
 subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
 nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
 
@@ -114,7 +119,7 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
 
-`r text2shareeu()` `r figs(paste0("fig3B23","trend",curmea),display="cite")` shows the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figure represents the trend in N2O emissions from manure management for the different Member States along the inventory period. 
+`r text2shareeu()` `r figs(paste0("fig3B23","trend",curmea),display="cite")` shows the trend of emissions indicating the countries contributing most to the `r eusubml` total. The figure represents the trend in N2O emissions from manure management for the different countries along the inventory period. 
 
 `r text2mscontr(sec=cursec)`
 `r text2trend(fig="",option=1)`
@@ -150,8 +155,10 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![]($ubaimages$/$cursubm$/Table3B24OtherLivestockN2O.jpg)
+<!---
+![]($ubaimages$/$cursubm$/Table3B24OtherLivestockN2O.jpg) --->
 
+**Please add UBA figure here!!!**
 
 ```{r 3B247em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
 cursec<-"3.B.2.4.7"
@@ -161,7 +168,7 @@ curmea<-"EM"
 source("nircatdata.r")
 
 subcategssel<-grepl("3.B.2.4.",agridet$sector_number) & agridet$party==eusubm&agridet$meastype=="EM"&agridet$gas==curgas
-subcategdet<-agridet[subcategssel,]
+subcategdet<-as.data.frame(agridet[subcategssel,])
 subcategdet<-subcategdet[order(subcategdet[,lastyear],decreasing = TRUE),]
 nsubcategdet<-sum(subcategdet[,lastyear]/sum(subcategdet[,lastyear])>0.1)
 
@@ -228,7 +235,10 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![]($ubaimages$/$cursubm$/Table3B25ManureManagementN2O.jpg)
+<!---
+![]($ubaimages$/$cursubm$/Table3B25ManureManagementN2O.jpg) --->
+
+**Please add UBA figure here!!!**
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
@@ -256,7 +266,7 @@ tabs("tabB21ief",paratablecaption(eukp,curcattext,lastyear))
 
 
 ```{r 3B211ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.2.1"
+cursec<-"3.B.2.1.1"
 curseclong<-"Manure Management"
 curcat<-"Dairy Cattle"
 curmea<-"IEF"
@@ -273,14 +283,14 @@ tabs("tabB211ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB211trendief",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B211DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 
 `r tabs("tabB211ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B211NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.2.1"
+cursec<-"3.B.2.1.1"
 curseclong<-"Manure Management"
 curcat<-"Dairy Cattle"
 curmea<-"NRATE"
@@ -294,14 +304,14 @@ tabs("tabB211NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB211trendNRATE",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B21DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B211DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 
 `r tabs("tabB211NRATE",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B212ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.2.1"
+cursec<-"3.B.2.1.2"
 curseclong<-"Manure Management"
 curcat<-"Non-Dairy Cattle"
 curmea<-"IEF"
@@ -315,13 +325,13 @@ tabs("tabB212ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB212trendief",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B212Non-DairyCattle-N2OandNMVOCEmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB212ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B212NRATE,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.2.1"
+cursec<-"3.B.2.1.2"
 curseclong<-"Manure Management"
 curcat<-"Non-Dairy Cattle"
 curmea<-"NRATE"
@@ -335,7 +345,7 @@ tabs("tabB212NRATE",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB212trendNRATE",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B21Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B212Non-DairyCattle-N2OandNMVOCEmissionsNRATE-nirrange.jpg) 
 
 `r tabs("tabB212NRATE",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;

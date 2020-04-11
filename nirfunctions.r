@@ -58,8 +58,11 @@ firstlow<-function(c){
     return(cnew)
 }
 
-splittable<-function(D,n=2){
-    newnr<-ceiling(nrow(D)/n)
+  splittable<-function(D,n=2){
+  
+  # Function to make n rows out of a table  
+  
+  newnr<-ceiling(nrow(D)/n)
     newcol<-rep("&#09;",newnr)
     newrow<-rep(" ",ncol(D))
     newrow<-rep("&#09;",ncol(D))
@@ -67,11 +70,13 @@ splittable<-function(D,n=2){
     names(newcol)<-"&#09;"
     newe<-newnr
     Dhead<-names(D)
-    newD<-D%>%slice(1:newnr)
+    #newD<-D%>%slice(1:newnr)
+    newD <- D[1:newnr,]
     for(i in c(2:n)){
         news<-newe+1
         newe<-newe+newnr
-        newD2<-slice(D,news:min(nrow(D),newe))
+        #newD2<-slice(D,news:min(nrow(D),newe))
+        newD2 <- D[news:min(nrow(D), newe),]
         if(nrow(newD2)<newnr)newD2[(nrow(newD2)+1):newnr,]<-newrow
         newn<-c(names(newD),"",Dhead)
         #newn<-c(names(newD),Dhead)
@@ -79,6 +84,7 @@ splittable<-function(D,n=2){
         #newD<-cbind(newD,newD2)
         names(newD)<-newn
     }
+    row.names(newD) <- NULL
     return(newD)
 }
 
@@ -238,7 +244,7 @@ sharefigurecaption<-function(eusubml,cursec,lastyear){
 }
 sharemsfigurecaption<-function(eusubml,sec=cursec,lastyear){
     cap<-paste0("&#09;Decomposition of emissions in source category ",curcattext," ",
-                "into its sub-categories by Member State in the year ",lastyear,". ",
+                "into its sub-categories by country in the year ",lastyear,". ",
                 if(grepl("D.1",sec)){
                     paste0("3.D.1.1 inorganic N fertilisers, ",
                            "3.D.1.2 organic N fertilisers, ",
@@ -251,13 +257,13 @@ sharemsfigurecaption<-function(eusubml,sec=cursec,lastyear){
                 }else{""}
     )
     if(sec=="3.B.2.5")cap<-paste0("&#09;Decomposition of manure nitrogen handled in source category ",curcattext," ",
-                             "into the different manure management systems by Member State in the year ",lastyear,". ")
+                             "into the different manure management systems by country in the year ",lastyear,". ")
     print(cap)
     return(cap)
 }
 
 msconttablecaption<-function(){
-    cap<-paste0("&#09;",curcattext,": Member States&apos; contributions to total EU-GHG and ",paste(curgas,collapse=", ")," emissions")
+    cap<-paste0("&#09;",curcattext,": Countries&apos; contributions to total EU-GHG and ",paste(curgas,collapse=", ")," emissions")
     return(cap)
 }
 trendfigurecaption<-function(eusubml,sec=cursec,lastyear){
@@ -275,9 +281,9 @@ trendiefcaption<-function(eusubml,sec=cursec,lastyear){
 }
 paratablecaption<-function(eusubml,sec=cursec,lastyear){
     if(curunit==""){uu<-"-"}else{uu<-curunit}
-    uvprep<-gsub("\\*","",gsub("\\\"","",paste(curtable["Member State"],collapse="")))
+    uvprep<-gsub("\\*","",gsub("\\\"","",paste(curtable["Country"],collapse="")))
     if(grepl("EU28",uvprep)){uv<-paste0("and ",eusubml," ")}else{uv<-""}
-    cap<-paste0("&#09;",curcattext,": Member States&apos; ",uv                ,
+    cap<-paste0("&#09;",curcattext,": countries&apos; ",uv                ,
                 firstlow(curmeasure)," (",uu,")")
     return(cap)
 }
@@ -296,11 +302,11 @@ compareplots<-function(eusubml,sec=cursec,cat=curcat){
 # Paragraphs ####
 text2mscontr<-function(sec=cursec){
     if(curcat==""){curcat<-curseclong}
-    sen1<-paste0("Total GHG and ",curgas," ",tolower(curmeasure)," by Member State from ",
+    sen1<-paste0("Total GHG and ",curgas," ",tolower(curmeasure)," by country from ",
                  sec," *",curseclong,
                  #if(curcat%in%c("Other Livestock","Cattle","Swine","Sheep")){paste0(" - ",tolower(curcat))},
                  "* are shown in ",tabs(paste0("tab",sec,"mscontr"),display="cite"),
-                 " by Member State ",if("ISL" %in% allcountries){"plus Iceland, "},
+                 " by country ",if("ISL" %in% allcountries){"plus Iceland, "},
                  "and the total EU-28",if("ISL" %in% allcountries){" and EU-28+ISL"},
                  " for the first and the last year of the inventory (",firstyear," and ",lastyear,").",
                  " Values are given in kt CO2-eq. ",
@@ -333,7 +339,7 @@ text2shareeu<-function(){
 
 text2sharems<-function(sec=cursec,curcolor='grey'){
  
-    text<-paste0("Regarding the origin of emissions in the different Member States, ",
+    text<-paste0("Regarding the origin of emissions in the different countries, ",
                  figs(paste0("fig",cursec,"sharems"),display="cite"),
                  " shows the distribution of ",
                  if(grepl("D.1",cursec)){"direct "}else if(grepl("D.2",cursec)){"indirect "},
@@ -341,7 +347,7 @@ text2sharems<-function(sec=cursec,curcolor='grey'){
                  if(grepl("D",cursec)){"managed soils"}else{gsub("n2o","N2O",tolower(curseclong))},
                  " by ", 
                  if(grepl("A|B",cursec)){"livestock category"}else{"emission source"},
-                 " in all Member States and in the ",eusubml,".",
+                 " in all countries and in the ",eusubml,".",
                  " Each bar represents the total emissions of a country in the current emission category, ",
                  "where different shades of ",curcolor," correspond to the emitting ",
                  if(grepl("A|B",cursec)){"animal types"}else{"sub-categories"},".")
@@ -371,10 +377,10 @@ text2trend<-function(fig="",option=0){
     
     sent2d<-paste0("The figure represents the trend in ",curgas," ",firstlow(curmeasure),
                    if(curmea!="POP" & cursec!="3.D.2.2"){paste0(" from ",gsub(" n "," N ",tolower(curseclong)))},
-                   " for the different Member States along the inventory period. ")
+                   " for the different countries along the inventory period. ")
     sent2<-paste0(sent2a,sent2b,sent2c,sent2d)
     if(cursec=="3.A.1"&curmea=="EM"&curcat=="Dairy Cattle"){
-        sent2<-paste0(sent2,"Each bar shows the emissions in kt accumulated by the different Member States in a specific year. Every Member State is represented by a different pattern. Only the first ten Member States with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the Member States corresponding to each pattern and the share of their emissions over the EU-28 total. ")
+        sent2<-paste0(sent2,"Each bar shows the emissions in kt accumulated by the different countries in a specific year. Every country is represented by a different pattern. Only the first ten countries with the highest emission shares are shown separately, while the emissions corresponding to the remaining countries are represented under ‘other’ label. In red points, we see the total emissions of the category for the ",eusubml,". The legend on the right shows the countries corresponding to each pattern and the share of their emissions over the EU-28 total. ")
     }
     if(fig==""){sent2<-""}
     
@@ -457,7 +463,7 @@ text2ief<-function(fig="",tab=""){
     }
     sent3<-paste0(tab," shows ",firstlow(capmeasure(curmeasure)),
                   " for the years ",firstyear," and ",lastyear,
-                  " for all Member States and ",eusubml,". ")
+                  " for all countries and ",eusubml,". ")
     if(fig=="") sent2<-""
 
     # The IEF decreased in 5 countries and increased in 22 countries. 

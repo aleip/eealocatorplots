@@ -1,15 +1,17 @@
 curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea,]
 if(cursec=="3.B.2.5")curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&grepl(curmeasure,allagri$measure),]
-if(curcat%in%c("Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine"))curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&allagri$category==curcat,]
+if(curcat%in%c("Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine")){
+  curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&allagri$category==curcat,]
+}
 curemissions_GBE <- curemissions[curemissions$party %in% c("GBE"),]
 curemissions<-curemissions[curemissions$party%in%acountry,]
 curemissions[is.nan(curemissions)]<-NA
-
+curemissions <- as.data.frame(curemissions)
 # Exclude some national data with wrong unit
 if(curmea=="Milk") curemissions[curemissions$party=="LUX",years]<-NA
 
 #euemissions<-filter(curemissions,party==eusubm)
-euemissions<-curemissions[curemissions$party==eusubm,]
+euemissions<-as.data.frame(curemissions[curemissions$party==eusubm,])
 curgas<-as.character(euemissions$gas)
 if(curgas=="no gas"){if(grepl("3.A|3.B.1|3.C",cursec)){curgas<-"CH4"}else if(grepl("3.D|3.B.2",cursec)){curgas<-"N2O"}}
 curcat<-curcatnew(curcat)
@@ -28,25 +30,30 @@ curtrendabs<-euemissions[lastyear]-euemissions[firstyear]
 lasttrend<-euemissions[lastyear]/euemissions[lastyear2]
 
 eusel<-curemissions$party==eusubm
-alltrend<-cbind(curemissions[!eusel,],curemissions[!eusel,lastyear]/curemissions[!eusel,firstyear])
+alltrend<-cbind(curemissions[!eusel,],
+                curemissions[!eusel,lastyear]/curemissions[!eusel,firstyear])
 names(alltrend)<-c(names(curemissions),"trend")
 sel<-alltrend$trend==0 & !is.na(alltrend$trend)
 if(sum(sel)>0)alltrend[sel,lastyear]<-alltrend[alltrend$trend==0,years[nyears-1]]
 alltrend$diff<-alltrend[,lastyear]-alltrend[,firstyear]
 alltrend<-alltrend[order(alltrend$diff),]
-alltrend<-arrange(alltrend,diff)
+#al202004 - arrange library not loaded. what does this do?
+#alltrend<-arrange(alltrend,diff)
 alltrend<-alltrend[!is.infinite(alltrend$trend),]
 
 allshare<-subset(alltrend,select=lastyear)
 allshare$share<-alltrend[,lastyear]/sum(alltrend[,lastyear],na.rm=TRUE)
 allshare$median<-alltrend[,lastyear]/median(alltrend[,lastyear],na.rm=TRUE)
-#allshare<-allshare[order(allshare$share,decreasing = TRUE),]
-allshare<-arrange(allshare,desc(median))
+allshare<-allshare[order(allshare$share,decreasing = TRUE),]
+#allshare<-arrange(allshare,desc(median))
 nshare<-min(10,nrow(allshare))
 
 decrease<-order(alltrend$trend,decreasing = FALSE)   # gives order of countries in relativ decrease
 decreaseabs<-order(alltrend$diff,decreasing = FALSE) # gives order of countries in absolute decrease
-decreasedata<-alltrend%>%filter(!is.na(trend))%>%filter(diff<0)%>%arrange((trend))
+#decreasedata<-alltrend%>%filter(!is.na(trend))%>%filter(diff<0)%>%arrange((trend))
+decreasedata <- alltrend[!is.na(alltrend$trend), ]
+decreasedata <- decreasedata[decreasedata$diff < 0, ]
+decreasedata <- decreasedata[order(decreasedata$diff),]
 decreasen<-nrow(decreasedata)                     # number of countries with decreasing trend
 decreasetot<-sum(decreasedata$diff)     # total decrease in countries with decreasing trend
 decreasemed<-median(decreasedata$diff)     # total decrease in countries with decreasing trend
@@ -54,7 +61,9 @@ decreasemean<-mean(decreasedata$diff)     # total decrease in countries with dec
 
 increase<-order(alltrend$trend,decreasing = FALSE)
 increaseabs<-order(alltrend$diff,decreasing = FALSE)
-increasedata<-alltrend%>%filter(!is.na(trend))%>%filter(diff>0)%>%arrange(desc(trend))
+#increasedata<-alltrend%>%filter(!is.na(trend))%>%filter(diff>0)%>%arrange(desc(trend))
+increasedata <- alltrend[!is.na(alltrend$trend) & alltrend$diff>0, ]
+increasedata <- increasedata[order(increasedata$dif, decreasing = TRUE), ]
 increasen<-nrow(increasedata)
 increasetot<-sum(increasedata$diff)
 increasemed<-median(increasedata$diff)
@@ -108,19 +117,31 @@ panderOptions('table.alignment.default', c('left','right','right','right','left'
 
 
 selyears<-c(firstyear,lastyear)
-curtable<-(curemissions%>%select(party,one_of(selyears)))
-curtable_GBE<-(curemissions_GBE%>%select(party,one_of(selyears)))
+#curtable<-(curemissions%>%select(party,one_of(selyears)))
+curtable <- curemissions[, c("party", selyears)]
+
+# Make sure countries first - EU last
+curtable <- rbind(curtable[! curtable$party %in% eu,], curtable[curtable$party %in% eu,])
+if(exists("curtable_GBE")){
+  curtable_GBE<-(curemissions_GBE%>%select(party,one_of(selyears)))
+}
 curtable[curtable==0]<-NA
 curtable$party<-as.character(curtable$party)
-curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) country4sub$name[which(country4sub$code3==curtable$party[x])]))
+curtable$party<-unlist(lapply(c(1:nrow(curtable)), function(x) {
+  
+  y <- curcountries[code3==curtable$party[x] & variable==eusubm & value==1, name]
+  return(y)
+}))
+  #country4sub$name[which(country4sub$code3==curtable$party[x])]))
 
-if(nrow(curtable_GBE) > 0){
-  curtable_GBE$party <- "United Kingdom (KP)"
-  curtable <- rbind(curtable, curtable_GBE)
-
-  UK_KP_pos <- which(curtable$party %in% "United Kingdom")
-  curtable <- rbind(curtable[1:UK_KP_pos, ], curtable[nrow(curtable), ], curtable[(UK_KP_pos + 1):(nrow(curtable)-1), ])
-} 
+if(exists("curtable_GBE")){
+  if(nrow(curtable_GBE) > 0){
+    curtable_GBE$party <- "United Kingdom (KP)"
+    curtable <- rbind(curtable, curtable_GBE)
+    
+    UK_KP_pos <- which(curtable$party %in% "United Kingdom")
+    curtable <- rbind(curtable[1:UK_KP_pos, ], curtable[nrow(curtable), ], curtable[(UK_KP_pos + 1):(nrow(curtable)-1), ])
+  }}
 
 
 curtable[,selyears]<-format(curtable[,selyears],digits=2)
@@ -138,7 +159,7 @@ for(yy in selyears){
 }
 
 rownames(curtable)<-NULL
-names(curtable)<-c("Member State",selyears)
+names(curtable)<-c("Country",selyears)
 
 sel <- which(curtable[, firstyear] == "&#09;" & curtable[, lastyear] == "&#09;")
 if(length(sel) > 0) curtable <- curtable[!row.names(curtable) %in% sel, ]

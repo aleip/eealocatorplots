@@ -15,20 +15,22 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs("figD1share",display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.D.1.png)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$agrimixeu3.D.1.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![]($eugirpplots$/$cursubm$emissionshare_3.D.1.jpg)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$emissionshare_3.D.1.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"countries"])))`&nbsp;
 
-![]($ubaimages$/$cursubm$/Table3D1DirectN2OEmissions.jpg)
+<!---
+![]($ubaimages$/$cursubm$/Table3D1DirectN2OEmissions.jpg) --->
 
+**Please add here figure from UBA!!**
 
 #### Trends in Emissions and Activity Data
 ```{r 3D1adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -39,8 +41,8 @@ curmea<-"EM"
 source("nircatdata.r")
 figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,paste0(cursec," ",curseclong),lastyear))
 
-inorg<-allagri[allagri$sector_number=="3.D.1.1"&allagri$meastype=="AD"&allagri$party==eusubm,]
-organ<-allagri[allagri$sector_number=="3.D.1.2"&allagri$meastype=="AD"&allagri$party==eusubm,]
+inorg<-as.data.frame(allagri[allagri$sector_number=="3.D.1.1"&allagri$meastype=="AD"&allagri$party==eusubm,])
+organ<-as.data.frame(allagri[allagri$sector_number=="3.D.1.2"&allagri$meastype=="AD"&allagri$party==eusubm,])
 
 ```
 ##### `r paste0(curcattext," - ",curmeasure)`
@@ -142,7 +144,10 @@ figs(paste0("fig",cursec,"trend",curmea),trendfigurecaption(eukp,curcattext,last
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![]($ubaimages$/$cursubm$/Table3D13UrineandDungN2O.jpg)
+<!---
+![]($ubaimages$/$cursubm$/Table3D13UrineandDungN2O.jpg) --->
+
+**Please add here figure from UBA!!**
 
 `r figs(paste0("fig",cursec,"trend",curmea),display="full")`
 
@@ -255,18 +260,20 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r figs("figD2share",display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.D.2.png)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$agrimixeu3.D.2.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![]($eugirpplots$/$cursubm$emissionshare_3.D.2.jpg)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$emissionshare_3.D.2.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-![]($ubaimages$/$cursubm$/Table3D2IndirectEmissionsN2O.jpg)
+<!---
+![]($ubaimages$/$cursubm$/Table3D2IndirectEmissionsN2O.jpg) --->
 
+**Please add here figure from UBA!!**
 
 #### Trends in Emissions and Activity Data
 ```{r 3D2adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -469,5 +476,7 @@ tabs("AGR_non_key", "Aggregated GHG emissions from nonkey categories in the agri
 ```
 
 `r tabs("AGR_non_key",display="full")`&nbsp;
+
+**!!! THIS TABLE NEEDS TO BE DEVELOPED !!!**
 
 

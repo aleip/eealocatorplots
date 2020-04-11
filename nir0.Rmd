@@ -59,12 +59,12 @@ lastyear<-years[length(years)]
 lastyear2<-years[length(years)-1]
 firstyear<-years[1]
 #alltotals[,years]<-apply(alltotals[,years],2,as.numeric)
-alltotalsgwp <- merge(alltotals, gwps, by="gas")
-alltotalsgwp <- alltotalsgwp[, (years) := .SD * gwp, .SDcols=years]
-totalghg<-alltotals[alltotals$type==seltype &alltotals$classification==selclass & alltotals$gas=="Aggregate GHGs",]
-totalch4<-alltotals[alltotals$type==seltype &alltotals$classification==selclass & alltotals$gas=="CH4",]
-totaln2o<-alltotals[alltotals$type==seltype &alltotals$classification==selclass & alltotals$gas=="N2O",]
-totalco2<-alltotals[alltotals$type==seltype &alltotals$classification==selclass & alltotals$gas=="CO2",]
+altg <- merge(alltotals, gwps, by="gas")
+altg <- altg[, (years) := .SD * gwp, .SDcols=years]
+totalghg<-altg[altg$type==seltype &altg$classification==selclass & altg$gas=="Aggregate GHGs",]
+totalch4<-altg[altg$type==seltype &altg$classification==selclass & altg$gas=="CH4",]
+totaln2o<-altg[altg$type==seltype &altg$classification==selclass & altg$gas=="N2O",]
+totalco2<-altg[altg$type==seltype &altg$classification==selclass & altg$gas=="CO2",]
 
 eutotalghg<-apply(totalghg[, years, with=FALSE],2,sum)
 eutotalch4<-apply(totalch4[, years, with=FALSE],2,sum)
@@ -84,7 +84,8 @@ eukp<-eusubml
 acountry<-curcountries[variable==eusubm & value==1]$code3
 if(!is.null(excludeparty)) acountry<-acountry[-which(acountry==excludeparty)]
 countriesnoeu<-acountry[!acountry%in%eu]
-countrynamesnoex<-as.character(country4sub[country4sub$code3%in%acountry,"code3"])
+#countrynamesnoex<-as.character(country4sub[country4sub$code3%in%acountry,"code3"])
+countrynamesnoex <- acountry
 euagritotalch4<-agritotalch4[agritotalch4$party==eusubm,]
 euagritotaln2o<-agritotaln2o[agritotaln2o$party==eusubm,]
 euagritotalco2<-agritotalco2[agritotalco2$party==eusubm,]
@@ -163,7 +164,7 @@ Other important policies affecting greenhouse gas emissions from agriculture, pa
 
 * The 1999 Gothenburg Protocol under the Convention on Long Range Transboundary Air Pollution (CLRTAP[^clrtap]) to 'Abate Acidification, Eutrophication and Ground-level Ozone', revised in 2012 setting national emission reduction commitments to be achieved by 2020 and beyond; 
 
-* The National Emission Ceilings Directive (NEC - Directive 2016/2284/EC[^nec]) sets upper limits for each Member State for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
+* The National Emission Ceilings Directive (NEC - Directive 2016/2284/EC[^nec]) sets upper limits for each country for the total emissions in 2010 of the four pollutants responsible for acidification, eutrophication and ground-level ozone pollution. It has been updated in 2016[^nec2016] setting new objectives for EU air policy for 2020 and 2030;
 
 * The Industrial Emission Directive (IED[^ied][^ippc]), which was established in 1996, and aims at minimizing pollution from point sources, i. e., intensive animal production facilities (pig and poultry farms, with more than 2000 fattening pigs (over 30 kg); more than 750 sows or more than 40,000 head of poultry). These are required under the directive to apply control techniques for preventing NH3 emissions according to Best Available Technology (BAT).
 
@@ -207,23 +208,27 @@ In the year `r lastyear`, `r curgas[c(2,1)]` and `r curgas[3]` emissions from CR
 
 `r figs("figtrendem",display="cite")` shows the development of total GHG emissions from agriculture from `r round(euagritotalghg[firstyear]/1000,0)` Mt CO2-eq in `r firstyear` to `r round(euagritotalghg[lastyear]/1000,0)` Mt CO2-eq in `r lastyear` and the `r trendstrength(sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` `r deorincrease(1-sum(curemissions[eusel,lastyear])/sum(curemissions[eusel,firstyear]))` in `r eukp`. The reduction of emissions was most pronounced for `r curgas[which(curtrend==min(curtrend))]` with a decrease of `r percent(1-curtrend[which(curtrend==min(curtrend))],1)`, followed by `r curgas[rank(curtrend,1)[2]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[2]],1)` and `r curgas[rank(curtrend,1)[3]]` with a decrease of `r percent(1-curtrend[rank(curtrend,1)[3]],1)`. The cut was most pronounced in the first decade with a total reduction of `r percent(1-euagritotalghg["2000"]/euagritotalghg[firstyear],d=1)` between 1990 and 2000, a further decrease by between 2000 and 2005, while remaining constant since 2005 (change `r percent(euagritotalghg[lastyear]/euagritotalghg["2005"]-1,d=1)`).
 
-`r figs("figshares",display="cite")` shows that largest reductions occurred in the largest key sources CH4 from *3.A.1: Cattle* and N2O from *3.D.1: Direct emissions from managed soils*. The main reasons for this are decreasing use of fertiliser and manure and declining cattle numbers in most Member States. `r figs("figsharesb",display="cite")` shows the distribution of agricultural GHG emissions among the different source categories for the year `r lastyear`. 
+`r figs("figshares",display="cite")` shows that largest reductions occurred in the largest key sources CH4 from *3.A.1: Cattle* and N2O from *3.D.1: Direct emissions from managed soils*. The main reasons for this are decreasing use of fertiliser and manure and declining cattle numbers in most countries. `r figs("figsharesb",display="cite")` shows the distribution of agricultural GHG emissions among the different source categories for the year `r lastyear`. 
 
 
 
 `r figs("figtrendem",display="full")`
 
-`r print("Please add figure here!!")`
+**Please add figure here!! Trend of total agriculural emissions**
+
 
 `r figs("figshares",display="full")`
 
-`r print("Please add figure here!!")`
-![]($ubaimages$/$cursubm$/Absolutechangeinsector3columns.jpg)
+**Please add figure here!! Reduction in Mt CO2eq per sector and Total Agricutlure**
+
+ <!--- ![]($ubaimages$/$cursubm$/Absolutechangeinsector3columns.jpg) --->
 
 `r figs("figsharesb",display="full")`
 
-`r print("Please add figure here!!")`
-![]($ubaimages$/$cursubm$/Shareoflargestkeycategorysources2014piechart.jpg)
+**Please add figure here!! Pie diagram with shares of emissions by source category**
+
+<!-- ![]($ubaimages$/$cursubm$/Shareoflargestkeycategorysources2014piechart.jpg) -->
+
 
 ## Emission trends
 ```{r sharetrends,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -296,73 +301,7 @@ Looking at the data by country in `r tabs("trendtable2",display="cite")`, we can
 
 ```{r sourcecategs, results='hide', warning=FALSE, message=FALSE, echo=FALSE}
 
-alldata1 <- alldata
-#load(paste0(locplots, "/../", invyear, "\\eealocator\\eealocator_", cursubm, ".RData"), verbose = FALSE)
-alldata3 <- alldata[grepl("^3", alldata$sector_number), ]
-alldata <- alldata1
-alldata3_tiers <- alldata3[grepl(paste(c("T1", "T2", "T3", "CS"), collapse = "|"), alldata3$notation), ]
-alldata3_tiers_unique <- alldata3_tiers[!duplicated(alldata3_tiers[, !names(alldata3_tiers) %in% "year", with=FALSE]), ]
-alldata3_tiers_unique <- alldata3_tiers_unique[alldata3_tiers_unique$measure == "Method", ]
-#write.csv(alldata3_tiers_unique, "~/kk_tiers_unique.csv", row.names = F)
-
-#keyeuagri <- keycateuc()
-keyeuagri <- fread(paste0(invloc,"/keycategories/keyeuagri_", cursubm,".csv"))
-save(keyeuagri, file="a.rdata")
-keyeuagri_agri <- keyeuagri[grepl("^3", keyeuagri$sector_number), ]
-
-#keyeuagri_agri <- keyeuagri_agri[keyeuagri_agri[, paste0(lastyear, "key")] == TRUE, ]
-keyeuagri_agri <- as.data.frame(keyeuagri_agri[order(keyeuagri_agri$sector_number), ])
-
-keyeuagri_agri_tbl <- keyeuagri_agri[, c("party", "sector_number", 
-                                         "classification", "category", "gas", firstyear, lastyear)]
-keyeuagri_agri_tbl <- keyeuagri_agri_tbl[grepl("A|B|D", keyeuagri_agri_tbl$sector_number), ]
-keyeuagri_agri_tbl$Trend <- 0
-keyeuagri_agri_tbl$`Level 1990` <- 0
-keyeuagri_agri_tbl$`Level 2017` <- 0
-keyeuagri_agri_tbl$`Share of Higher Tier` <- 1
-
-
-for (i in 1:nrow(keyeuagri_agri_tbl)){
-  #i <- 3
-  sect_i <- keyeuagri_agri_tbl$sector_number[i]
-  sect_i2 <- keyeuagri_agri_tbl$category[i]
-  
-  sel_sectr <- alldata3_tiers_unique[grepl(substr(sect_i, 1, 5), alldata3_tiers_unique$sector_number), ]
-  sel_sectr <- sel_sectr[sel_sectr$category %in% sect_i2, ]
-  sel_sectr <- sel_sectr[!sel_sectr$party %in% c("EUC", "EUA", "NOR", "GBE"), ]
-
-  if("T1" %in% unique(sel_sectr$notation)){
-    sel_sectr_1 <- !agriemissions$party %in% c("EUC", "EUA", "NOR", "GBE") & 
-      agriemissions$meastype == "EM" & 
-      grepl(substr(sect_i, 1, 5), agriemissions$sector_number) & 
-      agriemissions$category %in% sect_i2
-    
-    sum_tot <- sum(agriemissions[sel_sectr_1, lastyear, with=FALSE], na.rm = TRUE)
-    sum_T1 <- sel_sectr[sel_sectr$notation == "T1", ]$party
-    sum_T1 <- sum(agriemissions[sel_sectr_1 & 
-                                  agriemissions$party %in% sum_T1, lastyear, with=FALSE], 
-                  na.rm = TRUE) 
-    sum_hig_tier <- 1 - (sum_T1 / sum_tot)
-    keyeuagri_agri_tbl[keyeuagri_agri_tbl$sector_number %in% sect_i, ]$`Share of Higher Tier` <- sum_hig_tier
-    
-  }else{
-    next
-  }
-}  
-
-keyeuagri_agri_tbl$`Share of Higher Tier` <- round(keyeuagri_agri_tbl$`Share of Higher Tier`, 2)
-
-keyeuagri_agri_tbl$`Source category gas` <- paste0(keyeuagri_agri_tbl$sector_number, " ", keyeuagri_agri_tbl$classification, ": ", keyeuagri_agri_tbl$category, " (", keyeuagri_agri_tbl$gas, ")")
-
-keyeuagri_agri_tbl <- keyeuagri_agri_tbl[, -c(1:5)]
-keyeuagri_agri_tbl <- keyeuagri_agri_tbl[, c(length(keyeuagri_agri_tbl), (1:(length(keyeuagri_agri_tbl)) - 1))]
-
-names(keyeuagri_agri_tbl)[2] <- paste0("Emissions ", firstyear)
-names(keyeuagri_agri_tbl)[3] <- paste0("Emissions ", lastyear)
-names(keyeuagri_agri_tbl)[5] <- paste0("Level ", firstyear)
-names(keyeuagri_agri_tbl)[6] <- paste0("Level ", lastyear)
-rownames(keyeuagri_agri_tbl) <- NULL
-
+source("nirTable53_keycategories.r")
 ```
 
 ## Source categories and methodological issues

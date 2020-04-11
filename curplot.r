@@ -22,6 +22,7 @@ if(require(Matrix)==FALSE){install.packages("Matrix", repos = "https://cloud.r-p
 if(require(compare)==FALSE){install.packages("compare", repos = "https://cloud.r-project.org"); library(compare)} else {library(compare)}
 if(require(RColorBrewer)==FALSE){install.packages("RColorBrewer", repos = "https://cloud.r-project.org"); library(RColorBrewer)} else {library(RColorBrewer)}
 if(require(googledrive)==FALSE){install.packages("googledrive", repos = "https://cloud.r-project.org"); library(googledrive)} else {library(googledrive)}
+if(require(zip)==FALSE){install.packages("zip", repos = "https://cloud.r-project.org"); library(zip)} else {library(zip)}
 #if(require(httpuv)==FALSE){install.packages("httpuv", repos = "https://cloud.r-project.org"); library(httpuv)} else {library(httpuv)}
 #if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)} else {library(readxl)}
 #if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)} else {library(plyr)}
@@ -230,6 +231,7 @@ if(exists("alldata")){
     years<-names(alldata)[grepl("^[12]",names(alldata),perl=TRUE)]
     yearsnum<-as.numeric(years)
     nyears<-length(years)
+    firstyear<-years[1]
     lastyear<-years[length(years)]
     countries<-unique(subset(alldata,select=party))
     allcountries<-as.character(countries$party)

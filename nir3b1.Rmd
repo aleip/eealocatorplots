@@ -19,19 +19,24 @@ ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_numb
 
 `r figs(paste0("fig",cursec,"share"),display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.B.1.png)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$agrimixeu3.B.1.png)
 
 `r figs(paste0("fig",cursec,"sharems"),display="full")`
 
-![]($eugirpplots$/$cursubm$emissionshare_3.B.1.jpg)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$emissionshare_3.B.1.jpg)
 
 `r text2mscontr(sec=cursec)`
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
-
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"countries"])))`&nbsp;
+<!---
 ![]($ubaimages$/$cursubm$/Table3B1ManureManagementtotalCH4.jpg)
+
+** Please add here figure received from UBA-Viena !!! **
+
+-->
+
 
 
 #### Trends in Emissions and Activity Data
@@ -72,15 +77,21 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
+<!---
+
 ![]($ubaimages$/$cursubm$/Table3B11CattleCH4.jpg)
+
+** Please add here figure received from UBA-Viena !!! **
+
+-->
 
 `r figs(paste0("fig",paste0(cursec,"Dairy Cattle"),"trendem"),display="full")`
 
-![]($eugirpplots$/$cursubm$/valueadem/3B11DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3B111DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig",paste0(cursec,"Non-Dairy Cattle"),"trendem"),display="full")`
 
-![]($eugirpplots$/$cursubm$/valueadem/3B11Non-DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3B112Non-DairyCattle-CH4EmissionsCH4EM-nirvalue.jpg) 
 
 
 ```{r 3b11pop,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -116,8 +127,14 @@ figs(paste0("fig",cursec,"trendem"),trendfigurecaption(eukp,cursec,lastyear))
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
+<!---
+
 ![]($ubaimages$/$cursubm$/Table3B13SwineCH4.jpg)
-Note that some member states are using Tier 1 and default emission factors for 3.B.1.3 category. Although this is a key category for the EU, is not a key category for all member states. For those countries using Tier 1, source category 3.B.1.3 is not a key category.
+
+** Please add here figure received from UBA-Viena !!! **
+
+-->
+Note that some countries are using Tier 1 and default emission factors for 3.B.1.3 category. Although this is a key category for the EU, is not a key category for all countries. For those countries using Tier 1, source category 3.B.1.3 is not a key category.
 
 `r figs(paste0("fig",cursec,"trendem"),display="full")`
 
@@ -170,7 +187,7 @@ tabs("tabB11ief",paratablecaption(eukp,curcattext,lastyear))
 
 
 ```{r 3B111ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.1.1"
+cursec<-"3.B.1.1.1"
 curseclong<-"Manure Management"
 curcat<-"Dairy Cattle"
 curmea<-"IEF"
@@ -184,14 +201,14 @@ tabs("tabB111ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendief",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B111DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
 
 
 `r tabs("tabB111ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B111MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.1.1"
+cursec<-"3.B.1.1.1"
 curseclong<-"Manure Management"
 curcat<-"Dairy Cattle"
 curmea<-"MASS"
@@ -205,14 +222,14 @@ tabs("tabB111MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendMASS",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B111DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
 
 
 `r tabs("tabB111MASS",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B111VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.1.1"
+cursec<-"3.B.1.1.1"
 curseclong<-"Manure Management"
 curcat<-"Dairy Cattle"
 curmea<-"VSEXC"
@@ -226,14 +243,14 @@ tabs("tabB111VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB111trendVSEXC",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B11DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3B111DairyCattle-CH4EmissionsVSEXC-nirrange.jpg)
 
 `r tabs("tabB111VSEXC",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 
 ```{r 3B112ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.1.1"
+cursec<-"3.B.1.1.2"
 curseclong<-"Manure Management"
 curcat<-"Non-Dairy Cattle"
 curmea<-"IEF"
@@ -247,13 +264,13 @@ tabs("tabB112ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendief",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B11Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B112Non-DairyCattle-CH4EmissionsIEF-nirrange.jpg) 
 
 `r tabs("tabB112ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B112MASS,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.1.1"
+cursec<-"3.B.1.1.2"
 curseclong<-"Manure Management"
 curcat<-"Non-Dairy Cattle"
 curmea<-"MASS"
@@ -267,13 +284,13 @@ tabs("tabB112MASS",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendMASS",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B11Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B112Non-DairyCattle-CH4EmissionsMASS-nirrange.jpg) 
 
 `r tabs("tabB112MASS",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3B112VSEXC,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.B.1.1"
+cursec<-"3.B.1.1.2"
 curseclong<-"Manure Management"
 curcat<-"Non-Dairy Cattle"
 curmea<-"VSEXC"
@@ -287,7 +304,7 @@ tabs("tabB112VSEXC",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figB112trendVSEXC",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3B11Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3B112Non-DairyCattle-CH4EmissionsVSEXC-nirrange.jpg) 
 
 `r tabs("tabB112VSEXC",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;

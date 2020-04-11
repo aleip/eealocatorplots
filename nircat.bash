@@ -1,11 +1,14 @@
-focus=3d2
 focus=none
 focus=last
 focus=faonir
 includeoverview=1
+includeuncert=1
+includecomparison=0
+focus=none
+focus=3a
+focus=3b2
 focus=3d
 focus=all
-focus=none
 
 # Annual things to do manually
 #================================
@@ -34,19 +37,21 @@ if [ $focus == "last" ]; then
 elif [ $focus == "faonir" ]; then
 	cat nir0.Rmd nirfaocomparison.Rmd > tmp0
 elif [ $focus == "all" ]; then
-#	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd ${unc} nirfaocomparison.Rmd> tmp0
-	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd  nir3uncertainty.Rmd nir3workshops.Rmd nir3verification.Rmd nircapricomparison.Rmd nirfaocomparison.Rmd > tmp0
+	cat nir0.Rmd nir3a.Rmd nir3b1.Rmd nir3b2.Rmd nir3d.Rmd > tmp0
 elif [ $focus == "none" ]; then
 	cat nir0.Rmd > tmp0
 else #focus: 3a,3b1,3b2,3d
 	cat nir0.Rmd nir${focus}.Rmd > tmp0
 fi
 
+if [ $includeuncert == 1 ] ; then cat tmp0 ${unc} > tmp0b ; else cp tmp0 tmp0b ; fi
+if [ $includecomparison == 1 ] ; then cat tmp0b nircapricomparison.Rmd nirfaocomparison.Rmd > tmp0c ; else cp tmp0b tmp0c ; fi
+
 #. nirknit.bash nir${focus}out
 
 echo Now replace the placeholders at $HOSTNAME
 echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
-sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0 > tmp1
+sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0c > tmp1
 sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
 sed -e 's/\$cursubm\$/20200315/g' tmp0 > tmp2
 

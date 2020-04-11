@@ -22,21 +22,21 @@ ooenteric<-unique(agridet$category[grepl(paste0(cursec,".4"),agridet$sector_numb
 
 `r figs("fig3.Ashare",display="full")`
 
-![]($eugirpplots$/$cursubm$agrimixeu3.A.png)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$agrimixeu3.A.png)
 
 `r figs("fig3.Asharems",display="full")`
 
-![]($eugirpplots$/$cursubm$emissionshare_3.A.jpg)
+![]($eugirpplots$/$cursubm$/mixplots/$cursubm$emissionshare_3.A.jpg)
 
 ```{r 3atab,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-curtab<-round(agriemissions[agriemissions$sector_number=="3.A",c(firstyear, lastyear2, lastyear)],0)
-rownames(curtab)<-countrynamesnoex
+curtab<-round(as.data.frame(agriemissions)[agriemissions$sector_number=="3.A",c(firstyear, lastyear2, lastyear)],0)
+rownames(curtab)<-acountry
 curtab$new1<-curtab[,1]
 curtab$new3<-curtab[,2]
 curtab$new2<-curtab[,3]
-curtab$country<-countrynamesnoex
+curtab$country<-acountry
 curtab<-curtab[c(7,1:6)]
-names(curtab)<-c("Member State",
+names(curtab)<-c("Country",
                  "GHG emissions in 1990 (kt CO2 equivalents)",
                  paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2 equivalents)"),
                  paste0("GHG emissions in ",lastyear," (kt CO2 equivalents)"),
@@ -50,9 +50,16 @@ names(curtab)<-c("Member State",
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"Member States"])))`&nbsp;
+<!---
+This table is provided by EEA, contains 
 
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"countries"])))`&nbsp;
 ![]($ubaimages$/$cursubm$/Table3AEntericFermentation.jpg)
+--->
+
+
+**Please add figure for table here!! This table contains info on Emissions, Emission changes, Method, 
+and Emission factor information **
 
 
 ```{r 3a1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -65,7 +72,15 @@ tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
 
-![]($ubaimages$/$cursubm$/Table3A1CattleCH4.jpg)
+<!---
+This table is provided by EEA, contains 
+![]($ubaimages$/$cursubm$/Table3A1CattleCH4.jpg) 
+--->
+
+
+**Please add figure for table here!! This table contains info on Emissions, Emission changes, Method, 
+and Emission factor information **
+
 
 
 ```{r 3a2,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -78,7 +93,17 @@ tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",curcattext,"mscontr"),display="full")`
 
-![]($ubaimages$/$cursubm$/Table3A2SheepCH4.jpg)
+<!---
+This table is provided by EEA, contains 
+
+![]($ubaimages$/$cursubm$/Table3A2SheepCH4.jpg) 
+--->
+
+
+**Please add figure for table here!! This table contains info on Emissions, Emission changes, Method, 
+and Emission factor information **
+
+
 
 #### Trends in Emissions and Activity Data
 ```{r 3aadem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -110,7 +135,7 @@ source("nircatdata.r")
 `r text2trend(fig="")`
 
 ```{r 3a11em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.1"
 curseclong<-"Enteric Fermentation"
 curcat<-"Dairy Cattle"
 curmea<-"EM"
@@ -121,7 +146,7 @@ figs(paste0("fig","Dairy Cattle","trend",curmea),trendfigurecaption(eukp,paste0(
 `r text2trend(fig=figs(paste0("fig","Dairy Cattle","trend",curmea),display="cite"))`
 
 ```{r 3a12em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.2"
 curseclong<-"Enteric Fermentation"
 curcat<-"Non-Dairy Cattle"
 curmea<-"EM"
@@ -150,19 +175,19 @@ The main driver for the decrease of CH4 emissions from enteric fermentation was 
 
 `r figs(paste0("fig","Dairy Cattle","trend","EM"),display="full")`
 
-![]($eugirpplots$/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A11DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig","Non-Dairy Cattle","trend","EM"),display="full")`
 
-![]($eugirpplots$/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A12Non-DairyCattle-EntericFermentationCH4EM-nirvalue.jpg) 
 
 `r figs(paste0("fig","Dairy Cattle","trend","POP"),display="full")`
 
-![]($eugirpplots$/$cursubm$/valueadem/3A1DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A11DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
 
 `r figs(paste0("fig","Non-Dairy Cattle","trend","POP"),display="full")`
 
-![]($eugirpplots$/$cursubm$/valueadem/3A1Non-DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
+![]($eugirpplots$/$cursubm$/valueadem/3A12Non-DairyCattle-EntericFermentationPOP-nirvalue.jpg) 
 
 
 ```{r 3a2em,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -244,7 +269,7 @@ tabs("tabA1ief",paratablecaption(eukp,curcattext,lastyear))
 
 
 ```{r 3a11ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.1"
 curseclong<-"Enteric Fermentation"
 curcat<-"Dairy Cattle"
 curmea<-"IEF"
@@ -258,14 +283,14 @@ tabs("tabA11ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA11trendief",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationIEF-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3A11DairyCattle-EntericFermentationIEF-nirrange.jpg) 
 
 
 `r tabs("tabA11ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3a11geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.1"
 curseclong<-"Enteric Fermentation"
 curcat<-"Dairy Cattle"
 curmea<-"GE"
@@ -279,14 +304,14 @@ tabs("tabA11geav",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA11trendgeav",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationGE-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A11DairyCattle-EntericFermentationAdditionalInformationGE-nirrange.jpg)
 
 
 `r tabs("tabA11geav",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3a11Milk,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.1"
 curseclong<-"Enteric Fermentation"
 curcat<-"Dairy Cattle"
 curmea<-"Milk"
@@ -301,7 +326,7 @@ tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
 `r figs("figA11trendMilk",display="full")`
 
 
-![]($eugirpplots$/$cursubm$/rangeief/3A1DairyCattle-EntericFermentationMilk-nirrange.jpg) 
+![]($eugirpplots$/$cursubm$/rangeief/3A11DairyCattle-EntericFermentationAdditionalInformationMilk-nirrange.jpg) 
 
 
 `r tabs("tabA11Milk",display="full")` [^exclNLmilk] [^exclLUmilk]
@@ -312,7 +337,7 @@ tabs("tabA11Milk",paratablecaption(eukp,curcattext,lastyear))
 
 
 ```{r 3a12ief,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.2"
 curseclong<-"Enteric Fermentation"
 curcat<-"Non-Dairy Cattle"
 curmea<-"IEF"
@@ -326,13 +351,13 @@ tabs("tabA12ief",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA12trendief",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3A1Non-DairyCattle-EntericFermentationIEF-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A12Non-DairyCattle-EntericFermentationIEF-nirrange.jpg)
 
 `r tabs("tabA12ief",display="full")`
 `r pander(splittable(curtable,2))`&nbsp;
 
 ```{r 3a12geav,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-cursec<-"3.A.1"
+cursec<-"3.A.1.2"
 curseclong<-"Enteric Fermentation"
 curcat<-"Non-Dairy Cattle"
 curmea<-"GEav"
@@ -346,7 +371,7 @@ tabs("tabA12geav",paratablecaption(eukp,curcattext,lastyear))
 
 `r figs("figA12trendgeav",display="full")`
 
-![]($eugirpplots$/$cursubm$/rangeief/3A1Non-DairyCattle-EntericFermentationGEav-nirrange.jpg)
+![]($eugirpplots$/$cursubm$/rangeief/3A12Non-DairyCattle-EntericFermentationGEav-nirrange.jpg)
 
 
 `r tabs("tabA12geav",display="full")`

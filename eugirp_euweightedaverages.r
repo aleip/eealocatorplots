@@ -1,4 +1,5 @@
 change2datatables <- FALSE
+change2datatables <- TRUE
 if(change2datatables){
   
   joinADs2pars <- agrimeas[, .(meastype, gas, sector_number, category, type, variableUID)]
@@ -38,8 +39,8 @@ if(file.exists(fassign)){
   # for the moment run per submissions it once and then get it back from file.
   load(file = fassign)
 }else{
-
-selectadmeasures<-function(request,M,A,meas2sum,x){
+  
+  selectadmeasures<-function(request,M,A,meas2sum,x){
     avail<-meas2sum[!meas2sum%in%c("EM","NEXC")]
     sec<-A$sector_number[x]
     cat<-A$category[x]
@@ -75,8 +76,8 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
     
     
     measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-            & M$sector_number==sec & M$category==cat & M$classification==cla 
-            & M$source==sou & M$target==tar]))
+                                         & M$sector_number==sec & M$category==cat & M$classification==cla 
+                                         & M$source==sou & M$target==tar]))
     
     if(mea == "CLIMA" & request == "meastype") measOK <- "CLIMA"   #xavi20180221 
     if(mea == "CLIMA" & request == "unit") measOK <- "%"           #xavi20180221
@@ -87,96 +88,96 @@ selectadmeasures<-function(request,M,A,meas2sum,x){
     
     # In Tables 3.B. ignore source (MMS) and classification 
     if(length(measOK)==0 & grepl("^3.B",sec)){
-        measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-                                             & M$sector_number==sec & M$category==cat
-                                             & M$target==tar]))
+      measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+                                           & M$sector_number==sec & M$category==cat
+                                           & M$target==tar]))
     }
     
     
     # In Tables 3.B. not all ADs are given - they are the same as in Table 3.A
     #                ignore source (MMS) and classification (Enteric vs. )
     if(length(measOK)==0 & grepl("^3.B",sec)){
-        sec<-gsub("3.B.[12]","3.A",sec)
+      sec<-gsub("3.B.[12]","3.A",sec)
+      measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+                                           & M$sector_number==sec & M$category==cat 
+                                           & M$target==tar]))
+      #print(measOK)
+      if(length(measOK)==0) {
+        cat<-gsub("yrs","years",cat)
         measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
                                              & M$sector_number==sec & M$category==cat 
                                              & M$target==tar]))
-        #print(measOK)
         if(length(measOK)==0) {
-            cat<-gsub("yrs","years",cat)
-            measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-                                                 & M$sector_number==sec & M$category==cat 
-                                                 & M$target==tar]))
-            if(length(measOK)==0) {
-                tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
-                print(tms)
-                stop()
-            }
+          tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+          print(tms)
+          stop()
         }
+      }
     }
     
     
     # For cat 3.B.2 ADs might not be give ... use those for 3.A instead
     if(length(measOK)==0){
-        if(grepl("^3.B.2.1",sec)){
-            sec<-gsub("3.B.2","3.A",sec)
-            uid<-(unique(M[,"variableUID"][M$meastype=="AD" & M$sector_number==sec]))
-            measOK<-as.vector(unique(M[,request][M$variableUID==uid]))
-        }
-        
-        if(grepl("^3.D.1.3",sec)) {
-            if(request=="variableUID")measOK<-paste0("AD for",sec," (N Deposited by Grazing Animals) needs to be calculated from Table B(b)")
-            if(request=="meastype")measOK<-"-"
-        }
-        if(grepl("^3.D.AI",sec)) {
-            if(request=="variableUID")measOK<-paste0("Fractions ",sec," needs to be checked")
-            if(request=="meastype")measOK<-"-"
-        }
-        if(grepl("^3.B.2.5 N2O Emissions per MMS",sec)) {
-            if(request=="variableUID")measOK<-paste0("Total N handled in ",sec," needs to be calc&checked")
-            if(request=="meastype")measOK<-"-"
-        }
+      if(grepl("^3.B.2.1",sec)){
+        sec<-gsub("3.B.2","3.A",sec)
+        uid<-(unique(M[,"variableUID"][M$meastype=="AD" & M$sector_number==sec]))
+        measOK<-as.vector(unique(M[,request][M$variableUID==uid]))
+      }
+      
+      if(grepl("^3.D.1.3",sec)) {
+        if(request=="variableUID")measOK<-paste0("AD for",sec," (N Deposited by Grazing Animals) needs to be calculated from Table B(b)")
+        if(request=="meastype")measOK<-"-"
+      }
+      if(grepl("^3.D.AI",sec)) {
+        if(request=="variableUID")measOK<-paste0("Fractions ",sec," needs to be checked")
+        if(request=="meastype")measOK<-"-"
+      }
+      if(grepl("^3.B.2.5 N2O Emissions per MMS",sec)) {
+        if(request=="variableUID")measOK<-paste0("Total N handled in ",sec," needs to be calc&checked")
+        if(request=="meastype")measOK<-"-"
+      }
     }else if(length(measOK)>1){
-        measOK<-c(length(measOK),measOK)
-        if(uni=="t/unit"){
-            measOK<-c(measOK,"variable type")
-        }else{
-            View(A[x,])
-            print(measOK)
-            print(paste0("meastype=",mea))
-            tms<-paste0("x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
-            print(tms)
-            stop()
-        }
+      measOK<-c(length(measOK),measOK)
+      if(uni=="t/unit"){
+        measOK<-c(measOK,"variable type")
+      }else{
+        View(A[x,])
+        print(measOK)
+        print(paste0("meastype=",mea))
+        tms<-paste0("x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+        print(tms)
+        stop()
+      }
     }
     
     return(paste0(measOK,collapse=" "))
-}
-
-#allagri<-alldata[grepl("^3",alldata$sector_number),]
-calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
-#measname<-as.data.frame(measname)
-#xavi20180221: measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
-
-measures2sum<-allagri[allagri$meastype %in% meas2sum,]
-listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
-
-# Set up table with infor AD to link with parameter
-#xavi20180221: assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
-assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure")), with=FALSE])
-assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-  selectadmeasures("meastype",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
-assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-  selectadmeasures("unit",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
-assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-  selectadmeasures("variableUID",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
-namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
-                     "category","classification","source","target","option","variableUID","aduids")
-assignad2par<-assignad2par[,namesassignad2par, with=FALSE]
-measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
-if(sum(duplicated(measures2wei$variableUID))>0)  measures2wei <- measures2wei[!is.na(measures2wei$meastype),]
-parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
-
-save(assignad2par, file = fassign)
+  }
+  
+  #allagri<-alldata[grepl("^3",alldata$sector_number),]
+  calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
+  #measname<-as.data.frame(measname)
+  #xavi20180221: measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+  
+  measures2sum<-allagri[allagri$meastype %in% meas2sum,]
+  listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
+  
+  # Set up table with infor AD to link with parameter
+  #xavi20180221: assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
+  assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure")), with=FALSE])
+  assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
+    selectadmeasures("meastype",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
+  assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
+    selectadmeasures("unit",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
+  assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
+    selectadmeasures("variableUID",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
+  namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
+                       "category","classification","source","target","option","variableUID","aduids")
+  assignad2par<-assignad2par[,namesassignad2par, with=FALSE]
+  measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
+  if(sum(duplicated(measures2wei$variableUID))>0)  measures2wei <- measures2wei[!is.na(measures2wei$meastype),]
+  parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
+  
+  save(assignad2par, measures2wei, measures2sum, listofmeasuresnotconsidered, file = fassign)
 }
 # CORRECTIONS
 
@@ -253,42 +254,41 @@ setnames(advals, "variableUID", "aduids")
 calceu <- merge(calceu, advals[, .(aduids, party, years, ad)], 
                 by=c("party", "years", "aduids"), all.x=TRUE)
 calceu <- calceu[, value := par * ad]
-calceu <- calceu[, correction := as.numeric(correction)]
+calceu <- calceu[value==0, ad := 0]
+#calceu <- calceu[, correction := as.numeric(correction)]
 
 # Calculate EU sums
-ceuc <- setdiff(country4sub[EUC==1]$code3, "EUC")
+ceukp <- setdiff(country4sub[EUC==1]$code3, "EUC")
 ceu28 <- setdiff(country4sub[EU28==1]$code3, "EU28")
-calceuc <- calceu[party %in% ceuc]
+calceukp <- calceu[party %in% ceukp]
 calceu28 <- calceu[party %in% ceu28]
 
-eucsum <- calceuc[, .(value=sum(value, na.rm=TRUE), 
+eukpsum <- calceukp[, .(value=sum(value, na.rm=TRUE), 
                       par=sum(par, na.rm=TRUE), 
                       ad=sum(ad, na.rm=TRUE)),
-                    by = setdiff(names(calceu), 
-                                 c(c("par", "ad", "value",
-                                     "notation", "autocorr", "method", "party", "correction")))]
+                  by = setdiff(names(calceu), 
+                               c(c("par", "ad", "value",
+                                   "notation", "autocorr", "method", "party", "correction")))]
+eukpsum$party <- "EUC"
+eukpsum <- eukpsum[! meastype %in% meas2sum, par := value/ad]
 eu28sum <- calceu28[, .(value=sum(value, na.rm=TRUE), 
-                      par=sum(par, na.rm=TRUE), 
-                      ad=sum(ad, na.rm=TRUE)),
+                        par=sum(par, na.rm=TRUE), 
+                        ad=sum(ad, na.rm=TRUE)),
                     by = setdiff(names(calceu), 
                                  c(c("par", "ad", "value",
                                      "notation", "autocorr", "method", "party", "correction")))]
+eu28sum$party <- "EU28"
+eu28sum <- eu28sum[! meastype %in% meas2sum, par := value/ad]
 
-
-# Calculate EU value: 
-# - for measures that require weighting use the sum of PAR=SUMi(ADi*PARi)/SUMi(ADi)
-# - for measures that need to be summed directly use PAR=SUMi(PARi)
-eucsum <- eucsum[, par := ifelse(is.na(aduids), par, value/ad)]
-eu28sum <- eu28sum[, par := ifelse(is.na(aduids), par, value/ad)]
-eucsum <- eucsum[, party := "EUC"]
-eu28sum <- eu28sum[, party := "EU28"]
-eusum <- rbind(eucsum, eu28sum)
 
 # Spread years again and combine with data table of individual countries
-dcastf <- paste0(paste(intersect(allfields, names(eusum)),collapse= " + "), " ~ years")
-eusum <- dcast.data.table(eusum, as.formula(dcastf), value.var = 'par')
+dcastf <- paste0(paste(intersect(allfields, names(eukpsum)),collapse= " + "), " ~ years")
+eukpsum <- dcast.data.table(eukpsum, as.formula(dcastf), value.var = 'par')
+eu28sum <- dcast.data.table(eu28sum, as.formula(dcastf), value.var = 'par')
 
-calceunew <- rbind(eusum, calceucor[!party %in% eu], fill = TRUE)
-eusum <- eusum[order(sector_number, category, gas, party)]
+calceunew <- rbind(calceucor[!party %in% eu], eukpsum, fill = TRUE)
+calceunew <- rbind(calceunew, eu28sum, fill = TRUE)
+eukpsum <- eukpsum[order(sector_number, category, gas, party)]
+eu28sum <- eu28sum[order(sector_number, category, gas, party)]
 allagri <- calceunew[order(sector_number, category, gas, party)]
 

@@ -2,18 +2,14 @@
 #allagri[,years]<-apply(allagri[,years],2,function(x) as.numeric(x))
 allagri <- allagri[, (years) := lapply(.SD, as.numeric), .SDcols=years]
 
+# Flag Cattle, Sheep and Swine to recognise what is already there
+#allagri <- allagri[grepl("3.A.[123]", sector_number), sector_number := paste0(sector_number, "XX")]
+allagri <- allagri[category !="Other Sheep"] # Duplicate Sheep and Other Sheep for all contries
+allagri <- allagri[category !="Other Swine"] # Duplicate Sheep and Other Sheep for all contries
+
 #Slovakia: remove Other.swine.sine
 #sel<-allagri$party=="SVK"&allagri$category=="Other Swine.swine"
 #allagri<-allagri[!sel,]
-
-#LUX: remove Other sheep
-#View(allagri[allagri$party == "LUX" & grepl("[Ss]heep", allagri$category), ])
-if(invyear == 2019){   # Removing 'Other Sheep' as it is the sum of 'Sheep lambs under 1 yr' and 'Other Sheep.Sheep', and it could get confused with the latter
-#  sel <- allagri$party == "LUX" & allagri$category == "Other Sheep"
-#  allagri<-allagri[!sel,]
-  #allagri[allagri$party == "LUX" & allagri$category == "Other Sheep.Sheep", ]$category <- "Other Sheep.Sheep LUX"
-  #allagri[allagri$category == "Other Sheep.Sheep", ]$category <- "Other Sheep.Sheep subcat"
-}
 
 #Remove end-blank in sector_number
 selection<-grepl(" $",allagri$sector_number)
@@ -115,6 +111,7 @@ cntrylive<-unique(allother$category[allother$sector_number=="" & allother$classi
 #there is still 'General' for belgium which is corrected later
 if(length(cntrylive)>1)stop("There are more 'other livestock', check cntrylive")
 #Recombine
+#allagri$sector_number[allagri$sector_number=="" & allagri$classification%in%mslivestockclass]<-paste0(allother$sector_number, "XY")
 allagri$sector_number[allagri$sector_number=="" & allagri$classification%in%mslivestockclass]<-allother$sector_number
 
 # Belgium reports swine as 'General' ... should be put as recommendation
@@ -164,7 +161,7 @@ allagri<-substituteothers(allagri,"all swine","Other Swine")
 allagri<-substituteothers(allagri,"Other Swine.swine","Other Swine")
 allagri<-substituteothers(allagri,"Other Swine.Total","Other Swine")
 allagri<-substituteothers(allagri,"Other swine","Other Swine")
-allagri<-substituteothers(allagri,"Other Swine","Swine")
+allagri<-substituteothers(allagri,"Swine unspecified","Other Swine") #Belgium only category
 
 selectsw<-grepl("swine",tolower(allagri$category))
 swines<-unique(allagri$category[selectsw])
@@ -197,8 +194,10 @@ allagri<-substituteothers(allagri,"All Sheep","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep.Total","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep.General","Other Sheep")
 allagri<-substituteothers(allagri,"Other Sheep","Other Sheep")
-allagri<-substituteothers(allagri,"Other Sheep","Sheep")
-allagri<-substituteothers(allagri,"sheep","Sheep")
+allagri<-substituteothers(allagri,"Sheep.Sheep","Other Sheep") #Slovenia
+allagri<-substituteothers(allagri,"Sheep unspecified","Other Sheep") #Belgium only category
+allagri<-substituteothers(allagri,"sheep","Other Sheep")
+allagri<-substituteothers(allagri,"Other Other Sheep","Other Sheep")
 allagri152<-allagri
 selectsw<-grepl("sheep",tolower(allagri$category))
 sheeps<-unique(allagri$category[selectsw])

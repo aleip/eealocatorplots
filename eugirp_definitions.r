@@ -115,14 +115,14 @@ eu<-c("EU", "EU28","EUC")
 if(!is.null(keepNORout)){ 
   eum<-c("EU", "EU+UK","EU-KP")
   eul<-c(
-    "EU Member States (territorial coverage)",
-    "EU Member States + UK",
+    "EU countries (territorial coverage)",
+    "EU countries + UK",
     "EU geographical coverage under KP (EU+UK+ISL)")
 }else{
   eum<-c("EU", "EU28","EU28+ISL+NOR")
   eul<-c(
-    "EU Member States (territorial coverage)",
-    "EU Member States + UK",
+    "EU countries (territorial coverage)",
+    "EU countries + UK",
     "EU geographical coverage under KP (EU+UK+ISL+NOR)")
 }
 
@@ -195,7 +195,7 @@ country4sub$name[country4sub$code3=="EUC"]<-"EU-KP"
 
 country4sub$thename<-as.vector(sapply(country4sub$name,function(x) if(x%in%c("Czech Republic","Netherlands","United Kingdom")){paste0("the ",x)}else{x}))
 country4sub <- as.data.table(country4sub)
-curcountries <- melt.data.table(country4sub, id.vars = "code3", measure.vars = eu)
+curcountries <- melt.data.table(country4sub, id.vars = c("code3", "name"), measure.vars = eu)
 write.xlsx(country4sub, file=paste0("country4sub.xlsx"))
 
 if(!is.null(keepNORout)){ 

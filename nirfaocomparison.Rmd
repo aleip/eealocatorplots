@@ -468,7 +468,7 @@ tabs("nirrecalc3B2",paste0("3B Manure Management: ",captextn2o))
 tabs("nirrecalc3D",paste0("3D Agricultural Soils: ",captextn2o))
 ```
 
-`r tabs("nirrecalc3A",display="cite")` to `r tabs("nirrecalc3D",display="cite")` provide information on the contribution of Member States to EU-28+ISL recalculations in sectors 3A (CH4), 3B (CH4 and N2O) and 3D (N2O) for 1990 and `r lastyear` and main explanations for the largest recalculations in absolute terms.
+`r tabs("nirrecalc3A",display="cite")` to `r tabs("nirrecalc3D",display="cite")` provide information on the contribution of countries to EU-28+ISL recalculations in sectors 3A (CH4), 3B (CH4 and N2O) and 3D (N2O) for 1990 and `r lastyear` and main explanations for the largest recalculations in absolute terms.
 
 
 `r tabs("nirrecalc3A",display="full")`

@@ -41,15 +41,20 @@ cleancolumns <- function(dt){
 savestep <- function(stepsdone, savelist){
   
   savefile <- gsub("_s[0-9]", "", rdatallem)
+  xlsxfile <- gsub("RData", "xlsx", savefile)
   save(list=savelist,file=savefile)
+  write.xlsx(allagri, xlsxfile, asTable = TRUE)
   file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone,".RData"), savefile), overwrite = TRUE)
+  file.copy(from = xlsxfile, to = gsub(".xlsx",paste0("_s", stepsdone,".xlsx"), xlsxfile), overwrite = TRUE)
   file.copy(from = savefile, to = gsub(".RData",paste0("_s", stepsdone, "~",figdate,".RData"),savefile), overwrite = TRUE)
   if(!is.null(gdrive)){
     # Not at the server - files can be copied locally and will be updloaded by Backup
     file.copy(from = rdatallem, to = paste0(gdrive, "rdatabase/", basename(rdatallem)), overwrite =  TRUE)
+    file.copy(from = xlsxfile, to = paste0(gdrive, "rdatabase/", basename(xlsxfile)), overwrite =  TRUE)
   }else{
     #drive_update
-    drive_upload(media = rdatallem,        path = paste0(gdrive, "rdatabase/"),          overwrite = TRUE, verbose = TRUE)
+    drive_upload(media = rdatallem, path = paste0(gdrive, "rdatabase/"), overwrite = TRUE, verbose = TRUE)
+    drive_upload(media = xlsxfile,  path = paste0(gdrive, "rdatabase/"), overwrite = TRUE, verbose = TRUE)
   }
   
 }
@@ -838,16 +843,18 @@ ispotentialissue<-function(line,S,signyear,signthreshold){
         share<-"no emissions reported"
         #if(line$party=="ISL") share<-"Island excluded from check"
     }else{
-        if(y!=0){
-            relmedian<-y/median
-            share<-mean(S[selection,signyear])
-        }
-        else{
-            relmedian<-line$value/median
-            share<-mean(S[selection,"maxshare"])
-        }
-        
-        if(meas%in%c("PREGNANT","MILK","ORGAMENDMENT","DM","RatioResCrop","WEIGHT","YIELD")){
+      if(median==0){
+        relmedian <- 0
+        share<-mean(unlist(S[selection,as.character(signyear), with=FALSE]))
+      } else if(y!=0){
+        relmedian<-y/median
+        share<-mean(unlist(S[selection,as.character(signyear), with=FALSE]))
+      }else{
+        relmedian<-line$value/median
+        share<-mean(unlist(S[selection,"maxshare"]))
+      }
+      
+      if(meas%in%c("PREGNANT","MILK","ORGAMENDMENT","DM","RatioResCrop","WEIGHT","YIELD")){
             note<-"measure excluded"
         }else if(meas%in%c("MCF")){
             note<-"Share of MMS needs to be assessed"
@@ -1248,7 +1255,7 @@ export4uba<-function(allagri){
   
     dtagri<-as.data.table(allagri)
     col2show<-c("party","gas","meastype","source","target","classification","sector_number","category",years,"variableUID")
-    t3s1<-dtagri[grepl("EUC|EUA",party)&meastype=="EM"&
+    t3s1<-dtagri[grepl("EUC|EU28",party)&meastype=="EM"&
                    grepl("3.A|3.B.",sector_number)&
                    category%in%c(livestock,otherlivestock)&
                    gas%in%c("CH4","N2O","NMVOC"),
@@ -1263,7 +1270,7 @@ export4uba<-function(allagri){
     addWorksheet(f4uba, sheetName = s4uba)
     writeData(f4uba, sheet = s4uba, x = t3s1)
     
-    t3as1<-dtagri[grepl("EUC|EUA",party)&
+    t3as1<-dtagri[grepl("EUC|EU28",party)&
                       meastype%in%c("POP","GEav","YM","IEF","EM")&
                       #meastype%in%c("GE")&
                       grepl("3.A",sector_number)&
@@ -1280,7 +1287,7 @@ export4uba<-function(allagri){
     addWorksheet(f4uba, sheetName = s4uba)
     writeData(f4uba, sheet = s4uba, x = t3as1)
     
-    t3as2<-dtagri[grepl("EUC|EUA",party)&
+    t3as2<-dtagri[grepl("EUC|EU28",party)&
                       meastype%in%c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE","DIGEST")&
                       #meastype%in%c("GE")&
                       grepl("3.A",sector_number)&
@@ -1297,7 +1304,7 @@ export4uba<-function(allagri){
     addWorksheet(f4uba, sheetName = s4uba)
     writeData(f4uba, sheet = s4uba, x = t3as2)
     
-    t3bas1<-dtagri[grepl("EUC|EUA",party)&
+    t3bas1<-dtagri[grepl("EUC|EU28",party)&
                        meastype%in%c("POP","MASS","VSEXC","B0","EM","CLIMA","MCF")&
                        #meastype%in%c("GE")&
                        grepl("3.B.1",sector_number)&
@@ -1314,7 +1321,7 @@ export4uba<-function(allagri){
     addWorksheet(f4uba, sheetName = s4uba)
     writeData(f4uba, sheet = s4uba, x = t3bas1)
     
-    t3bb<-dtagri[grepl("EUC|EUA",party)&
+    t3bb<-dtagri[grepl("EUC|EU28",party)&
                      meastype%in%c("POP","NRATE","NEXC","WEIGHT","EM")&
                      #meastype%in%c("GE")&
                      grepl("3.B.2",sector_number)&
@@ -1333,7 +1340,7 @@ export4uba<-function(allagri){
     
 #alex20200130    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/eealocator/tablett3_",cursubm,"~",curdate(),".RData"))
     save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,".RData"))
-    saveWorkbook(f4uba, paste0(invloc,"/tables4eu/CRF-EU_",cursubm,".xlsx"))
+    saveWorkbook(f4uba, paste0(invloc,"/tables4eu/CRF-EU_",cursubm,".xlsx"), overwrite = TRUE)
     
     # Add Grazing shares
     mms <- t3bb[meastype == "EM"]
@@ -1423,6 +1430,7 @@ source("eugirp_funnirplots.r")
 makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
     
     
+    ptemp <- piedata
     print(piegrep)
     piedata<-piedata[grepl(piegrep,piedata$sector_number),]
     if(nrow(piedata)>0){
@@ -1481,8 +1489,15 @@ makepie<-function(piedata,pieradius=0.9,piename,piegrep=""){
         piedata <- cbind(piedata[, -years, with=FALSE], pyears)
         select<-as.logical(piedata[,lastyear, with=FALSE]<0.01)
         piedata <- piedata[select, sector_number:="Other"]
-        piedata <- piedata[, c("sector_number", lastyear), with=FALSE][, value := sum(.SD), by="sector_number", .SDcols=lastyear]
-        piegen <- unique(piegen[, .(sector_number, value)])
+        if(piegrep=="3.F"){
+          piedata <- piedata[, c("sector_number", "gas", lastyear), with=FALSE]
+          piedata <- piedata[,sector_number:= paste0(sector_number, "-", gas)]
+
+        }
+          piedata <- piedata[, c("sector_number", lastyear), with=FALSE]
+          piedata <- piedata[, sum(.SD), by="sector_number", .SDcols=lastyear]
+          piegen <- unique(piegen[, .(sector_number, value)])
+        setnames(piedata, "V1", "value")
         
         par(lwd=0.5)
         pie(piedata[,value],init.angle=180,
@@ -1521,12 +1536,12 @@ emissionshareplot<-function(sec,DF=agrimix,eukp=eusubm){
         dfm[is.na(dfm)]<-0
         dfl<-dfm$source
         dfo<-order(sapply(dfl,function(x) which(x==manureSystems)))
-        print(dfl)
-        print(dfo)
+        #print(dfl)
+        #print(dfo)
         dfl<-dfl[dfo]
-        print(dfl)
+        #print(dfl)
         dfm<-dfm[dfo,]
-    }else if(grepl("A|B",sec)){
+    }else if(grepl("B",sec)){
         dfm<-dcast.data.table(dfm,category + gas ~ party,value.var = lastyear)
         dfm[is.na(dfm)]<-0
         dfl<-dfm$category

@@ -1,10 +1,3 @@
-[^checknes]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checknes.r
-[^unitcheck]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkunits.r
-[^outlier]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkoutliers.r
-[^potsig]: &#09;See function `ispotentialissue()` in the file https://github.com/aleip/eealocatorplots/blob/master/eugirp_functions.r
-[^adchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks1ADs.r
-[^nexchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks2Nex.r
-
 
 ## Uncertainties
 
@@ -18,7 +11,9 @@ tabs("niruncert",paste0("Sector Agriculture: EU-28 uncertainty estimates"))
 
 `r tabs("niruncert",display="full")` 
 
-Note: Emissions are in Gg CO2 equivalents; trend uncertainty is presented as percentage points; the sum of the source category emissions may not be the total sector emissions of the EU-NIR because uncertainty estimates are not available for all source categories in each of this 28 EU Member States
+**Table to be added in May submissions**
+
+Note: Emissions are in Gg CO2 equivalents; trend uncertainty is presented as percentage points; the sum of the source category emissions may not be the total sector emissions of the EU-NIR because uncertainty estimates are not available for all source categories in each of this 28 EU countries
 
 
 
@@ -27,7 +22,7 @@ Note: Emissions are in Gg CO2 equivalents; trend uncertainty is presented as per
 ### Introduction
 
 This section gives an overview of the QA/QC procedures applied specifically for the agriculture sector of the EU GHG inventory.
-It first gives an overview of the development of the agriculture QA/QC system with an outlook of further improvements to be discussed and/or implemented in coming years. A brief description of the QA/QC procedures used to process the data and interact with the Member States is given.
+It first gives an overview of the development of the agriculture QA/QC system with an outlook of further improvements to be discussed and/or implemented in coming years. A brief description of the QA/QC procedures used to process the data and interact with the countries is given.
 
 This is followed by brief summaries of selected activities that have been carried out in the past to improve and/or verify national and EU wide GHG emissions from agriculture in the frame of the EU GHG inventory system. The list is not comprehensive.
 
@@ -38,7 +33,7 @@ This is followed by brief summaries of selected activities that have been carrie
 
 A major revision of the present chapter on methodological issues and uncertainty in the sector agriculture was done for the submission in 2006 giving for the first time a complete overview of all relevant parameters required for the estimation of GHG emissions and the calculation of all background parameter in the CRF tables for agriculture.
 
-The changes were partly due to a natural evolution of the inventory generation over the years and partly motivated by recommendations made by the UNFCCC review team on the occasion of the in-country review in 2005. The main issues raised by the Expert Review Team in 2005 and the major changes included (i) more transparent overview tables on methodological issues; (ii) better presentation of trend development; (iii) streamlining information contained in CRF and NIR; (iv) continuous working with Member States in order to improve the inventory and allowing the quantification of all background data; (v) including a summary of workshops. For the submission in 2007, several errors identified in the background tables of the Member States could be eliminated, thus improving the calculation of EU-wide background information. Further details were added to the inventory report for the submission in 2008, based on recommendations by the Expert Review Team of the in-country review in 2007. For the submissions in 2009 through 2014, background information was further developed.
+The changes were partly due to a natural evolution of the inventory generation over the years and partly motivated by recommendations made by the UNFCCC review team on the occasion of the in-country review in 2005. The main issues raised by the Expert Review Team in 2005 and the major changes included (i) more transparent overview tables on methodological issues; (ii) better presentation of trend development; (iii) streamlining information contained in CRF and NIR; (iv) continuous working with countries in order to improve the inventory and allowing the quantification of all background data; (v) including a summary of workshops. For the submission in 2007, several errors identified in the background tables of the countries could be eliminated, thus improving the calculation of EU-wide background information. Further details were added to the inventory report for the submission in 2008, based on recommendations by the Expert Review Team of the in-country review in 2007. For the submissions in 2009 through 2014, background information was further developed.
 
 In 2008, a novel approach to calculate uncertainties at the EU level including the assessment of the quality of the emission estimates at MS and EU level has been implemented and described in the NIR. This method was presented during the in-country-review in 2007 and its implementation in the EC-IR was suggested by the ERT. This has been complemented by a series of tables giving background information for the estimates of the uncertainty levels for activity data and emission factors.
 
@@ -66,6 +61,8 @@ The  submission in the year 2015 the QA/QC system brought a complete revision of
 
 * Streamlining with other sector chapters was improved, not the least by using of harmonized plots to present trend-data at EU level while also showing data from those countries contributing most to EU values
 
+* Addition of further sector-specific checks, in cooperation with the team working on the review of the submissions under the Emissions Sharing Directive. These checks focus on the consistency of reporting within the agricultural sector, the completeness of the background information provided which are important for transparence, in addition to issues related to correct implementation of recommended methodologies.
+
 * The writing of the agriculture chapter of the EU-GHG inventory report has been highly automated[^prezi]. The process is directly based on the data submitted by the countries and are calculated on the fly thus no quantitative data are introduced &apos;manually&apos;. This allows to provide a report with quantitative information avoiding inconsistencies with the CRF data.
 
 The newly developed system is described in the section QA/QC system in the agriculture sector.
@@ -74,17 +71,16 @@ The newly developed system is described in the section QA/QC system in the agric
 [^eugirp]: &#09;EU-GIRP: EU-Greenhouse gas Inventory Reporting and Plots, see https://github.com/aleip/eealocatorplots.git
 [^prezi]: &#09;For an overview of the QA/QC system of the agriculture sector for the 2013 GHG inventory see presentation given for the ICR2013 at https://prezi.com/f1d3elxzd4qn/20131002_icr_agri/
 
-#### Main improvements since 2016
-Since the 2016 submission, the system implemented in 2015 was further developed, providing now some additional &apos;checks&apos; that identify issues requiring clarification or justification. Particular attention is paid to &apos;country outlier&apos; and &apos;time series&apos; checks, as well as to a series of specific checks for the agriculture sector focusing on consistency of the data reported and on the completeness of background data which are important for transparency.
-
-Furthermore, chapters comparing GHG emissions and activity data reported by countries with data from the FAO-STAT data base and the CAPRI model are included. 
+#### Main improvements since 2019
+Since the 2019 submission, a new check has been introduced on the correlation between milk yield versus feed digestibility and nitrogen excretion rates. Several parts of the code has been revised to align with current programming libraries the system implemented in 2015 was further developed.
+***@Janka and @Alexander, please check if you remember other new elements introduced this year OR what we should do because of recommnendations and what we maybe haven't done yet???***
 
 
 #### Further improvements
 
 The following further improvements are foreseen for the next submission: 
 
-* Further addition of sector-specific checks that could not be performed for the current submission
+* Further addition of sector-specific checks as required
 * Further development of the comparison with FAO and CAPRI data
 
 ### QA/QC system in the agriculture sector
@@ -97,21 +93,21 @@ The checks include:
 
 `r ## Update annually number of ERT recommendations`
 
-* **Recommendations**: Country were checked if they had implemented last years' recommendations from the ESD review and from the UNFCCC review. From all recommendations, 16 were still unresolved and therefore the corresponding issues were reopened.
+* **Recommendations**: Country were checked if they had implemented last years' recommendations from the ESD review and from the UNFCCC review. From all recommendations, 16 were still unresolved and therefore the corresponding issues were reopened. ***@Janka please update this paragraph***
 
-* **Check on NEs**[^checknes] and empty cells has been done by extracting all reported &apos;NE&apos;s and the empty cells, respectively, from the data base. The results were compared with the data contained in the file NE_checks_20180122.xlsx provided which also contained a list of empty cells. 
+* **Check on NEs**[^checknes] and empty cells has been done by extracting all reported &apos;NE&apos;s and the empty cells, respectively, from the data base.  
 
-* **Notation keys**: we identified emission categories where a Member State reported a notation key, while 20 or more Member States reported emission estimates, in order to assess the potential over/underestimations (these also contained in NE checks in the file above).
+* **Notation keys**: we identified emission categories where a country reported a notation key, while 20 ***@Janka please update this number*** or more countries reported emission estimates, in order to assess the potential over/underestimations (these also contained in NE checks in the file above). 
 
 * **Outliers in activity data and emissions**: Data were checked on outliers in AD and emissions. For each source category the share of AD and emissions by the countries to total `r eukp` values were determined. A share above 95% was further assessed and in case this was not linked to a source category which is dominated by single countries (such as emissions from buffalo, which are dominated by Italy) the country was notified 
 
-* **Check on erroneous units**: In several case, countries report background data using different units (e.g. fractions instead of percent values or vice versa; values per day instead of per year of vice versa; absolute values instead of values per head etc.). While these inconsistencies do not influence the reported emission estimates, a harmonization (at `r eukp` level) is important to ensure correct comparison of countries' values and a correct calculation of `r eukp` background data. An automated check[^unitcheck] is carried out detecting *seven* cases which can easily be recognised. Other &apos;mistakes&apos; in units used were detected following the outlier analysis (see below). The countries were notified via the review tool and in many cases corrections have already been implemented. 
+* **Check on erroneous units**: In several case, countries report background data using different units (e.g. fractions instead of percent values or vice versa; values per day instead of per year of vice versa; absolute values instead of values per head etc.). While these inconsistencies do not influence the reported emission estimates, a harmonization (at `r eukp` level) is important to ensure correct comparison of countries' values and a correct calculation of `r eukp` background data. An automated check[^unitcheck] is carried out detecting seven cases which can easily be recognised. Other &apos;mistakes&apos; in units used were detected following the outlier analysis (see below). The countries were notified via the review tool. 
 
 * **Within-country outliers**: within-country outliers in IEFs and other parameters are detected on the basis of the distribution of the values provided[^outlier]. We used the method based on the mean values and the standard deviation. Specifically, those values were identified as outliers which were more distant from than 1.5 time the standard deviation in the data from the mean (both in positive and negative direction). As an additional criterion, the relation to the median was used. In case the value was within 10% of the median it was not considered as an outlier. This removed cases where a country uses a country-specific parameter while most countries use the default value.
 
 * **Identification of potentially significant issues**: For each of the outliers identified it was determined whether or not this could be a potentially significant issue based on the criterion of a share of 0.05% of national total GHG emissions. The 'size' of the possible over- or under-estimation was quantified comparing the reported value with an estimate using the median IEF or parameter as reported by all countries[^potsig]. All outliers were &apos;manually&apos; cross-checked and analysed. Countries were notified on the results of the analysis.
 
-* **Time series outliers**: Time series outliers were detected on the basis of the same method as also used for the within-country-outlier check. Basis for the underlying distribution of data in this case, however, was not the values reported from all countries during the whole time series, but only the data reported by the country assessed. Only growth rates larger than &#177;3% could qualify as 'outliers'. However, this generated a large number of potential outliers which require further assessment. The following types of &apos;issues&apos; were identified, which might be linked either to an inconsistent time series or be the consequence of 'real' trends:
+* **Time series outliers/inconsistencies**: Time series outliers were detected on the basis of the same method as also used for the within-country-outlier check. Basis for the underlying distribution of data in this case, however, was not the values reported from all countries during the whole time series, but only the data reported by the country assessed. Only growth rates larger than &#177;3% qualify as 'outliers'. However, this generates a large number of potential outliers which require further assessment. The following types of &apos;issues&apos; were identified, which might be linked either to an inconsistent time series or be the consequence of 'real' trends:
 * * *Period outphased*:	Relative constant trend with few years above/below the trend that &apos;looks plausible&apos;.
 * * *Trend break*: Time series in steps, in a stair shape: a few similar values, then a jump, and the same again.
 * * *One break group trend*: Regular time series with a different trend for a group of years, and a step when jumping from/coming back to the general trend.
@@ -120,6 +116,8 @@ The checks include:
 * * *Smooth group trend change*: A series of years where the trend changes compared to the rest of the time series, but without any jumps
 * * *Trend jump*: There is a jump at some point in the time trend but it continues running parallel to the first section, after the jump. 
 * * *Jump and shape*: There is a jump at some point in the time trend and, after the jump, the trend changes shape
+
+Time series outliers and inconsistencies can in many cases be explained by socio-economic fluctuations, crises, or other events influencing the time series of populiations or emission factors. Explanations received by countries are collected and the issue flagged representing a real trend.
 
 * **Sector-specific checks**: Several checks were performed tailored to the reporting in the sector agriculture[^adchecks]^,^[^nexchecks]. First, the data are checked on consistency in reporting of activity data throughout the tables. Further, several other tests are performed:
 * * Difference between the sum of nitrogen excreted and reported in the different manure management system (MMS) versus the total reported nitrogen excreted
@@ -152,8 +150,7 @@ checkdate<-"March 15, 2019"
 tabs("checkstat",paste0("Status of issues as of ",checkdate))
 
 ```
-
-A much lower number of issues were identified, compared to last year (340 issues were identified in 2017):
+***@Alexander please update text/table below until end of section*** A much lower number of issues were identified, compared to last year (340 issues were identified in 2017):
 
 * 12 completeness issues (related to ‘NE’/’empty’/’notation keys’)
 * 11 country-outlier issues
@@ -191,5 +188,14 @@ Care is being taken to not include in the calculation erroneous values:
 #### Compilation of the chapter agriculture for the EU-GHG inventory report
 
 The agriculture chapter of the EU-GHG inventory report takes advantage of the data base generated by EU-GIRP. All numeric data presented in the chapter are calculated directly using the processed data as described above, thus eliminating the risk of transcription or copy errors. This does not eliminate the possibility of mistakes completely. Therefore, all values are cross-checked.
+
+
+[^checknes]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checknes.r
+[^unitcheck]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkunits.r
+[^outlier]: &#09;https://github.com/aleip/eealocatorplots/blob/master/eugirp_checkoutliers.r
+[^potsig]: &#09;See function `ispotentialissue()` in the file https://github.com/aleip/eealocatorplots/blob/master/eugirp_functions.r
+[^adchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks1ADs.r
+[^nexchecks]: &#09;https://github.com/aleip/eealocatorplots/blob/master/agrichecks2Nex.r
+
 
 

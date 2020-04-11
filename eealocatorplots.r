@@ -173,14 +173,18 @@ if(stepsdone==1){
   alldata<-alldata[!selection,allfields, with=FALSE]
   save(allagri,file="tmpallagri60.rdata")
   source("eugirp_otherlivestock.r")
+  save(allagri,file="tmpallagri76.rdata")
   
   # Calculate parameters for Cattle, Swine and Sheep as aggregate of 'childs'
   # Note:  completely rewritten 20200325
   agrimeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
   agrimeas<-agrimeas[order(agrimeas$sector_number,agrimeas$category),]
-  source("eugirp_aggparentanimal.r")
+  source("aggregate_cattle.r")
+  allagri <- tmpagri
+  save(allagri,file="tmpallagri84.rdata")
   
   alldata<-rbind(alldata,allagri)
+  save(alldata, allagri, file="checkotheranimals2.rdata")
   alltotals<-alldata[grepl("^Sector",alldata$sector_number),]
   
 
@@ -205,6 +209,7 @@ if(stepsdone==1){
                            .SDcols="notation"]
   agriEFinfo <- agriEFinfo[, V1 := gsub("[\",c,\\(,\\)]", "", V1)]
   agriEFinfo <- agriEFinfo[! is.na(V1)]
+  #agriEFinfo <- agriEFinfo[V1 != "NA"]
   
   print("Store Information on Method")
   agriMethods <- alldata[measure=="Method" & grepl("^3", sector_number)]
@@ -227,7 +232,7 @@ if(stepsdone==1){
   agriMethods <- agriMethods[, `Higher Tier` := ifelse(grepl("T2|T3", Method)|grepl("CS", `Emission factor information`), 1, 0)]
   
   # Remove info from alldata - other than agriculture sectors are not relevant
-  save(alldata, file="alldata.rdat")
+  save(alldata, file="alldata.rdata")
   alldata <- alldata[! (measure %in% c("Documentation box", 
                                        "Emission factor information", 
                                        "Method"))]
@@ -263,8 +268,8 @@ if(stepsdone==1){
   wbs <- addWorksheet(wb, sheetName = "Methods_NA")
   wbs <- writeData(x = agriMethodsNA, wb = wb, sheet = "Methods_NA")
   wbs <- addWorksheet(wb, sheetName = "Methods_sum")
+  wbx <- unique(agriMethods[, .(`Emission factor information`, Method, `Higher Tier`)])
   wbs <- writeData(x = wbx, wb = wb, sheet = "Methods_sum")
-  wbx <- unique(agriMethods[, .(`Emission factor information`, Method)])
   wbw <- saveWorkbook(wb, file=f1, overwrite = TRUE)
     
   stepsdone<-2
@@ -279,6 +284,7 @@ if(stepsdone==1){
 }else if(stepsdone>1){
   print("Step 2: List of measures & animals ... already done")
 }
+
 
 #stop("second step done")
 # B.1 - Plots 1. Calculate EU-sums and simplify units (remove very large numbers) ####
@@ -347,22 +353,29 @@ if(stepsdone==2){
   alldata <- rbind(alldata, calceu)  
   o<-order(alldata$sector_number,alldata$category,alldata$meastype,alldata$classification,alldata$party)
   alldata<-alldata[o,allfields, with=FALSE]
+  alldata <- alldata[method=='no option', method:=""]
   
   #stop("pause")
   source("eugirp_allagri.r")  #20190125: allagri data WITH Norway (alldata WITHOUT Norway)
   
   stepsdone<-3
   emplotsdone<-0
-  savelist<-c(savelist,"emplotsdone","eu28sum","allagri","agrimethods","agriemissions","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
+  acountry<-curcountries[variable==eusubm & value==1]$code3
+  
+  savelist<-c(savelist,"emplotsdone","eu28sum","allagri","agriemissions","agridet","agrimix","agrigen", "alldata_NOR", "acountry")
   savestep(stepsdone, savelist)
+  
+  
   
   mixplotsfiles <- list.files(paste0(plotsdir, cursubm, "/mixplots/"), pattern = ".*jpg|.*png", full.names = TRUE)
   if(!is.null(gdrive)){
     # Not at the server - files can be copied locally and will be updloaded by Backup
     x <- lapply(1:length(mixplotsfiles), function(x) 
       file.copy(from = mixplotsfiles[x], to = paste0(gdrive, cursubm, "/mixplots/", basename(mixplotsfiles[x])), overwrite =  TRUE))
+    file.copy(from = f2, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
   }else{
     drive_update(media = mixplotsfiles[x], path = paste0(gdrive, cursubm, "/mixplots/"), overwrite = TRUE, verbose = TRUE) 
+    drive_upload(media = f2, path = paste0("eugirp/", cursubm, "/"), overwrite = TRUE, verbose = TRUE)
   }
   source("curplot.r")
 }else if(stepsdone>2){
@@ -401,6 +414,8 @@ if(stepsdone>2){
             plotmeas<-plotmeas[, i := .I, by=1:nrow(plotmeas)]
             adddefault<-temp[[3]]
             sharesexist<-temp[[4]]
+            plotmeas <- plotmeas[sector_number!="-"]
+            plotmeas <- plotmeas[, i := .I]
 
             x1<-368;x2<-nrow(plotmeas)
             x1<-155;x2<-156
@@ -448,6 +463,7 @@ if(stepsdone>2){
               drive_update(media = mixplotsfiles[x], path = paste0(gdrive, cursubm, "/valueadem/"), overwrite = TRUE, verbose = TRUE) 
             }
             #stop("End of general part (Emission plots done!)")
+            source("curplot.r")
         }else{
             print("Step 4: Emission plots already done")
         }
@@ -629,7 +645,10 @@ if(stepsdone==4){
 }
 
 
-stop("step 5 done")
+#stop("step 5 done")
+doplots <- FALSE
+doplots <- TRUE
+
 # A.3 Check for outlier errors and write outlier lists ####
 if(stepsdone==5){
     
@@ -668,7 +687,18 @@ if(stepsdone==5){
     #        oversource ---> issue interests a significant source category, but overestimation might be below threshold
     #        ... in analogy for 'under'
     testfieldsvalues<-as.data.table(Reduce(rbind,lapply(c(1:nrow(paramcheck)),function(x) 
-      Reduce(cbind,ispotentialissue(line = paramcheck[x,],S = signcategories,signyear = as.character(signyear),signthreshold = signthreshold)))))
+    {
+      #cat(" ",x)
+      y <- Reduce(cbind,ispotentialissue(line = paramcheck[x,],
+                                         S = signcategories,
+                                         signyear = as.character(signyear),
+                                         signthreshold = signthreshold))
+      y <- as.data.table(y)
+      names(y) <- paste0("V", 1:6)
+      return(y)
+    }
+    ))
+    )
     names(testfieldsvalues) <- testfields
     paramcheck <- cbind(paramcheck, testfieldsvalues)
     paramcheck[is.na(paramcheck)] <- ""
@@ -744,8 +774,12 @@ if(stepsdone==5){
     print(paste0("Step ",stepsdone+1,"a: Making Growth plots @ ",curtime()))
     mainanimals<-c("Dairy Cattle","Non-Dairy Cattor","Sheep","Swine","Poultry")
     mainmeasures<-c("AD","IEF","POP","AREA","NRATE","FracGASF","FracGASM","FracLEACH")
-    for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
     
+    if(doplots){
+    
+        for(mm in mainmeasures) {makegrowthplot(secs="3.",meastype=mm)}
+    
+    }
     
     
     
@@ -791,6 +825,8 @@ if(stepsdone==5){
 
     
 stop("step 6 done")
+doplots <- FALSE
+doplots <- TRUE
 # Calculate EU weighted averages and make adem and ief plots####
 if(stepsdone==6){
     # Make growth plots to check ... improve loop!!
@@ -808,7 +844,7 @@ if(stepsdone==6){
     source("eugirp_euweightedaverages.r")
     f1 <- paste0(gsub("eealocator_", "agridata", csvfil), "_allagriEU.xlsx")
     f2 <- paste0(gsub("eealocator_", "agridata", csvfil), "_allagriMS.xlsx")
-    write.xlsx(eusum, file = f1, asTable = TRUE, overwrite=TRUE)
+    write.xlsx(eukpsum, file = f1, asTable = TRUE, overwrite=TRUE)
     write.xlsx(allagri[!party %in% eu], file = f2, asTable = TRUE, overwrite=TRUE)
   
   
@@ -832,13 +868,22 @@ if(stepsdone==6){
     sharesexist<-temp[[4]]
     eukp <- 'EUC'
     
-    plotdata<-plotdata[is.na(method), method:=""]
+    namesnoref <- setdiff(names(plotmeas), c("ref2006", "ref1997"))
     
     x1<-942;x2<-nrow(plotmeas)
     x1<-31;x2<-33
     x1<-1;x2<-nrow(plotmeas)
-    for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = runfocus,eusubm = "EUC")}
-    for(imeas in x1:x2){loopoverplots(imeas = imeas,runfocus = "range",eusubm = "EUC")}
+    
+    if(doplots){
+      
+      for(imeas in x1:x2){
+        loopoverplots(imeas = imeas,runfocus = "value",eusubm = "EUC")
+        }
+      for(imeas in x1:x2){
+        loopoverplots(imeas = imeas,runfocus = "range",eusubm = "EUC")
+        }
+    
+    }
     plotmeas$imeas<-unlist(lapply(c(1:nrow(plotmeas)),function(x) x))
     write.table(data.frame("ID"=rownames(plotmeas),plotmeas),file=paste0(plotsdir,"/",rundata,"plots~",curtime(),".csv",collapse=NULL),row.names=FALSE,sep=";",dec=".")
     

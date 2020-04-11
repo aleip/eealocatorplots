@@ -10,6 +10,7 @@ if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$type[
 select<-curemissions$sector_number=="3.D.2.1" | curemissions$sector_number=="3.D.2.2" 
 if(sum(select)>0) curemissions$category[select]<-as.character(curemissions$target[select])
 if(cursec=="3.A") curemissions<-agriemissions[agriemissions$sector_number==cursec,]
+curemissions <- as.data.frame(curemissions)
 
 if(exists("agriemissions_GBE")){
     curemissions_GBE<-agriemissions_GBE[agriemissions_GBE$sector_number==cursec&agriemissions_GBE$category==curcat&agriemissions_GBE$measure==selmeasure,]
@@ -23,6 +24,7 @@ if(exists("agriemissions_GBE")){
 eusel<-curemissions$party==eusubm
 curgas<-as.character(curemissions$gas[eusel])
 curmeasure<-curmeasurenew(unique(as.character(curemissions$measure[eusel])))
+curmea<-unique(as.character(curemissions$meastype[eusel]))
 curunit<-unique(as.character(curemissions$unit[eusel]))
 curcat<-curcatnew(curcat)
 curcattext<-curcatlong(curcat,cursec)
@@ -168,7 +170,7 @@ emfirstlast<-emfirstlast[order(emfirstlast$party),]
 emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis, tmpeu)
 emfirstlast <- emfirstlast[, (curheaders) := round(.SD, 0), .SDcols=curheaders]
 if(length(curgas)==1){
-    names(emfirstlast)<-c("Member States",
+    names(emfirstlast)<-c("Country",
                           paste0("GHG emissions in ",firstyear," (kt CO2-eq)"),
                           paste0("GHG emissions in ",years[length(years) - 1]," (kt CO2-eq)"),
                           paste0("GHG emissions in ",lastyear," (kt CO2-eq)"),

@@ -92,6 +92,10 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
         sectorplots<-as.vector(sectorplots$V1)
         select<-!grepl("^5",plotmeas$sector_number) | plotmeas$variableUID%in%sectorplots
         plotmeas<-plotmeas[select,]
+    }else if(rundata=="ief"){
+      select<-grepl("^3",plotmeas$sector_number)
+      plotmeas<-plotmeas[select,]
+      
     }
     # ADEM plots
     # Keep all uids which are defined in agrigen,agrimix and agridet
@@ -152,6 +156,9 @@ generateplotdata<-function(rundata="adem",datasource=c("nir"),subcountries="EUC"
     measOK<-merge(plotmeas,unique(selv[,c("variableUID","ok")]),by="variableUID",all.x=TRUE,sort = FALSE)
     measOK<-measOK[!is.na(measOK$ok),]
     plotmeas<-measOK[measOK$ok,]
+    plotmeas[is.na(plotmeas$method), "method"] <- ""
+    plotdata<-plotdata[is.na(method), method:=""]
+    plotmeas <- unique(plotmeas)
     #plotmeas<-plotmeas[measOK$ok,]
     save(plotmeas,plotdata,rundata,sharesexist,adddefault,datasource,file=gsub(".RData",paste0("_plotmeas",rundata,paste(datasource,collapse="-"),".RData"),rdatallem))
     return(list(plotdata,plotmeas,adddefault,sharesexist))
@@ -346,7 +353,6 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
     }else{
       yr2share <- lastyear
     }
-    
     for(dsource in multisource){
         # Determine y-axis for ADEM plots
         isource<-which(dsource==multisource)
@@ -359,7 +365,12 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
         plotmatr <- merge(dtcountry[, .(party=acountry)], unique(plotdatacur[plotdatacur$variableUID==curuid,c("party",years2keep), with=FALSE]), by="party", all.x=TRUE)
         eu28<-as.data.frame(plotmatr[party==eusubm, years, with=FALSE])
         plotmatr<-as.data.frame(plotmatr[party!=eusubm, years, with=FALSE])
-
+  
+        # correction to unit for land converted to grassland
+        if(curuid == "84ED4711-2022-4279-B3FB-9F2B8C1CE9DC"){
+          plotmatr[, years] <- round(plotmatr[, years], 0)
+        }
+        
         if(sum(plotmatr,na.rm=TRUE)==0){return(list(plotted,ploteuvals,plotinitialized,multisource))}
         if(rundata=="adem"){
             temp<-plotmatr
@@ -587,7 +598,7 @@ prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eu
                     #                    to determine the upper and lower whisker
                     if(sum(eu28,na.rm=TRUE)==0){ 
                         eu28<-apply(plotmatr,2,mean,na.rm=T)
-                        eukp<-paste0(country4sub[code3==eukp, name],"*")
+                        eukp<-paste0(country4sub[code3==eusubm, name],"*")
                     }else{
                     }
                     dividebycol<-function(vec,val){
@@ -719,6 +730,9 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     # in particular: value-plots, trend-plots, and country-plots.
     #capinv graphics.off()
     
+    save(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,
+         runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,
+         serious,mstp, pconv, pwidth, file="plotnow.rdata")
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     #### GENERAL PLOT INFORMATION #################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -972,7 +986,9 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         # ..... if the number of ticks is inconsistent with the rounding, calculate without rounding
         #print(paste("tseq:",tseq[1],"-",tseq[2]))
         #print(paste("tminetc",tmin,tmax,tdis))
-        if(sum(tseq[2],-tseq[1],na.rm=TRUE)*tdis!=(tmax-tmin)) tseq<-seq(tmin,tmax,tdis)
+        if(sum(tseq[2],-tseq[1],na.rm=TRUE)*tdis!=(tmax-tmin)) {
+          tseq<-round(seq(tmin,tmax,tdis), 0)
+        }
         axis(2,at=tseq,pos=c(ypos,0),lwd=largeticks,las=1,labels=FALSE)
         # Now add lables (separately, to position precisley)
         axis(2,at=tseq,pos=c(ypos+0.5,0),lwd=0,las=1,cex.axis=1*pconv)
@@ -1078,7 +1094,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
     #acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
     acountry<-curcountries[variable==eusubm & value==1]$code3
     acountry<-acountry[!acountry%in%eu]
-    #eukp<-eunames[,eusubm]
+    eukp<-eunames[,eusubm]
     
     relavs<-plotted[[2]][[5]]
     relavs2<-plotted[[2]][[1]] #xavi20180126 This is just to keep the correct order
@@ -1315,7 +1331,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
                     
                     #We use already code3
                     #if(finnames[i]!="Other")mytextavc <- country4sub[country4sub$code3==finnames[i],"code3"]
-                    mytexteu<-country4sub[code3==eukp, name]
+                    mytexteu<-country4sub[code3==eusubm, name]
                     cureuname <- mytexteu
                     
                     #??mytexteua<-paste0(eukp)
@@ -1494,7 +1510,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
               ngi <- toupper(multisource[1])
             }
             textorderadem1<-paste0("Countries are sorted by their contribution to the ",
-                                   mytexteu<-country4sub[code3==country4sub[code3==eukp, name], name],
+                                   mytexteu<-country4sub[code3==country4sub[code3==eusubm, name], name],
                                    " value for the last year in the ", ngi, ". ")
             if(topno>0) {
                 textorderadem2<-paste0("The respective top ",topntext," countries are displayed. ")
@@ -1512,7 +1528,7 @@ plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,p
             textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
         }else if(grepl("ief",rundata)){
             if(runfocus%in%c("value","range")){
-                textiefval1<-paste0("The ",country4sub[code3==eukp, name]," value is obtained from a weighted average of country-values. ")
+                textiefval1<-paste0("The ",country4sub[code3==eusubm, name]," value is obtained from a weighted average of country-values. ")
                 textiefval3<-"Countries are sorted by average absolute relative distance calculated over the whole time period. "
             }
             if(topno>0){
@@ -1641,10 +1657,10 @@ plottitle<-function(mtexttitle0="x",plotted,multisource){
     #  TITLE ############################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     #print("Plot title")
-    if (rundata=="adem" && runfocus=="value") {mtexttitle<-paste0("Trend in the ",country4sub[code3==eukp, name])}
-    if (rundata=="adem" && runfocus=="trend") {mtexttitle<-paste0("Annual changes in the ",country4sub[code3==eukp, name])}
-    if (grepl("ief",rundata) && runfocus=="value") {mtexttitle<-paste0("Range of values in the ",country4sub[code3==eukp, name])}
-    if (rundata=="ief" && runfocus=="trend") {mtexttitle<-paste0("Range in annual changes across the ",country4sub[code3==eukp, name])}
+    if (rundata=="adem" && runfocus=="value") {mtexttitle<-paste0("Trend in the ",country4sub[code3==eusubm, name])}
+    if (rundata=="adem" && runfocus=="trend") {mtexttitle<-paste0("Annual changes in the ",country4sub[code3==eusubm, name])}
+    if (grepl("ief",rundata) && runfocus=="value") {mtexttitle<-paste0("Range of values in the ",country4sub[code3==eusubm, name])}
+    if (rundata=="ief" && runfocus=="trend") {mtexttitle<-paste0("Range in annual changes across the ",country4sub[code3==eusubm, name])}
     if (rundata=="ief" && runfocus%in%c("countries","range")) {mtexttitle<-"Range values over time"}
     if(length(multisource)>1 & multisource[1] == "nir"){
       nirfao <- toupper(multisource)
@@ -1654,7 +1670,7 @@ plottitle<-function(mtexttitle0="x",plotted,multisource){
       nirfao <- paste(toupper(multisource),collapse=" vs. ")
     }
     
-    if(runfocus=="compare") {mtexttitle<-paste0("Comparison of estimates in the ",country4sub[code3==eukp, name],": ",nirfao)}
+    if(runfocus=="compare") {mtexttitle<-paste0("Comparison of estimates in the ",country4sub[code3==eusubm, name],": ",nirfao)}
     
     mtexttitle0<-gsub(" to cropland and grassland","",mtexttitle0)
     mtexttitle0<-gsub("Managed Soils - Agricultural Soils","Agricultural Soils",mtexttitle0)
@@ -1833,7 +1849,7 @@ plotcomparison<-function(imeas,plotmeas=plotmeas,plotdata=plotdata,lyear=2013){
     text(rc,0.9,adj=0,"c)",cex=abbcex)
     text(rc+rp,0.9,adj=0,"Importance of difference between ",cex=abbcex)
     text(rc+rp,0.9-1*tline,adj=0,paste0("mean ",nir," and ",toupper(multisource[2])," data "),cex=abbcex)
-    text(rc+rp,0.9-2*tline,adj=0,paste0("relative to ",country4sub[code3==eukp, name]," value in ",nir," [%]"),cex=abbcex)
+    text(rc+rp,0.9-2*tline,adj=0,paste0("relative to ",country4sub[code3==eusubm, name]," value in ",nir," [%]"),cex=abbcex)
     
     text(rb,0.9,adj=0,"b)",cex=abbcex)
     text(rb+rp,0.9,adj=0,"Relative difference between mean ",cex=abbcex)

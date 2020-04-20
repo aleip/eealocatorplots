@@ -50,7 +50,12 @@ options(error=NULL) #error=recover goes into debug mode
 
 ### RESTART OPTION
 restartatstep <- 2 #Clean version of step (restartatstep - 1) will be loaded
-rm(restartatstep)
+restartatstep <- NULL #Clean version of step (restartatstep - 1) will be loaded
+if(! is.null(restartatstep)){
+  rdatallem <- paste0(csvfil,"_clean", "_s", restartatstep -1 , ".RData")
+  message("Restarte at step ", restartatstep, ". \nLoading ", rdatallem)
+  load(rdatallem)   
+}
 
 # PART A: Link with EEA locator tool ----
 # A.1 Load eea-locator data (either from text file or from pre-processed Rdata file) ####
@@ -136,7 +141,6 @@ if(generatealldata==1){
 # - First separate agri from other data to speed up processing
 # - Clean animal types in source file "eugirp_Acleananimaltypes.r"
 # - Recombine with the other sectors
-
 #  source("curplot.r")
 if(stepsdone==1){
   print("Step 2: Generate list of measures and deal with animals")
@@ -199,7 +203,7 @@ if(stepsdone==1){
   alldata <- alldata[! (measure=="Documentation box" & grepl("^3", sector_number))]
   
   print("Store Information on Emission Factors")
-  agriEFinfo <- alldata[measure=="Emission factor information" & grepl("^3", sector_number)]
+  agriEFinfo <- allagri[measure=="Emission factor information" & grepl("^3", sector_number)]
   # Some values are reported only for certain years - the information on the emission
   # factor therefore changes and could be e.g. NA in some years (not applicable as no emissions
   # occur) and CS in others (country-specific). Here this is merged.
@@ -212,13 +216,12 @@ if(stepsdone==1){
   #agriEFinfo <- agriEFinfo[V1 != "NA"]
   
   print("Store Information on Method")
-  agriMethods <- alldata[measure=="Method" & grepl("^3", sector_number)]
+  agriMethods <- allagri[measure=="Method" & grepl("^3", sector_number)]
   agriMethods <- agriMethods[, paste(as.character(.SD), collapse="-"), 
                            by=setdiff(names(agriMethods), c("notation", years)), 
                            .SDcols="notation"]
   agriMethods <- agriMethods[, V1 := gsub("[\",c,\\(,\\)]", "", V1)]
   agriMethods <- agriMethods[! is.na(V1)]
-  
   agriMethods <- rbind(agriEFinfo, agriMethods)
   setnames(agriMethods, "V1", "notation")
   # EF info and Method have different variableUIDs
@@ -232,14 +235,14 @@ if(stepsdone==1){
   agriMethods <- agriMethods[, `Higher Tier` := ifelse(grepl("T2|T3", Method)|grepl("CS", `Emission factor information`), 1, 0)]
   
   # Remove info from alldata - other than agriculture sectors are not relevant
-  save(alldata, file="alldata.rdata")
+  save(agriMethods, file="agrimethods.rdata")
   alldata <- alldata[! (measure %in% c("Documentation box", 
                                        "Emission factor information", 
                                        "Method"))]
   
   
   # Store notations in different data frame - delete from alldata ####
-  agrinotations <- alldata[grepl("^3", sector_number) & notation!=""]
+  agrinotations <- allagri[grepl("^3", sector_number) & notation!=""]
   agrinotations <- agrinotations[, paste(as.character(.SD), collapse="-"), 
                                  by=setdiff(names(agrinotations), c("notation", years)), 
                                  .SDcols="notation"]
@@ -273,7 +276,8 @@ if(stepsdone==1){
   wbw <- saveWorkbook(wb, file=f1, overwrite = TRUE)
     
   stepsdone<-2
-  savelist<-c(savelist,"alltotals", "agridocumentationbox", "agriMethods", "agriMethodsNA", "agrinotations")
+  savelist<-c(savelist,"alltotals", "cattleoptions", "cattlesoptionc", 
+              "agridocumentationbox", "agriMethods", "agriMethodsNA", "agrinotations")
   savestep(stepsdone, savelist)
   if(!is.null(gdrive)){
     file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
@@ -385,8 +389,8 @@ if(stepsdone==2){
 #stop("Third step done")
 # B.2 - Plots 1. Do emission plots ####
 #emplotsdone<-0
-doemissionplots <- FALSE
 doemissionplots<-TRUE
+doemissionplots <- FALSE
 if(stepsdone>2){
     if(doemissionplots==TRUE){
         if(emplotsdone==0){
@@ -646,8 +650,9 @@ if(stepsdone==4){
 
 
 #stop("step 5 done")
-doplots <- FALSE
+parent <- TRUE
 doplots <- TRUE
+doplots <- FALSE
 
 # A.3 Check for outlier errors and write outlier lists ####
 if(stepsdone==5){
@@ -824,38 +829,34 @@ if(stepsdone==5){
 }
 
     
-stop("step 6 done")
-doplots <- FALSE
+#stop("step 6 done")
 doplots <- TRUE
+doplots <- FALSE
 # Calculate EU weighted averages and make adem and ief plots####
 if(stepsdone==6){
     # Make growth plots to check ... improve loop!!
     #temporarycommented 
     print(paste0("Step ",stepsdone+1,"d: Calculate EU weighted averages"))
-    #stop("now write issues")
-    #paramcheck$correction[paramcheck$party=="SWE"&paramcheck$meastype=="VSEXC"]<-0
+  
+    # Option A should not be aggregated
+    allagri <- allagri[! grepl("Option A", sector_number)]
+    # For some parameter the option A is in the variableUID
+    #allagri <- allagri[grepl("A$", variableUID), variableUID := gsub("A$", 0, variableUID)]
     
-    #removing NOR data before to calculate averages
-    if(!is.null(keepNORout)){ 
-      print("Averages computed keeping OUT Norway")
-      allagri_NOR<-allagri[allagri$party == "NOR",]
-      allagri<-allagri[allagri$party != "NOR",]
-    }
     source("eugirp_euweightedaverages.r")
+    message("Write CRF Tables for EU inventory")
+    export4uba(allagri = allagri)
     f1 <- paste0(gsub("eealocator_", "agridata", csvfil), "_allagriEU.xlsx")
     f2 <- paste0(gsub("eealocator_", "agridata", csvfil), "_allagriMS.xlsx")
-    write.xlsx(eukpsum, file = f1, asTable = TRUE, overwrite=TRUE)
+    write.xlsx(eukp, eu28, file = f1, asTable = TRUE, overwrite=TRUE)
     write.xlsx(allagri[!party %in% eu], file = f2, asTable = TRUE, overwrite=TRUE)
   
-  
-    export4uba(allagri = allagri)
-    
     # Including again Norway data
-    if(!is.null(keepNORout)){
-      allagri_NOR$autocorr <- ""
-      allagri_NOR$correction <- ""
-      allagri <- rbind(allagri, allagri_NOR)
-    }  
+    # if(!is.null(keepNORout)){
+    #   allagri_NOR$autocorr <- ""
+    #   allagri_NOR$correction <- ""
+    #   allagri <- rbind(allagri, allagri_NOR)
+    # }  
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
     datasource<-"nir"
     runfocus<-"value"
@@ -895,7 +896,7 @@ if(stepsdone==6){
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
     savestep(stepsdone, savelist)
     
-    f3 <- list.files(path = paste0(invloc, "/tables4eu"), pattern = paste0(cursubm))
+    f3 <- list.files(path = paste0(invloc, "/tables4eu"), pattern = paste0(cursubm), full.names = TRUE)
     f3 <- f3[! grepl("~", f3)]
     f4 <- list.files(path = paste0(plotsdir, cursubm, "/valueief"), pattern = "jpg", full.names = TRUE)
     f5 <- list.files(path = paste0(plotsdir, cursubm, "/rangeief"), pattern = "jpg", full.names = TRUE)
@@ -904,7 +905,7 @@ if(stepsdone==6){
       file.copy(from = f1, to = paste0(gdrive, cursubm, "/", basename(f1)), overwrite =  TRUE)
       file.copy(from = f2, to = paste0(gdrive, cursubm, "/", basename(f2)), overwrite =  TRUE)
       x <- lapply(1:length(f3), function(x) 
-        file.copy(from = f3[x], to = paste0(gdrive, cursubm, "/", basename(f3[x])), overwrite =  TRUE))
+        file.copy(from = f3[x], to = paste0(gdrive, cursubm, "/tables4eu/", basename(f3[x])), overwrite =  TRUE))
       if(!dir.exists(paste0(gdrive, cursubm, "/valueief"))){dir.create(paste0(gdrive, cursubm, "/valueief"))}
       x <- lapply(1:length(f4), function(x) 
         file.copy(from = f4[x], to = paste0(gdrive, cursubm, "/valueief/", basename(f4[x])), overwrite =  TRUE))

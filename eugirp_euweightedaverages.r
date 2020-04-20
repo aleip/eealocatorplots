@@ -1,5 +1,5 @@
-change2datatables <- FALSE
 change2datatables <- TRUE
+change2datatables <- FALSE
 if(change2datatables){
   
   joinADs2pars <- agrimeas[, .(meastype, gas, sector_number, category, type, variableUID)]
@@ -196,6 +196,9 @@ if(exists("autocorrections")){
   autoc <- copy(as.data.table(autocorrections))
   autoc <- autoc[!party %in% eu, c("party","variableUID", "autocorr", years), with=FALSE]
   setnames(autoc, years, paste0("a", years))
+  
+  # If rerun remove column 'autocor' first
+  calceu <- calceu[, -"autocorr", with=FALSE]
   autoc <- merge(calceu,autoc,by=c("party","variableUID"),all=TRUE)
   
   # Replace original values with the autocorrected ones
@@ -205,24 +208,19 @@ if(exists("autocorrections")){
   calceu <- autoc  
     
 }
-if(!is.null(keepNORout)){
-  calceu <- calceu[calceu$party != "NOR", ]
-}
+#if(!is.null(keepNORout)){
+#  calceu <- calceu[calceu$party != "NOR", ]
+#}
 #allagri<-calceu
 # 2. 'Unidentified' outliers are removed for calculation, but data table remains untouched
 if(exists("paramcheck")){
     corcalceu<-subset(paramcheck,select=c("party","variableUID","correction"))
     corcalceu<-corcalceu[corcalceu$variableUID != "",]
-    calceu<-merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
+  
+    # If rerun remove column 'autocor' first
+    calceu <- calceu[, -"correction", with=FALSE]
+    calceu <- merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
     
-    # All time series which have not been identified in paramcheck are OK and receive
-    # the correction-flag '1'
-    if(any(names(calceu)=="correction")){                                 #xavi201801301
-    }else if (any(names(calceu)=="correction.x")){
-      names(calceu) <- sub("correction.x", "correction", names(calceu))
-    }else {
-      stop("Check calceu on why there is no field 'correction' in file eugirp_euweightedaverage.r line 218.")
-    }
     calceu$correction[is.na(calceu$correction)]<-1
     calceu$correction[calceu$meastype=="Milk"&calceu$party=="LUX"]<-0
     selection2<-calceu$correction==0
@@ -237,58 +235,144 @@ if(exists("paramcheck")){
     
 }
 #allagri<-calceu
-
-
 calceu <- calceucor 
-calceu <- merge(calceu, assignad2par[, .(variableUID, aduids)], by="variableUID", all.x=TRUE)
-calceu <- melt.data.table(calceu, measure.vars = years, variable.name = "years", value.name = "par", na.rm = TRUE)
 
-# Extract data table with Activity data
-advals <- allagri[variableUID %in% assignad2par$aduids]
-advals <- melt.data.table(advals, measure.vars = years, variable.name = "years", value.name = "ad", na.rm = TRUE)
-setnames(advals, "variableUID", "aduids")
+dtnames <- names(calceu)
+calceu <- calceu[! party %in% eu]
 
-# Multiply activity data with variable values 
-# For those variables that don't need to be weighted this will give zero 
-# (as the 'value' caclulated above resulted in NA)
-calceu <- merge(calceu, advals[, .(aduids, party, years, ad)], 
-                by=c("party", "years", "aduids"), all.x=TRUE)
-calceu <- calceu[, value := par * ad]
-calceu <- calceu[value==0, ad := 0]
-#calceu <- calceu[, correction := as.numeric(correction)]
+# For multiplication melt data
+b <- melt.data.table(calceu, measure.vars = years, variable.name = "years")
 
-# Calculate EU sums
-ceukp <- setdiff(country4sub[EUC==1]$code3, "EUC")
-ceu28 <- setdiff(country4sub[EU28==1]$code3, "EU28")
-calceukp <- calceu[party %in% ceukp]
-calceu28 <- calceu[party %in% ceu28]
+# Create data table with variables to weight for aggregation and popolation data
+m2w <- c(measta2weight, meastb12weight, meastb22weight)
+m2s <- setdiff(b$meastype, m2w)
+b <- b[, weigh := ifelse(meastype%in% m2w, 1, 0)]
 
-eukpsum <- calceukp[, .(value=sum(value, na.rm=TRUE), 
-                      par=sum(par, na.rm=TRUE), 
-                      ad=sum(ad, na.rm=TRUE)),
-                  by = setdiff(names(calceu), 
-                               c(c("par", "ad", "value",
-                                   "notation", "autocorr", "method", "party", "correction")))]
-eukpsum$party <- "EUC"
-eukpsum <- eukpsum[! meastype %in% meas2sum, par := value/ad]
-eu28sum <- calceu28[, .(value=sum(value, na.rm=TRUE), 
-                        par=sum(par, na.rm=TRUE), 
-                        ad=sum(ad, na.rm=TRUE)),
-                    by = setdiff(names(calceu), 
-                                 c(c("par", "ad", "value",
-                                     "notation", "autocorr", "method", "party", "correction")))]
-eu28sum$party <- "EU28"
-eu28sum <- eu28sum[! meastype %in% meas2sum, par := value/ad]
+# Olny emissions - admeas <- 0
+b <- b["3"== sector_number, admeas := "0"]
+b <- b["3.1"== sector_number, admeas := "0"]
+b <- b["3.E"== sector_number, admeas := "0"]
 
+b <- b[grepl("^3.[AB]", sector_number), admeas := "POP"]
+# 3.B.2.5 N2O Emissions per MMS
+b <- b[grepl("^3.B.2.5", sector_number), admeas := "NEXC"]
+# Indirect emissions in Table 3.B.2
+b <- b[grepl("^3.B.2.5", sector_number) & variableUID=="47100CA3-9371-4944-B302-BD76A154B0F4", admeas := "Nvol"]
+b <- b[grepl("^3.B.2.5", sector_number) & variableUID=="C548A926-2825-4F66-A6FE-DA55F429CB29", admeas := "Nleach"]
+b <- b[grepl("^3.[C]", sector_number), admeas := "AREA"]
+# Use "Total Biomass burned [kt dm]" for IEF CH4 and N2O in Table 3.F
+b <- b[grepl("^3.[DFGHIJ]", sector_number), admeas := "AD"]
+# Use "Area burned [k ha/yr]" for YIELD "Biomass available [t dm/ha] in Table 3.F
+b <- b[grepl("^3.[F]", sector_number) & meastype=="YIELD", admeas := "AREA"]
+# Use "Crop production [t]" for parameters in 'Additional information' in Table 3.F
+b <- b[grepl("^3.[F]", sector_number) & meastype%in%c("DM","FracBURN","FracOXIDIZED","Combustion","RatioResCrop"), admeas := "PROD"]
 
-# Spread years again and combine with data table of individual countries
-dcastf <- paste0(paste(intersect(allfields, names(eukpsum)),collapse= " + "), " ~ years")
-eukpsum <- dcast.data.table(eukpsum, as.formula(dcastf), value.var = 'par')
-eu28sum <- dcast.data.table(eu28sum, as.formula(dcastf), value.var = 'par')
+# Population data are sometimes missing for some sectors, but should be equal
+# Therefore, the mean of all existing secor_numbers is used
+admeas <- c("POP", "AREA", "AD", "PROD", "Nvol", "Nleach", "NEXC")
+pop <- melt.data.table(calceu[meastype %in% admeas], measure.vars = years, variable.name = "years", value.name = "pop")
+pop <- pop[, .(pop=mean(pop)), by=.(sector_number, category, meastype, party, years)]
+setnames(pop, "meastype", "admeas")
+childs <- merge(b, pop, by=c("sector_number", "category", "admeas", "party", "years"), all.x = TRUE)
+childs <- childs[, total := value *  pop]
+uniquechilds <- unique(childs[, .(sector_number, category, meastype, variableUID)])
+write.xlsx(childs[years==1990], file="euweightedaverages_childs1990.xlsx")
+write.xlsx(uniquechilds, file="euweightedaverages_ads1990.xlsx")
 
-calceunew <- rbind(calceucor[!party %in% eu], eukpsum, fill = TRUE)
-calceunew <- rbind(calceunew, eu28sum, fill = TRUE)
-eukpsum <- eukpsum[order(sector_number, category, gas, party)]
-eu28sum <- eu28sum[order(sector_number, category, gas, party)]
+sumeus <- function(child, eusel = "EUC"){
+  
+  cntr <- country4sub[, .SD, .SDcols=c("code3", eusel)]
+  setnames(cntr, names(cntr)[2], "eusel")
+  cntr <- setdiff(cntr[eusel==1]$code3, eusel)
+  parent <- child[party %in% cntr]
+  # If there is a missing value set also population to zero to not 
+  # bias the results
+  parent <- parent[value==0, pop := 0]
+  parent <- parent[, .(value=sum(value, na.rm=TRUE), 
+                       pop=sum(pop, na.rm=TRUE), 
+                       total=sum(total, na.rm = TRUE)), 
+                   by=setdiff(names(parent), 
+                              c("party", "method", "value", "pop", "total", "notation", 
+                                "autocorr", "correction"))]
+  parent <- parent[, value := ifelse(weigh==1, ifelse(pop>0, total/pop, 0), value)]
+  parent$notation <- ""
+  parent$correction <- ""
+  parent$autocorr <- ""
+  parent$method <- ""
+  parent$party <- eusel
+  
+  # Calculate total ParPop = Value*Pop
+  dfrom <- paste0(paste(setdiff(names(parent), c("weigh", "pop", "total", "value", "years")), collapse = " + "), " ~ years")
+  parentsy <- dcast.data.table(parent, as.formula(dfrom), value.var="value")
+  
+  return(parentsy)
+  
+}
+
+parkp <- sumeus(child = childs, eusel = "EUC")
+par28 <- sumeus(child = childs, eusel = "EU28")
+pareu <- rbind(parkp, par28)
+
+calceunew <- rbind(calceu, pareu, fill = TRUE)
+setcolorder(calceunew, dtnames)
+eukp <- parkp[order(sector_number, category, gas, party)]
+eu28 <- par28[order(sector_number, category, gas, party)]
 allagri <- calceunew[order(sector_number, category, gas, party)]
 
+if(FALSE){
+  
+  # old code
+  
+  calceu <- merge(calceu, assignad2par[, .(variableUID, aduids)], by="variableUID", all.x=TRUE)
+  calceu <- melt.data.table(calceu, measure.vars = years, variable.name = "years", value.name = "par", na.rm = TRUE)
+  
+  # Extract data table with Activity data
+  advals <- allagri[variableUID %in% assignad2par$aduids]
+  advals <- melt.data.table(advals, measure.vars = years, variable.name = "years", value.name = "ad", na.rm = TRUE)
+  setnames(advals, "variableUID", "aduids")
+  
+  # Multiply activity data with variable values 
+  # For those variables that don't need to be weighted this will give zero 
+  # (as the 'value' caclulated above resulted in NA)
+  calceu <- merge(calceu, advals[, .(aduids, party, years, ad)], 
+                  by=c("party", "years", "aduids"), all.x=TRUE)
+  calceu <- calceu[, value := par * ad]
+  calceu <- calceu[value==0, ad := 0]
+  #calceu <- calceu[, correction := as.numeric(correction)]
+  
+  # Calculate EU sums
+  ceukp <- setdiff(country4sub[EUC==1]$code3, "EUC")
+  ceu28 <- setdiff(country4sub[EU28==1]$code3, "EU28")
+  calceukp <- calceu[party %in% ceukp]
+  calceu28 <- calceu[party %in% ceu28]
+  
+  eukpsum <- calceukp[, .(value=sum(value, na.rm=TRUE), 
+                          par=sum(par, na.rm=TRUE), 
+                          ad=sum(ad, na.rm=TRUE)),
+                      by = setdiff(names(calceu), 
+                                   c(c("par", "ad", "value",
+                                       "notation", "autocorr", "method", "party", "correction")))]
+  eukpsum$party <- "EUC"
+  eukpsum <- eukpsum[! meastype %in% meas2sum, par := value/ad]
+  eu28sum <- calceu28[, .(value=sum(value, na.rm=TRUE), 
+                          par=sum(par, na.rm=TRUE), 
+                          ad=sum(ad, na.rm=TRUE)),
+                      by = setdiff(names(calceu), 
+                                   c(c("par", "ad", "value",
+                                       "notation", "autocorr", "method", "party", "correction")))]
+  eu28sum$party <- "EU28"
+  eu28sum <- eu28sum[! meastype %in% meas2sum, par := value/ad]
+  
+  
+  # Spread years again and combine with data table of individual countries
+  dcastf <- paste0(paste(intersect(allfields, names(eukpsum)),collapse= " + "), " ~ years")
+  eukpsum <- dcast.data.table(eukpsum, as.formula(dcastf), value.var = 'par')
+  eu28sum <- dcast.data.table(eu28sum, as.formula(dcastf), value.var = 'par')
+  
+  calceunew <- rbind(calceucor[!party %in% eu], eukpsum, fill = TRUE)
+  calceunew <- rbind(calceunew, eu28sum, fill = TRUE)
+  eukpsum <- eukpsum[order(sector_number, category, gas, party)]
+  eu28sum <- eu28sum[order(sector_number, category, gas, party)]
+  allagri <- calceunew[order(sector_number, category, gas, party)]
+  
+}

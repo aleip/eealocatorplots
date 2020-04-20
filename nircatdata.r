@@ -1,5 +1,8 @@
+curcattmp <- curcat
 selmeasure<-"Emissions"
-curemissions<-agriemissions[agriemissions$sector_number==cursec&agriemissions$category==curcat&agriemissions$measure==selmeasure,]
+curemissions<-agriemissions[agriemissions$sector_number==cursec&
+                                agriemissions$category==curcat&
+                                agriemissions$measure==selmeasure,]
 curemissions<-curemissions[curemissions$gas!="NMVOC",]
 
 #Convert to data frame to keep code (currently)
@@ -46,7 +49,6 @@ if("Aggregate GHGs" %in% curgas) {
     eushareagrighg<-0
     eushareagrighgghg<-0
 }
-
 if("CH4" %in% curgas) {
     eusharech4<-curemissions[eusel & curemissions$gas=="CH4",lastyear]/eutotalch4[lastyear]
     eusharech4total<-curemissions[eusel & curemissions$gas=="CH4",lastyear]/eutotalghg[lastyear]
@@ -154,15 +156,13 @@ if(exists("agriemissions_GBE")){
 }
 tmpis<-emfirstlast[emfirstlast$party=="ISL",]
 emfirstlast<-emfirstlast[emfirstlast$party!="ISL",]
-tmpeu<-emfirstlast[emfirstlast$party=="EUC",]
+tmpeu<-emfirstlast[emfirstlast$party==eusubm,]
 emfirstlast<-emfirstlast[emfirstlast$party%in%countriesnoeu,]
-tmpeunois<-tmpeu
 tmpeunois <- emfirstlast[, lapply(.SD, sum, na.rm=TRUE), .SDcols=curheaders]
 if(nrow(tmpis)>0)tmpis$party<-"Iceland"
 tmpeunois$party<-"EU+UK"
 tmpeu$party<-"EU-KP"
 
-cnames <- unique(country4sub[, .(code3, name)])
 emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) 
     cnames[code3==emfirstlast$party[x], name])
 emfirstlast<-emfirstlast[order(emfirstlast$party),]

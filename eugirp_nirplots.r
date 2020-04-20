@@ -26,6 +26,8 @@ if (runfocus=="countries"){runfoc<-"3CNT"}
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # Cleaning up
+stop()
+save(runmeta, runsect, file = "tmp.rdata")
 runsect[1]<-gsub(paste0(" ",unlist(runmeta[2])),"",unlist(runsect[1]))
 
 runsector<-as.vector(unlist(runsect[1]))

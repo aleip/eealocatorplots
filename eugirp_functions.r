@@ -13,13 +13,13 @@ newuid<-function(sector,categ,meast,units,metho,sourc,targe,optio,gasun){
     units<-substring(paste0((gsub(" ","",gsub("\\/","",gsub("\\^","",units)))),"00000"),1,6) #6
     sourc<-substring(paste0(gsub(" ","",gsub("-","",sourc)),"00000"),1,2) #2
     targe<-substring(paste0(gsub(" ","",gsub("-","",targe)),"00000"),1,3) #3
-    gasun<-substring(paste0(gasun,"0"),1,2)                               #2
+    gasun<-substring(paste0(gasun,"0"),1,3)                               #3
     optio <- as.character(optio)
     #save(sector,categ,meast,units,metho,sourc,targe,optio,gasun, file="a.rdata")
     optio<-if(optio!=""){substring(optio,nchar(optio),nchar(optio))}else{"0"}   #1
     metho<-substring(paste0(gsub(" ","",gsub("-","",metho)),"00000"),1,3) #3
-    # char    =       6      + 5  + 8  + 3  +   6  +  2  +  3  +  2  +  1
-    newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun,optio)
+    # char    =       6      + 5  + 8  + 3  +   6  +  2  +  3  +  3  
+    newid<-paste0("eugirp",sector,categ,meast,units,sourc,targe,gasun)
     #cat("\n",nchar(newid),"-",newid)
     return(newid)
     
@@ -1251,24 +1251,59 @@ export4uba<-function(allagri){
     #     but it is not yet used.
     #alex20191204: source("eugirp_calculateGrazingShares4capri.r")
   
-    f4uba <- createWorkbook(creator = "EU-GIRP")  
+    f4euc <- createWorkbook(creator = "EU-GIRP")  
+    f4eua <- createWorkbook(creator = "EU-GIRP")  
   
     dtagri<-as.data.table(allagri)
-    col2show<-c("party","gas","meastype","source","target","classification","sector_number","category",years,"variableUID")
+    
+    w_out <- function(tab, tname, meas="1"){
+      col2show<-c("party","gas","meastype","source","target","classification","sector_number","category",years,"variableUID")
+      tab <- tab[grepl("EUC|EU28",party)]
+      if(tname=="3s1"){
+        tab <- tab[grepl("3.A|3.B.",sector_number) & meastype=="EM" & category%in%c(livestock,otherlivestock)&gas%in%c("CH4","N2O","NMVOC")]
+      }else if (tname %in% c("3.As1", "3.As2")){
+        tab <- tab[grepl("3.A",sector_number)]
+      }else{
+        tab <- tab[grepl(tname, sector_number)]
+      }
+      if(meas[1] != "1"){ tab <- tab[meastype %in% meas] }
+      if(grepl("3.A|3.B", tname)) {tab <- tab[category %in% c(livestock, otherlivestock)]}
+      if(tname=="3.A"){tab <- tab[gas %in% gas%in%c("CH4","N2O","NMVOC")]}
+      
+      tab<-tab[, col2show, with=FALSE]
+      tab<-tab[apply(tab[, years, with=FALSE], 1, sum)>0]
+      tab<-tab[order(party,gas, meastype,sector_number,category)]
+      setorder(tab, party,gas, meastype,sector_number,category)
+      # alex20200130    write.csv(tab,file=paste0(invloc,"/eealocator/table3s1_",cursubm,"~",curdate(),".csv"))
+      write.csv(tab,file=paste0(invloc,"/tables4eu/Table", tname, "_",cursubm,".csv"))
+      write.csv(tab,file=paste0(invloc,"/tables4eu/Table", tname, "_",cursubm,"~",curdate(),".csv"))
+      
+      s4uba <- paste("Table", tname)
+      addWorksheet(f4euc, sheetName = s4uba)
+      writeData(f4euc, sheet = s4uba, x = tab[party=="EUC"])
+      addWorksheet(f4eua, sheetName = s4uba)
+      writeData(f4eua, sheet = s4uba, x = tab[party=="EU28"])
+      
+      return(tab)
+      
+    }
+    
+    s1 <- w_out(dtagri, "3s1")
+    a1 <- w_out(tab = dtagri, tname = "3.As1", meas = c("POP","GEav","YM","IEF","EM"))
+    a2 <- w_out(tab = dtagri, tname = "3.As2", meas = c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE","DIGEST"))
+    b1 <- w_out(tab = dtagri, tname = "3.B.1")
+    bb <- w_out(tab = dtagri, tname = "3.B.2")
+    c1 <- w_out(tab = dtagri, tname = "3.C")
+    d1 <- w_out(tab = dtagri, tname = "3.D")
+    save(s1, a1, a2, b1, bb, c1, d1,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,".RData"))
+   if(FALSE){ 
     t3s1<-dtagri[grepl("EUC|EU28",party)&meastype=="EM"&
                    grepl("3.A|3.B.",sector_number)&
                    category%in%c(livestock,otherlivestock)&
                    gas%in%c("CH4","N2O","NMVOC"),
                  col2show,
                  with=FALSE]
-    t3s1<-t3s1[order(party,gas,sector_number,category)]
-# alex20200130    write.csv(t3s1,file=paste0(invloc,"/eealocator/table3s1_",cursubm,"~",curdate(),".csv"))
-    write.csv(t3s1,file=paste0(invloc,"/tables4eu/table3s1_",cursubm,".csv"))
-    write.csv(t3s1,file=paste0(invloc,"/tables4eu/table3s1_",cursubm,"~",curdate(),".csv"))
-    
-    s4uba <- "Table3s1"
-    addWorksheet(f4uba, sheetName = s4uba)
-    writeData(f4uba, sheet = s4uba, x = t3s1)
+    done <- w_out(t3s1, "3s1")
     
     t3as1<-dtagri[grepl("EUC|EU28",party)&
                       meastype%in%c("POP","GEav","YM","IEF","EM")&
@@ -1278,14 +1313,7 @@ export4uba<-function(allagri){
                       gas%in%c("CH4","no gas"),
                   col2show,
                   with=FALSE]
-    t3as1<-t3as1[order(party,gas,meastype,sector_number,category)]
-#alex20200130    write.csv(t3as1,file=paste0(invloc,"/eealocator/tablet3as1_",cursubm,"~",curdate(),".csv"))
-    write.csv(t3as1,file=paste0(invloc,"/tables4eu/tablet3as1_",cursubm,".csv"))
-    write.csv(t3as1,file=paste0(invloc,"/tables4eu/tablet3as1_",cursubm,"~",curdate(),".csv"))
-
-    s4uba <- "Table3.As1"
-    addWorksheet(f4uba, sheetName = s4uba)
-    writeData(f4uba, sheet = s4uba, x = t3as1)
+    done <- w_out(t3as1, "3as1")
     
     t3as2<-dtagri[grepl("EUC|EU28",party)&
                       meastype%in%c("WEIGHT","Milk","WORK","PREGNANT","FEEDING","GE","DIGEST")&
@@ -1295,14 +1323,7 @@ export4uba<-function(allagri){
                       gas%in%c("CH4","no gas"),
                   col2show,
                   with=FALSE]
-    t3as2<-t3as2[order(party,gas,meastype,sector_number,category)]
-#alex20200130   write.csv(t3as2,file=paste0(invloc,"/eealocator/tablet3as2_",cursubm,"~",curdate(),".csv"))
-    write.csv(t3as2,file=paste0(invloc,"/tables4eu/tablet3as2_",cursubm,".csv"))
-    write.csv(t3as2,file=paste0(invloc,"/tables4eu/tablet3as2_",cursubm,"~",curdate(),".csv"))
-
-    s4uba <- "Table3.As2"
-    addWorksheet(f4uba, sheetName = s4uba)
-    writeData(f4uba, sheet = s4uba, x = t3as2)
+    done <- w_out(t3as2, "3as2")
     
     t3bas1<-dtagri[grepl("EUC|EU28",party)&
                        meastype%in%c("POP","MASS","VSEXC","B0","EM","CLIMA","MCF")&
@@ -1312,14 +1333,7 @@ export4uba<-function(allagri){
                        gas%in%c("CH4","no gas"),
                    col2show,
                    with=FALSE]
-    t3bas1<-t3bas1[order(party,gas,meastype,sector_number,category)]
-#alex20200130    write.csv(t3bas1,file=paste0(invloc,"/eealocator/tablett3bas1_",cursubm,"~",curdate(),".csv"))
-    write.csv(t3bas1,file=paste0(invloc,"/tables4eu/tablett3bas1_",cursubm,".csv"))
-    write.csv(t3bas1,file=paste0(invloc,"/tables4eu/tablett3bas1_",cursubm,"~",curdate(),".csv"))
-    
-    s4uba <- "Table3.B(a)s1"
-    addWorksheet(f4uba, sheetName = s4uba)
-    writeData(f4uba, sheet = s4uba, x = t3bas1)
+    done <- w_out(t3bas1, "3bas1")
     
     t3bb<-dtagri[grepl("EUC|EU28",party)&
                      meastype%in%c("POP","NRATE","NEXC","WEIGHT","EM")&
@@ -1329,23 +1343,28 @@ export4uba<-function(allagri){
                      gas%in%c("CH4","no gas"),
                  c(col2show),
                  with=FALSE]
-    t3bb<-t3bb[order(party,gas,meastype,source,sector_number,category)]
-#alex20200130    write.csv(t3bb,file=paste0(invloc,"/eealocator/tablett3bb_",cursubm,"~",curdate(),".csv"))
-    write.csv(t3bb,file=paste0(invloc,"/tables4eu/tablett3bb_",cursubm,".csv"))
-    write.csv(t3bb,file=paste0(invloc,"/tables4eu/tablett3bb_",cursubm,"~",curdate(),".csv"))
-    
-    s4uba <- "Table3.B(b)"
-    addWorksheet(f4uba, sheetName = s4uba)
-    writeData(f4uba, sheet = s4uba, x = t3bb)
-    
-#alex20200130    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/eealocator/tablett3_",cursubm,"~",curdate(),".RData"))
-    save(t3s1,t3as1,t3as2,t3bas1,t3bb,file=paste0(invloc,"/tables4eu/tablett3_",cursubm,".RData"))
-    saveWorkbook(f4uba, paste0(invloc,"/tables4eu/CRF-EU_",cursubm,".xlsx"), overwrite = TRUE)
-    
-    # Add Grazing shares
-    mms <- t3bb[meastype == "EM"]
+    done <- w_out(t3bb, "3bb")
     
     
+    t3c<-dtagri[grepl("EUC|EU28",party)&
+                     meastype%in%c("EM", "AREA","IEF","ORGAMENDMENT")&
+                     #meastype%in%c("GE")&
+                     grepl("3.C",sector_number)
+                     ,
+                 c(col2show),
+                 with=FALSE]
+    done <- w_out(t3c, "3c")
+    
+    
+    t3d<-dtagri[grepl("EUC|EU28",party)& grepl("3.D",sector_number),
+                     #meastype%in%c("EM", "AD","IEF","AD","AREA","FracGASF", "FracGASM", "FracLEACH")&
+                     #meastype%in%c("GE")&
+                 c(col2show),
+                 with=FALSE]
+    done <- w_out(dtagri, "3.D", meas=1)
+   }
+    saveWorkbook(f4eua, paste0(invloc,"/tables4eu/CRF-EU_EUA_",cursubm,".xlsx"), overwrite = TRUE)
+    saveWorkbook(f4euc, paste0(invloc,"/tables4eu/CRF-EU_EUC_",cursubm,".xlsx"), overwrite = TRUE)
 }
 
 
@@ -1382,7 +1401,9 @@ MHmakeRandomString <- function(n=1, lenght=12)
 # FUNCTIONS REQUIRED FOR PLOTTING #####
 
 mtexttit<-function(runsect,runmeta,runmeas){
-    runsect[1]<-gsub(paste0(" ",unlist(runmeta[2])),"",unlist(runsect[1]))
+  save(runmeta, runsect, file = "tmp.rdata")
+  
+  runsect[1]<-gsub(paste0(" ",unlist(runmeta[2])),"",unlist(runsect[1]))
     runsector<-as.vector(unlist(runsect[1]))
     runmeastype<-as.vector(unlist(runmeas[1]))
     #print(runmeastype)

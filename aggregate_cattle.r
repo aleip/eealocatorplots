@@ -18,7 +18,7 @@ aggregatesector <- function(dt, cat="Non-Dairy Cattle"){
   parents <- bpop[, total := value *  pop]
   parents <- parents[, .(value=sum(value, na.rm=TRUE), pop=sum(pop, na.rm=TRUE), total=sum(total, na.rm = TRUE)), 
                      by=setdiff(names(parents), c("category", "variableUID", "value", "pop", "total", "notation"))]
-  parents <- parents[, value := ifelse(weigh==1, total/pop, value)]
+  parents <- parents[, value := ifelse(weigh==1, ifelse(pop>0, total/pop, 0), value)]
   parents$category <- cat
   parents$notation <- ""
   parents <- parents[, sector_number := paste0(sector_number, ".2")]
@@ -56,9 +56,13 @@ calcparbypop <- function(dtc, chlds, parent, meastypes, newsector){
   parents <- bpop[, total := value *  pop]
   # Here do only aggregation by weighing
   parents$weigh <- 1
+  
+  # If there is a missing value set also population to zero to not 
+  # bias the results
+  parents <- parents[value==0, pop := 0]
   parents <- parents[, .(value=sum(value, na.rm=TRUE), pop=sum(pop, na.rm=TRUE), total=sum(total, na.rm = TRUE)), 
                      by=setdiff(names(parents), c("sector_number", "category", "variableUID", "value", "pop", "total", "notation"))]
-  parents <- parents[, value := ifelse(weigh==1, total/pop, value)]
+  parents <- parents[, value := ifelse(weigh==1, ifelse(pop>0, total/pop, 0), value)]
   parents$notation <- ""
   parents$category <- parent
   parents$sector_number <- newsector
@@ -106,7 +110,7 @@ tmpagri <- allagri
 ##                    and  'Cattle' with method == 'no method' - which also represents the total Cattle population
 
 pop <- tmpagri[meastype=="POP"  & grepl("Option [ABC]", method) & !grepl("Option", sector_number)]
-pop <- pop[! ((method=="Option C" & category=="Other Cattle") | (method=='no method' & category=="Cattle"))]
+pop <- pop[! ((method=="Option C" & category=="Other Cattle") | (method=='' & category=="Cattle"))]
 
 # --> For a good selection of counries, extract countries using Option A, B, or C and use one per group
 #     Make a selection to have one per group and check available population data
@@ -140,6 +144,11 @@ tmpagri <- tmpagri[sector_number%in%paste0(secs, "1") & method=="Option A" & cat
 #           Cattle: - With Option B in sector_number 
 #                   - 'Normal' with 'no option' and without option flag
 #                   ==> Delete the Option B and aggregate only Dairy and Non-Dairy
+# 
+# ---> The results is: Dairy Cattle 'converted' to 3.A.1.1 (all infor kept)
+#                      Non-Dairy Cattle 'aggregated' to 3.A.1.2 (notation missing)
+#                      Original (Mature and growing) non-dairy kept under 3.A.1 (all info kept)
+# 
 ################################################################################
 
 b <- tmpagri[method=="Option B" & grepl(paste(secs, collapse="|"), sector_number)]
@@ -154,19 +163,24 @@ b <- b[category!="Mature Dairy Cattle"]
 b <- b[category!="Cattle"]
 bnondairy <- aggregatesector(b, "Non-Dairy Cattle")
 
-bagg <- rbind(bdairy, bnondairy)
+bagg <- rbind(bdairy, rbind(bnondairy, b))
 
 ################################################################################
 # Option C: Dairy: LUX, MLT, SVN Dairy Cows
 #                  POL           Other Cattle.Dairy cattle
 #           Cattle: As for Option B - both available
 #
-#           Other Cattle (Option C) and Cattle (no method) are duplicates
+# 
+# ---> The results is: Dairy Cattle 'converted' to 3.A.1.1 (all infor kept)
+#                      Non-Dairy Cattle 'aggregated' to 3.A.1.2 (notation missing)
+#                      Original non-dairy kept under 3.A.1 (all info kept)
+# 
 ################################################################################
 
 ccdairy <- c("Dairy Cows", "Other Cattle.Dairy cattle")
 ccats <- unique(tmpagri[method=="Option C"]$category)
 tmpagri[method=="Option C" & party%in%cpart & meastype=="EM" & sector_number=="3.A.1", c(1:4, 7:15)][order(party)]
+#           Other Cattle (Option C) and Cattle (no method) are duplicates
 tmpagri <- tmpagri[! (method == "Option C" & category == "Other Cattle")]
 
 c <- tmpagri[method=="Option C" & grepl(paste(secs, collapse="|"), sector_number)]
@@ -180,10 +194,10 @@ c <- c[!category %in% ccdairy]
 c <- c[category!="Cattle"]
 cnondairy <- aggregatesector(c, "Non-Dairy Cattle")
 
-cagg <- rbind(cdairy, cnondairy)
+cagg <- rbind(cdairy, rbind(cnondairy, c))
 bcagg <- rbind(bagg, cagg)
 bcagg$option <- ''
-bcagg$method <- "no option"
+bcagg$method <- ""
 tmpagri <- rbind(tmpagri, bcagg)
 
 
@@ -199,7 +213,7 @@ mt3b2 <- c("NRATE")                                                   # Table3.B
 
 t3as <- calcparbypop(dtc = tmpagri, chlds = c("Dairy Cattle", "Non-Dairy Cattle"), parent = "Cattle", newsector = "3.A.1",  meastypes = mt3as)
 t3b1 <- calcparbypop(dtc = tmpagri, chlds = c("Dairy Cattle", "Non-Dairy Cattle"), parent = "Cattle", newsector = "3.B.1.1",meastypes = mt3b1)
-t3b2 <- calcparbypop(dtc = tmpagri, chlds = c("Dairy Cattle", "Non-Dairy Cattle"), parent = "Cattle", newsector = "3.B.1.1",meastypes = mt3b2)                     
+t3b2 <- calcparbypop(dtc = tmpagri, chlds = c("Dairy Cattle", "Non-Dairy Cattle"), parent = "Cattle", newsector = "3.B.2.1",meastypes = mt3b2)                     
 tmpagri <- rbind(tmpagri, rbind(t3as, rbind(t3b1, t3b2)))
 
 #Sheep
@@ -212,7 +226,7 @@ tmpagri <- rbind(tmpagri, rbind(t3as, rbind(t3b1, t3b2)))
 swines <- setdiff(unique(tmpagri[sector_number=="3.A.3", category]), "Swine")
 t3as <- calcparbypop(dtc = tmpagri, chlds = swines, parent = "Swine", newsector = "3.A.3",  meastypes = mt3as)
 t3b1 <- calcparbypop(dtc = tmpagri, chlds = swines, parent = "Swine", newsector = "3.B.1.3",meastypes = mt3b1)
-t3b2 <- calcparbypop(dtc = tmpagri, chlds = swines, parent = "Swine", newsector = "3.B.1.3",meastypes = mt3b2)                     
+t3b2 <- calcparbypop(dtc = tmpagri, chlds = swines, parent = "Swine", newsector = "3.B.2.3",meastypes = mt3b2)                     
 tmpagri <- rbind(tmpagri, rbind(t3as, rbind(t3b1, t3b2)))
 
 ################################################################################
@@ -222,8 +236,8 @@ tmpagri <- rbind(tmpagri, rbind(t3as, rbind(t3b1, t3b2)))
 
 dn <- tmpagri[grepl("3.A.1.[12]|3.B.[12].1.[12]", sector_number)]
 tmpagri <- tmpagri[! (grepl("3.A.1.[12]|3.B.[12].1.[12]", sector_number))]
-dn$method <- "no method"
-dn$option <- "no option"
+dn$method <- ""
+dn$option <- ""
 dnnames <- names(dn)
 # Generate variableUIDs if they do not yet exist
 dnv <- unique(dn[, .SD, .SDcols = setdiff(names(dn), c("party", years, "notation", "variableUID"))])
@@ -234,3 +248,18 @@ tmpagri <- rbind(tmpagri, dnn)
 setorder(tmpagri, sector_number, party, meastype)
 source("checkaggregates.r")
 
+## Save options
+## 
+
+apart <- as.data.table(apart)
+apart$option <- "A"
+setnames(apart, "apart", "party")
+bpart <- as.data.table(bpart)
+bpart$option <- "B"
+setnames(bpart, "bpart", "party")
+cpart <- as.data.table(cpart)
+cpart$option <- "C"
+setnames(cpart, "cpart", "party")
+cattleoptions <- rbind(apart, rbind(bpart, cpart))
+setorder(cattleoptions, party)
+cattlesoptionc <- ccats

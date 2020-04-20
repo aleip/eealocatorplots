@@ -46,8 +46,13 @@ tabs<-captioner(prefix = "Table ",auto_space = TRUE,levels = 2,type = c("n","n")
 ```
 
 ```{r total,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
-agriemissions<-agriemissions[!agriemissions$party%in%excludeparty,]
-allagri<-allagri[!allagri$party%in%excludeparty,]
+excludeparty <- NULL
+countriesnoeu <- curcountries[variable==eusubm & value==1, code3]
+cnames <- unique(country4sub[, .(code3, name)])
+if(! is.null(excludeparty)){countriesnoeu <- setdiff(countriesnoeu, excludeparty)}
+
+agriemissions<-agriemissions[party%in%countriesnoeu,]
+allagri<-allagri[party%in%countriesnoeu,]
 seltype<-"Total (with LULUCF)"
 seltype<-"" #with indirect
 # selclass<-"Total (with LULUCF  with indirect)    " #with indirect
@@ -83,7 +88,6 @@ eusubml<-eum[which(eu==eusubm)]
 eukp<-eusubml
 acountry<-curcountries[variable==eusubm & value==1]$code3
 if(!is.null(excludeparty)) acountry<-acountry[-which(acountry==excludeparty)]
-countriesnoeu<-acountry[!acountry%in%eu]
 #countrynamesnoex<-as.character(country4sub[country4sub$code3%in%acountry,"code3"])
 countrynamesnoex <- acountry
 euagritotalch4<-agritotalch4[agritotalch4$party==eusubm,]

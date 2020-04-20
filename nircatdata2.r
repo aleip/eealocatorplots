@@ -1,7 +1,9 @@
 curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea,]
 if(cursec=="3.B.2.5")curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&grepl(curmeasure,allagri$measure),]
 if(curcat%in%c("Cattle","Dairy Cattle","Non-Dairy Cattle","Sheep","Swine")){
-  curemissions<-allagri[allagri$sector_number==cursec&allagri$meastype==curmea&allagri$category==curcat,]
+  curemissions<-allagri[allagri$sector_number==cursec&
+                          allagri$meastype==curmea&
+                          allagri$category==curcat,]
 }
 curemissions_GBE <- curemissions[curemissions$party %in% c("GBE"),]
 curemissions<-curemissions[curemissions$party%in%acountry,]

@@ -159,19 +159,7 @@ if(iam=="testcapri")plotsdir<-invloc
 plotsdir<-gsub("\\\\","/",plotsdir)
 faodir<-paste0(invloc,"/faocomparison/")
 if (! file.exists(issuedir)){dir.create(file.path(issuedir),showWarnings=FALSE)}
-
-# If restartstep is set load not the _clean data
-if(exists("restartatstep")){
-  
-  if(restartatstep > 1){
-    message("\n\n Loading results from Step ", restartatstep -1, "\n")
-    rdatallem <- paste0(csvfil,"_clean", "_s", restartatstep -1 , ".RData")
-  }else{
-    rdatallem <- paste0(csvfil,"_clean.RData")
-  }
-}else{
-  rdatallem <- paste0(csvfil,"_clean.RData")
-}
+rdatallem <- paste0(csvfil,"_clean.RData")
 rdatmeasu <- paste0(csvfil,"_measures.RData")
 rdatmeta <- paste0(csvfil,"_metadata.RData")
 rdatagri <- paste0(csvfil,"_agri.RData")

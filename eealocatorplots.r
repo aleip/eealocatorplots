@@ -891,8 +891,8 @@ if(stepsdone==6){
     
     stepsdone<-stepsdone+1
 
-    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    savelist<-unique(c(savelist,"assignad2par"))
+    #save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    #savelist<-unique(c(savelist,"assignad2par"))
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
     savestep(stepsdone, savelist)
     

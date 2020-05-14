@@ -117,6 +117,7 @@ cursubm <- "20190508"                                                       #!!!
 cursubm <- "20190115"                                                       #!!!
 cursubm <- "20200115"                                                       #!!!
 cursubm <- "20200315"                                                       #!!!
+cursubm <- "20200508"                                                       #!!!
 
 invyear<-2020
 # Define location of the *RData files.This is generally NOT in 

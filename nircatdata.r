@@ -154,17 +154,21 @@ if(exists("agriemissions_GBE")){
     emfirstlast_GBE[,"GHGlast"] <- emfirstlast_GBE[,lastyear]
     emfirstlast_GBE$party <- "United Kingdom (KP)"
 }
-tmpis<-emfirstlast[emfirstlast$party=="ISL",]
-emfirstlast<-emfirstlast[emfirstlast$party!="ISL",]
+
+selcountries <- curcountries[variable==eusubm & value==1 & code3!=eusubm, code3]
 tmpeu<-emfirstlast[emfirstlast$party==eusubm,]
-emfirstlast<-emfirstlast[emfirstlast$party%in%countriesnoeu,]
-tmpeunois <- emfirstlast[, lapply(.SD, sum, na.rm=TRUE), .SDcols=curheaders]
-if(nrow(tmpis)>0)tmpis$party<-"Iceland"
-tmpeunois$party<-"EU+UK"
 tmpeu$party<-"EU-KP"
 
-emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) 
-    cnames[code3==emfirstlast$party[x], name])
+tmpis<-emfirstlast[emfirstlast$party=="ISL",]
+if(nrow(tmpis)>0)tmpis$party<-"Iceland"
+
+emfirstlast <- emfirstlast[party!="ISL",]
+emfirstlast <- emfirstlast[party!=eusubm]
+
+tmpeunois <- emfirstlast[, lapply(.SD, sum, na.rm=TRUE), .SDcols=curheaders]
+tmpeunois$party<-"EU+UK"
+
+emfirstlast$party<-sapply(1:nrow(emfirstlast),function(x) cnames[code3==emfirstlast$party[x], name])
 emfirstlast<-emfirstlast[order(emfirstlast$party),]
 #emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis, emfirstlast_GBE, tmpeu)
 emfirstlast<-rbind(emfirstlast,tmpeunois,tmpis, tmpeu)

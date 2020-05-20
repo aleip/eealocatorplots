@@ -2,8 +2,13 @@ focus=none
 focus=last
 focus=faonir
 includeoverview=1
+uncert=0
+workshops=1
+verification=1
 includeuncert=1
-includecomparison=0
+includerecalc=1
+comparefao=0
+comparecapri=0
 focus=none
 focus=3a
 focus=3b2
@@ -17,9 +22,11 @@ focus=all
 #    -- Number of ERT recommendations
 #    -- Number of notation key issues (or leave the numbers out)
 # 3. Table 1.54 with issues (section quality check) (list, table, and text below table with date)
-# 4. Once the word document is created:
-#    - Open nir/niragritemplate.dotm
-#    - 
+# 4. Once the word document is created: Run macro 'formatnir'
+#    - Link template nir/niragritemplate.dotm to document:
+#      - Options -- Add-ins -- Manage (select: Templates) -- Go...
+#        Attach: \nir\niragritemplate.dotm  - OK
+#    - View Macros (ALT + F8) - formatNIR - RUN
 
 
 if [ x${1}x != "xx" ] ; then focus=$1 ; fi
@@ -30,7 +37,11 @@ nir3over=nir0overview.Rmd
 if [ $includeoverview == 1 ] ; then cat $header $intro $nir3over > nir0.Rmd ; else cp $header nir0.Rmd ; fi
 
 nir3a="nir3aintro.Rmd nir3atrends.Rmd nir3aief.Rmd"
-unc="nir3uncertainty.Rmd nir3workshops.Rmd nir3verification.Rmd"
+unc=""
+if [ $uncert == 1 ] ; then unc="$unc nir3uncertainty.Rmd" ; fi
+unc="$unc nir3qaqc.Rmd"
+if [ $workshops == 1 ] ; then unc="$unc nir3workshops.Rmd" ; fi
+if [ $verification == 1 ] ; then unc="$unc nir3verification.Rmd" ; fi
 
 if [ $focus == "last" ]; then
 	cat nir0.Rmd ${unc} nirfaocomparison.Rmd > tmp0
@@ -45,15 +56,18 @@ else #focus: 3a,3b1,3b2,3d
 fi
 
 if [ $includeuncert == 1 ] ; then cat tmp0 ${unc} > tmp0b ; else cp tmp0 tmp0b ; fi
-if [ $includecomparison == 1 ] ; then cat tmp0b nircapricomparison.Rmd nirfaocomparison.Rmd > tmp0c ; else cp tmp0b tmp0c ; fi
+if [ $comparefao == 1 ] ; then cat tmp0b nirfaocomparison.Rmd > tmp0c; else cp tmp0b tmp0c ; fi
+if [ $comparecapri == 1 ] ; then cat tmp0c nircapricomparison.Rmd > tmp0d ; else cp tmp0c tmp0d ; fi
+
+if [ $includerecalc == 1 ] ; then cat tmp0d nir3recalc.Rmd > tmp0e ; else cp tmp0d tmp0e ; fi
 
 #. nirknit.bash nir${focus}out
 
 echo Now replace the placeholders at $HOSTNAME
 echo Note that the sed command does not accept parameter, therefore any changes must be implemented here
-sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0c > tmp1
+sed -e 's/\$eugirpplots\$/..\/ecir\/plots/g' tmp0e > tmp1
 sed -e 's/\$ubaimages\$/..\/ecir\/ubaimages/g' tmp1 > tmp0
-sed -e 's/\$cursubm\$/20200315/g' tmp0 > tmp2
+sed -e 's/\$cursubm\$/20200508/g' tmp0 > tmp2
 
 mv tmp2 nir${focus}out.Rmd
 

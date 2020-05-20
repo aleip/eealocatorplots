@@ -25,12 +25,11 @@ tabs(paste0("tab",cursec,"mscontr"),msconttablecaption())
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"countries"])))`&nbsp;
+**Please *exchange* table with figure for table obtained from UBA here!! 
+This table contains info on Emissions, Emission changes, Method, and Emission factor information.
+Check if the data are identical.**
 
-<!---
-![]($ubaimages$/$cursubm$/Table3D1DirectN2OEmissions.jpg) --->
-
-**Please add here figure from UBA!!**
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,Country])))`&nbsp;
 
 #### Trends in Emissions and Activity Data
 ```{r 3D1adem,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -233,6 +232,8 @@ tabs("tabD13ief",paratablecaption(eukp,curcattext,lastyear))
 ##### `r paste0(curcattext," - ",curmeasure)`
 
 **!!! The implied emission factor for N2O emissions in source category 3.D.1.3 - Urine and Dung Deposited by Grazing Animals decreased since 1990 from ??? to ??? kg N2O-N/kg N at EU28+ISL level!!!**
+**Please retrieve these numbers and complete the above sentence - add the values also in Table 5.48**
+
 
 `r text2ief(fig="",tab=tabs("tabD13ief",display="cite"))`
 
@@ -478,5 +479,6 @@ tabs("AGR_non_key", "Aggregated GHG emissions from nonkey categories in the agri
 `r tabs("AGR_non_key",display="full")`&nbsp;
 
 **!!! THIS TABLE NEEDS TO BE DEVELOPED !!!**
-
+**Please add here a table with the emissions of non-keysource categories (3.F, 3.G, 3.H)
+by country and EU-KP sum. Add some text to it. We will implement this then for the next submission**
 

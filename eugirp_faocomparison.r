@@ -106,7 +106,8 @@ if(!file.exists(faofile) | recalc_faofile == 1){
         faoelements<-(faodata[,elementcode])
         faoelements<-unique(faoelements)
         write.csv(faoelements,file=paste0(faodir,"faoelements.csv"))
-        
+        # alex:
+        metafields<-c("method","classification","source","target","type","option")
         agrimets<-unique(allagri[,c("meastype","measure",metafields)])
         o<-order(agrimets$meastype)
         agrimets<-agrimets[o,]
@@ -118,6 +119,8 @@ if(!file.exists(faofile) | recalc_faofile == 1){
         faoitems<-unique(faoitems)
         write.csv(faoitems,file=paste0(faodir,"faoitems.csv"))
         
+        #alex:
+        sectfields<-c("sector_number","category")
         agrisects<-unique(allagri[,c(sectfields)])
         o<-order(agrisects$sector_number)
         agrisects<-agrisects[o,]

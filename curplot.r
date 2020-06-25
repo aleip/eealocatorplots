@@ -25,7 +25,8 @@ if(require(googledrive)==FALSE){install.packages("googledrive", repos = "https:/
 if(require(zip)==FALSE){install.packages("zip", repos = "https://cloud.r-project.org"); library(zip)} else {library(zip)}
 #if(require(httpuv)==FALSE){install.packages("httpuv", repos = "https://cloud.r-project.org"); library(httpuv)} else {library(httpuv)}
 #if(require(readxl)==FALSE){install.packages("readxl", repos = "https://cloud.r-project.org"); library(readxl)} else {library(readxl)}
-#if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)} else {library(plyr)}
+if(require(plyr)==FALSE){install.packages("plyr", repos = "https://cloud.r-project.org"); library(plyr)} else {library(plyr)}
+if(require(reshape2)==FALSE){install.packages("reshape2", repos = "https://cloud.r-project.org"); library(reshape2)} else {library(reshape2)}
 if(require(openxlsx)==FALSE){install.packages("openxlsx", repos = "https://cloud.r-project.org")}; library(openxlsx)
 }
 
@@ -117,6 +118,7 @@ cursubm <- "20190508"                                                       #!!!
 cursubm <- "20190115"                                                       #!!!
 cursubm <- "20200115"                                                       #!!!
 cursubm <- "20200315"                                                       #!!!
+cursubm <- "20200508"                                                       #!!!
 
 invyear<-2020
 # Define location of the *RData files.This is generally NOT in 

@@ -1028,6 +1028,7 @@ if(stepsdone==7) {
 if(stepsdone==8) {
   #nor dentro
     print(paste0("Step ",stepsdone+1,": Comparison with FAO"))
+    print(metafields)
     source("eugirp_faocomparison.r")
     source("eugirp_exportUIDs4capri.r")
     stepsdone<-9

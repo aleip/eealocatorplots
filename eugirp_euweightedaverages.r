@@ -32,153 +32,156 @@ if(change2datatables){
   joinADs2pars <- joinADs2pars[grepl("5.D.",sector_number) & gas=="N2O", avail := 'ADEFFLUENT']
 }
 
-fassign <- gsub("clean.RData", "assignad2par", rdatallem)
-if(file.exists(fassign)){
+# fassign <- gsub("clean.RData", "assignad2par", rdatallem)
+# if(file.exists(fassign)){
+#   
+#   # this part takes quite long and need to be improved to work faster
+#   # for the moment run per submissions it once and then get it back from file.
+#   load(file = fassign)
+# }else{
+#   
+#   selectadmeasures<-function(request,M,A,meas2sum,x){
+#     avail<-meas2sum[!meas2sum%in%c("EM","NEXC")]
+#     sec<-A$sector_number[x]
+#     cat<-A$category[x]
+#     cla<-A$classification[x]
+#     sou<-A$source[x]
+#     tar<-A$target[x]
+#     mea<-A$meastype[x]
+#     gas<-A$gas[x]
+#     typ<-A$type[x]
+#     uid<-A$variableUID[x]
+#     uni<-A$unit[x]
+#     
+#     #print(paste0("x<-",x,";sec<-",sec,";mea",mea,";cat<-",cat))
+#     # Use "Total Biomass burned [kt dm]" for IEF CH4 and N2O in Table 3.F
+#     if(grepl("^3.F",sec) & mea=="IEF") avail<-"AD"
+#     # Use "Area burned [k ha/yr]" for YIELD "Biomass available [t dm/ha] in Table 3.F
+#     if(grepl("^3.F",sec) & mea=="YIELD") avail<-"AREA"
+#     # Use "Crop production [t]" for parameters in 'Additional information' in Table 3.F
+#     if(grepl("^3.F",sec) & mea%in%c("DM","FracBURN","FracOXIDIZED","Combustion","RatioResCrop")) avail<-"PROD"
+#     # Indirect emissions in Table 3.B.2
+#     if(grepl("^3.B.2.5",sec) & uid=="47100CA3-9371-4944-B302-BD76A154B0F4") avail<-"Nvol"
+#     if(grepl("^3.B.2.5",sec) & uid=="C548A926-2825-4F66-A6FE-DA55F429CB29") avail<-"Nleach"
+#     # 3.B.2.5 N2O Emissions per MMS
+#     if(grepl("3.B.2.5 N2O Emissions per MMS",sec)) avail<-"NEXC"
+#     # Solid waste disposal
+#     if(grepl("5.[AB].",sec)) avail<-"AD"
+#     # Waste incineration
+#     if(grepl("Clinical Waste",cat) & typ=="Biogenic") avail<-"ADbio"
+#     if(grepl("Clinical Waste",cat) & typ=="Non-biogenic") avail<-"ADnbio"
+#     # Waste Water treatment and discharge
+#     if(grepl("5.D.",sec) & gas=="CH4") avail<-"ADORG"
+#     if(grepl("5.D.",sec) & gas=="N2O") avail<-"ADEFFLUENT"
+#     
+#     
+#     measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+#                                          & M$sector_number==sec & 
+#                                            M$category==cat & 
+#                                            M$classification==cla 
+#                                          & M$source==sou & M$target==tar]))
+#     
+#     if(mea == "CLIMA" & request == "meastype") measOK <- "CLIMA"   #xavi20180221 
+#     if(mea == "CLIMA" & request == "unit") measOK <- "%"           #xavi20180221
+#     if(mea == "CLIMA" & request == "variableUID") measOK <- uid    #xavi20180221
+#     if(mea == "MCF" & request == "meastype") measOK <- "MCF"     #xavi20180221 
+#     if(mea == "MCF" & request == "unit") measOK <- uni           #xavi20180221
+#     if(mea == "MCF" & request == "variableUID") measOK <- uid    #xavi20180221
+#     
+#     # In Tables 3.B. ignore source (MMS) and classification 
+#     if(length(measOK)==0 & grepl("^3.B",sec)){
+#       measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+#                                            & M$sector_number==sec & M$category==cat
+#                                            & M$target==tar]))
+#     }
+#     
+#     
+#     # In Tables 3.B. not all ADs are given - they are the same as in Table 3.A
+#     #                ignore source (MMS) and classification (Enteric vs. )
+#     if(length(measOK)==0 & grepl("^3.B",sec)){
+#       sec<-gsub("3.B.[12]","3.A",sec)
+#       measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+#                                            & M$sector_number==sec & M$category==cat 
+#                                            & M$target==tar]))
+#       #print(measOK)
+#       if(length(measOK)==0) {
+#         cat<-gsub("yrs","years",cat)
+#         measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
+#                                              & M$sector_number==sec & M$category==cat 
+#                                              & M$target==tar]))
+#         if(length(measOK)==0) {
+#           tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+#           print(tms)
+#           stop()
+#         }
+#       }
+#     }
+#     
+#     
+#     # For cat 3.B.2 ADs might not be give ... use those for 3.A instead
+#     if(length(measOK)==0){
+#       if(grepl("^3.B.2.1",sec)){
+#         sec<-gsub("3.B.2","3.A",sec)
+#         uid<-(unique(M[,"variableUID"][M$meastype=="AD" & M$sector_number==sec]))
+#         measOK<-as.vector(unique(M[,request][M$variableUID==uid]))
+#       }
+#       
+#       if(grepl("^3.D.1.3",sec)) {
+#         if(request=="variableUID")measOK<-paste0("AD for",sec," (N Deposited by Grazing Animals) needs to be calculated from Table B(b)")
+#         if(request=="meastype")measOK<-"-"
+#       }
+#       if(grepl("^3.D.AI",sec)) {
+#         if(request=="variableUID")measOK<-paste0("Fractions ",sec," needs to be checked")
+#         if(request=="meastype")measOK<-"-"
+#       }
+#       if(grepl("^3.B.2.5 N2O Emissions per MMS",sec)) {
+#         if(request=="variableUID")measOK<-paste0("Total N handled in ",sec," needs to be calc&checked")
+#         if(request=="meastype")measOK<-"-"
+#       }
+#     }else if(length(measOK)>1){
+#       measOK<-c(length(measOK),measOK)
+#       if(uni=="t/unit"){
+#         measOK<-c(measOK,"variable type")
+#       }else{
+#         View(A[x,])
+#         print(measOK)
+#         print(paste0("meastype=",mea))
+#         tms<-paste0("x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
+#         print(tms)
+#         stop()
+#       }
+#     }
+#     
+#     return(paste0(measOK,collapse=" "))
+#   }
   
-  # this part takes quite long and need to be improved to work faster
-  # for the moment run per submissions it once and then get it back from file.
-  load(file = fassign)
-}else{
-  
-  selectadmeasures<-function(request,M,A,meas2sum,x){
-    avail<-meas2sum[!meas2sum%in%c("EM","NEXC")]
-    sec<-A$sector_number[x]
-    cat<-A$category[x]
-    cla<-A$classification[x]
-    sou<-A$source[x]
-    tar<-A$target[x]
-    mea<-A$meastype[x]
-    gas<-A$gas[x]
-    typ<-A$type[x]
-    uid<-A$variableUID[x]
-    uni<-A$unit[x]
-    
-    #print(paste0("x<-",x,";sec<-",sec,";mea",mea,";cat<-",cat))
-    # Use "Total Biomass burned [kt dm]" for IEF CH4 and N2O in Table 3.F
-    if(grepl("^3.F",sec) & mea=="IEF") avail<-"AD"
-    # Use "Area burned [k ha/yr]" for YIELD "Biomass available [t dm/ha] in Table 3.F
-    if(grepl("^3.F",sec) & mea=="YIELD") avail<-"AREA"
-    # Use "Crop production [t]" for parameters in 'Additional information' in Table 3.F
-    if(grepl("^3.F",sec) & mea%in%c("DM","FracBURN","FracOXIDIZED","Combustion","RatioResCrop")) avail<-"PROD"
-    # Indirect emissions in Table 3.B.2
-    if(grepl("^3.B.2.5",sec) & uid=="47100CA3-9371-4944-B302-BD76A154B0F4") avail<-"Nvol"
-    if(grepl("^3.B.2.5",sec) & uid=="C548A926-2825-4F66-A6FE-DA55F429CB29") avail<-"Nleach"
-    # 3.B.2.5 N2O Emissions per MMS
-    if(grepl("3.B.2.5 N2O Emissions per MMS",sec)) avail<-"NEXC"
-    # Solid waste disposal
-    if(grepl("5.[AB].",sec)) avail<-"AD"
-    # Waste incineration
-    if(grepl("Clinical Waste",cat) & typ=="Biogenic") avail<-"ADbio"
-    if(grepl("Clinical Waste",cat) & typ=="Non-biogenic") avail<-"ADnbio"
-    # Waste Water treatment and discharge
-    if(grepl("5.D.",sec) & gas=="CH4") avail<-"ADORG"
-    if(grepl("5.D.",sec) & gas=="N2O") avail<-"ADEFFLUENT"
-    
-    
-    measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-                                         & M$sector_number==sec & M$category==cat & M$classification==cla 
-                                         & M$source==sou & M$target==tar]))
-    
-    if(mea == "CLIMA" & request == "meastype") measOK <- "CLIMA"   #xavi20180221 
-    if(mea == "CLIMA" & request == "unit") measOK <- "%"           #xavi20180221
-    if(mea == "CLIMA" & request == "variableUID") measOK <- uid    #xavi20180221
-    if(mea == "MCF" & request == "meastype") measOK <- "MCF"     #xavi20180221 
-    if(mea == "MCF" & request == "unit") measOK <- uni           #xavi20180221
-    if(mea == "MCF" & request == "variableUID") measOK <- uid    #xavi20180221
-    
-    # In Tables 3.B. ignore source (MMS) and classification 
-    if(length(measOK)==0 & grepl("^3.B",sec)){
-      measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-                                           & M$sector_number==sec & M$category==cat
-                                           & M$target==tar]))
-    }
-    
-    
-    # In Tables 3.B. not all ADs are given - they are the same as in Table 3.A
-    #                ignore source (MMS) and classification (Enteric vs. )
-    if(length(measOK)==0 & grepl("^3.B",sec)){
-      sec<-gsub("3.B.[12]","3.A",sec)
-      measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-                                           & M$sector_number==sec & M$category==cat 
-                                           & M$target==tar]))
-      #print(measOK)
-      if(length(measOK)==0) {
-        cat<-gsub("yrs","years",cat)
-        measOK<-as.vector(unique(M[,request][M$meastype %in% avail 
-                                             & M$sector_number==sec & M$category==cat 
-                                             & M$target==tar]))
-        if(length(measOK)==0) {
-          tms<-paste0("measOK<-",measOK,"x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
-          print(tms)
-          stop()
-        }
-      }
-    }
-    
-    
-    # For cat 3.B.2 ADs might not be give ... use those for 3.A instead
-    if(length(measOK)==0){
-      if(grepl("^3.B.2.1",sec)){
-        sec<-gsub("3.B.2","3.A",sec)
-        uid<-(unique(M[,"variableUID"][M$meastype=="AD" & M$sector_number==sec]))
-        measOK<-as.vector(unique(M[,request][M$variableUID==uid]))
-      }
-      
-      if(grepl("^3.D.1.3",sec)) {
-        if(request=="variableUID")measOK<-paste0("AD for",sec," (N Deposited by Grazing Animals) needs to be calculated from Table B(b)")
-        if(request=="meastype")measOK<-"-"
-      }
-      if(grepl("^3.D.AI",sec)) {
-        if(request=="variableUID")measOK<-paste0("Fractions ",sec," needs to be checked")
-        if(request=="meastype")measOK<-"-"
-      }
-      if(grepl("^3.B.2.5 N2O Emissions per MMS",sec)) {
-        if(request=="variableUID")measOK<-paste0("Total N handled in ",sec," needs to be calc&checked")
-        if(request=="meastype")measOK<-"-"
-      }
-    }else if(length(measOK)>1){
-      measOK<-c(length(measOK),measOK)
-      if(uni=="t/unit"){
-        measOK<-c(measOK,"variable type")
-      }else{
-        View(A[x,])
-        print(measOK)
-        print(paste0("meastype=",mea))
-        tms<-paste0("x<-'",x,"';sec<-'",sec,"';mea<-'",mea,"';uid<-'",uid,"';cat<-'",cat,"';cla<-'",cla,"';sou<-'",sou,"';tar<-'",tar,"'")
-        print(tms)
-        stop()
-      }
-    }
-    
-    return(paste0(measOK,collapse=" "))
-  }
-  
-  #allagri<-alldata[grepl("^3",alldata$sector_number),]
-  calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
-  #measname<-as.data.frame(measname)
-  #xavi20180221: measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
-  
-  measures2sum<-allagri[allagri$meastype %in% meas2sum,]
-  listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
-  
-  # Set up table with infor AD to link with parameter
-  #xavi20180221: assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
-  assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure")), with=FALSE])
-  assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("meastype",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
-  assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("unit",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
-  assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
-    selectadmeasures("variableUID",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
-  namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
-                       "category","classification","source","target","option","variableUID","aduids")
-  assignad2par<-assignad2par[,namesassignad2par, with=FALSE]
-  measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
-  if(sum(duplicated(measures2wei$variableUID))>0)  measures2wei <- measures2wei[!is.na(measures2wei$meastype),]
-  parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
-  
-  save(assignad2par, measures2wei, measures2sum, listofmeasuresnotconsidered, file = fassign)
-}
+#   #allagri<-alldata[grepl("^3",alldata$sector_number),]
+#   calcmeas<-unique(subset(allagri,select=allfields[!allfields %in% c("notation","party",years)]))
+#   #measname<-as.data.frame(measname)
+#   #xavi20180221: measures2sum<-calcmeas[calcmeas$meastype %in% meas2sum,]
+#   
+#   measures2sum<-allagri[allagri$meastype %in% meas2sum,]
+#   listofmeasuresnotconsidered<-calcmeas[!calcmeas$meastype %in% c(meas2sum,meas2popweight,meas2clima,meas2mcf),]
+#   
+#   # Set up table with infor AD to link with parameter
+#   #xavi20180221: assignad2par<-unique(calcmeas[calcmeas$meastype %in% meas2popweight,!(names(calcmeas)%in%c("method","measure"))])
+#   assignad2par<-unique(calcmeas[calcmeas$meastype %in% c(meas2popweight,meas2clima,meas2mcf),!(names(calcmeas)%in%c("method","measure")), with=FALSE])
+#   assignad2par$adpars<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
+#     selectadmeasures("meastype",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
+#   assignad2par$adunit<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
+#     selectadmeasures("unit",as.data.frame(calcmeas),as.data.frame(assignad2par),meas2sum,x)))
+#   assignad2par$aduids<-unlist(lapply(c(1:nrow(assignad2par)),function(x)
+#     selectadmeasures(request = "variableUID",M = as.data.frame(calcmeas),
+#                      A = as.data.frame(assignad2par),meas2sum = meas2sum,x = x)))
+#   namesassignad2par<-c("meastype","gas","unit","sector_number","adpars","adunit",
+#                        "category","classification","source","target","option","variableUID","aduids")
+#   assignad2par<-assignad2par[,namesassignad2par, with=FALSE]
+#   measures2wei<-calcmeas[calcmeas$variableUID %in% assignad2par$variableUID,]
+#   if(sum(duplicated(measures2wei$variableUID))>0)  measures2wei <- measures2wei[!is.na(measures2wei$meastype),]
+#   parameterswithoutADs<-(assignad2par[assignad2par$adunit=="",])
+#   
+#   save(assignad2par, measures2wei, measures2sum, listofmeasuresnotconsidered, file = fassign)
+# }
 # CORRECTIONS
 
 # 1. Autocorrections have an identified reason - update the data table
@@ -192,13 +195,16 @@ calceu <- allagri
 
 if(exists("autocorrections")){
   
+  
   message("\nApply autocorrections to values")
   autoc <- copy(as.data.table(autocorrections))
   autoc <- autoc[!party %in% eu, c("party","variableUID", "autocorr", years), with=FALSE]
   setnames(autoc, years, paste0("a", years))
   
   # If rerun remove column 'autocor' first
-  calceu <- calceu[, -"autocorr", with=FALSE]
+  if("autocorr" %in% names(calceu)){
+    calceu <- calceu[, -"autocorr", with=FALSE]
+  }
   autoc <- merge(calceu,autoc,by=c("party","variableUID"),all=TRUE)
   
   # Replace original values with the autocorrected ones
@@ -218,7 +224,9 @@ if(exists("paramcheck")){
     corcalceu<-corcalceu[corcalceu$variableUID != "",]
   
     # If rerun remove column 'autocor' first
-    calceu <- calceu[, -"correction", with=FALSE]
+    if("correction" %in% names(calceu)){
+      calceu <- calceu[, -"correction", with=FALSE]
+    }
     calceu <- merge(calceu,corcalceu,by=c("party","variableUID"),all=TRUE)
     
     calceu$correction[is.na(calceu$correction)]<-1

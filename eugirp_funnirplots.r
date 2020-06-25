@@ -733,6 +733,8 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
     save(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,
          runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,
          serious,mstp, pconv, pwidth, file="plotnow.rdata")
+    #load("a.rdata")
+    
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
     #### GENERAL PLOT INFORMATION #################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

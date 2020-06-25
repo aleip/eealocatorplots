@@ -1,0 +1,62 @@
+Item,Item.Code,sector_number,category
+All Animals,1755,3.A,Farming
+All Crops,1712,3.F,Farming
+Asses,1107,x,
+Barley,44,x,
+"Beans, dry",176,x,
+Buffaloes,946,3.A.4.1,Buffalo
+Burning - all categories,6795,,
+Cattle,1757,3.A.1,Cattle
+"Cattle, dairy",960,3.A.1,Dairy Cattle
+"Cattle, non-dairy",961,3.A.1,Non-Dairy Cattle
+Chickens,1054,x,
+"Chickens, broilers",1053,x,
+"Chickens, layers",1052,x,
+Closed and open shrubland,6793,z,
+Closed shrubland,6791,z,
+Coal,6809,y,
+Cropland and grassland organic soils,6729,3.D.1.6,Cultivation of Organic Soils
+Cropland organic soils,6727,x,
+Ducks,1068,x,
+Electricity,6807,y,
+Energy for power irrigation,6808,y,
+Energy used in fishery,6811,y,
+Fuel oil,6804,y,
+Fuel oil used in fisheries,6806,y,
+Gas-Diesel oil,6801,y,
+Gas-diesel oils used in fisheries,6803,y,
+Goats,1016,3.A.4.4,Goats
+Grassland,6794,z,
+Grassland organic soils,6728,x,
+Horses,1096,3.A.4.5,Horses
+Liquefied petroleum gas (LPG),6805,y,
+Maize,56,x,
+Millet,79,x,
+Motor Gasoline,6800,y,
+Mules,1110,x,
+Mules and Asses,1759,3.A.4.6,Mules and Asses
+Natural gas (including LNG),6802,y,
+Nitrogen Fertilizers (N total nutrients),3102,3.D.1.1,Direct N2O Emissions From Managed Soils
+Nitrogenous fertilizers,1360,3.D.1.1,Direct N2O Emissions From Managed Soils
+Oats,75,x,
+Open shrubland,6792,z,
+Potatoes,116,x,
+Poultry Birds,2029,3.A.4.7,Poultry
+"Rice, paddy",27,3.C,
+Rye,71,x,
+Savanna,6760,z,
+Savanna and woody savanna,6790,z,
+Sheep,976,3.A.2,Sheep
+Sheep and Goats,1749,x,
+Sorghum,83,x,
+Soybeans,236,x,
+Sugar cane,156,x,
+Swine,1048,3.A.3,Swine
+"Swine, breeding",1051,x,
+"Swine, market",1049,x,
+Synthetic Nitrogen fertilizers,3107,3.D.1.1,Direct N2O Emissions From Managed Soils
+Total Energy,6813,y,
+Transport fuel used in agriculture (excl. fishery),6810,y,
+Turkeys,1079,x,
+Wheat,15,x,
+Woody savanna,6789,z,

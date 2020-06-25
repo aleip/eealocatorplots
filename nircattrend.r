@@ -5,9 +5,9 @@ trendmaincatsMS <- merge(trendmaincatsMS, gwps, by='gas')
 trendmaincatsMS <- trendmaincatsMS[, (years) := .SD * gwp, .SDcols=years]
 trendmaincatsMS$unit<-"kt CO2 equivalent"
 
-eusel<-trendmaincatsMS$party==eusubm
-trendmaincatsEUC<-trendmaincatsMS[eusel,]
-trendmaincatsMS<-trendmaincatsMS[!eusel,]
+selcountries <- curcountries[variable==eusubm & value==1 & code3!=eusubm]$code3
+trendmaincatsEUC<-trendmaincatsMS[party==eusubm,]
+trendmaincatsMS <-trendmaincatsMS[party%in%selcountries,]
 
 
 trenddetcatsMS<-agridet[agridet$measure==selmeasure,]
@@ -16,8 +16,7 @@ trenddetcatsMS<- merge(trenddetcatsMS, gwps, by='gas')
 trenddetcatsMS <- trenddetcatsMS[, (years) := .SD * gwp, .SDcols=years]
 trenddetcatsMS$unit<-"kt CO2 equivalent"
 
-eusel<-trenddetcatsMS$party==eusubm
-trenddetcatsMS<-trenddetcatsMS[!eusel,]
+trenddetcatsMS <-trenddetcatsMS[party%in%selcountries,]
 
 trendmaincatsMS<-as.data.frame(trendmaincatsMS)
 trenddetcatsMS<-as.data.frame(trenddetcatsMS)
@@ -47,7 +46,13 @@ for (k in tdetsec){
 
 f1<-c("sharefrom","party","sector_number","category","gas")
 for (i in c("02","05","10","A")){
-    f1<-c(f1,paste0("share",i),paste0("trend",i,"abs"),paste0("trend",i,"rel"),paste0("share",i,"rank"),paste0("share",i,"cum"))
+    f1<-c(f1,
+          paste0("share",i),
+          paste0("trend",i,"abs"),
+          paste0("sumtrend",i),
+          paste0("trend",i,"rel"),
+          paste0("share",i,"rank"),
+          paste0("share",i,"cum"))
 }
 f1<-c(f1,years)
 runi<-0
@@ -63,18 +68,27 @@ for (j in paste0("trend",c("maincatsMS","maincatsEUC",union(tmainsec,tdetsec))))
                                             firstyear)]
     
     ocls <- paste0("y", c("02","05","10","A"))
+    
+    # Absolute trends
     tcls <- paste0("trend", c("02","05","10","A"), "abs")
     test <- test[, (tcls) := ylast-.SD, .SDcols=ocls]
     ncls <- paste0("trend", c("02","05","10","A"), "rel")
     test <- test[, (ncls) := ylast/.SD, .SDcols=ocls]
     
+    # Shares of trend over sum of absolute trends
     ncls <- paste0("share", c("02","05","10","A"))
-    test <- test[, (ncls) := lapply(.SD, sum, na.rm=TRUE), .SDcols=tcls]
+    
+    # Sum over the absolute trends
+    scls <- paste0("sumtrend", c("02","05","10","A"))
+    
+    
+    test <- test[, (scls) := lapply(.SD, sum, na.rm=TRUE), .SDcols=tcls]
     for (i in c("02","05","10","A")){
-        si<-paste0("share",i)
+        si<-paste0("sumtrend",i)
+        sh<-paste0("share",i)
         ti<-paste0("trend", i, "abs")
         test <- test[, tempcol := .SD, .SDcols=si]
-        test <- test[, (si) := .SD/tempcol, .SDcols=ti, by=1:nrow(test)]
+        test <- test[, (sh) := .SD/tempcol, .SDcols=ti, by=1:nrow(test)]
         
     }        
     f2<-intersect(names(test),f1)
@@ -101,9 +115,9 @@ writeLines(paste0("\n#",
                   "\n# share02rank ... Importance of the trend in MS for overall trend (example MS contribution to EUC trend). Ranked by absolute magnitude - large negatives and positives first",
                   "\n#",
                   "\n# Filter by column sharefrom",
-                  "\n# - trendmaincatsEUC: gives shares for EUC total trend in agriculture by *sector* (main categories, not very detailed)",
+                  "\n# - trendmaincatsEUC: gives shares for EUC total trend in agriculture by *sector* (main categories - not very detailed)",
                   "\n# - trendmaincatsMS:  gives shares for EUC total trend in agriculture by *sector and MS* this is the longest table and probably most interesting one - check important indivual trends. filtering by country also possible",
-                  "\n# - trend3.A, trend3.A.1 etc : gives shares for EU total trend in category by *MS* - can be used to analyse findings from before. can be used hierarchically first 3A then check 3A1 etc."),
+                  "\n# - trend3.A - trend3.A.1 etc : gives shares for EU total trend in category by *MS* - can be used to analyse findings from before. can be used hierarchically first 3A then check 3A1 etc."),
            con)
 write.csv(trendshares,con)
 close(con)

@@ -50,16 +50,11 @@ names(curtab)<-c("Country",
 
 `r tabs(paste0("tab",cursec,"mscontr"),display="full")`
 
-<!---
-This table is provided by EEA, contains 
+**Please *exchange* table with figure for table obtained from UBA here!! 
+This table contains info on Emissions, Emission changes, Method, and Emission factor information.
+Check if the data are identical.**
 
-`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,"countries"])))`&nbsp;
-![]($ubaimages$/$cursubm$/Table3AEntericFermentation.jpg)
---->
-
-
-**Please add figure for table here!! This table contains info on Emissions, Emission changes, Method, 
-and Emission factor information **
+`r pander(emfirstlast,emphasize.strong.rows=which(grepl("EU",emfirstlast[,Country])))`&nbsp;
 
 
 ```{r 3a1,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -95,7 +90,6 @@ tabs(paste0("tab",curcattext,"mscontr"),msconttablecaption())
 
 <!---
 This table is provided by EEA, contains 
-
 ![]($ubaimages$/$cursubm$/Table3A2SheepCH4.jpg) 
 --->
 

@@ -851,12 +851,6 @@ if(stepsdone==6){
     write.xlsx(eukp, eu28, file = f1, asTable = TRUE, overwrite=TRUE)
     write.xlsx(allagri[!party %in% eu], file = f2, asTable = TRUE, overwrite=TRUE)
   
-    # Including again Norway data
-    # if(!is.null(keepNORout)){
-    #   allagri_NOR$autocorr <- ""
-    #   allagri_NOR$correction <- ""
-    #   allagri <- rbind(allagri, allagri_NOR)
-    # }  
     print(paste0("Step ",stepsdone+1,"e: Make plots"))
     datasource<-"nir"
     runfocus<-"value"
@@ -891,8 +885,8 @@ if(stepsdone==6){
     
     stepsdone<-stepsdone+1
 
-    save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
-    savelist<-unique(c(savelist,"assignad2par"))
+    #save(listofmeasuresnotconsidered,measures2sum,measures2wei,file=rdatmeasu)
+    #savelist<-unique(c(savelist,"assignad2par"))
     savelist<-c(savelist,"growthcheck","paramcheck","paramchecked","keycategories")
     savestep(stepsdone, savelist)
     

@@ -11,7 +11,7 @@
 #
 # All parameters that MUST be adapted by the user are indicated by an #!!! at the and of the line
 
-if(require(ggplot2)==FALSE){install.packages("ggplot2", repos = "https://cloud.r-project.org"); library(ggplot2)} else {library(ggplot2)}
+#if(require(ggplot2)==FALSE){install.packages("ggplot2", repos = "https://cloud.r-project.org"); library(ggplot2)} else {library(ggplot2)}
 if(require(reshape2)==FALSE){install.packages("reshape2", repos = "https://cloud.r-project.org"); library(reshape2)} else {library(reshape2)}
 #if(require(dplyr)==FALSE){install.packages("dplyr", repos = "https://cloud.r-project.org"); library(dplyr)} else {library(dplyr)}
 #if(require(tidyr)==FALSE){install.packages("tidyr", repos = "https://cloud.r-project.org"); library(tidyr)} else {library(tidyr)}

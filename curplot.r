@@ -50,6 +50,13 @@ if (!grepl("CAPRI", getwd())) {
     adrian<-"D:\\dev\\ghginventory\\"
   }else if(mypc=="BARAGOON"){ 
     adrian<-"c:\\dev\\ghginventory\\"
+  }else if (mypc == 'DESKTOP-B50NUH2'){                  # added by Efisio 
+      adrian   <- 'E:\\D_extra\\work\\EU_GIRP\\ghginventory\\'
+      iam      <- 'ltEfisio' 
+      locplots <- paste0(adrian,"eealocatorplots-master")  
+      drive_folder_owner <- "efsolazzo@gmail.com"            # this is my account in this gDrive folder.
+      drive_auth(email   =  'eealocatorplots.jrc@gmail.com') # previously authorized account using drive_auth()
+      gdrive <- 'eugirp/'
   }else{
     adrian<-"C:/Adrian/"
   }

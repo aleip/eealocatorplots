@@ -52,7 +52,7 @@ if (!grepl("CAPRI", getwd())) {
     adrian<-"c:\\dev\\ghginventory\\"
   }else if (mypc == 'DESKTOP-B50NUH2'){                  # added by Efisio 
       adrian   <- 'E:\\D_extra\\work\\EU_GIRP\\ghginventory\\'
-      iam      <- 'ltEfisio' 
+      iam      <-  'ltEfisio' 
       locplots <- paste0(adrian,"eealocatorplots-master")  
       drive_folder_owner <- "efsolazzo@gmail.com"            # this is my account in this gDrive folder.
       drive_auth(email   =  'eealocatorplots.jrc@gmail.com') # previously authorized account using drive_auth()
@@ -126,8 +126,9 @@ cursubm <- "20190115"                                                       #!!!
 cursubm <- "20200115"                                                       #!!!
 cursubm <- "20200315"                                                       #!!!
 cursubm <- "20200508"                                                       #!!!
+cursubm <- '20210115'
 
-invyear<-2020
+invyear<-2021
 # Define location of the *RData files.This is generally NOT in 
 #    the same folder of the EU-GIRP tool.
 

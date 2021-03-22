@@ -306,421 +306,451 @@ gettdis<-function(tmin,tmax,tmag){
     return(tdis)    
 }
 
-#prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,dsource,multisource,adddefault=0){
 prepareplot<-function(imeas,plotmeas,plotdata,runfocus="value",rundata="adem",eusubm,plotparamcheck=1,multisource,adddefault=0){
-    
-    #print("prepareplot")
-    curuid<-plotmeas$variableUID[imeas]
-    mstp <- plotmeas$meastype[imeas]
-    years2keep<-as.character(years2keep)
-    #runfoc<-paste0(runfoc,)
-    #print(runfocus)
-    runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
-    plotmeas[is.na(plotmeas)]<-""
-    dfplotmeas <- as.data.frame(plotmeas)
-    figname<-plotname(dsource = paste0(unique(plotdata$datasource),collapse=""),
-                      plotsdir,issuedir,
-                      imeas = runid,
-                      runsect = dfplotmeas[imeas,sectfields],
-                      runmeta = dfplotmeas[imeas,metafields],
-                      runmeas = dfplotmeas[imeas,measfields],
-                      runfoc = runfocus,figdate,plotformat,rundata,cursubm,
-                      plotparamcheck=0)
-    nplots<-length(unique(plotdata$datasource))
-    #par(mfrow = c(1,length(unique(plotdata$datasource))))
-    #multisource<-unique(plotdata$datasource)
-    multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
-    cat("\n")
-    plotinitialized<-NULL
-    plotted<-NULL
-    ploteuvals<-NULL
-    cntrshars<-NULL
-    eu28years<-NULL
-    relavs<-NULL
-    nmain<-NULL
-    nothers<-NULL
-    acountry<-curcountries[variable==eusubm & value==1]$code3
-    acountryminus<-acountry[!acountry%in%eu]
-    #eukp<-eunames[,eusubm]
-    
-    tmin<-NULL
-    tmax<-NULL
-    tmag<-NULL
-
-    if(length(multisource)>1){
-        yr2share <- as.vector(apply(plotdata[plotdata$datasource == multisource[2], years], 2, sum, na.rm=TRUE) > 0)
-        yr2share <- years[yr2share]
-    }else{
-      yr2share <- lastyear
-    }
-    for(dsource in multisource){
-        # Determine y-axis for ADEM plots
-        isource<-which(dsource==multisource)
-        plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
-        
-        
-        # Required here a matrix of only values for all countires in acountry (except EU)
-        # and all years in years.
-        dtcountry <- as.data.table(acountry)
-        plotmatr <- merge(dtcountry[, .(party=acountry)], unique(plotdatacur[plotdatacur$variableUID==curuid,c("party",years2keep), with=FALSE]), by="party", all.x=TRUE)
-        eu28<-as.data.frame(plotmatr[party==eusubm, years, with=FALSE])
-        plotmatr<-as.data.frame(plotmatr[party!=eusubm, years, with=FALSE])
+  #print("prepareplot")
+  curuid<-plotmeas$variableUID[imeas]
+  mstp <- plotmeas$meastype[imeas]
+  years2keep<-as.character(years2keep)
+  #runfoc<-paste0(runfoc,)
+  #print(runfocus)
+  runid<-formatC(imeas,width=ceiling(log10(nrow(plotmeas))),flag="0")
+  plotmeas[is.na(plotmeas)]<-""
+  dfplotmeas <- as.data.frame(plotmeas)
+  figname<-plotname(dsource = paste0(unique(plotdata$datasource),collapse=""),
+                    plotsdir,issuedir,
+                    imeas = runid,
+                    runsect = dfplotmeas[imeas,sectfields],
+                    runmeta = dfplotmeas[imeas,metafields],
+                    runmeas = dfplotmeas[imeas,measfields],
+                    runfoc = runfocus,figdate,plotformat,rundata,cursubm,
+                    plotparamcheck=0)
+  nplots<-length(unique(plotdata$datasource))
+  #par(mfrow = c(1,length(unique(plotdata$datasource))))
+  #multisource<-unique(plotdata$datasource)
+  multisource<-unique(plotdata$datasource[plotdata$variableUID==curuid])
+  cat("\n")
+  plotinitialized <- NULL
+  plotted         <- NULL
+  ploteuvals      <- NULL
+  cntrshars       <- NULL
+  eu28years       <- NULL
+  relavs          <- NULL
+  nmain           <- NULL
+  nothers         <- NULL
+  acountry<-curcountries[variable==eusubm & value==1]$code3
+  acountryminus<-acountry[!acountry%in%eu]
+  #eukp<-eunames[,eusubm]
   
-        # correction to unit for land converted to grassland
-        if(curuid == "84ED4711-2022-4279-B3FB-9F2B8C1CE9DC"){
-          plotmatr[, years] <- round(plotmatr[, years], 0)
-        }
-        
-        if(sum(plotmatr,na.rm=TRUE)==0){return(list(plotted,ploteuvals,plotinitialized,multisource))}
-        if(rundata=="adem"){
-            temp<-plotmatr
-            temp[temp<=0]<-NA
-            eu28pos<-colSums(temp,na.rm=T)
-            eu28pos[eu28pos==0]<-NA
-            euquant<-as.data.frame(matrix(rep(0,length(years)*3),ncol=length(years),nrow=3))
-            row.names(euquant)<-quantfields
-            names(euquant)<-years
-            
-            temp<-plotmatr
-            temp[temp>=0]<-NA
-            eu28neg<-colSums(temp,na.rm=T)
-            eu28neg[eu28neg==0]<-NA
-            
-            ticksyaxis<-getyaxis(eu28,eu28pos,eu28neg)
-            tmin<-min(tmin,ticksyaxis[[1]])
-            tmax<-max(tmax,ticksyaxis[[2]])*1.02
-            tmag<-max(tmag,ticksyaxis[[3]])
-            #print(paste(tmin,tmax,tmag))
-
-        }else if(grepl("ief",rundata)){
-            eu28pos<-max(plotmatr,na.rm=T)
-            eu28neg<-min(plotmatr,na.rm=T)
-        }
+  tmin<-NULL
+  tmax<-NULL
+  tmag<-NULL
+  
+  if(length(multisource)>1){
+    yr2share <- as.vector(apply(plotdata[plotdata$datasource == multisource[2], years], 2, sum, na.rm=TRUE) > 0)
+    yr2share <- years[yr2share]
+  }else{
+    yr2share <- lastyear
+  }
+  for(dsource in multisource){
+    # Determine y-axis for ADEM plots
+    isource<-which(dsource==multisource)
+    plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
+    
+    
+    # Required here a matrix of only values for all countires in acountry (except EU)
+    # and all years in years.
+    dtcountry <- as.data.table(acountry)
+    plotmatr  <- merge(dtcountry[, .(party=acountry)], unique(plotdatacur[plotdatacur$variableUID==curuid,c("party",years2keep), with=FALSE]), by="party", all.x=TRUE)
+    eu28      <- as.data.frame(plotmatr[party==eusubm, years, with=FALSE])
+    plotmatr  <- as.data.frame(plotmatr[party!=eusubm, years, with=FALSE])
+    
+    # correction to unit for land converted to grassland
+    if(curuid == "84ED4711-2022-4279-B3FB-9F2B8C1CE9DC"){
+      plotmatr[, years] <- round(plotmatr[, years], 0)
     }
     
-    for(dsource in multisource){
-        isource<-which(dsource==multisource)
-        #print(paste0("isource=",isource,dsource,"-",paste(multisource,collapse=",")))
-        #save(list=objects(),file="temp.rdata")
-        plotdatacur<-plotdata[plotdata$variableUID==curuid&plotdata$datasource==dsource,]
-        if(isource == 1) {
-          plotdatacur_2<-plotdata[plotdata$variableUID==curuid&
-                                    plotdata$datasource==multisource[!multisource %in% dsource],]
-        }
-        # The first time this runs autocorr column is all NA -- no checks yet made
-        autocorr<-acountryminus[acountryminus%in%plotdatacur$party[!is.na(plotdatacur$autocorr)]]
-        autocorr<-unlist(lapply(autocorr,function(x) paste(x," (",plotdatacur$autocorr[plotdatacur$party==x],")",sep="")))
-        autocorr<-paste(autocorr,collapse=", ")
-        if(autocorr!="") autocorr<-paste0("Data correction: ",autocorr)
-        serious<-which(acountryminus%in%plotdatacur$party[plotdatacur$correction==0])
-        if(dsource=="nir"){
-          if("correction" %in% names(plotdatacur)) plotdatacur<-plotdatacur[plotdatacur$correction!=0]
-        }
-        plotdatacur <- plotdatacur[! party%in%eu]
-        if(length(serious)==0)serious=""
-        if(dsource!="nir") serious<-""
-        if(nrow(plotdatacur)>0){
-            # Initialize if not yet done
-            if(is.null(plotinitialized)) plotinitialized<-iniplot(figname,nplots)
-            save(plotdatacur,curuid,acountry,file="temp.rdata")
-            
-            plotmatr <- merge(dtcountry[, .(party=acountry)], unique(plotdatacur[plotdatacur$variableUID==curuid,c("party",years2keep), with=FALSE]), by="party", all.x=TRUE)
-            plotmatr<-as.data.frame(plotmatr[party!=eusubm, years, with=FALSE])
-            
-            #Make plot when any value is different from zero or NA:
-            if(isource==1) cat(runid,"/",nrow(plotmeas),sep = "")
-            cat("-",dsource,sep="")
-            
-            #View(plotmatr,dsource)
-            if(sum(plotmatr,na.rm=TRUE)!=0){
-                
-                plotcoun<-unique(as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eu)]))))
-                
-                # Negative and positive values: note this has different meaning for ADEM plots vs. IEF plots ####
-                #  - ADEM: time series of sum of MS with positive/negative data
-                #  - IEF: maximum/minimum values over the time series
-                if(rundata=="adem"){
-                    euquant<-as.data.frame(matrix(rep(0,length(years)*3),ncol=length(years),nrow=3))
-                    row.names(euquant)<-quantfields
-                    names(euquant)<-years
-                    
-                    # Relative value in country compared to EU value for all years
-                    # This is different from trend-plots!!!
-                    rel<-abs(plotmatr[,years2keep])
-                    
-                    #print("# Relative value in country compared to EU value averaged over all years")
-                    relav<-rowMeans(rel[, years],na.rm=TRUE)
-                    relav[is.nan(relav)]<-NA
-                    reportingcountries <- acountry[! is.na(relav)]
-                    
-                    relavx<-relav[!is.na(relav)]
-                    relavx<-relavx[!relavx==0]
-                    
-                    #print("plotmatr1")
-                    save(rel,eu,acountry,plotmatr,file="rel.rdata")
-                    plotmatr$party<-acountry[!acountry%in%eu]
-                    rel$party<-acountry[!acountry%in%eu]   #xavi20180126
-                    #print("plotmatr2")
-                    topn<-min(10,length(relavx))
-                    topno<-max(0,length(relavx)-topn)
-                    
-                    #print("# Select the top countries with highest mean value over all years")
-                    kk <- rel[, c(ncol(rel)-1, ncol(rel))]
-                    kk1 <- kk[order(kk[,1], decreasing = TRUE),]
-                    kk2 <- kk1[!is.na(kk1[,1]),]
-                    #topneu28<- row.names(head(kk2,topn))
-                    
-                    # Save the names of the topn countries 
-                    #   ... and of the others
-                    topneu28<- head(kk2,topn)$party
-                    topother <- setdiff(reportingcountries, topneu28)
-                    
-                    #al202003 - don't understand the below
-                    #           it there are less than 10 'tops' ... how can there be a country left over that can be added?
-                    #           -->  commented temporarily
-                    # topneu28_1 <- apply(plotmatr[, years2keep], 1, sum, na.rm = TRUE)
-                    # topneu28_1 <- names(topneu28_1)[topneu28_1 != 0]
-                    # if (length(topneu28)<10){
-                    #   topneu28 <- union(topneu28, topneu28_1)
-                    #   topneu28 <- head(topneu28, 10)
-                    # } 
-                    # 
-                    eu28main<-plotmatr[plotmatr$party %in% topneu28,]
-                    eu28main<-eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
-                    eu28oher<-plotmatr[plotmatr$party %in% topother,]
-                    eu28oher<-eu28oher[order(eu28oher[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
-                    
-                    if(length(multisource)>1 & isource==1){
-                      
-                      plotdatacur_22 <- plotdatacur_2[!plotdatacur_2$party %in% eu, ]
-                      plotdatacur_22 <- plotdatacur_22[order(plotdatacur_22[years[length(years)]], decreasing = TRUE),]
-                      plotdatacur_22 <- plotdatacur_22[1:length(topneu28),]
-                      
-                      if(!identical(eu28main$party, rev(plotdatacur_22$party))){
-                        topneu28_3 <-setdiff(rev(plotdatacur_22$party), eu28main$party)
-                        if(!any(topneu28_3 %in% kk2$party)){ 
-                          topneu28_2 <<- c(topneu28_3, eu28main$party) 
-                        }else if(all(topneu28_3 %in% kk2$party)){ 
-                          topneu28_2 <<- c(rev(kk2$party[kk2$party %in% topneu28_3]), eu28main$party)
-                        } else { 
-                          topneu28_31 <- setdiff(topneu28_3, kk2$party[kk2$party %in% topneu28_3]) 
-                          topneu28_2 <<- c(topneu28_31, rev(kk2$party[kk2$party %in% topneu28_3]), eu28main$party)
-                        }
-                        
-                        topneu28_2 <- unlist(get("topneu28_2", envir = globalenv()))
-                        topneu28_22 <- plotmatr[plotmatr$party %in% topneu28_2,]
-                        topneu28_22 <<- row.names(topneu28_22[order(topneu28_22[years[length(years)]], decreasing = TRUE),])
-                        topneu28_22 <- unlist(get("topneu28_22", envir = globalenv()))
-                        eu28main <- plotmatr[topneu28_22,]
-                        eu28main <- eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
-                        topneu28 <- topneu28_22
-                        topn<-length(topneu28)
-                        topno<-length(relavx)-topn
-                      } else{
-                        topneu28_22 <<- topneu28
-                        topneu28_22 <- unlist(get("topneu28_22", envir = globalenv()))
-                        topneu28_2 <<- eu28main$party
-                        topneu28_2 <- unlist(get("topneu28_2", envir = globalenv()))
-                        
-                      }
-                    }
-                    
-                    if(length(multisource)== 1) topneu28_22 <- NA
-                    if(length(multisource)>1 & isource==2){
-                      topneu28_22 <- unlist(get("topneu28_22", envir = globalenv()))
-                      topneu28_2 <- unlist(get("topneu28_2", envir = globalenv()))
-                      eu28main <- plotmatr[topneu28_22,]
-                      #eu28main<-eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
-                      selctn <- rev(topneu28_22)
-                      eu28main <- eu28main[selctn, ]
-                      topneu28 <- topneu28_22
-                      topn<-length(topneu28)
-                      topno<-length(relavx)-topn
-                    }
-                    
-                    
-                    #al202003 topother<-setdiff(topneu28_1, topneu28)
-                    #al202003 Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years2keep],na.rm=TRUE)))
-                    topnnames<-eu28main$party
-                    Other<-as.data.frame(t(colSums(eu28oher[, years],na.rm = TRUE)))
-                    Other$party<-"Other"
-                      
-                    
-
-                    if(length(relavx)>length(topneu28)){
-                      eu28fin<-rbind(eu28main,Other)
-                    }else{
-                        eu28fin<-eu28main
-                    }
-                    finnames<-eu28fin$party
-                    eu28fin<-as.matrix(eu28fin[,years2keep])
-                    eu28fin[is.na(eu28fin)]<-0
-                    
-                    #xavi20180129: finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
-                    #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
-                    #print("# General determination of the last available year")
-                    #lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
-                    finshares<-eu28fin[,yr2share[length(yr2share)]]/as.numeric(eu28[yr2share[length(yr2share)]])*100
-                    ###Necessary addition as long as capri only has values up to 2010 
-                    #print("Remove capri manipulation for calculation of country shares when there are values for final year")
-                    #if(dsource=="capri"){
-                    #    finshares<-apply(eu28fin,1,function(x) tail(na.omit(x),1)) / apply(eu28,1, function(x) tail(na.omit(x),1)) * 100
-                        #stop()
-                    #}
-                    
-                    finshares[is.na(finshares)]<-0
-                    runfocus<-"value"
-                    #if(isource==2)stop("funnirplots 283")
-                }else if(grepl("ief",rundata)){
-                    eu28pos<-max(plotmatr,na.rm=T)
-                    eu28neg<-min(plotmatr,na.rm=T)
-                    if(trendoutlmethod==2){
-                        plotquant<-t(plotmatr)
-                        euquant<-as.data.frame(t(Reduce(cbind,lapply(c(1:nrow(plotquant)),function(x) selquantiles(as.matrix(plotquant[x,]))[2:4]))))
-                        names(euquant)<-quantfields
-                        euquant<-as.data.frame(t(euquant))
-                        names(euquant)<-years
-                        euquant1<-euquant
-                        euquant[1,]<-euquant[2,]+(1+bxplf)*(euquant[1,]-euquant[2,])
-                        euquant[3,]<-euquant[2,]+(1+bxplf)*(euquant[3,]-euquant[2,])
-                        
-                    }
-                    if(trendoutlmethod==3){
-                      
-                      euquant <- melt.data.table(plotdatacur, measure.vars = years, variable.name = "years")
-                      euquant <- euquant[, .(mean=mean(value), sd = sd(value)), 
-                                                 by=setdiff(names(euquant), c("party", 'value'))]
-                      euquant <- euquant[,  .(low=mean-bxplf*sd, mean, high=mean+bxplf*sd)]
-                      
-                      euquant <- t(as.matrix(euquant))
-                     }
-                    #Box-whisker method: 0.953 times the difference to the mean from 25 and 75 percentiles
-                    #                    to determine the upper and lower whisker
-                    if(sum(eu28,na.rm=TRUE)==0){ 
-                        eu28<-apply(plotmatr,2,mean,na.rm=T)
-                        eukp<-paste0(country4sub[code3==eusubm, name],"*")
-                    }else{
-                    }
-                    dividebycol<-function(vec,val){
-                        newvec<-vec/unlist(val)
-                        return(newvec)
-                    }
-                    #rel<-Reduce(rbind,apply(plotmatr,2,"/",eu28))
-                    rel<-Reduce(cbind,lapply(c(1:length(eu28)),function(x) dividebycol(plotmatr[,x],eu28[x])))
-                    #Use absolute relative deviation as sorting criterium
-                    #Store the maximum absolute relative deviation
-                    relabs<-abs(1-rel)
-                    #relav<-rowMeans(relabs,na.rm=T)
-                    relav<-apply(relabs,1,mean,na.rm=T)
-                    relav[is.infinite(relav)]<-NA
-                    relav[is.nan(relav)]<-NA
-                    # If there is no EU-value go on with relative value
-                    #Keep only those values to plot which are not overlaying the boxplot
-                    #Attention: the endrange might make 'disappear' points that would be expected...
-                    endrange<-0.1
-                    lowerend<-apply(plotmatr,2,function(x) quantile(x,probs=(0.5-endrange),na.rm=T)) 
-                    upperend<-apply(plotmatr,2,function(x) quantile(x,probs=(0.5+endrange),na.rm=T)) 
-                    lowerok<-(plotmatr<lowerend)
-                    upperok<-(plotmatr>upperend)
-                    relna<-lowerok+upperok
-                    relplot=plotmatr*relna
-                    relplot[relplot==0]<-NA
-                    
-                    #plotmatr$party<-allcountries[!allcountries%in%eucountries]
-                    plotmatr$party<-acountry[!acountry%in%eu]
-                    plotmatr$relav<-relav
-                    plotmatr<-plotmatr[!is.na(relav),]
-                    plotmatr<-plotmatr[order(plotmatr$relav,decreasing=T),]
-                    
-                    #relav<-relav[!is.na(relav)]
-                    nexist<-length(relav[!is.na(relav)])
-                    topn<-min(10,nexist)
-                    topno<-max(0,nexist-topn)
-                    
-                    # Select the top countries with highest mean value over all years
-                    eu28main<-plotmatr[1:topn,c(years,"party")]
-                    topnnames<-eu28main$party
-                    if(topno>0){
-                        Other<-as.data.frame(t(unlist(apply(plotmatr[(topn+1):(topn+topno),years],2,mean))))
-                        Other$party<-"Other"
-                        eu28fin<-rbind(eu28main,Other)
-                    }else{
-                        eu28fin<-eu28main
-                    }
-                    ncountries<-nrow(eu28fin)
-                    finnames<-eu28fin$party
-                    eu28fin<-as.matrix(eu28fin[,years])
-                    
-                    #finshares<-rowMeans(eu28fin,na.rm=T)/apply(eu28,1,mean)*100
-                    finshares<-eu28fin[,length(years)]
-                    finshares[is.na(finshares)]<-0
-                    
-                    if(isource==1){
-                        ticksyaxis<-getyaxis(eu28fin,eu28pos,eu28neg)
-                        tmin<-ticksyaxis[[1]]
-                        tmax<-ticksyaxis[[2]]
-                        tmag<-ticksyaxis[[3]]
-                    }
-                    #stop()
-                    
-                }
-                #print(adddefault)
-                if(adddefault==1){
-                    defaults<-plotmeas[imeas,ipccfields]
-                }else{
-                    defaults<-NULL
-                }
-                #print(eu28fin)
-                if(!(sum(rowSums(eu28fin, na.rm = TRUE))==0)) {
-                  if ( tmin > 0.01){
-                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
-                                     multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,
-                                     serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
-                  }else{
-                    if(curuid == "C548A926-2825-4F66-A6FE-DA55F429CB29" & runfocus == "range") tmax <- (tmax+0.001)
-                    plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
-                  }
-                }
-                tmp<-as.data.frame(finnames)
-                tmp$val<-finshares
-                tmp[,years2keep]<-eu28fin
-                names(tmp)<-c("party",isource,paste0(years2keep,".",isource))
-                if(isource==1){
-                    autocorrs<-autocorr
-                    seriouss<-serious
-                    cntrshars<-tmp
-                    eu28years<-list(eu28)
-                    relavs<-list(relav)
-                    nmain<-list(topn)
-                    nothers<-list(topno)
-                    #cntryears<-eu28fin
-                }else{
-                    autocorrs[[isource]]<-autocorr
-                    seriouss[[isource]]<-serious
-                    cntrshars<-merge(cntrshars,tmp,by="party",all=TRUE)
-                    eu28years[[isource]]<-eu28
-                    relavs[[isource]]<-relav
-                    nmain[[isource]]<-topn
-                    nothers[[isource]]<-topno
-                    #cntryears<-list(cntryears,eu28fin)
-                    
-                }
-                #al202003 - still unclear what the purpose/funcion of topneu28_2 is
-                if(exists("topneu28_2")){
-                  ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss,topneu28_2)
-                }else{
-                  ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss)
-                }
-            }else{
-                cat(" nothing to plot\n")
-            }
-        }
-        #stop()
+    if(sum(plotmatr,na.rm=TRUE)==0){return(list(plotted,ploteuvals,plotinitialized,multisource))}
+    if(rundata=="adem"){
+      temp<-plotmatr
+      temp[temp<=0]<-NA
+      eu28pos<-colSums(temp,na.rm=T)
+      eu28pos[eu28pos==0]<-NA
+      euquant<-as.data.frame(matrix(rep(0,length(years)*3),ncol=length(years),nrow=3))
+      row.names(euquant)<-quantfields
+      names(euquant)<-years
+      
+      temp<-plotmatr
+      temp[temp>=0]<-NA
+      eu28neg<-colSums(temp,na.rm=T)
+      eu28neg[eu28neg==0]<-NA
+      
+      ticksyaxis<-getyaxis(eu28,eu28pos,eu28neg)
+      tmin<-min(tmin,ticksyaxis[[1]])
+      tmax<-max(tmax,ticksyaxis[[2]])*1.02
+      tmag<-max(tmag,ticksyaxis[[3]])
+      #print(paste(tmin,tmax,tmag))
+      
+    }else if(grepl("ief",rundata)){
+      eu28pos <- max(plotmatr,na.rm=T)
+      eu28neg <- min(plotmatr,na.rm=T)
     }
-      save(plotmatr, rel, curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
-         multisource,tmin,tmax,tmag,defaults,
-         serious, mstp, plotinitialized, file="tmp_prepareplot_line695.rdata")
-    return(list(plotted,ploteuvals,plotinitialized,multisource, yr2share))
+  }
+  
+  for(dsource in multisource){
+    isource <- which(dsource==multisource)
+    #print(paste0("isource=",isource,dsource,"-",paste(multisource,collapse=",")))
+    #save(list=objects(),file="temp.rdata")
+    plotdatacur <- plotdata[plotdata$variableUID==curuid & plotdata$datasource==dsource,]
+    if(isource == 1) {
+      plotdatacur_2<-plotdata[plotdata$variableUID==curuid &
+                                plotdata$datasource==multisource[!multisource %in% dsource],]
+    }
+    # The first time this runs autocorr column is all NA -- no checks yet made
+    autocorr<-acountryminus[acountryminus%in%plotdatacur$party[!is.na(plotdatacur$autocorr)]]
+    autocorr<-unlist(lapply(autocorr,function(x) paste(x," (",plotdatacur$autocorr[plotdatacur$party==x],")",sep="")))
+    autocorr<-paste(autocorr,collapse=", ")
+    if(autocorr!="") autocorr<-paste0("Data correction: ",autocorr)
+    serious<-which(acountryminus%in%plotdatacur$party[plotdatacur$correction==0])
+    if(dsource=="nir"){
+      if("correction" %in% names(plotdatacur)) plotdatacur<-plotdatacur[plotdatacur$correction!=0]
+    }
+    plotdatacur <- plotdatacur[! party%in%eu]
+    if(length(serious)==0)serious=""
+    if(dsource!="nir") serious<-""
+    if(nrow(plotdatacur)>0){
+      # Initialize if not yet done
+      if(is.null(plotinitialized)) plotinitialized<-iniplot(figname,nplots)
+      save(plotdatacur,curuid,acountry,file="temp.rdata")
+      
+      plotmatr <- merge(dtcountry[, .(party=acountry)], unique(plotdatacur[plotdatacur$variableUID==curuid,c("party",years2keep), with=FALSE]), by="party", all.x=TRUE)
+      plotmatr<-as.data.frame(plotmatr[party!=eusubm, years, with=FALSE])
+      
+      #Make plot when any value is different from zero or NA:
+      if(isource==1) cat(runid,"/",nrow(plotmeas),sep = "")
+      cat("-",dsource,sep="")
+      
+      #View(plotmatr,dsource)
+      if(sum(plotmatr,na.rm=TRUE)!=0){
+        
+        plotcoun<-unique(as.vector(unlist((plotdata$party[plotdata[,"variableUID"]==curuid & !(plotdata$party %in% eu)]))))
+        
+        # Negative and positive values: note this has different meaning for ADEM plots vs. IEF plots ####
+        #  - ADEM: time series of sum of MS with positive/negative data
+        #  - IEF: maximum/minimum values over the time series
+        if(rundata=="adem"){
+          euquant<-as.data.frame(matrix(rep(0,length(years)*3),ncol=length(years),nrow=3))
+          row.names(euquant)<-quantfields
+          names(euquant)<-years
+          
+          # Relative value in country compared to EU value for all years
+          # This is different from trend-plots!!!
+          rel<-abs(plotmatr[,years2keep])
+          
+          #print("# Relative value in country compared to EU value averaged over all years")
+          relav<-rowMeans(rel[, years],na.rm=TRUE)
+          relav[is.nan(relav)]<-NA
+          reportingcountries <- acountry[! is.na(relav)]
+          
+          relavx<-relav[!is.na(relav)]
+          relavx<-relavx[!relavx==0]
+          
+          #print("plotmatr1")
+          save(rel,eu,acountry,plotmatr,file="rel.rdata")
+          plotmatr$party<-acountry[!acountry%in%eu]
+          rel$party<-acountry[!acountry%in%eu]   #xavi20180126
+          #print("plotmatr2")
+          topn<-min(10,length(relavx))
+          topno<-max(0,length(relavx)-topn)
+          
+          #print("# Select the top countries with highest mean value over all years")
+          kk <- rel[, c(ncol(rel)-1, ncol(rel))]
+          kk1 <- kk[order(kk[,1], decreasing = TRUE),]
+          kk2 <- kk1[!is.na(kk1[,1]),]
+          #topneu28<- row.names(head(kk2,topn))
+          
+          # Save the names of the topn countries 
+          #   ... and of the others
+          topneu28<- head(kk2,topn)$party
+          topother <- setdiff(reportingcountries, topneu28)
+          
+          #al202003 - don't understand the below
+          #           it there are less than 10 'tops' ... how can there be a country left over that can be added?
+          #           -->  commented temporarily
+          # topneu28_1 <- apply(plotmatr[, years2keep], 1, sum, na.rm = TRUE)
+          # topneu28_1 <- names(topneu28_1)[topneu28_1 != 0]
+          # if (length(topneu28)<10){
+          #   topneu28 <- union(topneu28, topneu28_1)
+          #   topneu28 <- head(topneu28, 10)
+          # } 
+          # 
+          eu28main<-plotmatr[plotmatr$party %in% topneu28,]
+          eu28main<-eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
+          eu28oher<-plotmatr[plotmatr$party %in% topother,]
+          eu28oher<-eu28oher[order(eu28oher[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
+          
+          if(length(multisource)>1 & isource==1){
+            
+            plotdatacur_22 <- plotdatacur_2[!plotdatacur_2$party %in% eu, ]
+            plotdatacur_22 <- plotdatacur_22[order(plotdatacur_22[years[length(years)]], decreasing = TRUE),]
+            plotdatacur_22 <- plotdatacur_22[1:length(topneu28),]
+            
+            if(!identical(eu28main$party, rev(plotdatacur_22$party))){
+              topneu28_3 <-setdiff(rev(plotdatacur_22$party), eu28main$party)
+              if(!any(topneu28_3 %in% kk2$party)){ 
+                topneu28_2 <<- c(topneu28_3, eu28main$party) 
+              }else if(all(topneu28_3 %in% kk2$party)){ 
+                topneu28_2 <<- c(rev(kk2$party[kk2$party %in% topneu28_3]), eu28main$party)
+              } else { 
+                topneu28_31 <- setdiff(topneu28_3, kk2$party[kk2$party %in% topneu28_3]) 
+                topneu28_2 <<- c(topneu28_31, rev(kk2$party[kk2$party %in% topneu28_3]), eu28main$party)
+              }
+              
+              topneu28_2 <- unlist(get("topneu28_2", envir = globalenv()))
+              topneu28_22 <- plotmatr[plotmatr$party %in% topneu28_2,]
+              topneu28_22 <<- row.names(topneu28_22[order(topneu28_22[years[length(years)]], decreasing = TRUE),])
+              topneu28_22 <- unlist(get("topneu28_22", envir = globalenv()))
+              eu28main <- plotmatr[topneu28_22,]
+              eu28main <- eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
+              topneu28 <- topneu28_22
+              topn<-length(topneu28)
+              topno<-length(relavx)-topn
+            } else{
+              topneu28_22 <<- topneu28
+              topneu28_22 <- unlist(get("topneu28_22", envir = globalenv()))
+              topneu28_2 <<- eu28main$party
+              topneu28_2 <- unlist(get("topneu28_2", envir = globalenv()))
+              
+            }
+          }
+          
+          if(length(multisource)== 1) topneu28_22 <- NA
+          if(length(multisource)>1 & isource==2){
+            topneu28_22 <- unlist(get("topneu28_22", envir = globalenv()))
+            topneu28_2 <- unlist(get("topneu28_2", envir = globalenv()))
+            eu28main <- plotmatr[topneu28_22,]
+            #eu28main<-eu28main[order(eu28main[years[length(years)]], decreasing = FALSE), c(years2keep,"party")]
+            selctn <- rev(topneu28_22)
+            eu28main <- eu28main[selctn, ]
+            topneu28 <- topneu28_22
+            topn<-length(topneu28)
+            topno<-length(relavx)-topn
+          }
+          
+          
+          #al202003 topother<-setdiff(topneu28_1, topneu28)
+          #al202003 Other<-as.data.frame(t(colSums(plotmatr[row.names(plotmatr) %in% topother,years2keep],na.rm=TRUE)))
+          topnnames<-eu28main$party
+          Other<-as.data.frame(t(colSums(eu28oher[, years],na.rm = TRUE)))
+          Other$party<-"Other"
+          
+          
+          
+          if(length(relavx)>length(topneu28)){
+            eu28fin<-rbind(eu28main,Other)
+          }else{
+            eu28fin<-eu28main
+          }
+          finnames<-eu28fin$party
+          eu28fin<-as.matrix(eu28fin[,years2keep])
+          eu28fin[is.na(eu28fin)]<-0
+          
+          #xavi20180129: finshares<-rowMeans(eu28fin,na.rm=T)/mean(as.matrix(eu28))*100
+          #finshares<-eu28fin[,years[length(years)]]/as.matrix(eu28[years[length(years)]])*100
+          #print("# General determination of the last available year")
+          #lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)!=0))
+          finshares<-eu28fin[,yr2share[length(yr2share)]]/as.numeric(eu28[yr2share[length(yr2share)]])*100
+          ###Necessary addition as long as capri only has values up to 2010 
+          #print("Remove capri manipulation for calculation of country shares when there are values for final year")
+          #if(dsource=="capri"){
+          #    finshares<-apply(eu28fin,1,function(x) tail(na.omit(x),1)) / apply(eu28,1, function(x) tail(na.omit(x),1)) * 100
+          #stop()
+          #}
+          
+          finshares[is.na(finshares)]<-0
+          runfocus<-"value"
+          #if(isource==2)stop("funnirplots 283")
+        }else if(grepl("ief",rundata)){
+          eu28pos<-max(plotmatr,na.rm=T)
+          eu28neg<-min(plotmatr,na.rm=T)
+          if(trendoutlmethod==2){
+            plotquant<-t(plotmatr)
+            euquant<-as.data.frame(t(Reduce(cbind,lapply(c(1:nrow(plotquant)),function(x) selquantiles(as.matrix(plotquant[x,]))[2:4]))))
+            names(euquant)<-quantfields
+            euquant<-as.data.frame(t(euquant))
+            names(euquant)<-years
+            euquant1<-euquant
+            euquant[1,]<-euquant[2,]+(1+bxplf)*(euquant[1,]-euquant[2,])
+            euquant[3,]<-euquant[2,]+(1+bxplf)*(euquant[3,]-euquant[2,])
+            
+          }
+          if(trendoutlmethod==3){
+            
+            euquant <- melt.data.table(plotdatacur, measure.vars = years, variable.name = "years")
+            #    euquant <- euquant[, .(mean=mean(value,), sd = sd(value)),   #ES2021 original
+            #                                by=setdiff(names(euquant), c("party", 'value'))]
+            euquant <- euquant[, .(mean=mean(value, na.rm=T), sd = sd(value, na.rm=T)),   #ES2021 modified
+                               by=setdiff(names(euquant), c("party", 'value'))] 
+            euquant <- euquant[,  .(low=mean-bxplf*sd, mean, high=mean+bxplf*sd)]
+            
+            euquant <- t(as.matrix(euquant))
+          }
+          #Box-whisker method: 0.953 times the difference to the mean from 25 and 75 percentiles
+          #                    to determine the upper and lower whisker
+          if(sum(eu28,na.rm=TRUE)==0){ 
+            eu28<-apply(plotmatr,2,mean,na.rm=T)
+            eukp<-paste0(country4sub[code3==eusubm, name],"*")
+          }else{
+          }
+          dividebycol<-function(vec,val){
+            newvec<-vec/unlist(val)
+            return(newvec)
+          }
+          #rel<-Reduce(rbind,apply(plotmatr,2,"/",eu28))
+          rel<-Reduce(cbind,lapply(c(1:length(eu28)),function(x) dividebycol(plotmatr[,x],eu28[x])))
+          #Use absolute relative deviation as sorting criterium
+          #Store the maximum absolute relative deviation
+          relabs<-abs(1-rel)
+          #relav<-rowMeans(relabs,na.rm=T)
+          relav<-apply(relabs,1,mean,na.rm=T)
+          relav[is.infinite(relav)]<-NA
+          relav[is.nan(relav)]<-NA
+          # If there is no EU-value go on with relative value
+          #Keep only those values to plot which are not overlaying the boxplot
+          #Attention: the endrange might make 'disappear' points that would be expected...
+          endrange<-0.1
+          lowerend<-apply(plotmatr,2,function(x) quantile(x,probs=(0.5-endrange),na.rm=T)) 
+          upperend<-apply(plotmatr,2,function(x) quantile(x,probs=(0.5+endrange),na.rm=T)) 
+          lowerok<-(plotmatr<lowerend)
+          upperok<-(plotmatr>upperend)
+          relna<-lowerok+upperok
+          relplot=plotmatr*relna
+          relplot[relplot==0]<-NA
+          
+          #plotmatr$party<-allcountries[!allcountries%in%eucountries]
+          plotmatr$party<-acountry[!acountry%in%eu]
+          plotmatr$relav<-relav
+          plotmatr<-plotmatr[!is.na(relav),]
+          plotmatr<-plotmatr[order(plotmatr$relav,decreasing=T),]
+          
+          #relav<-relav[!is.na(relav)]
+          nexist<-length(relav[!is.na(relav)])
+          topn<-min(10,nexist)
+          topno<-max(0,nexist-topn)
+          
+          # Select the top countries with highest mean value over all years
+          eu28main<-plotmatr[1:topn,c(years,"party")]
+          topnnames<-eu28main$party
+          browser()
+          if(topno>0){
+            #  Other<-as.data.frame(t(unlist(apply(plotmatr[(topn+1):(topn+topno),years],2,mean)))) # ES2021 original
+            Other<-as.data.frame(t(unlist(apply(plotmatr[(topn+1):(topn+topno),years],2,mean, na.rm=T)))) # ES2021 modified
+            Other$party<-"Other"
+            eu28fin<-rbind(eu28main,Other)
+          }else{
+            eu28fin<-eu28main
+          }
+          ncountries <- nrow(eu28fin)
+          finnames   <- eu28fin$party
+          eu28fin    <- as.matrix(eu28fin[,years])
+          
+          #finshares<-rowMeans(eu28fin,na.rm=T)/apply(eu28,1,mean)*100
+          finshares <- eu28fin[,length(years)]
+          
+          # ES2021 modification 11 MArch2021
+          
+          # finshares[is.na(finshares)]<-0 #ES2021 original
+          
+          finnamestar <- finnames # prepare for legend
+          if(any(is.na(finshares))){
+            
+            idx.party  <- as.numeric(which(is.na(finshares))) # index of  country is missing
+            name.party <- finnames[idx.party]
+            sV <- rep('', length(finnames))
+            
+            for (k in 1:length(idx.party)){ # perhaps more than one is missing
+              eu28fin[idx.party[k],length(years)] <- eu28fin[idx.party[k],max(which(!is.na(eu28fin[idx.party[k],years])))] # take value from last available year
+              finshares[idx.party[k]] <- eu28fin[idx.party[k],max(which(!is.na(eu28fin[idx.party[k],years])))]   # substitute also in finshares
+              sV[idx.party[k]] <- '*'
+            }
+            finnamestar <- paste0(finnames, sV) # prepare for legend
+          }
+          # ES2021 end modification 
+          
+          if(isource==1){
+            ticksyaxis<-getyaxis(eu28fin,eu28pos,eu28neg)
+            tmin<-ticksyaxis[[1]]
+            tmax<-ticksyaxis[[2]]
+            tmag<-ticksyaxis[[3]]
+          }
+          #stop()
+          
+        }
+        #print(adddefault)
+        if(adddefault==1){
+          defaults<-plotmeas[imeas,ipccfields]
+        }else{
+          defaults<-NULL
+        }
+        #print(eu28fin)
+        if(!(sum(rowSums(eu28fin, na.rm = TRUE))==0)) {
+          if ( tmin > 0.01){
+            plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
+                             multisource,tmin=floor(tmin-(tmin*0.1)),tmax=ceiling(tmax*1.1),tmag,defaults,
+                             serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
+          }else{
+            if(curuid == "C548A926-2825-4F66-A6FE-DA55F429CB29" & runfocus == "range") tmax <- (tmax+0.001)
+            plotted<-plotnow(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,multisource,tmin,tmax,tmag,defaults,serious, mstp, pconv = plotinitialized[[4]], pwidth = plotinitialized[[6]])
+          }
+        }
+        tmp<-as.data.frame(finnames)
+        tmp$val<-finshares
+        tmp[,years2keep]<-eu28fin
+        names(tmp)<-c("party",isource,paste0(years2keep,".",isource))
+        if(isource==1){
+          autocorrs<-autocorr
+          seriouss<-serious
+          cntrshars<-tmp
+          eu28years<-list(eu28)
+          relavs<-list(relav)
+          nmain<-list(topn)
+          nothers<-list(topno)
+          #cntryears<-eu28fin
+        }else{
+          autocorrs[[isource]]<-autocorr
+          seriouss[[isource]]<-serious
+          cntrshars<-merge(cntrshars,tmp,by="party",all=TRUE)
+          eu28years[[isource]]<-eu28
+          relavs[[isource]]<-relav
+          nmain[[isource]]<-topn
+          nothers[[isource]]<-topno
+          #cntryears<-list(cntryears,eu28fin)
+          
+        }
+        
+        # ES2021 added 11 march 2021 to pass asterix to legend. for now only available for IES plots
+        if (exists('finnamestar')){
+          cntrshars$finnamestar <-  finnamestar 
+        } else{
+          cntrshars$finnamestar <-  ''
+        }
+        # ES2021 END
+        #al202003 - still unclear what the purpose/funcion of topneu28_2 is
+        if(exists("topneu28_2")){
+          ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss,topneu28_2)
+        }else{
+          ploteuvals<-list(cntrshars,eu28years,nmain,nothers,relavs,autocorrs,seriouss)
+        }
+        
+      }else{
+        cat(" nothing to plot\n")
+      }
+    }
+    #stop()
+  }
+  save(plotmatr, rel, curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus,rundata,dsource,
+       multisource,tmin,tmax,tmag,defaults,
+       serious, mstp, plotinitialized, file="tmp_prepareplot_line695.rdata")
+  return(list(plotted,ploteuvals,plotinitialized,multisource, yr2share))
 }
 
 #plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus="value",rundata="adem",dsource,multisource){

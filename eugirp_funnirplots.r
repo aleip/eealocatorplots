@@ -1071,617 +1071,708 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
 }
 
 plotlegend<-function(curuid,fdata,runfocus,rundata="adem",eusubm="EUC",dsource,plotted,multisource, yr2share = yr2share){
-    #print(paste("plotlegend. ",par("usr")))
-    uabs<-par("usr")[3]
-    oabs<-par("usr")[4]
-    xstt<-par()$omd[1]
-    xleg<-par()$omd[2]
-    ystt<-par()$omd[3]
-    yhea<-par()$omd[4]
-    
-    #First in prepareplots return list
-    tmin<-plotted[[1]][[1]]
-    tmax<-plotted[[1]][[2]]
-    ipcctxt<-plotted[[1]][[3]]
-    
-    #Second in prepareplots return list
-    allfinshares<-plotted[[2]][[1]]
-    if(length(multisource)>1) countr_order <- plotted[[2]][[8]]
-
-    #Third in prepareplots return list
-    hastitle<-plotted[[3]][1]
-    haslegend<-plotted[[3]][2]
-    hasfootnote<-plotted[[3]][3]
-    
-    #Fourth in prepareplots return list
-    multisource<-plotted[[4]]
-    pconv<-as.vector(unlist(plotted[[3]][4]))
-    
-    
-    
-    ###Here the shares are all 0 in CAPRI
-    #print(allfinshares)
-    selcols<-grepl("[1-9]",names(allfinshares)) & nchar(names(allfinshares))>4
-    selcols[1]<-TRUE
-    eu28fins<-allfinshares[,selcols]
-    selcols<-names(allfinshares)%in%c("party",c(1:9))
-    allfinshares<-allfinshares[,selcols]
-    ###Here the shares are all 0 in CAPRI
-    #print(allfinshares)
-    finnames<-eu28fins$party
-    ncountries<-length(finnames)
-    nplots<-sum(match(gsub("[1-9]","x",names(allfinshares)),"x"),na.rm=TRUE)
-    #Separate 'other' out to prepare for ordering
-    #eu28finso<-eu28fins[eu28fins$party=="Other",]
-    #eu28fins<-eu28fins[eu28fins$party!="Other",]
-    #allfinshareso<-allfinshares[allfinshares$party=="Other",]
-    #allfinshares<-allfinshares[allfinshares$party!="Other",]
-    if("Other"%in%finnames){hasother<-"Other"}else{hasother<-""}
-    
-    # Get number of countries 'in' and 'out'
-    topns<-unlist(plotted[[2]][[3]])
-    topnos<-unlist(plotted[[2]][[4]])
-    
-    # Retrieve ordering info
-    #acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
-    acountry<-curcountries[variable==eusubm & value==1]$code3
-    acountry<-acountry[!acountry%in%eu]
-    eukp<-eunames[,eusubm]
-    
-    relavs<-plotted[[2]][[5]]
-    relavs2<-plotted[[2]][[1]] #xavi20180126 This is just to keep the correct order
-    if(length(multisource)>1){
-      if ("Other" %in% relavs2$party) countr_order <- c("Other", countr_order)
-      relavs2 <- relavs2[order(match(relavs2$party, countr_order)), ]
-    } 
-    relav<-as.data.frame(matrix(rep(NA,length(acountry)*(nplots+1)),ncol=(nplots+1),nrow=length(acountry)))
-    names(relav)<-c("party",c(1:(nplots)))
-    relav$party<-acountry
-    for(iplot in c(1:nplots)){
-        relav[,iplot+1]<-relavs[[iplot]]
-    }
-    #xavi20180126: relav<-merge(as.data.frame(finnames),relav,by.x="finnames",by.y="party",sort = FALSE)
-    relav<-merge(as.data.frame(finnames),relavs2[,c(1,ncol(relavs2))],by.x="finnames",by.y="party",sort = FALSE)
-    autocorr<-plotted[[2]][[6]]
-    serious<-plotted[[2]][[7]]
-    
-    #Determine order 
-    relav$order<-apply(as.matrix(relav[,-1]),1,mean,na.rm=TRUE)
-    #xavi20180126: relav<-relav[order(relav$order,decreasing=FALSE),]
-    if(length(multisource)>1){
-      relav <- relav[order(match(relav$finnames, countr_order)), ]
-    }
-    
-    if(length(multisource)==1){
-      if(hasother=="Other"){
-        relav<-relav[order(relavs2[relavs2$party!="Other",ncol(relavs2)],decreasing=FALSE),] #xavi20180126
-        #xavi20180125: finnames<-as.data.frame(c(as.character(relav$finnames),hasother))
-        finnames<-as.data.frame(c(hasother, as.character(relav$finnames)))
-      }else{
-        relav<-relav[order(relavs2[,ncol(relavs2)],decreasing=FALSE),] #xavi20180126 
-        finnames<-as.data.frame(c(as.character(relav$finnames)))
-      }
+  #print(paste("plotlegend. ",par("usr")))
+  
+  uabs<-par("usr")[3]
+  oabs<-par("usr")[4]
+  xstt<-par()$omd[1]
+  xleg<-par()$omd[2]
+  ystt<-par()$omd[3]
+  yhea<-par()$omd[4]
+  
+  #First in prepareplots return list
+  tmin<-plotted[[1]][[1]]
+  tmax<-plotted[[1]][[2]]
+  ipcctxt<-plotted[[1]][[3]]
+  
+  #Second in prepareplots return list
+  allfinshares<-plotted[[2]][[1]]
+  
+  # added ES2021 to deal with party not reporting last year values
+  
+  bStar <- F
+  if (any(grepl('\\*$',as.character(allfinshares$finnamestar)))) {
+    bStar <- T
+    finnames_hold <- allfinshares$finnamestar
+    #     plotted[[2]][[1]]$party <- allfinshares$finnamestar
+  }
+  plotted[[2]][[1]]$finnamestar <- NULL # in any case remove it: if TRUE, it has been saved, if False, it is not needed
+  # end
+  
+  if(length(multisource)>1) countr_order <- plotted[[2]][[8]]
+  
+  #Third in prepareplots return list
+  hastitle<-plotted[[3]][1]
+  haslegend<-plotted[[3]][2]
+  hasfootnote<-plotted[[3]][3]
+  
+  #Fourth in prepareplots return list
+  multisource<-plotted[[4]]
+  pconv<-as.vector(unlist(plotted[[3]][4]))
+  
+  ###Here the shares are all 0 in CAPRI
+  #print(allfinshares)
+  selcols<-grepl("[1-9]",names(allfinshares)) & nchar(names(allfinshares))>4
+  selcols[1]<-TRUE
+  eu28fins<-allfinshares[,selcols]
+  selcols<-names(allfinshares)%in%c("party",c(1:9))
+  allfinshares<-allfinshares[,selcols]
+  ###Here the shares are all 0 in CAPRI
+  #print(allfinshares)
+  finnames<-eu28fins$party
+  ncountries<-length(finnames)
+  nplots<-sum(match(gsub("[1-9]","x",names(allfinshares)),"x"),na.rm=TRUE)
+  #Separate 'other' out to prepare for ordering
+  #eu28finso<-eu28fins[eu28fins$party=="Other",]
+  #eu28fins<-eu28fins[eu28fins$party!="Other",]
+  #allfinshareso<-allfinshares[allfinshares$party=="Other",]
+  #allfinshares<-allfinshares[allfinshares$party!="Other",]
+  if("Other"%in%finnames){
+    hasother<-"Other"
+  }else{
+    hasother<-""
+  }
+  
+  # Get number of countries 'in' and 'out'
+  topns<-unlist(plotted[[2]][[3]])
+  topnos<-unlist(plotted[[2]][[4]])
+  
+  # Retrieve ordering info
+  #acountry<-as.character(country4sub[country4sub[,eusubm]==1,"code3"])
+  acountry<-curcountries[variable==eusubm & value==1]$code3
+  acountry<-acountry[!acountry%in%eu]
+  eukp<-eunames[,eusubm]
+  
+  relavs<-plotted[[2]][[5]]
+  relavs2<-plotted[[2]][[1]] #xavi20180126 This is just to keep the correct order
+  if(length(multisource)>1){
+    if ("Other" %in% relavs2$party) countr_order <- c("Other", countr_order)
+    relavs2 <- relavs2[order(match(relavs2$party, countr_order)), ]
+  } 
+  relav<-as.data.frame(matrix(rep(NA,length(acountry)*(nplots+1)),ncol=(nplots+1),nrow=length(acountry)))
+  names(relav)<-c("party",c(1:(nplots)))
+  relav$party<-acountry
+  for(iplot in c(1:nplots)){
+    relav[,iplot+1]<-relavs[[iplot]]
+  }
+  #xavi20180126: relav<-merge(as.data.frame(finnames),relav,by.x="finnames",by.y="party",sort = FALSE)
+  relav<-merge(as.data.frame(finnames),relavs2[,c(1,ncol(relavs2))],by.x="finnames",by.y="party",sort = FALSE)
+  autocorr<-plotted[[2]][[6]]
+  serious<-plotted[[2]][[7]]
+  
+  #Determine order 
+  relav$order<-apply(as.matrix(relav[,-1]),1,mean,na.rm=TRUE)
+  #xavi20180126: relav<-relav[order(relav$order,decreasing=FALSE),]
+  if(length(multisource)>1){
+    relav <- relav[order(match(relav$finnames, countr_order)), ]
+  }
+  
+  if(length(multisource)==1){
+    if(hasother=="Other"){
+      relav<-relav[order(relavs2[relavs2$party!="Other",ncol(relavs2)],decreasing=FALSE),] #xavi20180126
+      #xavi20180125: finnames<-as.data.frame(c(as.character(relav$finnames),hasother))
+      finnames<-as.data.frame(c(hasother, as.character(relav$finnames)))
     }else{
-      finnames <- as.data.frame(c(as.character(relav$finnames)))
+      relav<-relav[order(relavs2[,ncol(relavs2)],decreasing=FALSE),] #xavi20180126 
+      finnames<-as.data.frame(c(as.character(relav$finnames)))
     }
-    names(finnames)<-"party"
+  }else{
+    finnames <- as.data.frame(c(as.character(relav$finnames)))
+  }
+  names(finnames)<-"party"
+  
+  #eu28fins<-rbind(eu28fins[order(shareorder,decreasing = FALSE),],eu28finso)
+  #allfinshares<-rbind(allfinshares[order(shareorder,decreasing = FALSE),],allfinshareso)
+  eu28fins<-merge(finnames,eu28fins,by="party",sort=FALSE)
+  allfinshares<-merge(finnames,allfinshares,by="party",sort=FALSE)
+  finnames<-as.vector(finnames$party)
+  
+  alleu28<-plotted[[2]][[2]]
+  
+  #Third in prepareplots return list
+  hastitle<-plotted[[3]][1]
+  haslegend<-plotted[[3]][2]
+  hasfootnote<-plotted[[3]][3]
+  
+  #Fourth in prepareplots return list
+  multisource<-plotted[[4]]
+  pconv<-as.vector(unlist(plotted[[3]][4]))
+  
+  
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  # LABLES Y-AXIS #####################################################
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  #print("Plot Labels y-axis")
+  #mytext1<-"CH"[4] ~~ "enteric fermentation"
+  ##mytext2<-substitute(A ~ " - " ~ B ~ "Tg N" ~~ yr^{-1},list(A=colnames(b)[j],B=emis[j]))
+  #mytext2<-"[ Tg CH"[4] ~~ yr^{-1} ~"]"
+  #if(rundata=="ief"){mytext2<-"[ Tg CH"[4] ~~ head^{-1} ~~ yr^{-1} ~"]"}
+  #source("text_elements.txt")
+  mars<-par()$mar
+  marbot<-mars[1]
+  marlef<-mars[2]
+  martop<-mars[3]
+  marrig<-mars[4]
+  pmeas<-as.data.frame(unique(fdata[fdata$variableUID==curuid,-which(names(fdata)%in%c("party",years,"datasource","autocorr","correction", "notation")), with=FALSE]))
+  runsect<-data.frame(lapply(unique(pmeas[,sectfields]),as.character))
+  runmeta<-data.frame(lapply(unique(pmeas[,metafields]),as.character))
+  runmeas<-data.frame(lapply(unique(pmeas[,measfields]),as.character))
+  runmeastype<-as.vector(unlist(runmeas[1]))
+  runmeasure<-as.vector(unlist(runmeas[4]))
+  mtexttitle0<-mtexttit(runsect,runmeta,runmeas)
+  #print(paste0("\nmtexttitle0",mtexttitle0," runsect=",runsect," runmeta=",runmeta," runmeas=",runmeas))
+  curunit<-unique(pmeas$unit)
+  source("eugirp_attributes.r")   
+  
+  par(omd=c(0,xstt,ystt,yhea))
+  par(mar=c(marbot,marlef,martop,marrig))
+  par(fig=c(0,1,0,1),new=T)
+  #box("figure",col="red",lwd=5)
+  #box("plot",col="blue",lwd=4)
+  #box("inner",col="green",lty="dotted",lwd=3)
+  #box("outer",col="black",lwd=2)
+  
+  plot(0, xlim=c(0, 1), 
+       ylim=c(uabs+0.04*oabs,0.96*oabs), 
+       #ylim=c(0,1),
+       axes=F,xlab="",ylab="",type="n")
+  
+  
+  textunit<-unitforplot(curunit)
+  if(rundata=="ief" & runfocus=="trend"){
+    textunit<-"Interannual" ~" growth"
+  }            
+  #text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=min(1.5,1.5*30/nchar(textpar)),textpar,las=3,srt=90,font=2)
+  #xavi: writetext<-multilines(runmeasure,60)
+  writetext<-multilines(runmeasure,35)
+  
+  if(length(writetext)>1){newcex<-0.9*pconv}else{newcex<-min(1.4*pconv,1.0*40/nchar(writetext[1]))}
+  text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[1],las=3,srt=90,font=1)
+  if(length(writetext)>1){
+    text(0.23,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=1)
+  }
+  if(length(writetext)>2){
+    text(0.35,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[3],las=3,srt=90,font=1)
+  }
+  if(length(writetext)>2){
+    text(0.50,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
+  }else{
+    text(0.40,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
+  }
+  #print(paste(curunit,textunit))
+  #text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,curunit,las=3,srt=90,font=2)
+  
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  # IDENTIFYING ATTRIBUTES ######################################################
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  schraffierung<-1
+  formatfinnames<-as.vector(finnames)
+  #print(formatfinnames)
+  attributes<-as.matrix(read.table("eugirp_attributes.txt",header=T,row.names=1,check.names=F))
+  mydens<-(as.numeric(attributes[formatfinnames,"dens"]))
+  mycols<-(attributes[formatfinnames,"color"])
+  mycoll<-(attributes[formatfinnames,"coll"])
+  myang1<-(as.numeric(attributes[formatfinnames,"ang1"]))
+  myang2<-(as.numeric(attributes[formatfinnames,"ang2"]))
+  
+  myticks<-(as.numeric(attributes[formatfinnames,"symbol"]))
+  mytcol1<-(attributes[formatfinnames,"col1t"])
+  mytcol2<-(attributes[formatfinnames,"col2t"])
+  mytcol3<-mytcol2
+  mytcol3[mytcol1=="black" & mytcol2=="black"]<-"white"
+  mytcol3[mytcol1!="black" | mytcol2!="black"]<-"black"
+  
+  
+  #For ief plots
+  mydensall<-(as.numeric(attributes[finnames,"dens"]))
+  mycolsall<-(attributes[finnames,"color"])
+  mycollall<-(attributes[finnames,"coll"])
+  myang1all<-(as.numeric(attributes[finnames,"ang1"]))
+  myang2all<-(as.numeric(attributes[finnames,"ang2"]))
+  
+  myticksall<-(as.numeric(attributes[finnames,"symbol"]))
+  mytcol1all<-(attributes[finnames,"col1t"])
+  mytcol2all<-(attributes[finnames,"col2t"])
+  mytcol3all<-mytcol2
+  mytcol3all[mytcol1=="black" & mytcol2=="black"]<-"white"
+  mytcol3all[mytcol1!="black" | mytcol2!="black"]<-"black"
+  #mydens<-as.vector(as.numeric(attributes[rownames(eu28fin),"dens"]))
+  #stop("Stop after y-axis")
+  # box("figure",col="red",lwd=5)
+  # box("plot",col="blue",lwd=4)
+  # box("inner",col="green",lty="dotted",lwd=3)
+  # box("outer",col="black",lwd=2)
+  
+  # ES2021
+  if (bStar){
+    idx_star <- which(finnames %in% substr(finnames_hold[grep('\\*$', finnames_hold)], 1,3))
+    finnames[idx_star] <- paste0(finnames[idx_star], '*')
+  }
+  # end
+  
+  for(iplot in (c(1:nplots))){
     
-    #eu28fins<-rbind(eu28fins[order(shareorder,decreasing = FALSE),],eu28finso)
-    #allfinshares<-rbind(allfinshares[order(shareorder,decreasing = FALSE),],allfinshareso)
-    eu28fins<-merge(finnames,eu28fins,by="party",sort=FALSE)
-    allfinshares<-merge(finnames,allfinshares,by="party",sort=FALSE)
-    finnames<-as.vector(finnames$party)
-    alleu28<-plotted[[2]][[2]]
-    
-    #Third in prepareplots return list
-    hastitle<-plotted[[3]][1]
-    haslegend<-plotted[[3]][2]
-    hasfootnote<-plotted[[3]][3]
-    
-    #Fourth in prepareplots return list
-    multisource<-plotted[[4]]
-    pconv<-as.vector(unlist(plotted[[3]][4]))
-    
+    finshares<-as.matrix(subset(allfinshares,select=which(names(allfinshares)%in%c(iplot))))
+    eu28<-alleu28[[iplot]]
+    eu28fin<-as.matrix(subset(eu28fins,select=which(names(eu28fins)%in%c(paste0(years,".",iplot)))))
+    topn<-unlist(topns[[iplot]])
+    topno<-unlist(topnos[[iplot]])
+    #print(iplot)
+    sourctitshort<-toupper(multisource[iplot])
+    if(sourctitshort == "NIR") sourctitshort <- "NGIs"
     
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    # LABLES Y-AXIS #####################################################
+    # LEGEND ###########################################################
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    #print("Plot Labels y-axis")
-    #mytext1<-"CH"[4] ~~ "enteric fermentation"
-    ##mytext2<-substitute(A ~ " - " ~ B ~ "Tg N" ~~ yr^{-1},list(A=colnames(b)[j],B=emis[j]))
-    #mytext2<-"[ Tg CH"[4] ~~ yr^{-1} ~"]"
-    #if(rundata=="ief"){mytext2<-"[ Tg CH"[4] ~~ head^{-1} ~~ yr^{-1} ~"]"}
-    #source("text_elements.txt")
-    mars<-par()$mar
-    marbot<-mars[1]
-    marlef<-mars[2]
-    martop<-mars[3]
-    marrig<-mars[4]
-    pmeas<-as.data.frame(unique(fdata[fdata$variableUID==curuid,-which(names(fdata)%in%c("party",years,"datasource","autocorr","correction", "notation")), with=FALSE]))
-    runsect<-data.frame(lapply(unique(pmeas[,sectfields]),as.character))
-    runmeta<-data.frame(lapply(unique(pmeas[,metafields]),as.character))
-    runmeas<-data.frame(lapply(unique(pmeas[,measfields]),as.character))
-    runmeastype<-as.vector(unlist(runmeas[1]))
-    runmeasure<-as.vector(unlist(runmeas[4]))
-    mtexttitle0<-mtexttit(runsect,runmeta,runmeas)
-    #print(paste0("\nmtexttitle0",mtexttitle0," runsect=",runsect," runmeta=",runmeta," runmeas=",runmeas))
-    curunit<-unique(pmeas$unit)
-    source("eugirp_attributes.r")   
-    
-    par(omd=c(0,xstt,ystt,yhea))
-    par(mar=c(marbot,marlef,martop,marrig))
-    par(fig=c(0,1,0,1),new=T)
-    #box("figure",col="red",lwd=5)
-    #box("plot",col="blue",lwd=4)
-    #box("inner",col="green",lty="dotted",lwd=3)
-    #box("outer",col="black",lwd=2)
-    
-    plot(0, xlim=c(0, 1), 
-         ylim=c(uabs+0.04*oabs,0.96*oabs), 
-         #ylim=c(0,1),
-         axes=F,xlab="",ylab="",type="n")
-    
-    
-    textunit<-unitforplot(curunit)
-    if(rundata=="ief" & runfocus=="trend"){
-        textunit<-"Interannual" ~" growth"
-    }            
-    #text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=min(1.5,1.5*30/nchar(textpar)),textpar,las=3,srt=90,font=2)
-    #xavi: writetext<-multilines(runmeasure,60)
-    writetext<-multilines(runmeasure,35)
-    
-    if(length(writetext)>1){newcex<-0.9*pconv}else{newcex<-min(1.4*pconv,1.0*40/nchar(writetext[1]))}
-    text(0.1,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[1],las=3,srt=90,font=1)
-    if(length(writetext)>1){
-        text(0.23,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[2],las=3,srt=90,font=1)
-    }
-    if(length(writetext)>2){
-        text(0.35,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=newcex,writetext[3],las=3,srt=90,font=1)
-    }
-    if(length(writetext)>2){
-      text(0.50,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
-    }else{
-      text(0.40,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3*pconv,textunit,las=3,srt=90,font=1)
-    }
-    #print(paste(curunit,textunit))
-    #text(0.4,tmin+(tmax-tmin)/2,adj=c(0.5,0.5),cex=1.3,curunit,las=3,srt=90,font=2)
-    
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    # IDENTIFYING ATTRIBUTES ######################################################
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    schraffierung<-1
-    formatfinnames<-as.vector(finnames)
-    #print(formatfinnames)
-    attributes<-as.matrix(read.table("eugirp_attributes.txt",header=T,row.names=1,check.names=F))
-    mydens<-(as.numeric(attributes[formatfinnames,"dens"]))
-    mycols<-(attributes[formatfinnames,"color"])
-    mycoll<-(attributes[formatfinnames,"coll"])
-    myang1<-(as.numeric(attributes[formatfinnames,"ang1"]))
-    myang2<-(as.numeric(attributes[formatfinnames,"ang2"]))
-    
-    myticks<-(as.numeric(attributes[formatfinnames,"symbol"]))
-    mytcol1<-(attributes[formatfinnames,"col1t"])
-    mytcol2<-(attributes[formatfinnames,"col2t"])
-    mytcol3<-mytcol2
-    mytcol3[mytcol1=="black" & mytcol2=="black"]<-"white"
-    mytcol3[mytcol1!="black" | mytcol2!="black"]<-"black"
-    
-    
-    #For ief plots
-    mydensall<-(as.numeric(attributes[finnames,"dens"]))
-    mycolsall<-(attributes[finnames,"color"])
-    mycollall<-(attributes[finnames,"coll"])
-    myang1all<-(as.numeric(attributes[finnames,"ang1"]))
-    myang2all<-(as.numeric(attributes[finnames,"ang2"]))
-    
-    myticksall<-(as.numeric(attributes[finnames,"symbol"]))
-    mytcol1all<-(attributes[finnames,"col1t"])
-    mytcol2all<-(attributes[finnames,"col2t"])
-    mytcol3all<-mytcol2
-    mytcol3all[mytcol1=="black" & mytcol2=="black"]<-"white"
-    mytcol3all[mytcol1!="black" | mytcol2!="black"]<-"black"
-    #mydens<-as.vector(as.numeric(attributes[rownames(eu28fin),"dens"]))
-    #stop("Stop after y-axis")
-    # box("figure",col="red",lwd=5)
-    # box("plot",col="blue",lwd=4)
-    # box("inner",col="green",lty="dotted",lwd=3)
-    # box("outer",col="black",lwd=2)
-    
-    for(iplot in (c(1:nplots))){
-        
-        finshares<-as.matrix(subset(allfinshares,select=which(names(allfinshares)%in%c(iplot))))
-        eu28<-alleu28[[iplot]]
-        eu28fin<-as.matrix(subset(eu28fins,select=which(names(eu28fins)%in%c(paste0(years,".",iplot)))))
-        topn<-unlist(topns[[iplot]])
-        topno<-unlist(topnos[[iplot]])
-        #print(iplot)
-        sourctitshort<-toupper(multisource[iplot])
-        if(sourctitshort == "NIR") sourctitshort <- "NGIs"
-        
-        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-        # LEGEND ###########################################################
-        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-        #print("Plot legend")
-        # Define plotting region for legend
-        #vomd<-c(omdx2,1-omdx1,omdy1,omdy2)  # horizontal min,max - vertical min,max
-        if(haslegend==1){
-            par(omd=c(xleg,1,ystt,yhea))
-            #par(mar=c(1.0,1.0,5.0,1.)) #bot,lef,top,rig
-            par(mar=c(0,marlef,0,marrig))
-            
-            par(fig=c(0,1,0,1),new=T)
-            par(lty=1,col="black")
-            plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
-            
-            #if(rundata=="ief" & runfocus!="countries"){recdist=0.9}else{recdist=1.2}
-            
-            # Font size and digits
-            legcex<-1.1*pconv
-            maxfins<-max(abs(finshares),na.rm=TRUE)
-            minfins<-min(abs(finshares),na.rm=TRUE)
-            if(maxfins>1000) legcex<-1.0*pconv
-            if(rundata=="ief") legcex<-0.9*pconv
-            nzeros<-max(0,3-ceiling(log10(maxfins)))
-            if(is.infinite(nzeros))nzeros<-1
-            addzeros<-paste(rep("0",nzeros),collapse="")
-            if(rundata=="ief" & runfocus!="countries"){iefconv<-0.9/1.1}else{iefconv<-1}
-            
-            # recside defines the space for columns in the legend (box, country-name, numbers)
-            # recdist defines the space between columns in the legend
-            # xplace: values in adem-plots (right adjustment!)
-            # avshare: valuse in ief-plots (right adjustment!)
-            recside<-0.2*iefconv
-            recdist=0.05*iefconv
-            xplace<-(1+iplot)*(recside+recdist)+recside
-            avshare<-1.5*recside+recdist + (iplot*recside)
-            avshare<-xplace
-            
-            
-            # Vertical spacing
-            # - minlow: bottom of country list, defined by region of current element and bottom margin
-            # - maxhig: 
-            minlow<-marbot*par("cxy")[2]
-            maxhig<-0.9
-            eu28ispos<-0.87
-            eu28ispos<-0.92
-            nplotspos<-0.87
-            if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){eu28ispos<-0.91}
-            omitcountry<-0
-            
-            #Include all finshares (also those with zero)
-            nomit<-length(finshares[finshares==0])
-            nomit<-0
-            
-            if(ncountries>0){
-                for (i in c(1:ncountries)){
-                    
-                    # Conditions always true - change if finshares==0 should be omitted
-                    #if(!is.na(finshares[i])){
-                    #if(finshares[i]!=0 | finshares[i]==0){
-                    #print(paste(i,ncountries,finnames[i],finshares[i],sep="-"))
-                    mytextavc <- finnames[i]
-                    
-                    #We use already code3
-                    #if(finnames[i]!="Other")mytextavc <- country4sub[country4sub$code3==finnames[i],"code3"]
-                    mytexteu<-country4sub[code3==eusubm, name]
-                    cureuname <- mytexteu
-                    
-                    #??mytexteua<-paste0(eukp)
-                    mytexteua<-mytexteu
-                    if(is.nan(finshares[i])) finshares[i]<-NA
-                    if(!is.na(finshares[i])){
-                        checkdig<-round(finshares[i],nzeros)
-                        if(round(checkdig,0)==checkdig & addzeros!=""){checkdig<-paste0(checkdig,".",addzeros)}
-                        mytextavv <- paste0(checkdig,"%",sep="")
-                        if(runfocus=="range")mytextavv<-checkdig
-                        mytextran <-""
-                    }else{
-                        mytextavv<-finshares[i]
-                        #shareAD1<-""
-                        #shareAD2<-""
-                        mytextran <-""
-                    }      
-                    if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
-                        #Give average (min-max)
-                        
-                        myround<-max(1,-floor(log10(max(eu28fin,na.rm=TRUE)))+2)
-                        mytexteub<-paste0(round(mean(t(eu28),na.rm=T),myround))
-                        mytexteuc<-paste0("(",
-                                          round(min(eu28,na.rm=T),myround),"-",
-                                          round(max(eu28,na.rm=T),myround),")")
-                        mytextavc<-finnames[i]
-                        mytextavv<-mean(eu28fin[i,],na.rm=T)
-                        if(is.nan(mytextavv)){
-                            mytextavv<-" - "
-                        }else{
-                            mytextavv<-paste0(round(mean(eu28fin[i,],na.rm=T),myround))
-                        }
-                        if(sum(eu28fin[i,],na.rm=TRUE)>0) {
-                            mytextran<-paste0("(",round(min(eu28fin[i,],na.rm=T),myround),"-",
-                                              round(max(eu28fin[i,],na.rm=T),myround),")")
-                        }else{
-                            mytextran<=""
-                        }
-                        
-                    }
-                    if (sharesexist){
-                        #if(!is.na(act_pctcountry)) 
-                        shareAD1 <- paste0(round(act_pctcountry[i],0),"%")
-                        #if(!is.na(act_pcteu)) 
-                        shareAD2 <- paste0("(",round(act_pcteu[i],0),"%/",round(ief_pcteu[i],0),"%)")
-                        shareADeu <- paste0("(",round(act_pctcouneu,0),"%)")
-                    }
-                    
-                    # Define vertical spacing for countries between minlow and maxhig
-                    hig=minlow+(i+nomit-omitcountry+0)*(maxhig-minlow)/(ncountries+1)
-                    mid=minlow+(i+nomit-omitcountry-0.5)*(maxhig-minlow)/(ncountries+1)
-                    low=minlow+(i+nomit-omitcountry-1)*(maxhig-minlow)/(ncountries+1)
-                    
-                    if(rundata=="adem" | runfocus=="countries"){
-                        #print(paste(i,low,mid,hig))
-                        rect(0,low,recside,hig,col=mycols[i]) 
-                        if (schraffierung == 1){
-                            rect(0,low,recside,hig,col=mycoll[i],dens=mydens[i],angle=myang1[i]) 
-                            rect(0,low,recside,hig,col=mycoll[i],dens=mydens[i],angle=myang2[i]) 
-                            rect(0,low,recside,hig) 
-                        }
-                    }else{
-                        #print(paste(i,low,mid,hig,mytcol1[i],mytcol2[i],mytcol3[i]))
-                        #if(finshares[i]!=0){
-                        points(recside/2,low+(hig-low)/2,pch=myticks[i],bg=mytcol1[i],col="black",lwd=1*pconv,cex=1.5*pconv)
-                        points(recside/2,low+(hig-low)/2,pch=myticks[i],bg=mytcol2[i],col=mytcol3[i],lwd=1*pconv,cex=0.75*pconv)
-                        #}
-                    }
-                    #chartr substitutes dots with space
-                    if (sharesexist) {
-                        text(avshare+0.03,eu28ispos,shareADeu,cex=legcex-0.1*pconv,adj=0,font=2)
-                        if(iplot==1)text(recside+recdist,mid,mytextavc,cex=legcex-0.25*pconv,adj=0,family="Courier")
-                        text(2.2*recside*recdist,mid,mytextavv,cex=legcex-0.25*pconv,adj=1)
-                        text(avshare+0.11,mid+0.000,shareAD1,cex=legcex-0.25*pconv,adj=1)
-                        text(avshare+0.12,mid-0.000,shareAD2,cex=legcex-0.25*pconv,adj=0)
-                    }else{
-                        if(rundata=="ief"){
-                            if(iplot==1) text(recside*0.75+recdist,mid,mytextavc,cex=legcex,adj=0)
-                            text(avshare+0.00,mid,mytextavv,cex=legcex,adj=1)
-                            if(nplots==1)text(avshare+0.40,mid,mytextran,cex=legcex,adj=1)
-                        }else{
-                            # Right adjustment: 
-                            if(iplot==1) text(recside+recdist,mid,mytextavc,cex=legcex,adj=0)
-                            text(xplace,mid,mytextavv,cex=legcex,adj=1)
-                            text(xplace+recdist,mid,mytextran,cex=legcex,adj=1)
-                        }
-                    }
-                    #}
-                    #else{
-                    #    omitcountry<-omitcountry+1        
-                    #}
-                    #}
-                }
-            }
-            
-            #if (rundata!="ief" ) text(0,1.00,"Average share of country",cex=legcex,adj=0,font=2)
-            if (rundata!="ief" ) {
-                if(nplots==1) text(0,1.00,paste0("Share in year t-2 (",years[length(years)],")"),cex=legcex,adj=0,font=2)
-                if(nplots>1) {
-                    text(0,1.00,paste0("Share in year "),cex=legcex,adj=0,font=2)
-                    #lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)>0))
-                    lastyear<-yr2share[length(yr2share)]
-                    if(toupper(multisource[iplot]) == "NIR"){
-                      nir <- "NGIs"
-                    }else{
-                      nir <- toupper(multisource[iplot])
-                    }
-                    text(xplace,1.00,paste0(lastyear," (",nir ,") "),cex=legcex-0.25,adj=1,font=1)
-                }
-            }
-            if (rundata=="ief" && runfocus=="value") {
-                if(nchar(runmeastype) > 5){ av <- "Avg. " }else{ av <- "Avgerage " }
-                text(0,1.00,paste0(av, runmeastype," of country "),cex=legcex,adj=0,font=2)
-                if(nplots==1) text(avshare+0.40,1.00,paste0("(min-max)"),cex=legcex,adj=1,font=2)
-            }
-            if (rundata=="ief" && runfocus=="countries") text(0,1.00,"Range of values over the period",cex=legcex,adj=0,font=2)
-            
-            if (rundata=="ief" && runfocus=="trend") text(0,1.00,"Average trend of country",cex=legcex,adj=0,font=2)
-            if (runmeastype=="EM" && runfocus=="trend") text(0,0.96,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
-            if (runmeastype=="EM" && runfocus=="trend") text(0,0.93,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
-            
-            #if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+ISL average",cex=legcex,adj=0,font=3)
-            #if (rundata=="ief" && runfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
-            
-            mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)
-            #print(paste(i,low,mid,hig))
-            
-            distance<-par()$cin[1]/par()$fin[1]*0.8
-            
-            #text(recside*recdist,mid+distance,mytexteua,cex=legcex,adj=0,font=2)
-            if(iplot==1) {
-                points(x=recside/2,y=eu28ispos,pch=21,bg="black",col="red",cex=1.5*pconv,lwd=2)
-                text(recside+recdist,eu28ispos,mytexteua,cex=legcex,adj=0,font=2)
-            }
-            if(nplots>1) text(xplace,nplotspos,sourctitshort,cex=legcex*0.8,adj=1,font=2)
-            if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
-                #text(recside*recdist,mid,mytexteub,cex=legcex,adj=1,font=2)
-                #text(recside*recdist,mid,mytexteuc,cex=legcex,adj=1,font=2)
-                text(avshare+0.00,eu28ispos,mytexteub,cex=legcex,adj=1,font=2)
-                if(nplots==1)text(avshare+0.40,eu28ispos,mytexteuc,cex=legcex,adj=1,font=2)
-            }
-            
-            #text(avshare,mid,"100%",cex=legcex,adj=1)
-            
-        }
-    }
-    
+    #print("Plot legend")
+    # Define plotting region for legend
+    #vomd<-c(omdx2,1-omdx1,omdy1,omdy2)  # horizontal min,max - vertical min,max
     if(haslegend==1){
-        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-        # Box with explanation country-selection ####
-        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-        for(iplot in c(1:nplots)){
-            if(iplot==1) {
-                topntext<-topns[iplot]
-                topnotext<-topnos[iplot]
-            }
-            if(topns[iplot]!=topns[1]){
-                if(iplot==2) topntext<-paste(topntext," (",toupper(multisource[iplot-1]),")",sep="")
-                topntext<-paste(topntext,"/",topns[iplot]," (",toupper(multisource[iplot]),")",sep="")
-            }
-            if(topnos[iplot]!=topnos[1]){
-                if (multisource[iplot-1] == "nir"){
-                  nir <- "NGIs"
-                }else{
-                  nir <- multisource[iplot-1]
-                }
-                if(iplot==2) topnotext<-paste(topnotext," (",nir,")",sep="")
-                topnotext<-paste(topnotext,"/",topnos[iplot]," (",toupper(multisource[iplot]),")",sep="")
-            }
-        }
-        
-        if(rundata=="adem"){
-            if(toupper(multisource[1])=="NIR"){
-              ngi <- "NGIs"
-            } else {
-              ngi <- toupper(multisource[1])
-            }
-            textorderadem1<-paste0("Countries are sorted by their contribution to the ",
-                                   mytexteu<-country4sub[code3==country4sub[code3==eusubm, name], name],
-                                   " value for the last year in the ", ngi, ". ")
-            if(topno>0) {
-                textorderadem2<-paste0("The respective top ",topntext," countries are displayed. ")
-                if(length(multisource)>1){
-                  textorderadem2<-paste0("The respective top ",topntext," countries are displayed. ")
-                } 
-                textorderadem3<-paste0("The other ",topnotext," reporting countries with data are lumped to 'other'.")
+      par(omd=c(xleg,1,ystt,yhea))
+      #par(mar=c(1.0,1.0,5.0,1.)) #bot,lef,top,rig
+      par(mar=c(0,marlef,0,marrig))
+      
+      par(fig=c(0,1,0,1),new=T)
+      par(lty=1,col="black")
+      plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+      
+      #if(rundata=="ief" & runfocus!="countries"){recdist=0.9}else{recdist=1.2}
+      
+      # Font size and digits
+      legcex<-1.1*pconv
+      maxfins<-max(abs(finshares),na.rm=TRUE)
+      minfins<-min(abs(finshares),na.rm=TRUE)
+      if(maxfins>1000) legcex<-1.0*pconv
+      if(rundata=="ief") legcex<-0.9*pconv
+      nzeros<-max(0,3-ceiling(log10(maxfins)))
+      if(is.infinite(nzeros))nzeros<-1
+      addzeros<-paste(rep("0",nzeros),collapse="")
+      if(rundata=="ief" & runfocus!="countries"){iefconv<-0.9/1.1}else{iefconv<-1}
+      
+      # recside defines the space for columns in the legend (box, country-name, numbers)
+      # recdist defines the space between columns in the legend
+      # xplace: values in adem-plots (right adjustment!)
+      # avshare: valuse in ief-plots (right adjustment!)
+      recside<-0.2*iefconv
+      recdist=0.05*iefconv
+      xplace<-(1+iplot)*(recside+recdist)+recside
+      avshare<-1.5*recside+recdist + (iplot*recside)
+      avshare<-xplace
+      
+      
+      # Vertical spacing
+      # - minlow: bottom of country list, defined by region of current element and bottom margin
+      # - maxhig: 
+      minlow<-marbot*par("cxy")[2]
+      maxhig<-0.9
+      eu28ispos<-0.87
+      eu28ispos<-0.92
+      nplotspos<-0.87
+      if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){eu28ispos<-0.91}
+      omitcountry<-0
+      
+      #Include all finshares (also those with zero)
+      nomit<-length(finshares[finshares==0])
+      nomit<-0
+      
+      if(ncountries>0){
+        for (i in c(1:ncountries)){
+          
+          # Conditions always true - change if finshares==0 should be omitted
+          #if(!is.na(finshares[i])){
+          #if(finshares[i]!=0 | finshares[i]==0){
+          #print(paste(i,ncountries,finnames[i],finshares[i],sep="-"))
+          mytextavc <- finnames[i]
+          
+          #We use already code3
+          #if(finnames[i]!="Other")mytextavc <- country4sub[country4sub$code3==finnames[i],"code3"]
+          mytexteu<-country4sub[code3==eusubm, name]
+          cureuname <- mytexteu
+          
+          #??mytexteua<-paste0(eukp)
+          mytexteua<-mytexteu
+          if(is.nan(finshares[i])) finshares[i]<-NA
+          if(!is.na(finshares[i])){
+            checkdig<-round(finshares[i],nzeros)
+            if(round(checkdig,0)==checkdig & addzeros!=""){checkdig<-paste0(checkdig,".",addzeros)}
+            mytextavv <- paste0(checkdig,"%",sep="")
+            if(runfocus=="range")mytextavv<-checkdig
+            mytextran <-""
+          }else{
+            mytextavv<-finshares[i]
+            #shareAD1<-""
+            #shareAD2<-""
+            mytextran <-""
+          }      
+          if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
+            #Give average (min-max)
+            
+            myround<-max(1,-floor(log10(max(eu28fin,na.rm=TRUE)))+2)
+            mytexteub<-paste0(round(mean(t(eu28),na.rm=T),myround))
+            mytexteuc<-paste0("(",
+                              round(min(eu28,na.rm=T),myround),"-",
+                              round(max(eu28,na.rm=T),myround),")")
+            mytextavc<-finnames[i]
+            mytextavv<-mean(eu28fin[i,],na.rm=T)
+            if(is.nan(mytextavv)){
+              mytextavv<-" - "
             }else{
-                textorderadem2<-paste0("The ",topntext," reporting countries are displayed. ")
-                if(length(multisource)>1){
-                  textorderadem2<-paste0("The top ",topntext," countries are displayed. ")
-                }
-                textorderadem3<-paste0("")
+              mytextavv<-paste0(round(mean(eu28fin[i,],na.rm=T),myround))
             }
-            textorder<-paste0(textorderadem1,textorderadem2,textorderadem3)
-        }else if(grepl("ief",rundata)){
-            if(runfocus%in%c("value","range")){
-                textiefval1<-paste0("The ",country4sub[code3==eusubm, name]," value is obtained from a weighted average of country-values. ")
-                textiefval3<-"Countries are sorted by average absolute relative distance calculated over the whole time period. "
-            }
-            if(topno>0){
-                textiefval4<-paste0("The top ",topntext," countries are displayed. ")
-                textiefval5<-paste0("The other ",topnotext," countries with data are averaged to 'other'.")
+            if(sum(eu28fin[i,],na.rm=TRUE)>0) {
+              mytextran<-paste0("(",round(min(eu28fin[i,],na.rm=T),myround),"-",
+                                round(max(eu28fin[i,],na.rm=T),myround),")")
             }else{
-                textiefval4<-paste0("The ",topntext," reporting countries are displayed. ")
-                textiefval5<-paste0("")
+              mytextran<=""
             }
-          # unclear why textiefval2 was not set
-          textiefval2 <- ""
-          textorder<-paste0(textiefval1,textiefval2,textiefval3,textiefval4,textiefval5)
+            
+          }
+          if (sharesexist){
+            #if(!is.na(act_pctcountry)) 
+            shareAD1 <- paste0(round(act_pctcountry[i],0),"%")
+            #if(!is.na(act_pcteu)) 
+            shareAD2 <- paste0("(",round(act_pcteu[i],0),"%/",round(ief_pcteu[i],0),"%)")
+            shareADeu <- paste0("(",round(act_pctcouneu,0),"%)")
+          }
+          
+          # Define vertical spacing for countries between minlow and maxhig
+          hig=minlow+(i+nomit-omitcountry+0)*(maxhig-minlow)/(ncountries+1)
+          mid=minlow+(i+nomit-omitcountry-0.5)*(maxhig-minlow)/(ncountries+1)
+          low=minlow+(i+nomit-omitcountry-1)*(maxhig-minlow)/(ncountries+1)
+          
+          if(rundata=="adem" | runfocus=="countries"){
+            #print(paste(i,low,mid,hig))
+            rect(0,low,recside,hig,col=mycols[i]) 
+            if (schraffierung == 1){
+              rect(0,low,recside,hig,col=mycoll[i],dens=mydens[i],angle=myang1[i]) 
+              rect(0,low,recside,hig,col=mycoll[i],dens=mydens[i],angle=myang2[i]) 
+              rect(0,low,recside,hig) 
+            }
+          }else{
+            #print(paste(i,low,mid,hig,mytcol1[i],mytcol2[i],mytcol3[i]))
+            #if(finshares[i]!=0){
+            points(recside/2,low+(hig-low)/2,pch=myticks[i],bg=mytcol1[i],col="black",lwd=1*pconv,cex=1.5*pconv)
+            points(recside/2,low+(hig-low)/2,pch=myticks[i],bg=mytcol2[i],col=mytcol3[i],lwd=1*pconv,cex=0.75*pconv)
+            #}
+          }
+          #chartr substitutes dots with space
+          if (sharesexist) {
+            text(avshare+0.03,eu28ispos,shareADeu,cex=legcex-0.1*pconv,adj=0,font=2)
+            if(iplot==1)text(recside+recdist,mid,mytextavc,cex=legcex-0.25*pconv,adj=0,family="Courier")
+            text(2.2*recside*recdist,mid,mytextavv,cex=legcex-0.25*pconv,adj=1)
+            text(avshare+0.11,mid+0.000,shareAD1,cex=legcex-0.25*pconv,adj=1)
+            text(avshare+0.12,mid-0.000,shareAD2,cex=legcex-0.25*pconv,adj=0)
+          }else{
+            if(rundata=="ief"){
+              if(iplot==1) text(recside*0.75+recdist,mid,mytextavc,cex=legcex,adj=0)
+              text(avshare+0.00,mid,mytextavv,cex=legcex,adj=1)
+              if(nplots==1)text(avshare+0.40,mid,mytextran,cex=legcex,adj=1)
+            }else{
+              # Right adjustment: 
+              if(iplot==1) text(recside+recdist,mid,mytextavc,cex=legcex,adj=0)
+              text(xplace,mid,mytextavv,cex=legcex,adj=1)
+              text(xplace+recdist,mid,mytextran,cex=legcex,adj=1)
+            }
+          }
+          #}
+          #else{
+          #    omitcountry<-omitcountry+1        
+          #}
+          #}
         }
-        
-        if(length(textorder)>0){
-            curmax=46
-            curcex=0.65
-            text2write<-multilines(textorder,curmax)
-            if(length(text2write)>6){
-                curmax=58
-                curcex<-0.6
-                text2write<-multilines(textorder,curmax)
-            }
-            
-            par(omd=c(xleg,1,ystt/2,ystt+0.1))
-            #par(mar=c(1.0,1.0,5.0,1.)) #bot,lef,top,rig
-            par(mar=c(0,marlef,0,marrig))
-            par(fig=c(0,1,0,1),new=T)
-            par(lty=1,col="black")
-            
-            plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
-            rect(0.0,0.0,1,1)
-            
-            for(i in c(1:length(text2write))){
-                text(0.03,0.95-0.2*curcex*i,text2write[i],adj=0,cex=curcex*pconv)    
-                
-            }
+      }
+      
+      #if (rundata!="ief" ) text(0,1.00,"Average share of country",cex=legcex,adj=0,font=2)
+      if (rundata!="ief" ) {
+        if(nplots==1) text(0,1.00,paste0("Share in year t-2 (",years[length(years)],")"),cex=legcex,adj=0,font=2)
+        if(nplots>1) {
+          text(0,1.00,paste0("Share in year "),cex=legcex,adj=0,font=2)
+          #lastyear<-max(which(apply(eu28fin,2,sum,na.rm=TRUE)>0))
+          lastyear<-yr2share[length(yr2share)]
+          if(toupper(multisource[iplot]) == "NIR"){
+            nir <- "NGIs"
+          }else{
+            nir <- toupper(multisource[iplot])
+          }
+          text(xplace,1.00,paste0(lastyear," (",nir ,") "),cex=legcex-0.25,adj=1,font=1)
         }
+      }
+      if (rundata=="ief" && runfocus=="value") {
+        if(nchar(runmeastype) > 5){ av <- "Avg. " }else{ av <- "Avgerage " }
+        text(0,1.00,paste0(av, runmeastype," of country "),cex=legcex,adj=0,font=2)
+        if(nplots==1) text(avshare+0.40,1.00,paste0("(min-max)"),cex=legcex,adj=1,font=2)
+      }
+      if (rundata=="ief" && runfocus=="countries") text(0,1.00,"Range of values over the period",cex=legcex,adj=0,font=2)
+      
+      if (rundata=="ief" && runfocus=="trend") text(0,1.00,"Average trend of country",cex=legcex,adj=0,font=2)
+      if (runmeastype=="EM" && runfocus=="trend") text(0,0.96,"- Contribution AD to country trend",cex=legcex-0.3,adj=0,font=2)
+      if (runmeastype=="EM" && runfocus=="trend") text(0,0.93,"- Contribution AD/EF to EU trend",cex=legcex-0.3,adj=0,font=2)
+      
+      #if (rundata=="ief" && runfocus=="value") text(0,0.95,"% from EU28+ISL average",cex=legcex,adj=0,font=3)
+      #if (rundata=="ief" && runfocus=="trend") text(0,0.95,"interannual change > 3%",cex=legcex,adj=0,font=2)
+      
+      mid=minlow+(ncountries+1-0.5)*(maxhig-minlow)/(ncountries+1)
+      #print(paste(i,low,mid,hig))
+      
+      distance<-par()$cin[1]/par()$fin[1]*0.8
+      
+      #text(recside*recdist,mid+distance,mytexteua,cex=legcex,adj=0,font=2)
+      if(iplot==1) {
+        points(x=recside/2,y=eu28ispos,pch=21,bg="black",col="red",cex=1.5*pconv,lwd=2)
+        text(recside+recdist,eu28ispos,mytexteua,cex=legcex,adj=0,font=2)
+      }
+      if(nplots>1) text(xplace,nplotspos,sourctitshort,cex=legcex*0.8,adj=1,font=2)
+      if(rundata=="ief" & (runfocus=="value" | runfocus=="countries")){
+        #text(recside*recdist,mid,mytexteub,cex=legcex,adj=1,font=2)
+        #text(recside*recdist,mid,mytexteuc,cex=legcex,adj=1,font=2)
+        text(avshare+0.00,eu28ispos,mytexteub,cex=legcex,adj=1,font=2)
+        if(nplots==1)text(avshare+0.40,eu28ispos,mytexteuc,cex=legcex,adj=1,font=2)
+      }
+      
+      #text(avshare,mid,"100%",cex=legcex,adj=1)
+      
     }
-    #   box("figure",col="red",lwd=5)
-    #   box("plot",col="blue",lwd=4)
-    #   box("inner",col="green",lty="dotted",lwd=3)
-    #   box("outer",col="black",lwd=2)
-    
-    #myunit<-expression("Unit: Tg N " ~~ yr^{-1})
-    #mtext(myunit,1,line=0,outer=F,adj=1,cex=1.6)
-    #stop("Stop after legend")
-    
-    #stop("Stop after title")
-    # 
+  }
+  
+  if(haslegend==1){
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    # X-AXIS TITLE #####################################################
+    # Box with explanation country-selection ####
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    #print("Plot x-axis title")
+    for(iplot in c(1:nplots)){
+      if(iplot==1) {
+        topntext<-topns[iplot]
+        topnotext<-topnos[iplot]
+      }
+      if(topns[iplot]!=topns[1]){
+        if(iplot==2) topntext<-paste(topntext," (",toupper(multisource[iplot-1]),")",sep="")
+        topntext<-paste(topntext,"/",topns[iplot]," (",toupper(multisource[iplot]),")",sep="")
+      }
+      if(topnos[iplot]!=topnos[1]){
+        if (multisource[iplot-1] == "nir"){
+          nir <- "NGIs"
+        }else{
+          nir <- multisource[iplot-1]
+        }
+        if(iplot==2) topnotext<-paste(topnotext," (",nir,")",sep="")
+        topnotext<-paste(topnotext,"/",topnos[iplot]," (",toupper(multisource[iplot]),")",sep="")
+      }
+    }
     
-    mtextxaxis<-"Year"
+    if(rundata=="adem"){
+      if(toupper(multisource[1])=="NIR"){
+        ngi <- "NGIs"
+      } else {
+        ngi <- toupper(multisource[1])
+      }
+      textorderadem1<-paste0("Countries are sorted by their contribution to the ",
+                             mytexteu<-country4sub[code3==country4sub[code3==eusubm, name], name],
+                             " value for the last year in the ", ngi, ". ")
+      if(topno>0) {
+        textorderadem2<-paste0("The respective top ",topntext," countries are displayed. ")
+        if(length(multisource)>1){
+          textorderadem2<-paste0("The respective top ",topntext," countries are displayed. ")
+        } 
+        textorderadem3<-paste0("The other ",topnotext," reporting countries with data are lumped to 'other'.")
+      }else{
+        textorderadem2<-paste0("The ",topntext," reporting countries are displayed. ")
+        if(length(multisource)>1){
+          textorderadem2<-paste0("The top ",topntext," countries are displayed. ")
+        }
+        textorderadem3<-paste0("")
+      }
+      # added ES2021
+      if (bStar) {
+        textorderadem4 <- ' (*) Data for latest year not available; used last available year'
+      } else{
+        textorderadem4 <-''
+      }
+      
+      textorder<-paste0(textorderadem1,textorderadem2,textorderadem3,textorderadem4 )
+    }else if(grepl("ief",rundata)){
+      if(runfocus%in%c("value","range")){
+        textiefval1<-paste0("The ",country4sub[code3==eusubm, name]," value is obtained from a weighted average of country-values. ")
+        textiefval3<-"Countries are sorted by average absolute relative distance calculated over the whole time period. "
+      }
+      if(topno>0){
+        textiefval4<-paste0("The top ",topntext," countries are displayed. ")
+        textiefval5<-paste0("The other ",topnotext," countries with data are averaged to 'other'.")
+      }else{
+        textiefval4<-paste0("The ",topntext," reporting countries are displayed. ")
+        textiefval5<-paste0("")
+      }
+      # unclear why textiefval2 was not set
+      textiefval2 <- ""
+      # added ES2021
+      if (bStar) {
+        textiefval6 <- ' (*) Data for latest year not available; used last available year'
+      } else{
+        textiefval6 <-''
+      }
+      textorder<-paste0(textiefval1,textiefval2,textiefval3,textiefval4,textiefval5, textiefval6)
+    }
     
-    par(omd=c(xstt,xleg,0,ystt))
-    par(mar=c(0,0,0,0)) #bot,lef,top,rig
-    par(fig=c(0,1,0,1),new=T)
-    plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
-    
-    text(0.5,1-1.1*par("cin")[2],adj=0.5,mtextxaxis,cex=1.2*pconv,font=1)
-    
-    
-    par(omd=c(0,xleg,0,ystt))
-    par(mar=c(0,0,0,0)) #bot,lef,top,rig
-    par(fig=c(0,1,0,1),new=T)
-    plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
-    
-    #text(0,par("cin")[2],adj=0,mfooter1,cex=0.8)
-    #text(0,0,adj=0,mfooter2,cex=0.8)
-    #print(mtexttitle0)
-    if(grepl("Other Fossil Fuels", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("Other Fossil Fuels", "Other Fuels", mtexttitle0, ignore.case = TRUE)
-    if(grepl("Other Fossil Fuel Other Fuels", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("Other Fossil Fuel Other Fuels", "Other Fuels", mtexttitle0, ignore.case = TRUE)
-    if(grepl("no classification", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("no classification", "", mtexttitle0, ignore.case = TRUE)
-    plottitle(mtexttitle0,plotted,multisource)
-    
-    #stop("Stop after x-axis")
-    
-    #  box("figure",col="red",lwd=5)
-    #  box("plot",col="blue",lwd=4)
-    #  box("inner",col="green",lty="dotted",lwd=3)
-    #  box("outer",col="black",lwd=2)
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    #  FOOTNOTE #########################################################
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    #print("Plot footnote")
-    par(omd=c(0,1,0,ystt))
-    par(mar=c(0,0,0,0)) #bot,lef,top,rig
-    par(fig=c(0,1,0,1),new=T)
-    
-    foottextleft<-paste0("EU-GIRP.v",eugirp.version," (",eugirp.fullname,") (c) EC-JRC/AL ",eugirp.web)
-    foottextrigt<-paste0(figdate," - UID: ",curuid, ". Submission from ",cursubm)
-    if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") foottextleft_2 <- "NLD not included due to an error in the data"
+    if(length(textorder)>0){
+      curmax=46
+      curcex=0.65
+      text2write<-multilines(textorder,curmax)
+      if(length(text2write)>6){
+        curmax=58
+        curcex<-0.6
+        text2write<-multilines(textorder,curmax)
+      }
+      
+      par(omd=c(xleg,1,ystt/2,ystt+0.1))
+      #par(mar=c(1.0,1.0,5.0,1.)) #bot,lef,top,rig
+      par(mar=c(0,marlef,0,marrig))
+      par(fig=c(0,1,0,1),new=T)
+      par(lty=1,col="black")
+      
+      plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+      rect(0.0,0.0,1,1)
+      
+      for(i in c(1:length(text2write))){
+        text(0.03,0.95-0.2*curcex*i,text2write[i],adj=0,cex=curcex*pconv)    
+        
+      }
+    }
+  }
+  #   box("figure",col="red",lwd=5)
+  #   box("plot",col="blue",lwd=4)
+  #   box("inner",col="green",lty="dotted",lwd=3)
+  #   box("outer",col="black",lwd=2)
+  
+  #myunit<-expression("Unit: Tg N " ~~ yr^{-1})
+  #mtext(myunit,1,line=0,outer=F,adj=1,cex=1.6)
+  #stop("Stop after legend")
+  
+  #stop("Stop after title")
+  # 
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  # X-AXIS TITLE #####################################################
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  #print("Plot x-axis title")
+  
+  mtextxaxis<-"Year"
+  
+  par(omd=c(xstt,xleg,0,ystt))
+  par(mar=c(0,0,0,0)) #bot,lef,top,rig
+  par(fig=c(0,1,0,1),new=T)
+  plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+  
+  text(0.5,1-1.1*par("cin")[2],adj=0.5,mtextxaxis,cex=1.2*pconv,font=1)
+  
+  
+  par(omd=c(0,xleg,0,ystt))
+  par(mar=c(0,0,0,0)) #bot,lef,top,rig
+  par(fig=c(0,1,0,1),new=T)
+  plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+  
+  #text(0,par("cin")[2],adj=0,mfooter1,cex=0.8)
+  #text(0,0,adj=0,mfooter2,cex=0.8)
+  #print(mtexttitle0)
+  if(grepl("Other Fossil Fuels", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("Other Fossil Fuels", "Other Fuels", mtexttitle0, ignore.case = TRUE)
+  if(grepl("Other Fossil Fuel Other Fuels", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("Other Fossil Fuel Other Fuels", "Other Fuels", mtexttitle0, ignore.case = TRUE)
+  if(grepl("no classification", mtexttitle0, ignore.case = TRUE)) mtexttitle0<-gsub("no classification", "", mtexttitle0, ignore.case = TRUE)
+  plottitle(mtexttitle0,plotted,multisource)
+  
+  #stop("Stop after x-axis")
+  
+  #  box("figure",col="red",lwd=5)
+  #  box("plot",col="blue",lwd=4)
+  #  box("inner",col="green",lty="dotted",lwd=3)
+  #  box("outer",col="black",lwd=2)
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  #  FOOTNOTE #########################################################
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  #print("Plot footnote")
+  par(omd=c(0,1,0,ystt))
+  par(mar=c(0,0,0,0)) #bot,lef,top,rig
+  par(fig=c(0,1,0,1),new=T)
+  
+  foottextleft<-paste0("EU-GIRP.v",eugirp.version," (",eugirp.fullname,") (c) EC-JRC/AL ",eugirp.web)
+  foottextrigt<-paste0(figdate," - UID: ",curuid, ". Submission from ",cursubm)
+  if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") foottextleft_2 <- "NLD not included due to an error in the data"
+  
+  autocorrtext<-autocorr
+  if(length(serious)!=0){serioustext<-paste0("Data not plotted (serious outlier): ",paste(countriesnoeu[serious],collapse=", "))
+  }else{serioustext<-NULL}
+  if(length(autocorrtext)!=0) serioustext<-paste(autocorrtext,serioustext)
+  if(grepl("fao|capri",paste(multisource,collapse="")))serioustext<-NULL
+  if(runfocus%in%c("range"))serioustext<-NULL
+  plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+  
+  if(rundata!="adem")if(length(serioustext)!=0)text(0.005,0.4+0.2*(nchar(ipcctxt)>1),adj=0,serioustext,cex=0.5*pconv,font=1,col="red")
+  text(0.005,0.4,adj=0,ipcctxt,cex=0.5*pconv,font=1,col="blue")
+  if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") text(0.005,0.4,adj=0,foottextleft_2,cex=0.5*pconv,font=1,col="red")
+  text(0.005,0.1,adj=0,foottextleft,cex=0.5*pconv,font=1)
+  text(0.995,0.1,adj=1,foottextrigt,cex=0.5*pconv,font=1)
+  if(grepl("capri", paste(multisource,collapse="")) & (exists("write_note_CAPRI") | exists("write_note_NIR"))){
+    foottextleft1 <- "Note: "
+    if(exists("write_note_CAPRI")) foottextleft1 <- paste0(foottextleft1, write_note_CAPRI) 
+    if(exists("write_note_NIR")) foottextleft1 <- paste0(foottextleft1, "; ", write_note_NIR)
+    foottextleft1 <- paste0(foottextleft1, ". However, values are kept for the aggregations.")
+    text(0.005, 0.35, adj = 0, foottextleft1, cex = 0.65 * pconv, font = 1)
+  } 
+  
+  mtext(ipcctxt,side=1,at=c(0.012,2),cex=0.35,outer=TRUE,col="blue")
+  
+  #   graphics.off()
+  
+}
 
-    autocorrtext<-autocorr
-    if(length(serious)!=0){serioustext<-paste0("Data not plotted (serious outlier): ",paste(countriesnoeu[serious],collapse=", "))
-    }else{serioustext<-NULL}
-    if(length(autocorrtext)!=0) serioustext<-paste(autocorrtext,serioustext)
-    if(grepl("fao|capri",paste(multisource,collapse="")))serioustext<-NULL
-    if(runfocus%in%c("range"))serioustext<-NULL
-    plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
-    
-    if(rundata!="adem")if(length(serioustext)!=0)text(0.005,0.4+0.2*(nchar(ipcctxt)>1),adj=0,serioustext,cex=0.5*pconv,font=1,col="red")
-    text(0.005,0.4,adj=0,ipcctxt,cex=0.5*pconv,font=1,col="blue")
-    if(cursubm == "20180508" & curuid == "200C50F9-B172-40BC-A8EB-7110EBA69E10") text(0.005,0.4,adj=0,foottextleft_2,cex=0.5*pconv,font=1,col="red")
-    text(0.005,0.1,adj=0,foottextleft,cex=0.5*pconv,font=1)
-    text(0.995,0.1,adj=1,foottextrigt,cex=0.5*pconv,font=1)
-    if(grepl("capri", paste(multisource,collapse="")) & (exists("write_note_CAPRI") | exists("write_note_NIR"))){
-      foottextleft1 <- "Note: "
-      if(exists("write_note_CAPRI")) foottextleft1 <- paste0(foottextleft1, write_note_CAPRI) 
-      if(exists("write_note_NIR")) foottextleft1 <- paste0(foottextleft1, "; ", write_note_NIR)
-      foottextleft1 <- paste0(foottextleft1, ". However, values are kept for the aggregations.")
-      text(0.005, 0.35, adj = 0, foottextleft1, cex = 0.65 * pconv, font = 1)
-    } 
-    
-    mtext(ipcctxt,side=1,at=c(0.012,2),cex=0.35,outer=TRUE,col="blue")
-    
-    #   graphics.off()
-    
+plottitle<-function(mtexttitle0="x",plotted,multisource){
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  #  TITLE ############################################################
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  #print("Plot title")
+  if (rundata=="adem" && runfocus=="value") {mtexttitle<-paste0("Trend in the ",country4sub[code3==eusubm, name])}
+  if (rundata=="adem" && runfocus=="trend") {mtexttitle<-paste0("Annual changes in the ",country4sub[code3==eusubm, name])}
+  if (grepl("ief",rundata) && runfocus=="value") {mtexttitle<-paste0("Range of values in the ",country4sub[code3==eusubm, name])}
+  if (rundata=="ief" && runfocus=="trend") {mtexttitle<-paste0("Range in annual changes across the ",country4sub[code3==eusubm, name])}
+  if (rundata=="ief" && runfocus%in%c("countries","range")) {mtexttitle<-"Range values over time"}
+  if(length(multisource)>1 & multisource[1] == "nir"){
+    nirfao <- toupper(multisource)
+    nirfao <- sub("NIR", "NGIs", nirfao)
+    nirfao <- paste(nirfao,collapse=" vs. ")
+  }else{
+    nirfao <- paste(toupper(multisource),collapse=" vs. ")
+  }
+  
+  if(runfocus=="compare") {mtexttitle<-paste0("Comparison of estimates in the ",country4sub[code3==eusubm, name],": ",nirfao)}
+  
+  mtexttitle0<-gsub(" to cropland and grassland","",mtexttitle0)
+  mtexttitle0<-gsub("Managed Soils - Agricultural Soils","Agricultural Soils",mtexttitle0)
+  mtexttitle0<-gsub("Organic N Fertilizers - N input","N input",mtexttitle0)
+  mtexttitle0<-gsub("Inorganic N Fertilizers - N input","N input",mtexttitle0)
+  mtexttitle0<-gsub("Farming - ","",mtexttitle0)
+  maxnchar<-60
+  mvect<-strsplit(mtexttitle0," ")[[1]]
+  maxwords<-min(length(mvect),
+                match(TRUE,lapply(1:length(mvect),function(x) sum(nchar(mvect[1:x]))>maxnchar))-1,
+                na.rm=TRUE)
+  mtexttitle1<-gsub(",","",toString(mvect[1:maxwords]))
+  if(maxwords<length(mvect)){
+    #    mtexttitle2<-paste(gsub(",","",toString(mvect[(maxwords+1):length(mvect)])),mtexttitle)
+    mtexttitle2<-paste(gsub(",","",toString(mvect[(maxwords+1):length(mvect)])),"- ",mtexttitle)
+  }else{
+    mtexttitle2<-mtexttitle
+  }
+  #Larger for comparisonplots
+  if(runfocus=="compare"){addconv<-1.5}else{addconv<-1}
+  
+  # Return from iniplot stored in position [[3]] of plotted!
+  # pconv saved as fourth element
+  # par("omd") saved as fifth element
+  pconv<-as.vector(unlist(plotted[[3]][4]))
+  yhea<-as.vector(unlist(plotted[[3]][5]))[4]
+  par(omd=c(0,1,yhea,1))
+  par(mar=c(0,0,0,0)) #bot,lef,top,rig
+  par(fig=c(0,1,0,1),new=T)
+  plot(0, xlim=c(0, 1), ylim=c(0, 1), axes=F, xlab="", ylab="", type="n")
+  text(0.5,0.65,adj=0.5,mtexttitle1,cex=1.3*pconv*addconv)
+  text(0.5,0.15,adj=0.5,mtexttitle2,cex=1.25*pconv*addconv)
+  
+  
 }
 
 plottitle<-function(mtexttitle0="x",plotted,multisource){

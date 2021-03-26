@@ -950,7 +950,8 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
                 lines(c(1:length(years)),linemin,ylim=c(tmin,tmax),col="grey30",new=FALSE)
             }
             #points(matrix(eu28),pch=21,bg="black",col="red",cex=5.5,lwd=5)
-            ypos<- 0.1
+            #     ypos<- 0.1  # ES2021 original
+            ypos<- -0.15 # ES2021 to allow y-axis to overlap to bounding box of plot
             xpos<--0.5
             df.bar<-1+yearsnum-yearsnum[1]
         }
@@ -1020,6 +1021,9 @@ plotnow<-function(curuid,eu28fin,euquant,finnames,eu28,eu28pos,eu28neg,runfocus=
         #print(paste("tminetc",tmin,tmax,tdis))
         if(sum(tseq[2],-tseq[1],na.rm=TRUE)*tdis!=(tmax-tmin)) {
           tseq<-round(seq(tmin,tmax,tdis), 0)
+          if (sum(tseq) ==0) { #ES2021 avoid missing y labels for small numbers
+            tseq <- signif(seq(tmin,tmax,tdis))
+          }
         }
         axis(2,at=tseq,pos=c(ypos,0),lwd=largeticks,las=1,labels=FALSE)
         # Now add lables (separately, to position precisley)

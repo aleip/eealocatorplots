@@ -15,7 +15,7 @@ output:
   html_document: default
 
 foldertext:
-  cursubm: 20190315
+  cursubm: 20210315
   ecirfolder: '../ecir'
   
 
@@ -243,7 +243,7 @@ tabs("trendtable1","Contribution of the different emission categories to the tot
 tabs("trendtable2",paste0("Contribution to EU emission trends (", 
                           lastyear2, "-", lastyear, ") per country and emission (%)"))
 tabs("tabkeycatsshares","Key categories for the EU (Agriculture - sector excerpt). Emissions in kt CO2 eq.")
-trsh_EUC_tbl_sort <- trsh_EUC_tbl[order(trsh_EUC_tbl[, trsh_EUC_tbl_n3], decreasing = TRUE), ]
+trsh_EUC_tbl_sort <- trsh_EUC_tbl[order(trsh_EUC_tbl[, trsh_EUC_tbl_n3], decreasing = TRUE), ] # table 5.1
 totEM <- as.vector(apply(trsh_EUC[, c(firstyear, lastyear)], 2, sum))
 trnd_neg <- trsh_EUC_tbl[which(trsh_EUC_tbl[, trsh_EUC_tbl_n3] < 0), 1]
 trnd_neg_val <- (trsh_EUC_tbl[which(trsh_EUC_tbl[, trsh_EUC_tbl_n3] < 0), trsh_EUC_tbl_n3] * 100)
@@ -255,7 +255,15 @@ if (length(trnd_neg)>1) {
 
 table52 <- trendshares[trendshares$sharefrom == "trendmaincatsMS", c("party", "sector_number", "share02"), with=FALSE]
 table52 <- table52[!is.na(table52$share02), ]
-table52 <- table52[!table52$sector_number %in% c("3.C", "3.F", "3.I"), ]
+# ES2021
+# tmp_table52 <- table52
+# idx <- which(duplicated(table52))
+# table52 <- table52[-idx,]
+# table52  %>% pivot_wider(names_from = 'sector_number', values_from='share02')
+# problem with 3F: duplicated rows with different values!
+
+table52 <- table52[!table52$sector_number %in% c("3.C", "3.F", "3.I"), ] # 3C, and 3I with many missing; 3F gives error
+
 table52 <- dcast.data.table(table52, party ~ sector_number, value.var = "share02")
 table52 <- table52[, (names(table52)[-1]) := 100 * .SD, .SDcols=names(table52)[-1]]
 
@@ -295,7 +303,7 @@ Total emissions from agriculture have decreased by `r round((1 - (totEM[2] / tot
 `r pander(trsh_EUC_tbl)`&nbsp;
 
 
-Looking at the data by country in `r tabs("trendtable2",display="cite")`, we can see that the shares of the trend `r paste0(firstyear, "-",lastyear)` are close to the shares in emissions. Different figures are observed for the short-term trends, where the contribution of the emission categories is not linked to their weight in total emissions, and half of them have different sign from changes in the overall emissions of the sector. For the whole sector, there was a very slight increase of emissions between `r paste0(lastyear2, " and ",lastyear)` (1% of total emissions), with key categories increasing emissions (3.A, 3.B.1, 3.D.1, 3.D.2, 3.I) and some less relevant categories decreasing (3.B.2, 3.C, 3.F, 3.G, 3.H), resulting in an increase of emissions for the whole sector. The greatest relative changes took place in category 3.F, with a 17% decrease of emissions, being the total impact in the general trend, however, only of 2.5% given the low share of these emissions in the total emissions of the sector. The main contributor to the total increase in agricultural emissions from last year is category 3.D.1 (81% of the total trend), followed by 3.D.2 and 3.A (15% and 10%, respectively). The contribution of the other categories is less than 10% of total change.
+ **please make the following part update dynamically !!!** Looking at the data by country in `r tabs("trendtable2",display="cite")`, we can see that the shares of the trend `r paste0(firstyear, "-",lastyear)` are close to the shares in emissions. Different figures are observed for the short-term trends, where the contribution of the emission categories is not linked to their weight in total emissions, and half of them have different sign from changes in the overall emissions of the sector. For the whole sector, there was a very slight increase of emissions between `r paste0(lastyear2, " and ",lastyear)` (1% of total emissions), with key categories increasing emissions (3.A, 3.B.1, 3.D.1, 3.D.2, 3.I) and some less relevant categories decreasing (3.B.2, 3.C, 3.F, 3.G, 3.H), resulting in an increase of emissions for the whole sector. The greatest relative changes took place in category 3.F, with a 17% decrease of emissions, being the total impact in the general trend, however, only of 2.5% given the low share of these emissions in the total emissions of the sector. The main contributor to the total increase in agricultural emissions from last year is category 3.D.1 (81% of the total trend), followed by 3.D.2 and 3.A (15% and 10%, respectively). The contribution of the other categories is less than 10% of total change.
 
 
 `r tabs("trendtable2",display="full")`
